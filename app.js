@@ -129,8 +129,8 @@ async function convert(interaction) {
 	const from = interaction.options.getString('from').toUpperCase();
 	const to = interaction.options.getString('to').toUpperCase();
 
-	const r = https.get(`https://prime.exchangerate-api.com/v5/${exchangeApiKey}/latest/${from}`, (res) => {
-		r.on('error', (e) => {
+	https.get(`https://prime.exchangerate-api.com/v5/${exchangeApiKey}/latest/${from}`, (res) => {
+		res.on('error', (e) => {
 			console.log('error:', e);
 			interaction.reply("An unknown error has occurred!")
 		})
