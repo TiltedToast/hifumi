@@ -1,6 +1,7 @@
 const tools = require('./tools.js');
 const { imgurClientId, imgurClientSecret } = require('./config.json');
 const https = require('https');
+const embedColour = '0xce3a9b';
 
 async function beautiful(interaction) {
 
@@ -27,27 +28,31 @@ async function imgur(interaction, url=null) {
     if (!url.includes('http')) {
         interaction.reply('Invalid url!');
         return;
-    } else {
-        const options = {
-            hostname: 'api.imgur.com',
-            path: '/3/image',
-            method: 'POST',
-            headers: `${imgurClientId} ${imgurClientSecret}`
+    }
+
+    if (url.includes('webp')) {
+        url = url.replace('webp', 'png');
+    }
+    const options = {
+        hostname: 'api.imgur.com',
+        port: 443,
+        path: '/3/upload',
+        method: 'POST',
+        headers: {'Authorization': `Client-ID ${imgurClientId}`},
+        body: {'image': url, 'type': 'URL'}
         };
 
-        const r = https.request(options, (res) => {
-            res.on('data', (d) => {
-                const json = JSON.parse(d);
-                interaction.reply(`https://imgur.com/${json.data.id}`);
-            });
-
-        })
-        console.log(r);
-        r.on('error', (e) => {
-            console.error(e);
-            interaction.reply('An unknown error has occurred!');
-        }
-    )}
+    https.request(options, (res) => {
+        console.log(`statusCode: ${res.statusCode}`);
+        res.on('data', (d) => {
+            console.log(d);
+        });
+            
+        res.on('error', (e) => {
+            console.log(e);
+        });
+        
+    })
 }
 
 

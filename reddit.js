@@ -1,9 +1,10 @@
 const tools = require('./tools.js');
-const snoowrap = require('snoowrap');
 const { redditClientId, redditClientSecret, redditRefreshToken } = require('./config.json');
+const snoowrap = require('snoowrap');
+const embedColour = '0xce3a9b';
 
 const RedditClient = new snoowrap({
-    userAgent: 'Mozilla/5.0',
+    userAgent: 'windows:hifumi:v1.0.0 (by /u/tilted_toast)',
     clientId: redditClientId,
     clientSecret: redditClientSecret,
     refreshToken: redditRefreshToken
@@ -11,10 +12,24 @@ const RedditClient = new snoowrap({
 
 async function profile(interaction) {
     userName = interaction.options.getString('username');
-    user = RedditClient.getUser(userName);
+    
+    RedditClient.getUser(userName).fetch().then(async (user) => {
+        userCreatedDate = tools.strftime("%d/%m/%Y %H:%M:%S", new Date(user.created_utc * 1000));
+    })
 
-    console.log(user);
-    userURL = `https://reddit.com/user/${userName}`;
+
+    const description = `[Link to profile](https://www.reddit.com/user/${user.name})\n
+                        Post Karma: ${user.link_karma.toLocaleString()}\n
+                        Comment Karma: ${user.comment_karma.toLocaleString()}\n
+                        Created on: ${userCreatedDate}\n`;
+
+    const profileEmbed = new MessageEmbed() 
+        .setColor(embedColour)
+        .setTitle(`${user.name}'s profile`)
+        .setDescription(description)
+        .setThumbnail(user.icon_img)
+    
+    await interaction.reply({embeds: [profileEmbed]});
 
 }
 
