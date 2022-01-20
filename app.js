@@ -5,7 +5,7 @@ const tools = require('./tools.js');
 const emoji = require('./emoji.js');
 const reddit = require('./reddit.js');
 const imgProcess = require('./imgProcess.js')
-const request = require('request');
+const https = require('https');
 const embedColour = '0xce3a9b';
 
 const startTime = Date.now();
@@ -129,18 +129,18 @@ async function convert(interaction) {
 	const from = interaction.options.getString('from').toUpperCase();
 	const to = interaction.options.getString('to').toUpperCase();
 
-	request.get(`https://prime.exchangerate-api.com/v5/${exchangeApiKey}/latest/${from}`, function (error, response, body) {
-		if (error) {
-			console.log('error:', error);
+	const r = https.get(`https://prime.exchangerate-api.com/v5/${exchangeApiKey}/latest/${from}`, (res) => {
+		r.on('error', (e) => {
+			console.log('error:', e);
 			interaction.reply("An unknown error has occurred!")
-
-		} else if (response.statusCode !== 200) {
-			console.log('statusCode:', response.statusCode);
-			interaction.reply("An unknown error has occurred!")
-
-		} else {
-			const result = JSON.parse(body);
-			
+		})
+		let data = '';
+		res.on('data', (chunk) => {
+			data+=chunk;
+		});
+		res.on('end', () => {
+			const result = JSON.parse(data);
+		
 			// Checks for invalid inputs
 			if (result['conversion_rates'] === undefined) {
 				interaction.reply("At least one of your currencies is not supported!");
@@ -174,9 +174,10 @@ async function convert(interaction) {
 				.setFooter({text: `${tools.strftime("%d/%m/%Y %H:%M:%S")}`})
 			
 			interaction.reply({embeds: [convertEmbed]});
-
 		}
-	});				
+
+		)}
+	);				
 }
 
 client.login(token);
