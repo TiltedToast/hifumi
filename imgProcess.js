@@ -33,46 +33,19 @@ async function imgur(interaction, url=null) {
         return;
     }
 
+    interaction.reply('Uploading...');
+
     if (url.includes('webp')) {
         url = url.replace('webp', 'png');
     }
+
     const formData = new FormData();
     formData.append('image', url);
     formData.append('type', 'url');
     
-    // const options = {
-    //     hostname: 'api.imgur.com',
-    //     path: '/3/upload',
-    //     method: 'POST',
-    //     headers: {'Authorization': `Client-ID ${imgurClientId}`},
-    //     body: formData
-    // };
-
-    // https.request(options, (res) => {
-    //     console.log(`statusCode: ${res.statusCode}`);
-    //     let data = '';
-    //     res.on('data', (d) => {
-    //         console.log(d);
-    //         data += d;
-    //     });
-
-    //     res.on('end', () => {
-    //         const json = JSON.parse(data);
-    //         console.log(json);
-    //         interaction.reply('Image uploaded!');
-    //     });
-            
-    //     res.on('error', (e) => {
-    //         console.log(e);
-    //     });     
-    // })
     const myHeaders = new Headers();
     myHeaders.append("Authorization", `Client-ID ${imgurClientId}`);
 
-    if (url.includes('pximg')) {
-        interaction.reply("Pixiv Images are unfortunately not supported");
-        return;
-    }
 
     const  formdata = new FormData();
     formdata.append("image", url);
@@ -86,7 +59,7 @@ async function imgur(interaction, url=null) {
 
     fetch("https://api.imgur.com/3/image", requestOptions)
     .then(response => response.text())
-    .then(result => {const data = JSON.parse(result); interaction.reply(data['data']['link'])})
+    .then(result => {const data = JSON.parse(result); interaction.editReply(data['data']['link'])})
     .catch(error => console.log('error', error));
 }
 

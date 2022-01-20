@@ -55,6 +55,11 @@ const commands = [
     .setName('profile')
     .setDescription("Gets a reddit user's profile!")
     .addStringOption(option => option.setName('username').setDescription("The user you want to get the profile of").setRequired(true)),
+
+    new SlashCommandBuilder()
+    .setName('urban')
+    .setDescription("Gets the definition of a word!")
+    .addStringOption(option => option.setName('word').setDescription("The word you want to get the definition of").setRequired(true)),
     
 
     

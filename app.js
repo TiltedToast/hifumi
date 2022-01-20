@@ -58,6 +58,8 @@ client.on('interactionCreate', async interaction => {
 	} else if (commandName === 'profile') {
 		await reddit.profile(interaction);
 
+	} else if (commandName === 'urban') {
+		await urban(interaction);
 	}
 });
 
@@ -174,6 +176,53 @@ async function convert(interaction) {
 				.setFooter({text: `${tools.strftime("%d/%m/%Y %H:%M:%S")}`})
 			
 			interaction.reply({embeds: [convertEmbed]});
+		}
+
+		)}
+	);				
+}
+
+
+async function urban(interaction) {
+	const query = interaction.options.getString('word');
+	const url = `https://api.urbandictionary.com/v0/define?term=${query}`;
+
+	https.get(url, (res) => {
+		res.on('error', (e) => {
+			console.log('error:', e);
+			interaction.reply("An unknown error has occurred!")
+		})
+		let data = '';
+		res.on('data', (chunk) => {
+			data+=chunk;
+		});
+		res.on('end', () => {
+			const result = JSON.parse(data);
+			
+			if (result['list'] === undefined) {
+				interaction.reply("No results found!");
+				return;
+			}
+
+			const def = result['list'][0];
+			if (def === undefined) {
+				interaction.reply("No results found!");
+				return;
+			}
+			
+			const word = def['word'];
+			const definition = def['definition'];
+			const example = def['example'];
+			const author = def['author'];
+			const permalink = def['permalink'];
+
+			const urbanEmbed = new MessageEmbed()
+				.setColor(embedColour)
+				.setTitle(`*${word}*`)
+				.setDescription(`${definition}\n\nExample: ${example}\n\n**Author:** ${author}\n\n**Permalink:** [${permalink}](${permalink})`)
+				.setFooter({text: `${tools.strftime("%d/%m/%Y %H:%M:%S")}`})
+
+			interaction.reply({embeds: [urbanEmbed]});
 		}
 
 		)}
