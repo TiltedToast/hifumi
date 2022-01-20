@@ -14,7 +14,7 @@ async function profile(interaction) {
     userName = interaction.options.getString('username');
     
     RedditClient.getUser(userName).fetch().then(async (user) => {
-        userCreatedDate = tools.strftime("%d/%m/%Y %H:%M:%S", new Date(user.created_utc * 1000));
+        userCreatedDate = tools.strftime("%d/%m/%Y", new Date(user.created_utc * 1000));
     })
 
 
