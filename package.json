@@ -6,8 +6,11 @@
     "@discordjs/rest": "^0.2.0-canary.0",
     "discord-api-types": "^0.26.1",
     "discord.js": "^13.1.0",
+    "form-data": "^4.0.0",
     "fs": "^0.0.1-security",
-    "https": "^1.0.0"
+    "https": "^1.0.0",
+    "request": "^2.88.2",
+    "snoowrap": "^1.23.0"
   },
   "devDependencies": {
     "eslint": "^8.7.0"
