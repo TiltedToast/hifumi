@@ -203,24 +203,25 @@ async function urban(interaction) {
 				interaction.reply("No results found!");
 				return;
 			}
-
-			const def = result['list'][0];
-			if (def === undefined) {
-				interaction.reply("No results found!");
-				return;
-			}
 			
+			const def = result['list'][Math.floor(Math.random() * (Math.ceil(result['list'].length) - 0) + 0)];
+
+			if (def === undefined) {interaction.reply("No results found!"); return;}
+
 			const word = def['word'];
-			const definition = def['definition'];
+			const definition = def['definition']
 			const example = def['example'];
 			const author = def['author'];
 			const permalink = def['permalink'];
+			const upvotes = def['thumbs_up'];
+			const downvotes = def['thumbs_down'];
+			const description = `${definition}\n\n**Example:** ${example}\n\n**Author:** ${author}\n\n**Permalink:** [${permalink}](${permalink})`.replace('/[|]/g', '');
 
 			const urbanEmbed = new MessageEmbed()
 				.setColor(embedColour)
 				.setTitle(`*${word}*`)
-				.setDescription(`${definition}\n\nExample: ${example}\n\n**Author:** ${author}\n\n**Permalink:** [${permalink}](${permalink})`)
-				.setFooter({text: `${tools.strftime("%d/%m/%Y %H:%M:%S")}`})
+				.setDescription(description)
+				.setFooter({text: `Upvotes: ${upvotes} Downvotes: ${downvotes}`})
 
 			interaction.reply({embeds: [urbanEmbed]});
 		}
