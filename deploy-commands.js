@@ -49,7 +49,12 @@ const commands = [
     new SlashCommandBuilder()
     .setName('imgur')
     .setDescription('Uploads an image to imgur!')
-    .addStringOption(option => option.setName('url').setDescription("The url of the image you want to upload").setRequired(true))
+    .addStringOption(option => option.setName('url').setDescription("The url of the image you want to upload").setRequired(true)),
+
+    new SlashCommandBuilder()
+    .setName('profile')
+    .setDescription("Gets a reddit user's profile!")
+    .addStringOption(option => option.setName('username').setDescription("The user you want to get the profile of").setRequired(true)),
     
 
     

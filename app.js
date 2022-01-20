@@ -3,6 +3,7 @@ const { token, exchangeApiKey } = require('./config.json');
 const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
 const tools = require('./tools.js');
 const emoji = require('./emoji.js');
+const reddit = require('./reddit.js');
 const imgProcess = require('./imgProcess.js')
 const request = require('request');
 const embedColour = '0xce3a9b';
@@ -53,6 +54,10 @@ client.on('interactionCreate', async interaction => {
 	
 	} else if (commandName === 'imgur') {
 		await imgProcess.imgur(interaction);
+
+	} else if (commandName === 'profile') {
+		await reddit.profile(interaction);
+
 	}
 });
 
