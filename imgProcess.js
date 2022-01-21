@@ -24,12 +24,17 @@ async function resizeGif(fileLocation) {
 
 async function imgur(interaction, url=null) {
     if (url) {
-        url = url
+        source = url
     } else {
-        url = interaction.options.getString('url');
+        source = interaction.options.getString('url');
     }
-    if (!url.includes('http')) {
-        interaction.reply('Invalid url!');
+
+    const urlPattern = /https?:\/\/.*\.(?:png|jpg|webp|gif)/i;
+
+    if (source.match(urlPattern).length === 1) {
+        url = source.match(urlPattern)[0];
+    } else {
+        interaction.reply('Invalid source url!');
         return;
     }
 

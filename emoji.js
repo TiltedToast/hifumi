@@ -8,17 +8,17 @@ async function addEmoji(interaction) {
         interaction.reply('The name must be between 2 and 32 characters long.');
         return;
     }
-    
-    if (source.includes('http') && source.includes('<>')) {
-        url = source.splice(1, -1);
-    } else if (source.includes("http")) {
-        url = source;
+    const urlPattern = /https?:\/\/.*\.(?:png|jpg|webp|gif)/i;
+
+    if (source.match(urlPattern).length === 1) {
+        url = source.match(urlPattern)[0];
     } else if (source.startsWith('<')) {
         url = tools.extractEmoji(source);
     } else {
         interaction.reply('Invalid source url!');
         return;
     }
+    if (url.includes('pximg')) {interaction.reply('Pixiv urls don\'t work yet, try uploading it to imgur first!'); return;}
 
     const emoji = await interaction.guild.emojis.create(url, name);
 
