@@ -1,10 +1,8 @@
-import 'https';
 import * as tools from './tools.js';
 import * as emoji from './emoji.js';
 import * as imgProcess from './imgProcess.js';
 import * as reddit from './reddit.js';
 import { credentials } from './config.js';
-import { embedColour } from './tools.js';
 import { Client, Intents, MessageEmbed } from 'discord.js';
 
 const allIntents = new Intents(32767);
@@ -57,6 +55,7 @@ client.on('interactionCreate', async interaction => {
 
 	} else if (commandName === 'urban') {
 		await urban(interaction);
+		
 	} else if (commandName === 'resize') {
 		await imgProcess.resizeImg(interaction);
 	}
@@ -99,7 +98,7 @@ async function avatarURL(interaction) {
 	}
 
 	const avatarEmbed = new MessageEmbed()
-		.setColor(embedColour)
+		.setColor(credentials['embedColour'])
 		.setTitle(`*${userName}'s Avatar*`)
 		.setImage(url)
 
@@ -151,7 +150,7 @@ async function convert(interaction) {
 			description = `**${advRound(amount)} ${from} ≈ ${advRound(rslt)} ${to}**\n\nExchange Rate: 1 ${from} ≈ ${rate} ${to}`;
 
 			const convertEmbed = new MessageEmbed()
-				.setColor(embedColour)
+				.setColor(credentials['embedColour'])
 				.setTitle(`Converting ${from} to ${to}`)
 				.setDescription(description)
 				.setFooter({text: `${tools.strftime("%d/%m/%Y %H:%M:%S")}`})
@@ -199,7 +198,7 @@ async function urban(interaction) {
 			const description = `${definition}\n\n**Example:** ${example}\n\n**Author:** ${author}\n\n**Permalink:** [${permalink}](${permalink})`.replace('/[|]/g', '');
 
 			const urbanEmbed = new MessageEmbed()
-				.setColor(embedColour)
+				.setColor(credentials['embedColour'])
 				.setTitle(`*${word}*`)
 				.setDescription(description)
 				.setFooter({text: `Upvotes: ${upvotes} Downvotes: ${downvotes}`})

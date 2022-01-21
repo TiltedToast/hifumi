@@ -1,13 +1,11 @@
-import 'https';
-import 'sharp';
-import 'form-data';
-import 'node-fetch';
-import 'path';
+import sharp from 'sharp';
+import { FormData } from "formdata-node"
+import fetch from 'node-fetch';
 import * as tools from './tools.js';
-import { embedColour } from './tools.js';
 import { credentials } from './config.js';
 import { MessageAttachment, MessageEmbed } from 'discord.js';
-import { Headers  } from 'node-fetch';
+import { Headers } from 'node-fetch';
+
 
 export async function beautiful(interaction) {
 
@@ -20,8 +18,8 @@ export async function resize(fileLocation, width, saveLocation) {
 export async function resizeImg(interaction) {
     const source = interaction.options.getString('url');
     const width = interaction.options.getInteger('width');
-    interaction.deferReply()
-    const urlPattern = /https?:\/\/.*\.(?:jpeg|png|webp|avif|gif|svg|tiff)/i;
+    const urlPattern = /https?:\/\/.*\.(?:jpg|jpeg|png|webp|avif|gif|svg|tiff)/i;
+    interaction.deferReply();
 
     let url = '';
 
@@ -45,10 +43,11 @@ export async function resizeGif(fileLocation) {
 }
 
 export async function imgur(interaction, url=null) {
+    let source = '';
     if (url) {
-        source = url
+        source += url
     } else {
-        source = interaction.options.getString('url');
+        source += interaction.options.getString('url');
     }
     interaction.deferReply();
     const urlPattern = /https?:\/\/.*\.(?:png|jpg|jpeg|webp|gif)/i;

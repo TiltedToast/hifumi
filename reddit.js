@@ -1,5 +1,4 @@
 import * as tools from './tools.js';
-import { embedColour } from './tools.js';
 import { credentials } from './config.js'
 import Snoowrap from 'snoowrap';
 
@@ -21,7 +20,7 @@ export async function profile(interaction) {
                         Created on: ${userCreatedDate}\n`;
 
         const profileEmbed = new MessageEmbed() 
-            .setColor(embedColour)
+            .setColor(credentials['embedColour'])
             .setTitle(`${user.name}'s profile`)
             .setDescription(description)
             .setThumbnail(user.icon_img)
