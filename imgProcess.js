@@ -1,34 +1,56 @@
-const tools = require('./tools.js');
-const { imgurClientId, imgurClientSecret } = require('./config.json');
-const https = require('https');
-const embedColour = '0xce3a9b';
-const FormData = require('form-data');
-const Headers = require('node-fetch').Headers;
-const fetch = require('node-fetch');
+import 'https';
+import 'sharp';
+import 'form-data';
+import 'node-fetch';
+import 'path';
+import * as tools from './tools.js';
+import { embedColour } from './tools.js';
+import { credentials } from './config.js';
+import { MessageAttachment, MessageEmbed } from 'discord.js';
+import { Headers  } from 'node-fetch';
 
-async function beautiful(interaction) {
-
-}
-
-async function resize(fileLocation, width, saveLocation) {
-
-}
-
-async function resizeImg(interaction, url=null, imgWidth=null) {
+export async function beautiful(interaction) {
 
 }
 
-async function resizeGif(fileLocation) {
+export async function resize(fileLocation, width, saveLocation) {
+    sharp(fileLocation).resize(width).toFile(saveLocation);
+}
+
+export async function resizeImg(interaction) {
+    const source = interaction.options.getString('url');
+    const width = interaction.options.getInteger('width');
+    interaction.deferReply()
+    const urlPattern = /https?:\/\/.*\.(?:jpeg|png|webp|avif|gif|svg|tiff)/i;
+
+    let url = '';
+
+    if (source.match(urlPattern) === null) {
+        interaction.editReply('Invalid source url!');
+        return;
+    } else if (source.match(urlPattern).length === 1) {
+        url += source.match(urlPattern)[0];
+    }
+
+    const imgType = tools.getImgType(url);
+    tools.downloadURL(url, `files/unknown.${imgType}`);
+    resize(`files/unknown.${imgType}`, width, `files/unknown_resized.${imgType}`);
+
+    const resizeAttachment = new MessageAttachment(`unknown_resized.${imgType}`).setFile(`unknown_resized.${imgType}`);
+    interaction.editReply({attachments: [resizeAttachment]});
+}
+
+export async function resizeGif(fileLocation) {
 
 }
 
-async function imgur(interaction, url=null) {
+export async function imgur(interaction, url=null) {
     if (url) {
         source = url
     } else {
         source = interaction.options.getString('url');
     }
-
+    interaction.deferReply();
     const urlPattern = /https?:\/\/.*\.(?:png|jpg|jpeg|webp|gif)/i;
 
     if (source.match(urlPattern) === null) {
@@ -38,21 +60,15 @@ async function imgur(interaction, url=null) {
         url = source.match(urlPattern)[0];
     }
 
-    interaction.reply('Uploading...');
 
     if (url.includes('webp')) {
         url = url.replace('webp', 'png');
     }
-
-    const formData = new FormData();
-    formData.append('image', url);
-    formData.append('type', 'url');
     
     const myHeaders = new Headers();
-    myHeaders.append("Authorization", `Client-ID ${imgurClientId}`);
+    myHeaders.append("Authorization", `Client-ID ${credentials['imgurClientId']}`);
 
-
-    const  formdata = new FormData();
+    const formdata = new FormData();
     formdata.append("image", url);
 
     const requestOptions = {
@@ -64,16 +80,7 @@ async function imgur(interaction, url=null) {
 
     fetch("https://api.imgur.com/3/image", requestOptions)
     .then(response => response.text())
-    .then(result => {const data = JSON.parse(result); interaction.editReply(data['data']['link'])})
+    .then(result => {const data = JSON.parse(result); interaction.editReply(data['data']['link']); return data['data']['link'];})
     .catch(error => console.log('error', error));
-}
-
-
-module.exports = {
-    beautiful,
-    resize,
-    resizeImg,
-    resizeGif,
-    imgur
-
+    
 }

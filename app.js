@@ -1,18 +1,21 @@
-const { Client, Intents, MessageEmbed } = require('discord.js');
-const { token, exchangeApiKey } = require('./config.json');
-const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
-const tools = require('./tools.js');
-const emoji = require('./emoji.js');
-const reddit = require('./reddit.js');
-const imgProcess = require('./imgProcess.js')
-const https = require('https');
-const embedColour = '0xce3a9b';
+import 'https';
+import * as tools from './tools.js';
+import * as emoji from './emoji.js';
+import * as imgProcess from './imgProcess.js';
+import * as reddit from './reddit.js';
+import { credentials } from './config.js';
+import { embedColour } from './tools.js';
+import { Client, Intents, MessageEmbed } from 'discord.js';
+
+const allIntents = new Intents(32767);
+const client = new Client({ intents: allIntents });
+
 
 const startTime = Date.now();
 
 client.once('ready', () => {
-	time = tools.strftime("%d/%m/%Y %H:%M:%S");
-	doneLoadingTime = Date.now();
+	const time = tools.strftime("%d/%m/%Y %H:%M:%S");
+	const doneLoadingTime = Date.now();
 
 	console.log(`Started up in ${(doneLoadingTime - startTime)/ 1000} seconds on ${time}`);
 	console.log("Logged in as:");
@@ -20,7 +23,7 @@ client.once('ready', () => {
 	console.log(client.user.id);
 	console.log('------');
 
-	// let channel = client.channels.cache.get('655484804405657642');
+	// const channel = client.channels.cache.get('655484804405657642');
 	// channel.send(`Logged in as:\n${client.user.username}\nTime: ${time}\n--------------------------`);
 	client.user.setActivity("with best girl Annie!", { type: "PLAYING" })
 });
@@ -31,13 +34,7 @@ client.on('interactionCreate', async interaction => {
 
 	const { commandName } = interaction;
 	
-	if (commandName === 'ping') {
-		await interaction.reply('Pong!');
-	
-	} else if (commandName === 'server') {
-		await server(interaction);
-
-	} else if (commandName === 'avatar') {
+	if (commandName === 'avatar') {
 		await avatarURL(interaction);
 
 	} else if (commandName === 'convert') {
@@ -60,31 +57,15 @@ client.on('interactionCreate', async interaction => {
 
 	} else if (commandName === 'urban') {
 		await urban(interaction);
+	} else if (commandName === 'resize') {
+		await imgProcess.resizeImg(interaction);
 	}
 });
 
 
-async function server(interaction) {
-	guildOwner = (await client.users.fetch(interaction.guild.ownerId)).username;
-	guildName = interaction.guild.name;
-	guildMembers = interaction.guild.memberCount;
-	guildIcon = interaction.guild.iconURL;
-
-	const serverEmbed = new MessageEmbed()
-		.setColor(embedColour)
-		.setTitle(`Server Info for ${guildName}`)
-		.setThumbnail(guildIcon)
-		.setDescription(`Server Owner: ${guildOwner}\nTotal Members: ${guildMembers}`)
-
-	interaction.reply({embeds: [serverEmbed]});
-	
-	
-}
-
-
 async function avatarURL(interaction) {
 
-	const optionsArray = tools.getOptionsArray(interaction.options.data);
+	const optionsArray = getOptionsArray(interaction.options.data);
 
 	try {
 		if (optionsArray.length === 0) {
@@ -131,7 +112,7 @@ async function convert(interaction) {
 	const from = interaction.options.getString('from').toUpperCase();
 	const to = interaction.options.getString('to').toUpperCase();
 
-	https.get(`https://prime.exchangerate-api.com/v5/${exchangeApiKey}/latest/${from}`, (res) => {
+	get(`https://prime.exchangerate-api.com/v5/${credentials['exchangeApiKey']}/latest/${from}`, (res) => {
 		res.on('error', (e) => {
 			console.log('error:', e);
 			interaction.reply("An unknown error has occurred!")
@@ -167,7 +148,7 @@ async function convert(interaction) {
 
 			const rate = result['conversion_rates'][to];
 			rslt = Math.round(amount * rate * 100) / 100;
-			description = `**${tools.advRound(amount)} ${from} ≈ ${tools.advRound(rslt)} ${to}**\n\nExchange Rate: 1 ${from} ≈ ${rate} ${to}`;
+			description = `**${advRound(amount)} ${from} ≈ ${advRound(rslt)} ${to}**\n\nExchange Rate: 1 ${from} ≈ ${rate} ${to}`;
 
 			const convertEmbed = new MessageEmbed()
 				.setColor(embedColour)
@@ -187,7 +168,7 @@ async function urban(interaction) {
 	const query = interaction.options.getString('word');
 	const url = `https://api.urbandictionary.com/v0/define?term=${query}`;
 
-	https.get(url, (res) => {
+	get(url, (res) => {
 		res.on('error', (e) => {
 			console.log('error:', e);
 			interaction.reply("An unknown error has occurred!")
@@ -230,4 +211,4 @@ async function urban(interaction) {
 	);				
 }
 
-client.login(token);
+client.login(credentials['token']);

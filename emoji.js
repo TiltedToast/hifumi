@@ -1,6 +1,6 @@
-const tools = require('./tools.js');
+import * as tools from './tools.js';
 
-async function addEmoji(interaction) {
+export async function addEmoji(interaction) {
     const name = interaction.options.getString('name');
     const source = interaction.options.getString('source');
     
@@ -9,6 +9,7 @@ async function addEmoji(interaction) {
         return;
     }
     const urlPattern = /https?:\/\/.*\.(?:png|jpg|jpeg|webp|gif)/i;
+
     if (source.match(urlPattern) === null && !source.startsWith('<')) {
         interaction.reply('Invalid source url!');
         return;
@@ -17,6 +18,7 @@ async function addEmoji(interaction) {
     } else if (source.match(urlPattern).length === 1) {
         url = source.match(urlPattern)[0];
     }  
+    
     if (url.includes('pximg')) {interaction.reply('Pixiv urls don\'t work yet, try uploading it to imgur first!'); return;}
 
     const emoji = await interaction.guild.emojis.create(url, name);
@@ -28,7 +30,7 @@ async function addEmoji(interaction) {
     }
 }
 
-async function removeEmoji(interaction) {
+export async function removeEmoji(interaction) {
     const emojiString = interaction.options.getString('emoji');
 
     try {
@@ -46,7 +48,7 @@ async function removeEmoji(interaction) {
 }
 
 
-async function renameEmoji(interaction) {
+export async function renameEmoji(interaction) {
     const emojiString = interaction.options.getString('emoji');
 
     try {
@@ -64,9 +66,4 @@ async function renameEmoji(interaction) {
             interaction.reply(`Emoji not found!`);
         }
     } catch (TypeError) {interaction.reply('Invalid emoji!'); return;}
-}
-
-
-module.exports = {
-    addEmoji, removeEmoji, renameEmoji
 }
