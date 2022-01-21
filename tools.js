@@ -1,8 +1,8 @@
-import 'fs';
-import 'https';
-import resolve from 'path';
-import 'node-fetch';
-export const embedColour = '#0xce3a9b';
+import { createWriteStream } from 'fs';
+import { resolve } from 'path';
+import fetch from 'node-fetch';
+import { Headers } from 'node-fetch';
+import { credentials } from './config.js';
 
 export function strftime(sFormat, date) {
     if (!(date instanceof Date)) date = new Date();
@@ -70,7 +70,7 @@ export function strftime(sFormat, date) {
     });
   }
 
-  export function getOptionsArray(array) {
+export function getOptionsArray(array) {
     let optionsArray = [];
     for (let i = 0; i < array.length; i++) {
 		optionsArray.push(array[i].name);
@@ -95,7 +95,7 @@ export function downloadURL(url, saveLocation) {
       redirect: 'follow'
     }
 
-    fileStream = fs.createWriteStream(absSaveLocation);
+    const fileStream = createWriteStream(absSaveLocation);
     fetch(url, requestOptions)
       .then(res => res.body.pipe(fileStream))
       .catch(error => console.log('error', error));
@@ -139,3 +139,4 @@ export function extractEmoji(emojiString, id=false) {
         return `https://cdn.discordapp.com/emojis/${emojiID}.png`;
     }
 }
+
