@@ -31,8 +31,9 @@ export async function resizeImg(interaction) {
         url += source.match(urlPattern)[0];
     }
 
+    console.log(url);
     const imgType = tools.getImgType(url);
-    tools.downloadURL(url, `files/unknown.${imgType}`);
+    tools.downloadURL(url, `./files/unknown.${imgType}`);
     await resize(`./files/unknown.${imgType}`, width, `./files/unknown_resized.${imgType}`);
 
     const resizeAttachment = new MessageAttachment(`./files/unknown_resized.${imgType}`);

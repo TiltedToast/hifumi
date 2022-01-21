@@ -92,7 +92,6 @@ export function downloadURL(url, saveLocation) {
     const requestOptions = {
       method: 'GET',
       headers: myHeaders,
-      redirect: 'follow'
     }
 
     const fileStream = fs.createWriteStream(absSaveLocation);
