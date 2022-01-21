@@ -29,13 +29,13 @@ async function imgur(interaction, url=null) {
         source = interaction.options.getString('url');
     }
 
-    const urlPattern = /https?:\/\/.*\.(?:png|jpg|webp|gif)/i;
+    const urlPattern = /https?:\/\/.*\.(?:png|jpg|jpeg|webp|gif)/i;
 
-    if (source.match(urlPattern).length === 1) {
-        url = source.match(urlPattern)[0];
-    } else {
+    if (source.match(urlPattern) === null) {
         interaction.reply('Invalid source url!');
         return;
+    } else if (source.match(urlPattern).length === 1) {
+        url = source.match(urlPattern)[0];
     }
 
     interaction.reply('Uploading...');
