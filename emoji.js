@@ -8,16 +8,15 @@ async function addEmoji(interaction) {
         interaction.reply('The name must be between 2 and 32 characters long.');
         return;
     }
-    const urlPattern = /https?:\/\/.*\.(?:png|jpg|webp|gif)/i;
-
-    if (source.match(urlPattern).length === 1) {
-        url = source.match(urlPattern)[0];
-    } else if (source.startsWith('<')) {
-        url = tools.extractEmoji(source);
-    } else {
+    const urlPattern = /https?:\/\/.*\.(?:png|jpg|jpeg|webp|gif)/i;
+    if (source.match(urlPattern) === null && !source.startsWith('<')) {
         interaction.reply('Invalid source url!');
         return;
-    }
+    } else if (source.startsWith('<')) {
+        url = tools.extractEmoji(source);
+    } else if (source.match(urlPattern).length === 1) {
+        url = source.match(urlPattern)[0];
+    }  
     if (url.includes('pximg')) {interaction.reply('Pixiv urls don\'t work yet, try uploading it to imgur first!'); return;}
 
     const emoji = await interaction.guild.emojis.create(url, name);
