@@ -1,5 +1,5 @@
-import { createWriteStream } from 'fs';
-import { resolve } from 'path';
+import * as fs from 'fs';
+import * as path from 'path';
 import fetch from 'node-fetch';
 import { Headers } from 'node-fetch';
 import { credentials } from './config.js';
@@ -80,7 +80,7 @@ export function getOptionsArray(array) {
 
 
 export function downloadURL(url, saveLocation) {
-    const absSaveLocation = resolve(saveLocation);
+    const absSaveLocation = path.resolve(saveLocation);
 
     const myHeaders = new Headers();
     myHeaders.append('User-Agent', 'Mozilla/5.0');
@@ -95,7 +95,7 @@ export function downloadURL(url, saveLocation) {
       redirect: 'follow'
     }
 
-    const fileStream = createWriteStream(absSaveLocation);
+    const fileStream = fs.createWriteStream(absSaveLocation);
     fetch(url, requestOptions)
       .then(res => res.body.pipe(fileStream))
       .catch(error => console.log('error', error));

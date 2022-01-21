@@ -1,4 +1,5 @@
 import sharp from 'sharp';
+import * as fs from 'fs';
 import { FormData } from "formdata-node"
 import fetch from 'node-fetch';
 import * as tools from './tools.js';
@@ -12,14 +13,14 @@ export async function beautiful(interaction) {
 }
 
 export async function resize(fileLocation, width, saveLocation) {
-    sharp(fileLocation).resize(width).toFile(saveLocation);
+    await sharp(fileLocation).resize({width: width}).toFile(saveLocation);
 }
 
 export async function resizeImg(interaction) {
     const source = interaction.options.getString('url');
     const width = interaction.options.getInteger('width');
     const urlPattern = /https?:\/\/.*\.(?:jpg|jpeg|png|webp|avif|gif|svg|tiff)/i;
-    interaction.deferReply();
+    // interaction.deferReply();
 
     let url = '';
 
@@ -32,10 +33,10 @@ export async function resizeImg(interaction) {
 
     const imgType = tools.getImgType(url);
     tools.downloadURL(url, `files/unknown.${imgType}`);
-    resize(`files/unknown.${imgType}`, width, `files/unknown_resized.${imgType}`);
+    await resize(`./files/unknown.${imgType}`, width, `./files/unknown_resized.${imgType}`);
 
-    const resizeAttachment = new MessageAttachment(`unknown_resized.${imgType}`).setFile(`unknown_resized.${imgType}`);
-    interaction.editReply({attachments: [resizeAttachment]});
+    const resizeAttachment = new MessageAttachment(`./files/unknown_resized.${imgType}`);
+    interaction.reply({attachments: [resizeAttachment]});
 }
 
 export async function resizeGif(fileLocation) {
