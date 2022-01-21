@@ -1,8 +1,10 @@
-const request = require('request');
-const fs = require('fs');
-const https = require('https');
+import 'fs';
+import 'https';
+import resolve from 'path';
+import 'node-fetch';
+export const embedColour = '#0xce3a9b';
 
-function strftime(sFormat, date) {
+export function strftime(sFormat, date) {
     if (!(date instanceof Date)) date = new Date();
     var nDay = date.getDay(),
       nDate = date.getDate(),
@@ -68,7 +70,7 @@ function strftime(sFormat, date) {
     });
   }
 
-function getOptionsArray(array) {
+  export function getOptionsArray(array) {
     let optionsArray = [];
     for (let i = 0; i < array.length; i++) {
 		optionsArray.push(array[i].name);
@@ -77,36 +79,45 @@ function getOptionsArray(array) {
 }
 
 
-function downloadURL(url, saveLocation,) {
-    if (url.includes("pximg")) {
-        const options = {url: url, headers: {'User-agent': 'Mozilla/5.0', 'Referer': 'https://www.pixiv.net/'}};
-        https.get({options: options}, (res) => {
-            res.pipe(fs.createWriteStream(saveLocation));
-        })
+export function downloadURL(url, saveLocation) {
+    const absSaveLocation = resolve(saveLocation);
 
-    } else {
-        file = fs.createWriteStream(saveLocation);
-        https.get(url, function(response) {
-            response.pipe(file);
-            file.on('finish', () => {file.close()});
-        }
-      )}
+    const myHeaders = new Headers();
+    myHeaders.append('User-Agent', 'Mozilla/5.0');
+
+    if (url.includes("pximg")) {
+      myHeaders.append('Referer', 'https://pximg.net/');
+    }
+
+    const requestOptions = {
+      method: 'GET',
+      headers: myHeaders,
+      redirect: 'follow'
+    }
+
+    fileStream = fs.createWriteStream(absSaveLocation);
+    fetch(url, requestOptions)
+      .then(res => res.body.pipe(fileStream))
+      .catch(error => console.log('error', error));
+    fileStream.on('finish', () => {fileStream.close();});
+    
 }
 
 
-
-function getImgType(url) {
+export function getImgType(url) {
     if (url.includes("png") || url.includes("webp")) {
         return "png";
     } else if (url.includes("jpg") || url.includes("jpeg")) {
         return "jpg";
     } else if (url.includes("gif")) {
         return "gif";
+    } else if (url.includes("svg")) {
+        return "svg";
     } 
 }
 
 
-function advRound(x) {
+export function advRound(x) {
     if (Math.floor(x, 1) + (x % 1) === parseInt(x)) {
         return parseInt(x);
     } else {
@@ -115,7 +126,7 @@ function advRound(x) {
 }
 
 
-function extractEmoji(emojiString, id=false) {
+export function extractEmoji(emojiString, id=false) {
     const emojiID = emojiString.split(":")[2].slice(0, -1)
 
     if (id) {
@@ -127,13 +138,4 @@ function extractEmoji(emojiString, id=false) {
     } else {
         return `https://cdn.discordapp.com/emojis/${emojiID}.png`;
     }
-}
-
-module.exports = {
-    strftime, 
-    getOptionsArray, 
-    downloadURL, 
-    getImgType, 
-    advRound, 
-    extractEmoji
 }

@@ -1,17 +1,9 @@
-const { SlashCommandBuilder, SlashCommandSubcommandBuilder } = require('@discordjs/builders');
-const { REST } = require('@discordjs/rest');
-const { Routes } = require('discord-api-types/v9');
-const { clientId, guildId, token } = require('./config.json');
+import { SlashCommandBuilder, SlashCommandSubcommandBuilder } from '@discordjs/builders';
+import { REST } from '@discordjs/rest';
+import { Routes } from 'discord-api-types/v9';
+import { credentials } from './config.js';
 
 const commands = [
-	new SlashCommandBuilder()
-    .setName('ping')
-    .setDescription('Replies with pong!'),
-
-	new SlashCommandBuilder()
-    .setName('server')
-    .setDescription('Replies with server info!'),
-
 	new SlashCommandBuilder()
     .setName('avatar')
     .setDescription('Replies with user avatar!')
@@ -60,14 +52,23 @@ const commands = [
     .setName('urban')
     .setDescription("Gets the definition of a word!")
     .addStringOption(option => option.setName('word').setDescription("The word you want to get the definition of").setRequired(true)),
+
+    new SlashCommandBuilder()
+    .setName('resize')
+    .setDescription("Resizes an image!")
+    .addStringOption(option => option.setName('url').setDescription("The url of the image you want to resize").setRequired(true))
+    .addIntegerOption(option => option.setName('width').setDescription("The width of the image you want to resize").setRequired(true))
     
 
     
 ]
 	.map(command => command.toJSON());
 
-const rest = new REST({ version: '9' }).setToken(token);
+const rest = new REST({ version: '9' }).setToken(credentials['token']);
 
-rest.put(Routes.applicationGuildCommands(clientId, guildId), { body: commands })
+rest.put(Routes.applicationGuildCommands(credentials['clientId'], credentials['guildId']), { body: commands })
 	.then(() => console.log('Successfully registered application commands.'))
 	.catch(console.error);
+
+
+export { commands, rest };
