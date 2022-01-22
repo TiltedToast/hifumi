@@ -1,4 +1,5 @@
-import * as fs from 'fs/promises';
+import * as fsPromise from 'fs/promises';
+import * as fs from 'fs';
 import * as path from 'path';
 import fetch from 'node-fetch';
 import { Headers } from 'node-fetch';
@@ -100,7 +101,7 @@ export async function downloadURL(url, saveLocation) {
 
     await fetch(url, requestOptions)
       .then(response => response.arrayBuffer())
-      .then(buffer => fs.writeFile(absSaveLocation, new Uint8Array(buffer)))
+      .then(buffer => fsPromise.writeFile(absSaveLocation, new Uint8Array(buffer)))
       .catch(error => console.log('error', error));
 }
 
@@ -108,9 +109,7 @@ export async function downloadURL(url, saveLocation) {
 export function getImgType(url) {
     if (url.includes(".png") || url.includes(".webp")) {
         return "png";
-    } else if (url.includes(".jpg")) {
-        return "jpg";
-    } else if (url.includes(".jpeg")) {
+    } else if (url.includes(".jpeg") || (url.includes(".jpg"))) {
         return "jpeg";
     } else if (url.includes(".gif")) {
         return "gif";
@@ -141,5 +140,17 @@ export function extractEmoji(emojiString, id=false) {
     } else {
         return `https://cdn.discordapp.com/emojis/${emojiID}.png`;
     }
+}
+
+
+export function createTemp(directory) {
+  const absPath = path.resolve(directory);
+  
+  if (fs.existsSync(absPath)) {
+    fs.rmSync(path.resolve(absPath), {recursive: true});
+    fs.mkdirSync(absPath);
+  } else {
+    fs.mkdirSync(absPath);
+  }
 }
 
