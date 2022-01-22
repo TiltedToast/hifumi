@@ -94,11 +94,6 @@ export async function downloadURL(url, saveLocation) {
       headers: myHeaders,
     }
 
-    // const fileStream = fs.createWriteStream(absSaveLocation);
-    // await fetch(url, requestOptions)
-    //   .then(response => response.body.pipe(fileStream))
-    //   .catch(error => console.log('error', error));
-
     await fetch(url, requestOptions)
       .then(response => response.arrayBuffer())
       .then(buffer => fsPromise.writeFile(absSaveLocation, new Uint8Array(buffer)))
@@ -147,7 +142,7 @@ export function createTemp(directory) {
   const absPath = path.resolve(directory);
   
   if (fs.existsSync(absPath)) {
-    fs.rmSync(path.resolve(absPath), {recursive: true});
+    fs.rmSync(absPath, {recursive: true});
     fs.mkdirSync(absPath);
   } else {
     fs.mkdirSync(absPath);
