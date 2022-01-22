@@ -7,14 +7,62 @@ import { credentials } from './config.js';
 import { MessageEmbed } from 'discord.js';
 import { Headers } from 'node-fetch';
 import sharp from 'sharp';
-import { exec } from 'child_process';
-import gifsicle from 'gifsicle';
+import canvas from 'canvas';
+import 'canvas';
+import { client } from './app.js';
+// import 'canvas-constructor/cairo';
 
 export async function beautiful(interaction) {
+    await interaction.deferReply()
+    const optionsArray = tools.getOptionsArray(interaction.options.data);
+    tools.createTemp('temp');
+    let user = undefined;
+    try {
+		if (optionsArray.length === 0) {
+			user = interaction.user;
+	
+		} else if (optionsArray.includes("user") && !optionsArray.includes("userid")) {
+			user = interaction.options.getUser('user');
+	
+		} else if (optionsArray.includes("userid") && !optionsArray.includes("user")) {
+			user = await client.users.fetch(interaction.options.getString('userid'));
+	
+		} else if (optionsArray.includes("user") && optionsArray.includes("userid")) {
+			user = interaction.options.getUser('user');
+		}
+	} catch (DiscordAPIError) {
+		return interaction.editReply('User not found!');
+	}
+
+
+    const avatarURL = `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=4096`
+    await tools.downloadURL(avatarURL, `./temp/avatar.png`);
+    await resize('./temp/avatar.png', 180, './temp/avatar_resized.png');
+
+    const beautifulCanvas = new canvas.Canvas(640, 674);
+    const ctx = beautifulCanvas.getContext('2d')
+
+    await canvas.loadImage('./temp/avatar_resized.png')
+    .then(img => {ctx.drawImage(img, 422, 35)});
+
+    await canvas.loadImage('./temp/avatar_resized.png')
+    .then(img => {ctx.drawImage(img, 430, 377)});
+    
+
+    await canvas.loadImage('./files/background.png')
+    .then(img => {ctx.drawImage(img, 0, 0)});
+
+
+    const buffer = beautifulCanvas.toBuffer('image/png');
+    fs.writeFileSync('./temp/beautiful.png', buffer);
+
+    interaction.editReply({files: ['./temp/beautiful.png']});
+
 }
 
 
-export async function resize(fileLocation, width, saveLocation) {
+export async function resize(fileLocation, width, saveLocation) {  
+    sharp.cache(false); 
     await sharp(fileLocation).resize(width).toFile(saveLocation);
 }
     
@@ -52,9 +100,6 @@ export async function resizeImg(interaction) {
     interaction.editReply({files: [`./temp/unknown_resized.${imgType}`]});
 }
 
-export async function resizeGif(fileLocation) {
-
-}
 
 export async function imgur(interaction, url=null) {
     let source = '';

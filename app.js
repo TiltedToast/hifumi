@@ -6,7 +6,7 @@ import { credentials } from './config.js';
 import { Client, Intents, MessageEmbed } from 'discord.js';
 
 const allIntents = new Intents(32767);
-const client = new Client({ intents: allIntents });
+export const client = new Client({ intents: allIntents });
 
 
 const startTime = Date.now();
@@ -59,6 +59,8 @@ client.on('interactionCreate', async interaction => {
 	} else if (commandName === 'resize') {
 		await imgProcess.resizeImg(interaction);
 		
+	} else if (commandName === 'beautiful') {
+		await imgProcess.beautiful(interaction);
 	}
 });
 

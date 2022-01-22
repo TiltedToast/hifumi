@@ -57,7 +57,13 @@ const commands = [
     .setName('resize')
     .setDescription("Resizes an image!")
     .addStringOption(option => option.setName('url').setDescription("The url of the image you want to resize").setRequired(true))
-    .addIntegerOption(option => option.setName('width').setDescription("The width of the image you want to resize").setRequired(true))
+    .addIntegerOption(option => option.setName('width').setDescription("The width of the image you want to resize").setRequired(true)),
+
+    new SlashCommandBuilder()
+    .setName('beautiful')
+    .setDescription("Show someone how beautiful they are!")
+    .addUserOption(option => option.setName('user').setDescription("The user you want to show").setRequired(false))
+    .addStringOption(option => option.setName('userid').setDescription("The ID of a user you want to show").setRequired(false)),
     
 
     
