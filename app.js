@@ -28,65 +28,61 @@ client.once('ready', () => {
 
 
 client.on('interactionCreate', async interaction => {
-	if (!interaction.isCommand()) return;
+	try {
+		if (!interaction.isCommand()) return;
 
-	const { commandName } = interaction;
-	
-	if (commandName === 'avatar') {
-		await avatarURL(interaction);
-
-	} else if (commandName === 'convert') {
-		await convert(interaction);
+		const { commandName } = interaction;
 		
-	} else if (commandName === 'emoji') {
-		if (interaction.options.getSubcommand() === 'add') {
-			await emoji.addEmoji(interaction);
-		} else if (interaction.options.getSubcommand() === 'remove') {
-			await emoji.removeEmoji(interaction);
-		} else if (interaction.options.getSubcommand() === 'rename') {
-			await emoji.renameEmoji(interaction);
+		if (commandName === 'avatar') {
+			await avatarURL(interaction);
+
+		} else if (commandName === 'convert') {
+			await convert(interaction);
+			
+		} else if (commandName === 'emoji') {
+			if (interaction.options.getSubcommand() === 'add') {
+				await emoji.addEmoji(interaction);
+			} else if (interaction.options.getSubcommand() === 'remove') {
+				await emoji.removeEmoji(interaction);
+			} else if (interaction.options.getSubcommand() === 'rename') {
+				await emoji.renameEmoji(interaction);
+			}
+		
+		} else if (commandName === 'imgur') {
+			await imgProcess.imgur(interaction);
+
+		} else if (commandName === 'profile') {
+			await reddit.profile(interaction);
+
+		} else if (commandName === 'urban') {
+			await urban(interaction);
+			
+		} else if (commandName === 'resize') {
+			await imgProcess.resizeImg(interaction);
+			
+		} else if (commandName === 'beautiful') {
+			await imgProcess.beautiful(interaction);
+
+		} else if (commandName === 'reddit') {
+			if (interaction.options.getSubcommand() === 'profile') {
+				await reddit.profile(interaction);
+			} else if (interaction.options.getSubcommand() === 'image') {
+				await reddit.subImg(interaction);
+			} else if (interaction.options.getSubcommand() === 'text') {
+				await reddit.subText(interaction);
+			}
 		}
-	
-	} else if (commandName === 'imgur') {
-		await imgProcess.imgur(interaction);
 
-	} else if (commandName === 'profile') {
-		await reddit.profile(interaction);
-
-	} else if (commandName === 'urban') {
-		await urban(interaction);
-		
-	} else if (commandName === 'resize') {
-		await imgProcess.resizeImg(interaction);
-		
-	} else if (commandName === 'beautiful') {
-		await imgProcess.beautiful(interaction);
+    } catch (error) {
+		tools.errorLog(interaction, error, );
 	}
 });
 
 
 async function avatarURL(interaction) {
-
-	const optionsArray = getOptionsArray(interaction.options.data);
-
-	try {
-		if (optionsArray.length === 0) {
-			user = interaction.user;
-	
-		} else if (optionsArray.includes("user") && !optionsArray.includes("userid")) {
-			user = interaction.options.getUser('user');
-	
-		} else if (optionsArray.includes("userid") && !optionsArray.includes("user")) {
-			user = await client.users.fetch(interaction.options.getString('userid'));
-	
-		} else if (optionsArray.includes("user") && optionsArray.includes("userid")) {
-			user = interaction.options.getUser('user');
-		}
-	}
-	catch (DiscordAPIError) {
-		return interaction.reply('User not found!');
-	}
-
+	await interaction.deferReply();
+	const optionsArray = tools.getOptionsArray(interaction.options.data);
+	const user = tools.getUserFromUserAndId(client, interaction, optionsArray, 'user', 'userid');
 
 	const userID = user.id;
 	const userName = user.username;
@@ -104,7 +100,7 @@ async function avatarURL(interaction) {
 		.setTitle(`*${userName}'s Avatar*`)
 		.setImage(url)
 
-	interaction.reply({embeds: [avatarEmbed]});
+	interaction.editReply({embeds: [avatarEmbed]});
 }
 
 

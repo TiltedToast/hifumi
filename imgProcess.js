@@ -10,30 +10,14 @@ import sharp from 'sharp';
 import canvas from 'canvas';
 import 'canvas';
 import { client } from './app.js';
-// import 'canvas-constructor/cairo';
+
 
 export async function beautiful(interaction) {
     await interaction.deferReply()
     const optionsArray = tools.getOptionsArray(interaction.options.data);
     tools.createTemp('temp');
-    let user = undefined;
-    try {
-		if (optionsArray.length === 0) {
-			user = interaction.user;
-	
-		} else if (optionsArray.includes("user") && !optionsArray.includes("userid")) {
-			user = interaction.options.getUser('user');
-	
-		} else if (optionsArray.includes("userid") && !optionsArray.includes("user")) {
-			user = await client.users.fetch(interaction.options.getString('userid'));
-	
-		} else if (optionsArray.includes("user") && optionsArray.includes("userid")) {
-			user = interaction.options.getUser('user');
-		}
-	} catch (DiscordAPIError) {
-		return interaction.editReply('User not found!');
-	}
-
+    
+    const user = await tools.getUserFromUserAndId(client, interaction, optionsArray, 'user', 'userid');
 
     const avatarURL = `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=4096`
     await tools.downloadURL(avatarURL, `./temp/avatar.png`);
@@ -56,7 +40,7 @@ export async function beautiful(interaction) {
     const buffer = beautifulCanvas.toBuffer('image/png');
     fs.writeFileSync('./temp/beautiful.png', buffer);
 
-    interaction.editReply({files: ['./temp/beautiful.png']});
+    await interaction.editReply({files: ['./temp/beautiful.png']});
 
 }
 
@@ -91,13 +75,12 @@ export async function resizeImg(interaction) {
     await tools.downloadURL(url, `./temp/unknown.${imgType}`);
     await resize(`./temp/unknown.${imgType}`, width, `./temp/unknown_resized.${imgType}`);
 
-    await fsPromise.stat(`./temp/unknown_resized.${imgType}`).then(stats => {
-        if (stats.size > 8000000) {
-            return interaction.editReply('File too large for Discord!');
-        }
-    });
+    if (!tools.isValidSize(`./temp/unknown_resized.${imgType}`, 8000000)) {
+        return interaction.editReply('File too large for Discord!');
+    }
 
-    interaction.editReply({files: [`./temp/unknown_resized.${imgType}`]});
+
+    await interaction.editReply({files: [`./temp/unknown_resized.${imgType}`]});
 }
 
 
@@ -124,12 +107,10 @@ export async function imgur(interaction, url=null) {
     tools.createTemp('temp');
     const imgType = tools.getImgType(url);
     await tools.downloadURL(url, `./temp/unknown.${imgType}`);
-
-    await fsPromise.stat(`./temp/unknown.${imgType}`).then(stats => {
-        if (stats.size > 10000000) {
-            return interaction.editReply('File too large for Imgur!');
-        }
-    });
+    
+    if (!tools.isValidSize(`./temp/unknown.${imgType}`, 10000000)) {
+        return interaction.editReply('File too large for Imgur!');
+    }
 
     const contents = await fsPromise.readFile(`./temp/unknown.${imgType}`, 'base64');
     const myHeaders = new Headers();
