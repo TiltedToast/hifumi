@@ -58,6 +58,7 @@ client.on('interactionCreate', async interaction => {
 		
 	} else if (commandName === 'resize') {
 		await imgProcess.resizeImg(interaction);
+		
 	}
 });
 
@@ -81,8 +82,7 @@ async function avatarURL(interaction) {
 		}
 	}
 	catch (DiscordAPIError) {
-		interaction.reply('User not found!');
-		return;
+		return interaction.reply('User not found!');
 	}
 
 
@@ -125,24 +125,20 @@ async function convert(interaction) {
 		
 			// Checks for invalid inputs
 			if (result['conversion_rates'] === undefined) {
-				interaction.reply("At least one of your currencies is not supported!");
-				return;
+				return interaction.reply("At least one of your currencies is not supported!");
 
 			} else if (!result['conversion_rates'].hasOwnProperty(to)) {
-				interaction.reply("Your second currency is not supported!");
-				return;
+				return interaction.reply("Your second currency is not supported!");
 
 			} else if (from === to) {
-				interaction.reply("Your first currency is the same as your second currency!");
-				return;
+				return interaction.reply("Your first currency is the same as your second currency!");
 
 			} else if (amount < 0) {
-				interaction.reply("You can't convert a negative amount!");
-				return;
+				return interaction.reply("You can't convert a negative amount!");
 
 			} else if (amount === 0) {
-				interaction.reply("Zero will obviously stay 0!");
-				return;
+				return interaction.reply("Zero will obviously stay 0!");
+				
 			}
 
 			const rate = result['conversion_rates'][to];
@@ -180,13 +176,14 @@ async function urban(interaction) {
 			const result = JSON.parse(data);
 			
 			if (result['list'] === undefined) {
-				interaction.reply("No results found!");
-				return;
+				return interaction.reply("No results found!");
 			}
 			
 			const def = result['list'][Math.floor(Math.random() * (Math.ceil(result['list'].length) - 0) + 0)];
 
-			if (def === undefined) {interaction.reply("No results found!"); return;}
+			if (def === undefined) {
+				return interaction.reply("No results found!");
+			}
 
 			const word = def['word'];
 			const definition = def['definition']
