@@ -1,6 +1,8 @@
 import * as tools from './tools.js';
 import { credentials } from './config.js'
 import Snoowrap from 'snoowrap';
+import { MessageEmbed } from "discord.js";
+import fetch from 'node-fetch';
 
 const RedditClient = new Snoowrap({
     userAgent: 'windows:hifumi:v1.0.0 (by /u/tilted_toast)',
@@ -10,14 +12,18 @@ const RedditClient = new Snoowrap({
 });
 
 export async function profile(interaction) {
-    userName = interaction.options.getString('username');
-    
+    const userName = interaction.options.getString('username');
+    await interaction.deferReply();
+
+    const response = await fetch(`https://www.reddit.com/user/${userName}/about.json`)
+    if (response.status !== 200) {return interaction.editReply(`User not found!`)}
+
     RedditClient.getUser(userName).fetch().then(async (user) => {
-        userCreatedDate = tools.strftime("%d/%m/%Y", new Date(user.created_utc * 1000));
-        const description = `[Link to profile](https://www.reddit.com/user/${user.name})\n
-                        Post Karma: ${user.link_karma.toLocaleString()}\n
-                        Comment Karma: ${user.comment_karma.toLocaleString()}\n
-                        Created on: ${userCreatedDate}\n`;
+        const userCreatedDate = tools.strftime("%d/%m/%Y", new Date(user.created_utc * 1000));
+        const description = `[Link to profile](https://www.reddit.com/user/${user.name})
+                        Post Karma: ${user.link_karma.toLocaleString()}
+                        Comment Karma: ${user.comment_karma.toLocaleString()}
+                        Created on: ${userCreatedDate}`;
 
         const profileEmbed = new MessageEmbed() 
             .setColor(credentials['embedColour'])
@@ -25,7 +31,19 @@ export async function profile(interaction) {
             .setDescription(description)
             .setThumbnail(user.icon_img)
         
-        await interaction.reply({embeds: [profileEmbed]});
-    })
+        await interaction.editReply({embeds: [profileEmbed]});
+    });
+}
+
+
+export async function subImg(interaction) {
+
+}
+
+export async function subText(interaction) {
+
+}
+
+export async function fetchSubmissions(subreddit, limit=100) {
 
 }

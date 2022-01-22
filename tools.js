@@ -79,6 +79,47 @@ export function getOptionsArray(array) {
     return optionsArray;
 }
 
+export function errorLog(interaction, errorObject) {
+  const currentTime = strftime("%d/%m/%Y %H:%M:%S");
+
+
+  let errorMessage = `An Error occurred on ${currentTime}
+  **Server:** ${interaction.guild.name} - ${interaction.guild.id}
+  **Room:** ${interaction.channel.name} - ${interaction.channel.id}
+  **User:** ${interaction.user.username} - ${interaction.user.id}
+  **Command used:** ${interaction.toString()}
+  **Error:** ${errorObject.message}\n
+  **${errorObject.stack}**\n
+  <@258993932262834188>`
+
+  if (errorMessage.length > 2000) {
+    errorMessage = `An Error occurred on ${currentTime}\nCheck console for full error (2000 character limit)\n<@258993932262834188>`
+  }
+
+  interaction.deleteReply();
+  interaction.channel.send(errorMessage);
+}
+
+export async function getUserFromUserAndId(client, interaction, optionsArray, option1, option2) {
+  let user = undefined;
+  try {
+		if (optionsArray.length === 0) {
+			user = interaction.user;
+	
+		} else if (optionsArray.includes(option1) && !optionsArray.includes(option2)) {
+			user = interaction.options.getUser(option1);
+	
+		} else if (optionsArray.includes(option2) && !optionsArray.includes(option1)) {
+			user = await client.users.fetch(interaction.options.getString(option2));
+	
+		} else if (optionsArray.includes(option1) && optionsArray.includes(option2)) {
+			user = interaction.options.getUser(option1);
+		}
+  return user;
+
+	} catch (DiscordAPIError) {return interaction.editReply('User not found!');}
+}
+
 export async function downloadURL(url, saveLocation) {
     const absSaveLocation = path.resolve(saveLocation);
 
@@ -115,7 +156,7 @@ export function getImgType(url) {
 
 
 export function advRound(x) {
-    if (Math.floor(x, 1) + (x % 1) === parseInt(x)) {
+    if (Math.floor(x / 1) + (x % 1) === parseInt(x)) {
         return parseInt(x);
     } else {
         return parseFloat(x);
@@ -149,3 +190,7 @@ export function createTemp(directory) {
   }
 }
 
+
+export function isValidSize(fileLocation, size) {
+  return fs.statSync(fileLocation).size <= size;
+}

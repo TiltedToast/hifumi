@@ -3,6 +3,7 @@ import * as tools from './tools.js';
 export async function addEmoji(interaction) {
     const name = interaction.options.getString('name');
     const source = interaction.options.getString('source');
+    let url = undefined;
     
     if (name.length < 2 || name.length > 32) {
         interaction.reply('The name must be between 2 and 32 characters long.');
@@ -65,5 +66,5 @@ export async function renameEmoji(interaction) {
         } else {
             interaction.reply(`Emoji not found!`);
         }
-    } catch (TypeError) {interaction.reply('Invalid emoji!'); return;}
+    } catch (TypeError) {interaction.reply('Invalid emoji!');}
 }

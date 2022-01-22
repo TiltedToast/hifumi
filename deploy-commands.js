@@ -44,11 +44,6 @@ const commands = [
     .addStringOption(option => option.setName('url').setDescription("The url of the image you want to upload").setRequired(true)),
 
     new SlashCommandBuilder()
-    .setName('profile')
-    .setDescription("Gets a reddit user's profile!")
-    .addStringOption(option => option.setName('username').setDescription("The user you want to get the profile of").setRequired(true)),
-
-    new SlashCommandBuilder()
     .setName('urban')
     .setDescription("Gets the definition of a word!")
     .addStringOption(option => option.setName('word').setDescription("The word you want to get the definition of").setRequired(true)),
@@ -64,6 +59,25 @@ const commands = [
     .setDescription("Show someone how beautiful they are!")
     .addUserOption(option => option.setName('user').setDescription("The user you want to show").setRequired(false))
     .addStringOption(option => option.setName('userid').setDescription("The ID of a user you want to show").setRequired(false)),
+
+    new SlashCommandBuilder()
+    .setName('reddit')
+    .setDescription("Get a random post from a subreddit!")
+
+        .addSubcommand(new SlashCommandSubcommandBuilder()
+            .setName('profile')
+            .setDescription('Gets a reddit user\'s profile!')
+            .addStringOption(option => option.setName('username').setDescription("The user you want to get the profile of").setRequired(true)))
+
+        .addSubcommand(new SlashCommandSubcommandBuilder()
+            .setName('image')
+            .setDescription("Gets a random image from a subreddit!")
+            .addStringOption(option => option.setName('subreddit').setDescription("The subreddit you want to get a random image from").setRequired(true)))
+        
+        .addSubcommand(new SlashCommandSubcommandBuilder()
+            .setName('text')
+            .setDescription("Gets a random text post from a subreddit!")
+            .addStringOption(option => option.setName('subreddit').setDescription("The subreddit you want to get a random text post from").setRequired(true))),
     
 
     
