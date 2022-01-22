@@ -4,4 +4,4 @@ config.js
 .vscode
 .eslintrc.json
 __pycache__
-*.png
+files
