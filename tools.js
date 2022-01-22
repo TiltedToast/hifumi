@@ -83,10 +83,10 @@ export function downloadURL(url, saveLocation) {
     const absSaveLocation = path.resolve(saveLocation);
 
     const myHeaders = new Headers();
-    myHeaders.append('User-Agent', 'Mozilla/5.0');
+    myHeaders.append('User-Agent', 'hifumi-js:v1.0.0:tiltedtoast27@gmail.com');
 
     if (url.includes("pximg")) {
-      myHeaders.append('Referer', 'https://pximg.net/');
+      myHeaders.append('Referer', 'https://www.pixiv.net/');
     }
 
     const requestOptions = {
@@ -99,18 +99,17 @@ export function downloadURL(url, saveLocation) {
       .then(res => res.body.pipe(fileStream))
       .catch(error => console.log('error', error));
     fileStream.on('finish', () => {fileStream.close();});
-    
 }
 
 
 export function getImgType(url) {
-    if (url.includes("png") || url.includes("webp")) {
+    if (url.includes(".png") || url.includes(".webp")) {
         return "png";
-    } else if (url.includes("jpg") || url.includes("jpeg")) {
+    } else if (url.includes(".jpg") || url.includes(".jpeg")) {
         return "jpg";
-    } else if (url.includes("gif")) {
+    } else if (url.includes(".gif")) {
         return "gif";
-    } else if (url.includes("svg")) {
+    } else if (url.includes(".svg")) {
         return "svg";
     } 
 }
