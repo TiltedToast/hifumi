@@ -1,4 +1,4 @@
-import * as fs from 'fs';
+import * as fs from 'fs/promises';
 import * as path from 'path';
 import fetch from 'node-fetch';
 import { Headers } from 'node-fetch';
@@ -78,8 +78,7 @@ export function getOptionsArray(array) {
     return optionsArray;
 }
 
-
-export function downloadURL(url, saveLocation) {
+export async function downloadURL(url, saveLocation) {
     const absSaveLocation = path.resolve(saveLocation);
 
     const myHeaders = new Headers();
@@ -94,19 +93,25 @@ export function downloadURL(url, saveLocation) {
       headers: myHeaders,
     }
 
-    const fileStream = fs.createWriteStream(absSaveLocation);
-    fetch(url, requestOptions)
-      .then(res => res.body.pipe(fileStream))
+    // const fileStream = fs.createWriteStream(absSaveLocation);
+    // await fetch(url, requestOptions)
+    //   .then(response => response.body.pipe(fileStream))
+    //   .catch(error => console.log('error', error));
+
+    await fetch(url, requestOptions)
+      .then(response => response.arrayBuffer())
+      .then(buffer => fs.writeFile(absSaveLocation, new Uint8Array(buffer)))
       .catch(error => console.log('error', error));
-    fileStream.on('finish', () => {fileStream.close();});
 }
 
 
 export function getImgType(url) {
     if (url.includes(".png") || url.includes(".webp")) {
         return "png";
-    } else if (url.includes(".jpg") || url.includes(".jpeg")) {
+    } else if (url.includes(".jpg")) {
         return "jpg";
+    } else if (url.includes(".jpeg")) {
+        return "jpeg";
     } else if (url.includes(".gif")) {
         return "gif";
     } else if (url.includes(".svg")) {

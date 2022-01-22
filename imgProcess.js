@@ -1,26 +1,34 @@
-import sharp from 'sharp';
 import * as fs from 'fs';
 import { FormData } from "formdata-node"
 import fetch from 'node-fetch';
 import * as tools from './tools.js';
 import { credentials } from './config.js';
-import { MessageAttachment, MessageEmbed } from 'discord.js';
+import { CommandInteraction, MessageAttachment, MessageEmbed } from 'discord.js';
 import { Headers } from 'node-fetch';
-
+import sharp from 'sharp';
+import gifResize from 'gif-resizer';
 
 export async function beautiful(interaction) {
-
 }
+
 
 export async function resize(fileLocation, width, saveLocation) {
-    await sharp(fileLocation).resize({width: width}).toFile(saveLocation);
+    if (fileLocation.includes('gif')) {
+        gifResize(fileLocation, {width: width}).then(file => {
+            fs.writeFileSync(saveLocation, file);
+        });
+    }
+    else {
+        await sharp(fileLocation).resize(width).toFile(saveLocation);
+    }
 }
+    
 
 export async function resizeImg(interaction) {
     const source = interaction.options.getString('url');
     const width = interaction.options.getInteger('width');
     const urlPattern = /https?:\/\/.*\.(?:jpg|jpeg|png|webp|avif|gif|svg|tiff)/i;
-    // interaction.deferReply();
+    interaction.deferReply();
 
     let url = '';
 
@@ -31,13 +39,17 @@ export async function resizeImg(interaction) {
         url += source.match(urlPattern)[0];
     }
 
-    console.log(url);
+    if (url.includes(".jpg")) {
+        url = url.replace(".jpg", ".jpeg");
+    }
+
     const imgType = tools.getImgType(url);
-    tools.downloadURL(url, `./files/unknown.${imgType}`);
+
+    await tools.downloadURL(url, `./files/unknown.${imgType}`);
     await resize(`./files/unknown.${imgType}`, width, `./files/unknown_resized.${imgType}`);
 
     const resizeAttachment = new MessageAttachment(`./files/unknown_resized.${imgType}`);
-    interaction.reply({attachments: [resizeAttachment]});
+    interaction.editReply({attachments: [resizeAttachment]});
 }
 
 export async function resizeGif(fileLocation) {
