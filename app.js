@@ -23,6 +23,9 @@ client.once('ready', () => {
 	console.log(client.user.id);
 	console.log('------');
 
+	mongoClient.connect();
+	console.log('Connected to the database');
+
 	// const channel = client.channels.cache.get('655484804405657642');
 	// channel.send(`Logged in as:\n${client.user.username}\nTime: ${time}\n--------------------------`);
 	client.user.setActivity("with best girl Annie!", { type: "PLAYING" })
@@ -39,20 +42,15 @@ client.on('messageCreate', async (message) => {
 	}
 
 	if (message.content.startsWith(`$${reactCmd} <@665224627353681921>`) || message.content.startsWith(`$${reactCmd} <@!665224627353681921>`)) {
-		try {
-			await mongoClient.connect();
-			const cmdAliases = await mongoClient.db('hifumi').collection('mikuCmdAliases').findOne({_id: ObjectId('61ed5a24955085f3e99f7c03')});
-			const reactMsgs = await mongoClient.db('hifumi').collection('mikuReactMsgs').findOne({_id: ObjectId('61ed5cb4955085f3e99f7c0c')});
+		const cmdAliases = await mongoClient.db('hifumi').collection('mikuCmdAliases').findOne({_id: ObjectId('61ed5a24955085f3e99f7c03')});
+		const reactMsgs = await mongoClient.db('hifumi').collection('mikuReactMsgs').findOne({_id: ObjectId('61ed5cb4955085f3e99f7c0c')});
 		
-			for (const cmdType in cmdAliases) {
-				if (Object.values(cmdAliases[cmdType]).includes(reactCmd)) {
-					const msg = tools.randomElementArray(reactMsgs[cmdType]).replace('{0}', message.author.username);
-					await tools.sleep(1000);
-					await message.channel.send(msg);
-				} 
-			}
-		} finally {
-			await mongoClient.close();
+		for (const cmdType in cmdAliases) {
+			if (Object.values(cmdAliases[cmdType]).includes(reactCmd)) {
+				const msg = tools.randomElementArray(reactMsgs[cmdType]).replace('{0}', message.author.username);
+				await tools.sleep(1000);
+				await message.channel.send(msg);
+			} 
 		}
 	}
 });
@@ -73,8 +71,10 @@ client.on('interactionCreate', async interaction => {
 		} else if (commandName === 'emoji') {
 			if (interaction.options.getSubcommand() === 'add') {
 				await emoji.addEmoji(interaction);
+
 			} else if (interaction.options.getSubcommand() === 'remove') {
 				await emoji.removeEmoji(interaction);
+				
 			} else if (interaction.options.getSubcommand() === 'rename') {
 				await emoji.renameEmoji(interaction);
 			}
@@ -97,13 +97,14 @@ client.on('interactionCreate', async interaction => {
 		} else if (commandName === 'reddit') {
 			if (interaction.options.getSubcommand() === 'profile') {
 				await reddit.profile(interaction);
+
 			} else if (interaction.options.getSubcommand() === 'image') {
-				await reddit.subImg(interaction);
+				await reddit.sub(interaction);
 			}
 		}
 
     } catch (error) {
-		tools.errorLog(interaction, error, );
+		tools.errorLog(interaction, error);
 	}
 });
 
@@ -233,5 +234,12 @@ async function urban(interaction) {
 		)}
 	);				
 }
+
+process.on('SIGINT', function() {
+	mongoClient.close(function () {
+	  console.log('Disconnected the database');
+	  process.exit(0);
+	});
+  });
 
 client.login(credentials['token']);

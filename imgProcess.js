@@ -79,7 +79,6 @@ export async function resizeImg(interaction) {
         return interaction.editReply('File too large for Discord!');
     }
 
-
     await interaction.editReply({files: [`./temp/unknown_resized.${imgType}`]});
 }
 

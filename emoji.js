@@ -20,7 +20,7 @@ export async function addEmoji(interaction) {
         url = source.match(urlPattern)[0];
     }  
     
-    if (url.includes('pximg')) {interaction.reply('Pixiv urls don\'t work yet, try uploading it to imgur first!'); return;}
+    if (url.includes('pximg')) {return interaction.reply('Pixiv urls don\'t work yet, try uploading it to imgur first!');}
 
     const emoji = await interaction.guild.emojis.create(url, name);
 
@@ -45,7 +45,7 @@ export async function removeEmoji(interaction) {
         } else {
             interaction.reply(`Emoji not found!`);
         }
-    } catch (TypeError) {interaction.reply('Invalid emoji!'); return;}
+    } catch (TypeError) {return interaction.reply('Invalid emoji!');}
 }
 
 
@@ -66,5 +66,5 @@ export async function renameEmoji(interaction) {
         } else {
             interaction.reply(`Emoji not found!`);
         }
-    } catch (TypeError) {interaction.reply('Invalid emoji!');}
+    } catch (TypeError) {return interaction.reply('Invalid emoji!');}
 }
