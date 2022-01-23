@@ -71,11 +71,29 @@ export function strftime(sFormat, date) {
     });
   }
 
-
+/**
+ * Simple function to create delays
+ * @param {Number} ms The amount of milliseconds to wait
+ * @returns Empty Promise
+ */
 export function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 
+  /**
+   * Takes an array and returns a random element from it.
+   * @param {Array} array 
+   * @returns a random Element from the array
+   */
+export function randomElementArray(array) {
+  return array[Math.floor(Math.random()*array.length)]
+}
+
+/**
+ * Parses an array of interaction.options.data to get applied options 
+ * @param {Array} array Array of strings
+ * @returns an array that contains the input options
+ */
 export function getOptionsArray(array) {
     let optionsArray = [];
     for (let i = 0; i < array.length; i++) {
@@ -84,6 +102,12 @@ export function getOptionsArray(array) {
     return optionsArray;
 }
 
+
+/**
+ * Parses an interaction and error and sends it to the channel to avoid Hifumi dying every time an Error occurs
+ * @param {BaseCommandInteraction} interaction The Interaction that is unique to each command execution
+ * @param {Error} errorObject The error object that is passed to the command through try/catch
+ */
 export function errorLog(interaction, errorObject) {
   const currentTime = strftime("%d/%m/%Y %H:%M:%S");
 
@@ -105,6 +129,16 @@ export function errorLog(interaction, errorObject) {
   interaction.channel.send(errorMessage);
 }
 
+
+/**
+ * Chooses a User Object to use for further processing 
+ * @param {Client} client The Discord Client being used to access the API
+ * @param {BaseCommandInteraction} interaction The interaction that is unique to each command execution
+ * @param {Array} optionsArray An array of two strings, the first being the name of the user, the second being the ID of the user
+ * @param {String} option1 The User 
+ * @param {String} option2 The User ID
+ * @returns a Discord User Object
+ */
 export async function getUserFromUserAndId(client, interaction, optionsArray, option1, option2) {
   let user = undefined;
   try {
@@ -125,6 +159,12 @@ export async function getUserFromUserAndId(client, interaction, optionsArray, op
 	} catch (DiscordAPIError) {return interaction.editReply('User not found!');}
 }
 
+
+/**
+ * Takes a URL as well as a file path and downloads the file to the file path
+ * @param {String} url URL of the file you want to download
+ * @param {String} saveLocation Path to save the file to
+ */
 export async function downloadURL(url, saveLocation) {
     const absSaveLocation = path.resolve(saveLocation);
 
@@ -147,6 +187,11 @@ export async function downloadURL(url, saveLocation) {
 }
 
 
+/**
+ * Takes an image URL and returns the file extension
+ * @param {String} url The URL to whatever image you want to get the extension of
+ * @returns {String} The file extension of the image
+ */
 export function getImgType(url) {
     if (url.includes(".png") || url.includes(".webp")) {
         return "png";
@@ -159,7 +204,11 @@ export function getImgType(url) {
     } 
 }
 
-
+/**
+ * Takes a numer and turns rounds it into an Integer or Float
+ * @param {Number} x The number you want to round 
+ * @returns {Number} The rounded number
+ */
 export function advRound(x) {
     if (Math.floor(x / 1) + (x % 1) === parseInt(x)) {
         return parseInt(x);
@@ -168,7 +217,12 @@ export function advRound(x) {
     }
 }
 
-
+/**
+ * Takes the raw string of a discord Emoji and either returns the ID or the url
+ * @param {String} emojiString The emoji string
+ * @param {Boolean} id Whether or not you only want the ID or the URL
+ * @returns {String} The ID or URL of the emoji
+ */
 export function extractEmoji(emojiString, id=false) {
     const emojiID = emojiString.split(":")[2].slice(0, -1)
 
@@ -184,6 +238,10 @@ export function extractEmoji(emojiString, id=false) {
 }
 
 
+/**
+ * Takes a directory, checks whether it exists. If it does, it deletes it and recreates it. If it doesn't, it creates it
+ * @param {String} directory Path to the temporary directory you want to create
+ */
 export function createTemp(directory) {
   const absPath = path.resolve(directory);
   
@@ -195,7 +253,12 @@ export function createTemp(directory) {
   }
 }
 
-
+/**
+ * Checks whether the size of the file is greater than the max size allowed
+ * @param {String} fileLocation The location of the file
+ * @param {Number} size The max size allowed
+ * @returns {Boolean} Whether or not the file is small enough 
+ */
 export function isValidSize(fileLocation, size) {
   return fs.statSync(fileLocation).size <= size;
 }
