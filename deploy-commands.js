@@ -72,13 +72,9 @@ const commands = [
         .addSubcommand(new SlashCommandSubcommandBuilder()
             .setName('image')
             .setDescription("Gets a random image from a subreddit!")
-            .addStringOption(option => option.setName('subreddit').setDescription("The subreddit you want to get a random image from").setRequired(true)))
-        
-        .addSubcommand(new SlashCommandSubcommandBuilder()
-            .setName('text')
-            .setDescription("Gets a random text post from a subreddit!")
-            .addStringOption(option => option.setName('subreddit').setDescription("The subreddit you want to get a random text post from").setRequired(true))),
-    
+            .addStringOption(option => option.setName('subreddit').setDescription("The subreddit you want to get a random image from").setRequired(true))
+            .addBooleanOption(option => option.setName('nsfw').setDescription("Whether or not the image should be NSFW").setRequired(false))
+            .addBooleanOption(option => option.setName('force').setDescription("Force images to be fetched first").setRequired(false))),
 
     
 ]
