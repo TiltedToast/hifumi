@@ -4,12 +4,14 @@ import * as imgProcess from './imgProcess.js';
 import * as reddit from './reddit.js';
 import { credentials } from './config.js';
 import { Client, Intents, MessageEmbed } from 'discord.js';
+import { MongoClient, ObjectId } from 'mongodb';
 
 const allIntents = new Intents(32767);
 export const client = new Client({ intents: allIntents });
-
-
+export const mongoClient = new MongoClient(credentials['mongoURI']);
 const startTime = Date.now();
+
+
 
 client.once('ready', () => {
 	const time = tools.strftime("%d/%m/%Y %H:%M:%S");
@@ -26,6 +28,34 @@ client.once('ready', () => {
 	client.user.setActivity("with best girl Annie!", { type: "PLAYING" })
 });
 
+
+client.on('messageCreate', async (message) => {
+	const content = message.content.split(' ');
+	let reactCmd;
+	if (content.length > 1) {
+		reactCmd = content[0].slice(1);
+	} else {
+		return;
+	}
+
+	if (message.content.startsWith(`$${reactCmd} <@665224627353681921>`) || message.content.startsWith(`$${reactCmd} <@!665224627353681921>`)) {
+		try {
+			await mongoClient.connect();
+			const cmdAliases = await mongoClient.db('hifumi').collection('mikuCmdAliases').findOne({_id: ObjectId('61ed5a24955085f3e99f7c03')});
+			const reactMsgs = await mongoClient.db('hifumi').collection('mikuReactMsgs').findOne({_id: ObjectId('61ed5cb4955085f3e99f7c0c')});
+		
+			for (const cmdType in cmdAliases) {
+				if (Object.values(cmdAliases[cmdType]).includes(reactCmd)) {
+					const msg = reactMsgs[cmdType][Math.floor(Math.random()*reactMsgs[cmdType].length)].replace('{0}', message.author.username);
+					await tools.sleep(1000);
+					await message.channel.send(msg);
+				} 
+			}
+		} finally {
+			await mongoClient.close();
+		}
+	}
+});
 
 client.on('interactionCreate', async interaction => {
 	try {

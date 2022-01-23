@@ -71,6 +71,11 @@ export function strftime(sFormat, date) {
     });
   }
 
+
+export function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
 export function getOptionsArray(array) {
     let optionsArray = [];
     for (let i = 0; i < array.length; i++) {
