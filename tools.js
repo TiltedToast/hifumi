@@ -89,6 +89,23 @@ export function randomElementArray(array) {
   return array[Math.floor(Math.random()*array.length)]
 }
 
+
+export async function fetchTopPosts(subreddit, mode, counter, db, RedditClient, limit=100) {
+  await RedditClient.getSubreddit(subreddit).getTop({time: mode, limit: limit}).then(async (submissions) => {
+    if (db.collection(`${subreddit}`) === null) {
+        await db.createCollection(`${subreddit}`);
+    }
+    const collection = db.collection(`${subreddit}`);
+    for (let i = 0; i < submissions.length; i++) {
+        if (await collection.findOne({id: submissions[i].id}) === null && !submissions[i].is_self && (submissions[i].url.includes("i.redd.it") || submissions[i].url.includes("i.imgur.com"))) {
+            const submission = submissions[i];
+            await collection.insertOne(JSON.parse(JSON.stringify(submission)));
+            counter += 1;
+        }
+    }       
+  });
+}
+
 /**
  * Parses an array of interaction.options.data to get applied options 
  * @param {Array} array Array of strings
@@ -102,7 +119,6 @@ export function getOptionsArray(array) {
     return optionsArray;
 }
 
-
 /**
  * Parses an interaction and error and sends it to the channel to avoid Hifumi dying every time an Error occurs
  * @param {BaseCommandInteraction} interaction The Interaction that is unique to each command execution
@@ -110,7 +126,6 @@ export function getOptionsArray(array) {
  */
 export function errorLog(interaction, errorObject) {
   const currentTime = strftime("%d/%m/%Y %H:%M:%S");
-
 
   let errorMessage = `An Error occurred on ${currentTime}
   **Server:** ${interaction.guild.name} - ${interaction.guild.id}
@@ -123,6 +138,7 @@ export function errorLog(interaction, errorObject) {
 
   if (errorMessage.length > 2000) {
     errorMessage = `An Error occurred on ${currentTime}\nCheck console for full error (2000 character limit)\n<@258993932262834188>`
+    console.log(errorObject.stack);
   }
 
   interaction.deleteReply();
