@@ -99,8 +99,6 @@ client.on('interactionCreate', async interaction => {
 				await reddit.profile(interaction);
 			} else if (interaction.options.getSubcommand() === 'image') {
 				await reddit.subImg(interaction);
-			} else if (interaction.options.getSubcommand() === 'text') {
-				await reddit.subText(interaction);
 			}
 		}
 
