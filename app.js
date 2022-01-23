@@ -46,7 +46,7 @@ client.on('messageCreate', async (message) => {
 		
 			for (const cmdType in cmdAliases) {
 				if (Object.values(cmdAliases[cmdType]).includes(reactCmd)) {
-					const msg = reactMsgs[cmdType][Math.floor(Math.random()*reactMsgs[cmdType].length)].replace('{0}', message.author.username);
+					const msg = tools.randomElementArray(reactMsgs[cmdType]).replace('{0}', message.author.username);
 					await tools.sleep(1000);
 					await message.channel.send(msg);
 				} 
@@ -56,6 +56,7 @@ client.on('messageCreate', async (message) => {
 		}
 	}
 });
+
 
 client.on('interactionCreate', async interaction => {
 	try {
