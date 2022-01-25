@@ -1,70 +1,82 @@
 import * as tools from './tools.js';
+import { Permissions } from 'discord.js';
 
 export async function addEmoji(interaction) {
-    const name = interaction.options.getString('name');
-    const source = interaction.options.getString('source');
-    let url = undefined;
-    
-    if (name.length < 2 || name.length > 32) {
-        interaction.reply('The name must be between 2 and 32 characters long.');
-        return;
-    }
-    const urlPattern = /https?:\/\/.*\.(?:png|jpg|jpeg|webp|gif)/i;
+    await interaction.deferReply();
+    if (interaction.member.permissions.has(Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS)) {
+        const name = interaction.options.getString('name');
+        const source = interaction.options.getString('source');
+        let url;
 
-    if (source.match(urlPattern) === null && !source.startsWith('<')) {
-        interaction.reply('Invalid source url!');
-        return;
-    } else if (source.startsWith('<')) {
-        url = tools.extractEmoji(source);
-    } else if (source.match(urlPattern).length === 1) {
-        url = source.match(urlPattern)[0];
-    }  
-    
-    if (url.includes('pximg')) {return interaction.reply('Pixiv urls don\'t work yet, try uploading it to imgur first!');}
+        if (name.length < 2 || name.length > 32) {
+            return interaction.editReply('The name must be between 2 and 32 characters long.');
+            
+        }
+        const urlPattern = /https?:\/\/.*\.(?:png|jpg|jpeg|webp|gif)/i;
 
-    const emoji = await interaction.guild.emojis.create(url, name);
+        if (source.match(urlPattern) === null && !source.startsWith('<')) {
+            return interaction.editReply('Invalid source url!');
+        } else if (source.startsWith('<')) {
+            url = tools.extractEmoji(source);
+        } else if (source.match(urlPattern).length === 1) {
+            url = source.match(urlPattern)[0];
+        }
 
-    if (emoji && emoji.animated) {
-        interaction.reply(`Emoji added! <a:${emoji.name}:${emoji.id}>`);
-    } else if (emoji && !emoji.animated) {
-        interaction.reply(`Emoji added! <:${emoji.name}:${emoji.id}>`);
+        if (url.includes('pximg')) { return interaction.editReply('Pixiv urls don\'t work yet, try uploading it to imgur first!'); }
+
+        const emoji = await interaction.guild.emojis.create(url, name);
+
+        if (emoji && emoji.animated) {
+            interaction.editReply(`Emoji added! <a:${emoji.name}:${emoji.id}>`);
+        } else if (emoji && !emoji.animated) {
+            interaction.editReply(`Emoji added! <:${emoji.name}:${emoji.id}>`);
+        }
+    } else {
+        interaction.editReply('You need the "Manage Emojis" permission to add emojis!');
     }
 }
 
 export async function removeEmoji(interaction) {
-    const emojiString = interaction.options.getString('emoji');
+    await interaction.deferReply();
+    if (interaction.member.permissions.has(Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS)) {
+        try {
+            const emojiString = interaction.options.getString('emoji');
+            const emojiID = tools.extractEmoji(emojiString, true);
+            const emojis = interaction.guild.emojis.cache
+            const emoji = emojis.find(emoji => emoji.id === emojiID);
 
-    try {
-        const emojiID = tools.extractEmoji(emojiString, true);
-        const emojis = interaction.guild.emojis.cache
-        const emoji = emojis.find(emoji => emoji.id === emojiID);
-
-        if (emoji) {
-            emoji.delete();
-            interaction.reply(`Emoji successfully deleted!`);
-        } else {
-            interaction.reply(`Emoji not found!`);
-        }
-    } catch (TypeError) {return interaction.reply('Invalid emoji!');}
+            if (emoji) {
+                emoji.delete();
+                interaction.editReply(`Emoji successfully deleted!`);
+            } else {
+                interaction.editReply(`Emoji not found!`);
+            }
+        } catch (TypeError) { return interaction.reply('Invalid emoji!'); }
+    } else {
+        interaction.editReply('You need the "Manage Emojis" permission to remove emojis!');
+    }
 }
 
 
 export async function renameEmoji(interaction) {
-    const emojiString = interaction.options.getString('emoji');
+    await interaction.deferReply();
+    if (interaction.member.permissions.has(Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS)) {
+        try {
+            const newName = interaction.options.getString('newname');
+            const emojiString = interaction.options.getString('emoji');
+            const emojiID = tools.extractEmoji(emojiString, true);
+            const emojis = interaction.guild.emojis.cache
+            const emoji = emojis.find(emoji => emoji.id === emojiID);
 
-    try {
-        const newName = interaction.options.getString('newname');
-
-        const emojiID = tools.extractEmoji(emojiString, true);
-        const emojis = interaction.guild.emojis.cache
-        const emoji = emojis.find(emoji => emoji.id === emojiID);
-
-        if (emoji) {
-            const oldName = emoji.name;
-            interaction.guild.emojis.fetch(emojiID).then(emoji => {emoji.edit({name: newName})});
-            interaction.reply(`Emoji successfully renamed from ${oldName} to ${newName}!`);
-        } else {
-            interaction.reply(`Emoji not found!`);
-        }
-    } catch (TypeError) {return interaction.reply('Invalid emoji!');}
+            if (emoji) {
+                const oldName = emoji.name;
+                interaction.guild.emojis.fetch(emojiID).then(emoji => { emoji.edit({ name: newName }) });
+                interaction.editReply(`Emoji successfully renamed from ${oldName} to ${newName}!`);
+            } else {
+                interaction.editReply(`Emoji not found!`);
+            }
+        } catch (TypeError) { return interaction.editReply('Invalid emoji!'); }
+    } else {
+        interaction.editReply('You need the "Manage Emojis" permission to rename emojis!');
+    }
 }

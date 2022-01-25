@@ -16,7 +16,7 @@ export async function beautiful(interaction) {
     await interaction.deferReply()
     const optionsArray = tools.getOptionsArray(interaction.options.data);
     tools.createTemp('temp');
-    
+
     const user = await tools.getUserFromUserAndId(client, interaction, optionsArray, 'user', 'userid');
 
     const avatarURL = `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=4096`
@@ -27,29 +27,29 @@ export async function beautiful(interaction) {
     const ctx = beautifulCanvas.getContext('2d')
 
     await canvas.loadImage('./temp/avatar_resized.png')
-    .then(img => {ctx.drawImage(img, 422, 35)});
+        .then(img => { ctx.drawImage(img, 422, 35) });
 
     await canvas.loadImage('./temp/avatar_resized.png')
-    .then(img => {ctx.drawImage(img, 430, 377)});
-    
+        .then(img => { ctx.drawImage(img, 430, 377) });
+
 
     await canvas.loadImage('./files/background.png')
-    .then(img => {ctx.drawImage(img, 0, 0)});
+        .then(img => { ctx.drawImage(img, 0, 0) });
 
 
     const buffer = beautifulCanvas.toBuffer('image/png');
     fs.writeFileSync('./temp/beautiful.png', buffer);
 
-    await interaction.editReply({files: ['./temp/beautiful.png']});
+    await interaction.editReply({ files: ['./temp/beautiful.png'] });
 
 }
 
 
-export async function resize(fileLocation, width, saveLocation) {  
-    sharp.cache(false); 
+export async function resize(fileLocation, width, saveLocation) {
+    sharp.cache(false);
     await sharp(fileLocation).resize(width).toFile(saveLocation);
 }
-    
+
 
 export async function resizeImg(interaction) {
     const source = interaction.options.getString('url');
@@ -66,11 +66,11 @@ export async function resizeImg(interaction) {
         url += source.match(urlPattern)[0];
     }
 
-    
+
     else if (url.includes(".gif")) {
         return interaction.editReply('Gifs are not supported!');
     }
-    
+
     const imgType = tools.getImgType(url);
     await tools.downloadURL(url, `./temp/unknown.${imgType}`);
     await resize(`./temp/unknown.${imgType}`, width, `./temp/unknown_resized.${imgType}`);
@@ -79,11 +79,11 @@ export async function resizeImg(interaction) {
         return interaction.editReply('File too large for Discord!');
     }
 
-    await interaction.editReply({files: [`./temp/unknown_resized.${imgType}`]});
+    await interaction.editReply({ files: [`./temp/unknown_resized.${imgType}`] });
 }
 
 
-export async function imgur(interaction, url=null) {
+export async function imgur(interaction, url = null) {
     let source = '';
     if (url) {
         source += url
@@ -106,7 +106,7 @@ export async function imgur(interaction, url=null) {
     tools.createTemp('temp');
     const imgType = tools.getImgType(url);
     await tools.downloadURL(url, `./temp/unknown.${imgType}`);
-    
+
     if (!tools.isValidSize(`./temp/unknown.${imgType}`, 10000000)) {
         return interaction.editReply('File too large for Imgur!');
     }
@@ -126,8 +126,8 @@ export async function imgur(interaction, url=null) {
     };
 
     fetch("https://api.imgur.com/3/image", requestOptions)
-    .then(response => response.text())
-    .then(result => {const data = JSON.parse(result); interaction.editReply(data['data']['link']); return data['data']['link'];})
-    .catch(error => console.log('error', error));
-    
+        .then(response => response.text())
+        .then(result => { const data = JSON.parse(result); interaction.editReply(data['data']['link']); return data['data']['link']; })
+        .catch(error => console.log('error', error));
+
 }
