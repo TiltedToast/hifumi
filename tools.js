@@ -4,6 +4,9 @@ import * as path from 'path';
 import fetch from 'node-fetch';
 import { Headers } from 'node-fetch';
 import { credentials } from './config.js';
+import { MongoClient, ObjectId } from "mongodb";
+import { mongoClient } from './app.js';
+
 
 export function strftime(sFormat, date) {
     if (!(date instanceof Date)) date = new Date();
@@ -122,9 +125,9 @@ export function getOptionsArray(array) {
  * @param {Error} errorObject The error object that is passed to the command through try/catch
  */
 export function errorLog(interaction, errorObject) {
-    const currentTime = strftime("%d/%m/%Y %H:%M:%S");
+    const currentTime = strftime("%d/%m/%Y %H:%M:%S"); 
 
-    let errorMessage = `An Error occurred on ${currentTime}
+    let errorMessage = `An Error occurred on ${currentTime} UTC
   **Server:** ${interaction.guild.name} - ${interaction.guild.id}
   **Room:** ${interaction.channel.name} - ${interaction.channel.id}
   **User:** ${interaction.user.username} - ${interaction.user.id}
@@ -133,9 +136,21 @@ export function errorLog(interaction, errorObject) {
   **${errorObject.stack}**\n
   <@258993932262834188>`
 
+    const collection = mongoClient.db("hifumi").collection("errorLog");
+    collection.insertOne({
+        server: interaction.guild.id,
+        channel: interaction.channel.id,
+        user: interaction.user.id,
+        command: interaction.toString(),
+        error: errorObject.message,
+        stack: errorObject.stack,
+        date: `${currentTime}`,
+        timestamp: Date.now(),
+        log: errorMessage
+    });
+
     if (errorMessage.length > 2000) {
         errorMessage = `An Error occurred on ${currentTime}\nCheck console for full error (2000 character limit)\n<@258993932262834188>`
-        console.log(errorObject.stack);
     }
 
     interaction.deleteReply();

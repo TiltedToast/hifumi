@@ -10,7 +10,7 @@ export async function addEmoji(interaction) {
 
         if (name.length < 2 || name.length > 32) {
             return interaction.editReply('The name must be between 2 and 32 characters long.');
-            
+
         }
         const urlPattern = /https?:\/\/.*\.(?:png|jpg|jpeg|webp|gif)/i;
 
