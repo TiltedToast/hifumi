@@ -185,6 +185,7 @@ export function errorLog(interaction, errorObject) {
 
     if (errorMessage.length > 2000) {
         errorMessage = `An Error occurred on ${currentTime}\nCheck console for full error (2000 character limit)\n<@258993932262834188>`
+        console.log(errorObject);
     }
 
     interaction.deleteReply();
@@ -240,6 +241,7 @@ export async function downloadURL(url, saveLocation) {
     const requestOptions = {
         method: 'GET',
         headers: myHeaders,
+        responseType: "arraybuffer"
     }
 
     await fetch(url, requestOptions)
