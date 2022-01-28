@@ -63,10 +63,7 @@ export async function resizeImg(interaction) {
         return interaction.editReply('Invalid source url!');
     } else if (source.match(urlPattern).length === 1) {
         url += source.match(urlPattern)[0];
-    }
-
-
-    else if (url.includes(".gif")) {
+    } else if (url.includes(".gif")) {
         return interaction.editReply('Gifs are not supported!');
     }
 
@@ -132,4 +129,6 @@ export async function imgur(interaction, url = null) {
             return data['data']['link'];
         })
         .catch(error => console.log('error', error));
+    
+
 }

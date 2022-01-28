@@ -40,7 +40,6 @@ export async function profile(interaction) {
 
 export async function sub(interaction) {
     await interaction.deferReply();
-    console.log(interaction.options.data);
     const subreddit = interaction.options.getString('subreddit');
     let nsfw;
     let force;
@@ -144,7 +143,8 @@ export async function fetchSubmissions(subreddit, limit = 100) {
         }
         const collection = db.collection(`${subreddit}`);
         for (let i = 0; i < submissions.length; i++) {
-            if (await collection.findOne({ id: submissions[i].id }) === null && !submissions[i].is_self && (submissions[i].url.includes("i.redd.it") || submissions[i].url.includes("i.imgur.com"))) {
+            if (await collection.findOne({ id: submissions[i].id }) === null && !submissions[i].is_self 
+            && (submissions[i].url.includes("i.redd.it") || submissions[i].url.includes("i.imgur.com"))) {
                 const submission = submissions[i];
                 await collection.insertOne(JSON.parse(JSON.stringify(submission)));
                 insertedCount += 1;

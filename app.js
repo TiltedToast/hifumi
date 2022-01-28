@@ -5,7 +5,7 @@ import * as reddit from "./reddit.js";
 import { credentials } from "./config.js";
 import { Client, Intents, MessageEmbed } from "discord.js";
 import { MongoClient, ObjectId } from "mongodb";
-import fetch from "node-fetch";
+import axios from 'axios';
 
 const allIntents = new Intents(32767);
 export const client = new Client({ intents: allIntents });
@@ -138,97 +138,73 @@ async function convert(interaction) {
     const from = interaction.options.getString("from").toUpperCase();
     const to = interaction.options.getString("to").toUpperCase();
 
-    fetch(`https://prime.exchangerate-api.com/v5/${credentials["exchangeApiKey"]}/latest/${from}`, (res) => {
-        res.on("error", (e) => {
-            console.log("error:", e);
-            interaction.reply("An unknown error has occurred!");
-        });
-        let data = "";
-        res.on("data", (chunk) => {
-            data += chunk;
-        });
-        res.on("end", () => {
-            const result = JSON.parse(data);
+    const response = await axios.get(`https://prime.exchangerate-api.com/v5/${credentials["exchangeApiKey"]}/latest/${from}`);
+    const result = response.data
 
-            // Checks for invalid inputs
-            if (result["conversion_rates"] === undefined) {
-                return interaction.reply("At least one of your currencies is not supported!");
-            } else if (!result["conversion_rates"].hasOwnProperty(to)) {
-                return interaction.reply("Your second currency is not supported!");
-            } else if (from === to) {
-                return interaction.reply("Your first currency is the same as your second currency!");
-            } else if (amount < 0) {
-                return interaction.reply("You can't convert a negative amount!");
-            } else if (amount === 0) {
-                return interaction.reply("Zero will obviously stay 0!");
-            }
-
-            const rate = result["conversion_rates"][to];
-            rslt = Math.round(amount * rate * 100) / 100;
-            description = `**${advRound(amount)} ${from} ≈ ${advRound(rslt)} ${to}**\n\nExchange Rate: 1 ${from} ≈ ${rate} ${to}`;
-
-            const convertEmbed = new MessageEmbed()
-                .setColor(credentials["embedColour"])
-                .setTitle(`Converting ${from} to ${to}`)
-                .setDescription(description)
-                .setFooter({
-                    text: `${tools.strftime("%d/%m/%Y %H:%M:%S")}`,
-                });
-
-            interaction.reply({ embeds: [convertEmbed] });
-        });
+    // Checks for invalid inputs
+    if (result["conversion_rates"] === undefined) {
+        return interaction.reply("At least one of your currencies is not supported!");
+    } else if (!result["conversion_rates"].hasOwnProperty(to)) {
+        return interaction.reply("Your second currency is not supported!");
+    } else if (from === to) {
+        return interaction.reply("Your first currency is the same as your second currency!");
+    } else if (amount < 0) {
+        return interaction.reply("You can't convert a negative amount!");
+    } else if (amount === 0) {
+        return interaction.reply("Zero will obviously stay 0!");
     }
-    );
-}
+
+    const rate = result["conversion_rates"][to];
+    const rslt = Math.round(amount * rate * 100) / 100;
+    const description = `**${tools.advRound(amount)} ${from} ≈ ${tools.advRound(rslt)} ${to}**\n\nExchange Rate: 1 ${from} ≈ ${rate} ${to}`;
+
+    const convertEmbed = new MessageEmbed()
+        .setColor(credentials["embedColour"])
+        .setTitle(`Converting ${from} to ${to}`)
+        .setDescription(description)
+        .setFooter({
+            text: `${tools.strftime("%d/%m/%Y %H:%M:%S")}`,
+        });
+
+    interaction.reply({ embeds: [convertEmbed] });
+};
+
 
 async function urban(interaction) {
     const query = interaction.options.getString("word");
     const url = `https://api.urbandictionary.com/v0/define?term=${query}`;
 
-    fetch(url, (res) => {
-        res.on("error", (e) => {
-            console.log("error:", e);
-            interaction.reply("An unknown error has occurred!");
+    const response = await axios.get(url);
+    const result = response.data;
+
+    if (result["list"] === undefined) {
+        return interaction.reply("No results found!");
+    }
+
+    const def = tools.randomElementArray(result["list"]);
+
+    if (def === undefined) {
+        return interaction.reply("No results found!");
+    }
+
+    const word = def["word"];
+    const definition = def["definition"];
+    const example = def["example"];
+    const author = def["author"];
+    const permalink = def["permalink"];
+    const upvotes = def["thumbs_up"];
+    const downvotes = def["thumbs_down"];
+    const description = `${definition}\n\n**Example:** ${example}\n\n**Author:** ${author}\n\n**Permalink:** [${permalink}](${permalink})`.replace("[", "").replace("]", "");
+
+    const urbanEmbed = new MessageEmbed()
+        .setColor(credentials["embedColour"])
+        .setTitle(`*${word}*`)
+        .setDescription(description)
+        .setFooter({
+            text: `Upvotes: ${upvotes} Downvotes: ${downvotes}`,
         });
-        let data = "";
-        res.on("data", (chunk) => {
-            data += chunk;
-        });
-        res.on("end", () => {
-            const result = JSON.parse(data);
 
-
-            if (result["list"] === undefined) {
-                return interaction.reply("No results found!");
-            }
-
-            const def =
-                result["list"][Math.floor(Math.random() * (Math.ceil(result["list"].length) - 0) + 0)];
-
-            if (def === undefined) {
-                return interaction.reply("No results found!");
-            }
-
-            const word = def["word"];
-            const definition = def["definition"];
-            const example = def["example"];
-            const author = def["author"];
-            const permalink = def["permalink"];
-            const upvotes = def["thumbs_up"];
-            const downvotes = def["thumbs_down"];
-            const description = `${definition}\n\n**Example:** ${example}\n\n**Author:** ${author}\n\n**Permalink:** [${permalink}](${permalink})`.replace("/[|]/g", "");
-
-            const urbanEmbed = new MessageEmbed()
-                .setColor(credentials["embedColour"])
-                .setTitle(`*${word}*`)
-                .setDescription(description)
-                .setFooter({
-                    text: `Upvotes: ${upvotes} Downvotes: ${downvotes}`,
-                });
-
-            interaction.reply({ embeds: [urbanEmbed] });
-        });
-    });
+    interaction.reply({ embeds: [urbanEmbed] });
 }
 
 process.on("SIGINT", function () {
