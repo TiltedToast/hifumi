@@ -3,7 +3,7 @@ import { REST } from '@discordjs/rest';
 import { Routes } from 'discord-api-types/v9';
 import { credentials } from './config.js';
 
-const commands = [
+export const commands = [
     new SlashCommandBuilder()
         .setName('avatar')
         .setDescription('Replies with user avatar!')
@@ -73,18 +73,15 @@ const commands = [
             .setName('image')
             .setDescription("Gets a random image from a subreddit!")
             .addStringOption(option => option.setName('subreddit').setDescription("The subreddit you want to get a random image from").setRequired(true))
-            .addBooleanOption(option => option.setName('nsfw').setDescription("Whether or not the image should be NSFW").setRequired(false))
+            .addBooleanOption(option => option.setName('nsfw').setDescription("Whether or not the image should be NSFW, defaults to false").setRequired(false))
             .addBooleanOption(option => option.setName('force').setDescription("Force images to be fetched first").setRequired(false))),
 
 
 ]
     .map(command => command.toJSON());
 
-const rest = new REST({ version: '9' }).setToken(credentials['token']);
+export const rest = new REST({ version: '9' }).setToken(credentials['token']);
 
 rest.put(Routes.applicationGuildCommands(credentials['clientId'], credentials['guildId']), { body: commands })
     .then(() => console.log('Successfully registered application commands.'))
     .catch(console.error);
-
-
-export { commands, rest };

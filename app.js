@@ -12,7 +12,7 @@ export const client = new Client({ intents: allIntents });
 export const mongoClient = new MongoClient(credentials["mongoURI"]);
 const startTime = Date.now();
 
-client.once("ready", () => {
+client.once("ready", async () => {
     const time = tools.strftime("%d/%m/%Y %H:%M:%S");
     const doneLoadingTime = Date.now();
 
@@ -28,32 +28,28 @@ client.once("ready", () => {
     mongoClient.connect();
     console.log("Connected to the database");
 
+    // await tools.setRandomStatus(client);
+
     // const channel = client.channels.cache.get('655484804405657642');
     // channel.send(`Logged in as:\n${client.user.username}\nTime: ${time}\n--------------------------`);
     client.user.setActivity("with best girl Annie!", { type: "PLAYING" });
 });
+
 
 client.on("messageCreate", async (message) => {
     const content = message.content.split(" ");
     let reactCmd;
     if (content.length > 1) {
         reactCmd = content[0].slice(1);
-    } else {
-        return;
     }
 
     if (
         message.content.startsWith(`$${reactCmd} <@665224627353681921>`) ||
         message.content.startsWith(`$${reactCmd} <@!665224627353681921>`)
     ) {
-        const cmdAliases = await mongoClient
-            .db("hifumi")
-            .collection("mikuCmdAliases")
-            .findOne({ _id: ObjectId("61ed5a24955085f3e99f7c03") });
-        const reactMsgs = await mongoClient
-            .db("hifumi")
-            .collection("mikuReactMsgs")
-            .findOne({ _id: ObjectId("61ed5cb4955085f3e99f7c0c") });
+        const collection = mongoClient.db("hifumi").collection("mikuReactions");
+        const cmdAliases = await collection.findOne({ _id: ObjectId("61ed5a24955085f3e99f7c03") });
+        const reactMsgs = await collection.findOne({ _id: ObjectId("61ed5cb4955085f3e99f7c0c") });
 
         for (const cmdType in cmdAliases) {
             if (Object.values(cmdAliases[cmdType]).includes(reactCmd)) {
@@ -64,6 +60,9 @@ client.on("messageCreate", async (message) => {
                 await message.channel.send(msg);
             }
         }
+    }
+    if (message.content === 'h?ping') {
+        message.channel.send(`API Latency is ${Math.round(client.ws.ping)}ms`);
     }
 });
 
@@ -140,45 +139,45 @@ async function convert(interaction) {
     const to = interaction.options.getString("to").toUpperCase();
 
     fetch(`https://prime.exchangerate-api.com/v5/${credentials["exchangeApiKey"]}/latest/${from}`, (res) => {
-            res.on("error", (e) => {
-                console.log("error:", e);
-                interaction.reply("An unknown error has occurred!");
-            });
-            let data = "";
-            res.on("data", (chunk) => {
-                data += chunk;
-            });
-            res.on("end", () => {
-                const result = JSON.parse(data);
+        res.on("error", (e) => {
+            console.log("error:", e);
+            interaction.reply("An unknown error has occurred!");
+        });
+        let data = "";
+        res.on("data", (chunk) => {
+            data += chunk;
+        });
+        res.on("end", () => {
+            const result = JSON.parse(data);
 
-                // Checks for invalid inputs
-                if (result["conversion_rates"] === undefined) {
-                    return interaction.reply("At least one of your currencies is not supported!");
-                } else if (!result["conversion_rates"].hasOwnProperty(to)) {
-                    return interaction.reply("Your second currency is not supported!");
-                } else if (from === to) {
-                    return interaction.reply("Your first currency is the same as your second currency!");
-                } else if (amount < 0) {
-                    return interaction.reply("You can't convert a negative amount!");
-                } else if (amount === 0) {
-                    return interaction.reply("Zero will obviously stay 0!");
-                }
+            // Checks for invalid inputs
+            if (result["conversion_rates"] === undefined) {
+                return interaction.reply("At least one of your currencies is not supported!");
+            } else if (!result["conversion_rates"].hasOwnProperty(to)) {
+                return interaction.reply("Your second currency is not supported!");
+            } else if (from === to) {
+                return interaction.reply("Your first currency is the same as your second currency!");
+            } else if (amount < 0) {
+                return interaction.reply("You can't convert a negative amount!");
+            } else if (amount === 0) {
+                return interaction.reply("Zero will obviously stay 0!");
+            }
 
-                const rate = result["conversion_rates"][to];
-                rslt = Math.round(amount * rate * 100) / 100;
-                description = `**${advRound(amount)} ${from} ≈ ${advRound(rslt)} ${to}**\n\nExchange Rate: 1 ${from} ≈ ${rate} ${to}`;
+            const rate = result["conversion_rates"][to];
+            rslt = Math.round(amount * rate * 100) / 100;
+            description = `**${advRound(amount)} ${from} ≈ ${advRound(rslt)} ${to}**\n\nExchange Rate: 1 ${from} ≈ ${rate} ${to}`;
 
-                const convertEmbed = new MessageEmbed()
-                    .setColor(credentials["embedColour"])
-                    .setTitle(`Converting ${from} to ${to}`)
-                    .setDescription(description)
-                    .setFooter({
-                        text: `${tools.strftime("%d/%m/%Y %H:%M:%S")}`,
-                    });
+            const convertEmbed = new MessageEmbed()
+                .setColor(credentials["embedColour"])
+                .setTitle(`Converting ${from} to ${to}`)
+                .setDescription(description)
+                .setFooter({
+                    text: `${tools.strftime("%d/%m/%Y %H:%M:%S")}`,
+                });
 
-                interaction.reply({ embeds: [convertEmbed] });
-            });
-        }
+            interaction.reply({ embeds: [convertEmbed] });
+        });
+    }
     );
 }
 
@@ -198,6 +197,7 @@ async function urban(interaction) {
         res.on("end", () => {
             const result = JSON.parse(data);
 
+
             if (result["list"] === undefined) {
                 return interaction.reply("No results found!");
             }
@@ -216,7 +216,7 @@ async function urban(interaction) {
             const permalink = def["permalink"];
             const upvotes = def["thumbs_up"];
             const downvotes = def["thumbs_down"];
-            const description = `${definition}\n\n**Example:** ${example}\n\n**Author:** ${author}\n\n**Permalink:** [${permalink}](${permalink})`.replace("/[|]/g","");
+            const description = `${definition}\n\n**Example:** ${example}\n\n**Author:** ${author}\n\n**Permalink:** [${permalink}](${permalink})`.replace("/[|]/g", "");
 
             const urbanEmbed = new MessageEmbed()
                 .setColor(credentials["embedColour"])

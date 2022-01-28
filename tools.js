@@ -75,6 +75,30 @@ export function strftime(sFormat, date) {
 }
 
 /**
+ * Starts a loop which periodically changes the status to a random entry in the database
+ * @param {Client} client Discord client which is used to access the API
+ */
+export async function setRandomStatus(client) {
+    setInterval(async () => {
+        const statuses = {
+            0: "PLAYING",
+            1: "STREAMING",
+            2: "LISTENING",
+            3: "WATCHING",
+            5: "COMPETING"
+        }
+        const collection = mongoClient.db("hifumi").collection("mikuStatuses");
+        const randomDoc = await collection.aggregate([{ $sample: { size: 1 } }]).toArray()
+        const randomStatus = randomDoc[0].status;
+        const randomID = parseInt(randomDoc[0].playing_id);
+
+        await client.user.setActivity(randomStatus, { type: statuses[randomID] });
+
+    }, 10000);
+}
+
+
+/**
  * Simple function to create delays
  * @param {Number} ms The amount of milliseconds to wait
  * @returns Empty Promise
@@ -93,11 +117,21 @@ export function randomElementArray(array) {
 }
 
 
+/**
+ * Fetches submissions from a Subreddit and stores them in the database
+ * @param {*} subreddit The subreddit to fetch posts from
+ * @param {String} mode The type of top posts to fetch
+ * @param {Integer} counter Number used to calculate the total fetched submissions
+ * @param {} db Database to store the fetched submissions in
+ * @param {*} RedditClient Snoowrap Reddit Client instance
+ * @param {*} limit Amount of posts to fetch
+ */
 export async function fetchTopPosts(subreddit, mode, counter, db, RedditClient, limit = 100) {
     await RedditClient.getSubreddit(subreddit).getTop({ time: mode, limit: limit }).then(async (submissions) => {
         const collection = db.collection(`${subreddit}`);
         for (let i = 0; i < submissions.length; i++) {
-            if (await collection.findOne({ id: submissions[i].id }) === null && !submissions[i].is_self && (submissions[i].url.includes("i.redd.it") || submissions[i].url.includes("i.imgur.com"))) {
+            if (await collection.findOne({ id: submissions[i].id }) === null && !submissions[i].is_self 
+            && (submissions[i].url.includes("i.redd.it") || submissions[i].url.includes("i.imgur.com"))) {
                 const submission = submissions[i];
                 await collection.insertOne(JSON.parse(JSON.stringify(submission)));
                 counter += 1;
@@ -125,7 +159,7 @@ export function getOptionsArray(array) {
  * @param {Error} errorObject The error object that is passed to the command through try/catch
  */
 export function errorLog(interaction, errorObject) {
-    const currentTime = strftime("%d/%m/%Y %H:%M:%S"); 
+    const currentTime = strftime("%d/%m/%Y %H:%M:%S");
 
     let errorMessage = `An Error occurred on ${currentTime} UTC
   **Server:** ${interaction.guild.name} - ${interaction.guild.id}

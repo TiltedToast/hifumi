@@ -41,7 +41,6 @@ export async function beautiful(interaction) {
     fs.writeFileSync('./temp/beautiful.png', buffer);
 
     await interaction.editReply({ files: ['./temp/beautiful.png'] });
-
 }
 
 
@@ -127,7 +126,10 @@ export async function imgur(interaction, url = null) {
 
     fetch("https://api.imgur.com/3/image", requestOptions)
         .then(response => response.text())
-        .then(result => { const data = JSON.parse(result); interaction.editReply(data['data']['link']); return data['data']['link']; })
+        .then(result => {
+            const data = JSON.parse(result);
+            interaction.editReply(data['data']['link']);
+            return data['data']['link'];
+        })
         .catch(error => console.log('error', error));
-
 }
