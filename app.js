@@ -134,6 +134,7 @@ async function avatarURL(interaction) {
 }
 
 async function convert(interaction) {
+    await interaction.deferReply();
     const amount = parseFloat(interaction.options.getNumber("amount"));
     const from = interaction.options.getString("from").toUpperCase();
     const to = interaction.options.getString("to").toUpperCase();
@@ -143,15 +144,15 @@ async function convert(interaction) {
 
     // Checks for invalid inputs
     if (result["conversion_rates"] === undefined) {
-        return interaction.reply("At least one of your currencies is not supported!");
+        return interaction.editReply("At least one of your currencies is not supported!");
     } else if (!result["conversion_rates"].hasOwnProperty(to)) {
-        return interaction.reply("Your second currency is not supported!");
+        return interaction.editReply("Your second currency is not supported!");
     } else if (from === to) {
-        return interaction.reply("Your first currency is the same as your second currency!");
+        return interaction.editReply("Your first currency is the same as your second currency!");
     } else if (amount < 0) {
-        return interaction.reply("You can't convert a negative amount!");
+        return interaction.editReply("You can't convert a negative amount!");
     } else if (amount === 0) {
-        return interaction.reply("Zero will obviously stay 0!");
+        return interaction.editReply("Zero will obviously stay 0!");
     }
 
     const rate = result["conversion_rates"][to];
@@ -166,11 +167,12 @@ async function convert(interaction) {
             text: `${tools.strftime("%d/%m/%Y %H:%M:%S")}`,
         });
 
-    interaction.reply({ embeds: [convertEmbed] });
+    interaction.editReply({ embeds: [convertEmbed] });
 };
 
 
 async function urban(interaction) {
+    await interaction.deferReply();
     const query = interaction.options.getString("word");
     const url = `https://api.urbandictionary.com/v0/define?term=${query}`;
 
@@ -178,7 +180,7 @@ async function urban(interaction) {
     const result = response.data;
 
     if (result["list"] === undefined) {
-        return interaction.reply("No results found!");
+        return interaction.editReply("No results found!");
     }
 
     const def = tools.randomElementArray(result["list"]);
@@ -204,11 +206,11 @@ async function urban(interaction) {
             text: `Upvotes: ${upvotes} Downvotes: ${downvotes}`,
         });
 
-    interaction.reply({ embeds: [urbanEmbed] });
+    interaction.editReply({ embeds: [urbanEmbed] });
 }
 
-process.on("SIGINT", function () {
-    mongoClient.close(function () {
+process.on("SIGINT", () => {
+    mongoClient.close(() => {
         console.log("Disconnected the database");
         process.exit(0);
     });

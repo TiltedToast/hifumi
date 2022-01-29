@@ -128,7 +128,7 @@ export async function imgur(interaction, url = null) {
             interaction.editReply(data['data']['link']);
             return data['data']['link'];
         })
-        .catch(error => console.log('error', error));
+        .catch(error => {return interaction.editReply("An error occured while uploading!")});
     
 
 }

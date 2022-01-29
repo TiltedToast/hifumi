@@ -4,7 +4,7 @@ import * as path from 'path';
 import fetch from 'node-fetch';
 import { Headers } from 'node-fetch';
 import { credentials } from './config.js';
-import { MongoClient, ObjectId } from "mongodb";
+import { ObjectId } from "mongodb";
 import { mongoClient } from './app.js';
 
 
@@ -126,19 +126,32 @@ export function randomElementArray(array) {
  * @param {*} RedditClient Snoowrap Reddit Client instance
  * @param {*} limit Amount of posts to fetch
  */
+// export async function fetchTopPosts(subreddit, mode, counter, db, RedditClient, limit = 100) {
+//     await RedditClient.getSubreddit(subreddit).getTop({ time: mode, limit: limit }).then(async (submissions) => {
+//         const collection = db.collection(`${subreddit}`);
+//         for (let i = 0; i < submissions.length; i++) {
+//             if (await collection.findOne({ id: submissions[i].id }) === null && !submissions[i].is_self
+//                 && (submissions[i].url.includes("i.redd.it") || submissions[i].url.includes("i.imgur.com"))) {
+//                 const submission = submissions[i];
+//                 await collection.insertOne(JSON.parse(JSON.stringify(submission)));
+//                 counter += 1;
+//             }
+//         }
+//     });
+// }
+
 export async function fetchTopPosts(subreddit, mode, counter, db, RedditClient, limit = 100) {
-    await RedditClient.getSubreddit(subreddit).getTop({ time: mode, limit: limit }).then(async (submissions) => {
-        const collection = db.collection(`${subreddit}`);
-        for (let i = 0; i < submissions.length; i++) {
-            if (await collection.findOne({ id: submissions[i].id }) === null && !submissions[i].is_self 
-            && (submissions[i].url.includes("i.redd.it") || submissions[i].url.includes("i.imgur.com"))) {
-                const submission = submissions[i];
-                await collection.insertOne(JSON.parse(JSON.stringify(submission)));
-                counter += 1;
-            }
+    const submissions = await RedditClient.getSubreddit(subreddit).getTop({ time: mode, limit: limit });
+    const collection = db.collection(`${subreddit}`);
+    for (let submission of submissions) {
+        if (await collection.findOne({ id: submission.id }) === null && !submission.is_self
+            && (submission.url.includes("i.redd.it") || submission.url.includes("i.imgur.com"))) {
+            await collection.insertOne(JSON.parse(JSON.stringify(submission)));
+            counter += 1;
         }
-    });
+    }
 }
+
 
 /**
  * Parses an array of interaction.options.data to get applied options 
@@ -241,7 +254,7 @@ export async function downloadURL(url, saveLocation) {
     const requestOptions = {
         method: 'GET',
         headers: myHeaders,
-        responseType: "arraybuffer"
+        redirect: 'follow'
     }
 
     await fetch(url, requestOptions)
