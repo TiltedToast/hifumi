@@ -10,6 +10,7 @@ import sharp from 'sharp';
 import canvas from 'canvas';
 import 'canvas';
 import { client } from './app.js';
+import axios from 'axios';
 
 
 export async function beautiful(interaction) {
@@ -80,11 +81,11 @@ export async function resizeImg(interaction) {
 
 
 export async function imgur(interaction, url = null) {
-    let source = '';
+    let source;
     if (url) {
-        source += url
+        source = url
     } else {
-        source += interaction.options.getString('url');
+        source = interaction.options.getString('url');
     }
     await interaction.deferReply();
     const urlPattern = /https?:\/\/.*\.(?:png|jpg|jpeg|webp|gif)/i;
@@ -101,34 +102,59 @@ export async function imgur(interaction, url = null) {
 
     tools.createTemp('temp');
     const imgType = tools.getImgType(url);
-    await tools.downloadURL(url, `./temp/unknown.${imgType}`);
-
-    if (!tools.isValidSize(`./temp/unknown.${imgType}`, 10000000)) {
-        return interaction.editReply('File too large for Imgur!');
-    }
-
-    const contents = await fsPromise.readFile(`./temp/unknown.${imgType}`, 'base64');
     const myHeaders = new Headers();
+    const formdata = new FormData();
     myHeaders.append("Authorization", `Client-ID ${credentials['imgurClientId']}`);
 
-    const formdata = new FormData();
-    formdata.append("image", contents);
 
-    const requestOptions = {
-        method: 'POST',
-        headers: myHeaders,
-        body: formdata,
-        redirect: 'follow'
-    };
+    const response = await axios.get(url);
+    if (!response.headers["content-length"]) {
+        await tools.downloadURL(url, `./temp/unknown.${imgType}`);
 
-    fetch("https://api.imgur.com/3/image", requestOptions)
-        .then(response => response.text())
-        .then(result => {
-            const data = JSON.parse(result);
-            interaction.editReply(data['data']['link']);
-            return data['data']['link'];
-        })
-        .catch(error => {return interaction.editReply("An error occured while uploading!")});
-    
+        if (!tools.isValidSize(`./temp/unknown.${imgType}`, 10000000)) {
+            return interaction.editReply('File too large for Imgur! (10MB limit)');
+        }
+
+        const contents = await fsPromise.readFile(`./temp/unknown.${imgType}`, 'base64');
+
+        formdata.append("image", contents);
+
+        const requestOptions = {
+            method: 'POST',
+            headers: myHeaders,
+            body: formdata,
+            redirect: 'follow'
+        };
+
+        fetch("https://api.imgur.com/3/image", requestOptions)
+            .then(response => response.json())
+            .then(result => {
+                const imageLink = result['data']['link'];
+                interaction.editReply(imageLink);
+            })
+            .catch(() => { return interaction.editReply("An unknown error occured while uploading!") });
+
+    } else if (response.headers["content-length"] <= 10000000) {
+        formdata.append("image", url);
+        const requestOptions = {
+            method: 'POST',
+            headers: myHeaders,
+            body: formdata,
+            redirect: 'follow'
+        };
+
+        fetch("https://api.imgur.com/3/image", requestOptions)
+            .then(response => response.json())
+            .then(result => {
+                const imageLink = result['data']['link'];
+                interaction.editReply(imageLink);
+            })
+            .catch(() => { return interaction.editReply("An unknown error occured while uploading!") });
+    } else {
+        return interaction.editReply('File too large for Imgur! (10MB limit)');
+    }
+
+
+
 
 }
