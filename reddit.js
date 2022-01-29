@@ -20,21 +20,20 @@ export async function profile(interaction) {
     const response = await fetch(`https://www.reddit.com/user/${userName}/about.json`)
     if (!response.ok) { return interaction.editReply(`User not found!`) }
 
-    RedditClient.getUser(userName).fetch().then(async (user) => {
-        const userCreatedDate = tools.strftime("%d/%m/%Y", new Date(user.created_utc * 1000));
-        const description = `[Link to profile](https://www.reddit.com/user/${user.name})
+    const user = await RedditClient.getUser(userName).fetch()
+    const userCreatedDate = tools.strftime("%d/%m/%Y", new Date(user.created_utc * 1000));
+    const description = `[Link to profile](https://www.reddit.com/user/${user.name})
                         Post Karma: ${user.link_karma.toLocaleString()}
                         Comment Karma: ${user.comment_karma.toLocaleString()}
                         Created on: ${userCreatedDate}`;
 
-        const profileEmbed = new MessageEmbed()
-            .setColor(credentials['embedColour'])
-            .setTitle(`${user.name}'s profile`)
-            .setDescription(description)
-            .setThumbnail(user.icon_img)
+    const profileEmbed = new MessageEmbed()
+        .setColor(credentials['embedColour'])
+        .setTitle(`${user.name}'s profile`)
+        .setDescription(description)
+        .setThumbnail(user.icon_img)
 
-        await interaction.editReply({ embeds: [profileEmbed] });
-    });
+    await interaction.editReply({ embeds: [profileEmbed] });
 }
 
 
@@ -102,33 +101,44 @@ export async function fetchSubmissions(subreddit, limit = 100) {
     let insertedCount = 0;
     const db = mongoClient.db('reddit');
 
-    await RedditClient.getSubreddit(subreddit).getHot({ limit: limit }).then(async (submissions) => {
-        if (db.collection(`${subreddit}`) === null) {
-            await db.createCollection(`${subreddit}`);
-        }
-        const collection = db.collection(`${subreddit}`);
-        for (let i = 0; i < submissions.length; i++) {
-            if (await collection.findOne({ id: submissions[i].id }) === null && !submissions[i].is_self 
-            && (submissions[i].url.includes("i.redd.it") || submissions[i].url.includes("i.imgur.com"))) {
-                const submission = submissions[i];
-                await collection.insertOne(JSON.parse(JSON.stringify(submission)));
-                insertedCount += 1;
-            }
-        }
-    });
+    if (db.collection(`${subreddit}`) === null) {
+        await db.createCollection(`${subreddit}`);
+    }
 
-    await RedditClient.getSubreddit(subreddit).getNew({ limit: limit }).then(async (submissions) => {
-        const collection = db.collection(`${subreddit}`);
-        for (let i = 0; i < submissions.length; i++) {
-            if (await collection.findOne({ id: submissions[i].id }) === null && !submissions[i].is_self 
-            && (submissions[i].url.includes("i.redd.it") || submissions[i].url.includes("i.imgur.com"))) {
-                const submission = submissions[i];
-                await collection.insertOne(JSON.parse(JSON.stringify(submission)));
-                insertedCount += 1;
-            }
-        }
+    const collection = db.collection(`${subreddit}`);
 
-    });
+    const hotSubmissions = await RedditClient.getSubreddit(subreddit).getHot({ limit: limit })
+
+    for (let submission of hotSubmissions) {
+        if (await collection.findOne({ id: submission.id }) === null && !submission.is_self
+            && (submission.url.includes("i.redd.it") || submission.url.includes("i.imgur.com"))) {
+            await collection.insertOne(JSON.parse(JSON.stringify(submission)));
+            insertedCount += 1;
+        }
+    }
+
+    const newSubmissions = await RedditClient.getSubreddit(subreddit).getNew({ limit: limit })
+    for (let submission of newSubmissions) {
+        if (await collection.findOne({ id: submission.id }) === null && !submission.is_self
+            && (submission.url.includes("i.redd.it") || submission.url.includes("i.imgur.com"))) {
+            await collection.insertOne(JSON.parse(JSON.stringify(submission)));
+            insertedCount += 1;
+        }
+    }
+
+    const risingSubmissions = await RedditClient.getSubreddit(subreddit).getRising({ limit: limit })
+    if (db.collection(`${subreddit}`) === null) {
+        await db.createCollection(`${subreddit}`);
+    }
+
+    for (let submission of risingSubmissions) {
+        if (await collection.findOne({ id: submission.id }) === null && !submission.is_self
+            && (submission.url.includes("i.redd.it") || submission.url.includes("i.imgur.com"))) {
+            await collection.insertOne(JSON.parse(JSON.stringify(submission)));
+            insertedCount += 1;
+        }
+    }
+
 
     await tools.fetchTopPosts(subreddit, 'hour', insertedCount, db, RedditClient);
     await tools.fetchTopPosts(subreddit, 'day', insertedCount, db, RedditClient);
@@ -136,21 +146,6 @@ export async function fetchSubmissions(subreddit, limit = 100) {
     await tools.fetchTopPosts(subreddit, 'month', insertedCount, db, RedditClient);
     await tools.fetchTopPosts(subreddit, 'year', insertedCount, db, RedditClient);
     await tools.fetchTopPosts(subreddit, 'all', insertedCount, db, RedditClient);
-
-    await RedditClient.getSubreddit(subreddit).getRising({ limit: limit }).then(async (submissions) => {
-        if (db.collection(`${subreddit}`) === null) {
-            await db.createCollection(`${subreddit}`);
-        }
-        const collection = db.collection(`${subreddit}`);
-        for (let i = 0; i < submissions.length; i++) {
-            if (await collection.findOne({ id: submissions[i].id }) === null && !submissions[i].is_self 
-            && (submissions[i].url.includes("i.redd.it") || submissions[i].url.includes("i.imgur.com"))) {
-                const submission = submissions[i];
-                await collection.insertOne(JSON.parse(JSON.stringify(submission)));
-                insertedCount += 1;
-            }
-        }
-    });
 
     console.log(`Fetched ${insertedCount} submissions from https://www.reddit.com/r/${subreddit}`);
 }
