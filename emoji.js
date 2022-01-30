@@ -1,5 +1,6 @@
 import * as tools from './tools.js';
 import { Permissions } from 'discord.js';
+import * as imgProcess from './imgProcess.js';
 
 export async function addEmoji(interaction) {
     await interaction.deferReply();
@@ -9,6 +10,7 @@ export async function addEmoji(interaction) {
 
     const name = interaction.options.getString('name');
     const source = interaction.options.getString('source');
+    let emoji;
     let url;
 
     if (name.length < 2 || name.length > 32) {
@@ -24,11 +26,27 @@ export async function addEmoji(interaction) {
     } else if (source.match(urlPattern).length === 1) {
         url = source.match(urlPattern)[0];
     }
+    
+    tools.createTemp('temp');
+    const imgType = tools.getImgType(url);
+    await tools.downloadURL(url, `./temp/unknown.${imgType}`);
 
-    if (url.includes('pximg')) { return interaction.editReply('Pixiv urls don\'t work yet, try uploading it to imgur first!'); }
+    if (!tools.isValidSize(`./temp/unknown.${imgType}`, 256000) && imgType === "gif") {
+        return interaction.editReply('Gif too large for Discord!');
+    }
 
-    const emoji = await interaction.guild.emojis.create(url, name);
+    if (!tools.isValidSize(`./temp/unknown.${imgType}`, 256000)) {
+        await imgProcess.resize(`./temp/unknown.${imgType}`, 128, `./temp/unknown_resized.${imgType}`);
 
+        if (!tools.isValidSize(`./temp/unknown_resized.${imgType}`, 256000)) {
+            return interaction.editReply('File too large for Discord, even after resizing!');
+        }
+
+        emoji = await interaction.guild.emojis.create(`./temp/unknown_resized.${imgType}`, name);
+    } else if (tools.isValidSize(`./temp/unknown.${imgType}`, 256000)) {
+        emoji = await interaction.guild.emojis.create(`./temp/unknown.${imgType}`, name);
+    }
+    
     if (emoji && emoji.animated) {
         interaction.editReply(`Emoji added! <a:${emoji.name}:${emoji.id}>`);
     } else if (emoji && !emoji.animated) {
