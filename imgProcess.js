@@ -8,7 +8,6 @@ import { MessageEmbed } from 'discord.js';
 import { Headers } from 'node-fetch';
 import sharp from 'sharp';
 import canvas from 'canvas';
-import 'canvas';
 import { client } from './app.js';
 import axios from 'axios';
 
@@ -106,8 +105,14 @@ export async function imgur(interaction, url = null) {
     const formdata = new FormData();
     myHeaders.append("Authorization", `Client-ID ${credentials['imgurClientId']}`);
 
+    const requestOptions = {
+        method: 'POST',
+        headers: myHeaders,
+        body: formdata,
+        redirect: 'follow'
+    }
 
-    const response = await axios.get(url);
+    const response = await axios.get(url, {headers: {"Referer": "https://www.pixiv.net/"}});
     if (!response.headers["content-length"]) {
         await tools.downloadURL(url, `./temp/unknown.${imgType}`);
 
@@ -119,13 +124,6 @@ export async function imgur(interaction, url = null) {
 
         formdata.append("image", contents);
 
-        const requestOptions = {
-            method: 'POST',
-            headers: myHeaders,
-            body: formdata,
-            redirect: 'follow'
-        };
-
         fetch("https://api.imgur.com/3/image", requestOptions)
             .then(response => response.json())
             .then(result => {
@@ -136,12 +134,6 @@ export async function imgur(interaction, url = null) {
 
     } else if (response.headers["content-length"] <= 10000000) {
         formdata.append("image", url);
-        const requestOptions = {
-            method: 'POST',
-            headers: myHeaders,
-            body: formdata,
-            redirect: 'follow'
-        };
 
         fetch("https://api.imgur.com/3/image", requestOptions)
             .then(response => response.json())
@@ -153,8 +145,4 @@ export async function imgur(interaction, url = null) {
     } else {
         return interaction.editReply('File too large for Imgur! (10MB limit)');
     }
-
-
-
-
 }

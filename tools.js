@@ -126,20 +126,6 @@ export function randomElementArray(array) {
  * @param {*} RedditClient Snoowrap Reddit Client instance
  * @param {*} limit Amount of posts to fetch
  */
-// export async function fetchTopPosts(subreddit, mode, counter, db, RedditClient, limit = 100) {
-//     await RedditClient.getSubreddit(subreddit).getTop({ time: mode, limit: limit }).then(async (submissions) => {
-//         const collection = db.collection(`${subreddit}`);
-//         for (let i = 0; i < submissions.length; i++) {
-//             if (await collection.findOne({ id: submissions[i].id }) === null && !submissions[i].is_self
-//                 && (submissions[i].url.includes("i.redd.it") || submissions[i].url.includes("i.imgur.com"))) {
-//                 const submission = submissions[i];
-//                 await collection.insertOne(JSON.parse(JSON.stringify(submission)));
-//                 counter += 1;
-//             }
-//         }
-//     });
-// }
-
 export async function fetchTopPosts(subreddit, mode, counter, db, RedditClient, limit = 100) {
     const submissions = await RedditClient.getSubreddit(subreddit).getTop({ time: mode, limit: limit });
     const collection = db.collection(`${subreddit}`);
