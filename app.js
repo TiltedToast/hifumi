@@ -1,11 +1,11 @@
 import * as tools from "./tools.js";
-import * as emoji from "./emoji.js";
-import * as imgProcess from "./imgProcess.js";
-import * as reddit from "./reddit.js";
+import * as main from "./main.js";
 import { credentials } from "./config.js";
-import { Client, Intents, MessageEmbed } from "discord.js";
+import { Client, Intents } from "discord.js";
 import { MongoClient, ObjectId } from "mongodb";
-import axios from 'axios';
+import clearModule from "clear-module";
+import { botOwner } from "./main.js";
+
 
 const allIntents = new Intents(32767);
 export const client = new Client({ intents: allIntents });
@@ -37,201 +37,25 @@ client.once("ready", async () => {
 
 
 client.on("messageCreate", async (message) => {
-    if (message.author.bot) return;
-    const content = message.content.split();
-
-    const server = message.guild;
-    const prefixColl = mongoClient.db("hifumi").collection("prefixes");
-
-    if (await prefixColl.findOne({ serverID: server.id }) === null) {
-        prefixColl.insertOne({ serverID: server.id, prefix: "h?" });
-        await message.channel.send("I have set the prefix to `h?`");
-    }
-
-    const prefixDoc = await prefixColl.findOne({ serverID: server.id });
-    const prefix = prefixDoc.prefix;
-
-    const command = content[0].slice(prefix.length).toLowerCase();
-
-    if (message.content.startsWith(prefix)) {
-        if (command === "ping") {message.channel.send(`API Latency is ${Math.round(client.ws.ping)}ms`);}
-    }
-
-
-
-    let reactCmd;
-    if (content.length > 1) {
-        reactCmd = content[0].slice(1);
-    }
-
-    if (
-        message.content.startsWith(`$${reactCmd} <@665224627353681921>`) ||
-        message.content.startsWith(`$${reactCmd} <@!665224627353681921>`)
-    ) {
-        const collection = mongoClient.db("hifumi").collection("mikuReactions");
-        const cmdAliases = await collection.findOne({ _id: ObjectId("61ed5a24955085f3e99f7c03") });
-        const reactMsgs = await collection.findOne({ _id: ObjectId("61ed5cb4955085f3e99f7c0c") });
-
-        for (const cmdType in cmdAliases) {
-            if (Object.values(cmdAliases[cmdType]).includes(reactCmd)) {
-                const msg = tools
-                    .randomElementArray(reactMsgs[cmdType])
-                    .replace("{0}", message.author.username);
-                await tools.sleep(1000);
-                await message.channel.send(msg);
+    let msg;
+    if (message.content.startsWith("hr~")) {
+        if (message.author.id.toString() === botOwner) {
+            try {
+                clearModule("./main.js");
+                await main.reloadModules();
+                msg = "Reload successful!"
+            } catch (e) {
+                msg = `Reload failed!\n${e}`;
             }
+            console.log(msg);
+            await message.channel.send(msg);
+        } else {
+            await message.channel.send("Insufficient Permissions!")
         }
-    }
-});
-
-client.on("interactionCreate", async (interaction) => {
-    try {
-        if (!interaction.isCommand()) return;
-
-        const { commandName } = interaction;
-
-        if (commandName === "avatar") {
-            await avatarURL(interaction);
-        } else if (commandName === "convert") {
-            await convert(interaction);
-        } else if (commandName === "emoji") {
-            if (interaction.options.getSubcommand() === "add") {
-                await emoji.addEmoji(interaction);
-            } else if (interaction.options.getSubcommand() === "remove") {
-                await emoji.removeEmoji(interaction);
-            } else if (interaction.options.getSubcommand() === "rename") {
-                await emoji.renameEmoji(interaction);
-            }
-        } else if (commandName === "imgur") {
-            await imgProcess.imgur(interaction);
-        } else if (commandName === "urban") {
-            await urban(interaction);
-        } else if (commandName === "resize") {
-            await imgProcess.resizeImg(interaction);
-        } else if (commandName === "beautiful") {
-            await imgProcess.beautiful(interaction);
-        } else if (commandName === "reddit") {
-            if (interaction.options.getSubcommand() === "profile") {
-                await reddit.profile(interaction);
-            } else if (interaction.options.getSubcommand() === "image") {
-                await reddit.sub(interaction);
-            }
-        }
-    } catch (error) {
-        tools.errorLog(interaction, error);
-    }
-});
-
-async function avatarURL(interaction) {
-    await interaction.deferReply();
-    const optionsArray = tools.getOptionsArray(interaction.options.data);
-    const user = tools.getUserFromUserAndId(
-        client,
-        interaction,
-        optionsArray,
-        "user",
-        "userid"
-    );
-
-    const userID = user.id;
-    const userName = user.username;
-    const avatarHash = user.avatar;
-
-    if (user.avatarURL({ dynamic: true }).includes("gif")) {
-        url = `https://cdn.discordapp.com/avatars/${userID}/${avatarHash}.gif?size=4096`;
     } else {
-        url = `https://cdn.discordapp.com/avatars/${userID}/${avatarHash}.png?size=4096`;
+        await main.messageIn(message);
     }
-
-    const avatarEmbed = new MessageEmbed()
-        .setColor(credentials["embedColour"])
-        .setTitle(`*${userName}'s Avatar*`)
-        .setImage(url);
-
-    interaction.editReply({ embeds: [avatarEmbed] });
-}
-
-async function convert(interaction) {
-    await interaction.deferReply();
-    const amount = parseFloat(interaction.options.getNumber("amount"));
-    const from = interaction.options.getString("from").toUpperCase();
-    const to = interaction.options.getString("to").toUpperCase();
-
-    const response = await axios.get(`https://prime.exchangerate-api.com/v5/${credentials["exchangeApiKey"]}/latest/${from}`);
-    const result = response.data
-
-    // Checks for invalid inputs
-    if (result["conversion_rates"] === undefined) {
-        return interaction.editReply("At least one of your currencies is not supported!");
-    } else if (!result["conversion_rates"].hasOwnProperty(to)) {
-        return interaction.editReply("Your second currency is not supported!");
-    } else if (from === to) {
-        return interaction.editReply("Your first currency is the same as your second currency!");
-    } else if (amount < 0) {
-        return interaction.editReply("You can't convert a negative amount!");
-    } else if (amount === 0) {
-        return interaction.editReply("Zero will obviously stay 0!");
-    }
-
-    const rate = result["conversion_rates"][to];
-    const rslt = Math.round(amount * rate * 100) / 100;
-    const description = `**${tools.advRound(amount)} ${from} ≈ ${tools.advRound(rslt)} ${to}**\n\nExchange Rate: 1 ${from} ≈ ${rate} ${to}`;
-
-    const convertEmbed = new MessageEmbed()
-        .setColor(credentials["embedColour"])
-        .setTitle(`Converting ${from} to ${to}`)
-        .setDescription(description)
-        .setFooter({
-            text: `${tools.strftime("%d/%m/%Y %H:%M:%S")}`,
-        });
-
-    interaction.editReply({ embeds: [convertEmbed] });
-};
-
-
-async function urban(interaction) {
-    await interaction.deferReply();
-    const query = interaction.options.getString("word");
-    const url = `https://api.urbandictionary.com/v0/define?term=${query}`;
-
-    const response = await axios.get(url);
-    const result = response.data;
-
-    if (result["list"] === undefined) {
-        return interaction.editReply("No results found!");
-    }
-
-    const def = tools.randomElementArray(result["list"]);
-
-    if (def === undefined) {
-        return interaction.reply("No results found!");
-    }
-
-    const word = def["word"];
-    const definition = def["definition"];
-    const example = def["example"];
-    const author = def["author"];
-    const permalink = def["permalink"];
-    const upvotes = def["thumbs_up"];
-    const downvotes = def["thumbs_down"];
-    const description = `${definition}\n\n**Example:** ${example}\n\n**Author:** ${author}\n\n**Permalink:** [${permalink}](${permalink})`.replace("[", "").replace("]", "");
-
-    const urbanEmbed = new MessageEmbed()
-        .setColor(credentials["embedColour"])
-        .setTitle(`*${word}*`)
-        .setDescription(description)
-        .setFooter({
-            text: `Upvotes: ${upvotes} Downvotes: ${downvotes}`,
-        });
-
-    interaction.editReply({ embeds: [urbanEmbed] });
-}
-
-process.on("SIGINT", () => {
-    mongoClient.close(() => {
-        console.log("Disconnected the database");
-        process.exit(0);
-    });
 });
+
 
 client.login(credentials["token"]);

@@ -157,24 +157,24 @@ export function getOptionsArray(array) {
  * @param {BaseCommandInteraction} interaction The Interaction that is unique to each command execution
  * @param {Error} errorObject The error object that is passed to the command through try/catch
  */
-export function errorLog(interaction, errorObject) {
+export function errorLog(message, errorObject) {
     const currentTime = strftime("%d/%m/%Y %H:%M:%S");
 
     let errorMessage = `An Error occurred on ${currentTime} UTC
-  **Server:** ${interaction.guild.name} - ${interaction.guild.id}
-  **Room:** ${interaction.channel.name} - ${interaction.channel.id}
-  **User:** ${interaction.user.username} - ${interaction.user.id}
-  **Command used:** ${interaction.toString()}
+  **Server:** ${message.guild.name} - ${message.guild.id}
+  **Room:** ${message.channel.name} - ${message.channel.id}
+  **User:** ${message.author.username} - ${message.author.id}
+  **Command used:** ${message.content}
   **Error:** ${errorObject.message}\n
   **${errorObject.stack}**\n
   <@258993932262834188>`
 
     const collection = mongoClient.db("hifumi").collection("errorLog");
     collection.insertOne({
-        server: interaction.guild.id,
-        channel: interaction.channel.id,
-        user: interaction.user.id,
-        command: interaction.toString(),
+        server: message.guild.id,
+        channel: message.channel.id,
+        user: message.author.id,
+        command: message.content,
         error: errorObject.message,
         stack: errorObject.stack,
         date: `${currentTime}`,
@@ -184,11 +184,10 @@ export function errorLog(interaction, errorObject) {
 
     if (errorMessage.length > 2000) {
         errorMessage = `An Error occurred on ${currentTime}\nCheck console for full error (2000 character limit)\n<@258993932262834188>`
-        console.log(errorObject);
+        return console.log(errorObject);
     }
 
-    interaction.deleteReply();
-    interaction.channel.send(errorMessage);
+    message.channel.send(errorMessage);
 }
 
 
