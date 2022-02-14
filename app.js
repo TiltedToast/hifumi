@@ -28,11 +28,11 @@ client.once("ready", async () => {
     mongoClient.connect();
     console.log("Connected to the database");
 
-    // await tools.setRandomStatus(client);
+    client.user.setActivity("with best girl Annie!", {type: "PLAYING"});
+    await tools.setRandomStatus(client);
 
     // const channel = client.channels.cache.get('655484804405657642');
     // channel.send(`Logged in as:\n${client.user.username}\nTime: ${time}\n--------------------------`);
-    client.user.setActivity("with best girl Annie!", { type: "PLAYING" });
 });
 
 

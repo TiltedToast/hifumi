@@ -2,6 +2,7 @@ import * as tools from "./tools.js";
 import * as emoji from "./emoji.js";
 import * as imgProcess from "./imgProcess.js";
 import * as reddit from "./reddit.js";
+import * as database from "./database.js";
 import { credentials } from "./config.js";
 import { MessageEmbed } from "discord.js";
 import { ObjectId } from "mongodb";
@@ -15,7 +16,7 @@ export const botOwner = "258993932262834188";
 export async function messageIn(message) {
     try {
         if (message.author.bot) return;
-        const content = message.content.split();
+        const content = message.content.split(" ");
         let reactCmd;
         let subCmd;
         if (content.length > 1) {
@@ -28,21 +29,21 @@ export async function messageIn(message) {
         const server = message.guild;
         const prefixColl = mongoClient.db("hifumi").collection("prefixes");
 
-        if (await prefixColl.findOne({ serverID: server.id }) === null) {
-            prefixColl.insertOne({ serverID: server.id, prefix: "h?" });
+        if (await prefixColl.findOne({ serverId: server.id }) === null) {
+            prefixColl.insertOne({ serverId: server.id, prefix: "h?" });
             await message.channel.send("I have set the prefix to `h?`");
         }
 
-        const prefixDoc = await prefixColl.findOne({ serverID: server.id });
+        const prefixDoc = await prefixColl.findOne({ serverId: server.id });
         const prefix = prefixDoc.prefix;
 
         const command = content[0].slice(prefix.length).toLowerCase();
 
         if (message.content.startsWith(prefix)) {
-            // if (["avatar", "pfp"].includes(command)) {
-            //     await avatarURL(message);
-            if (command in ["avatar", "pfp"]) {
+            if (["avatar", "pfp"].includes(command)) {
                 await avatarURL(message);
+            // if (command in ["avatar", "pfp"]) {
+            //     await avatarURL(message);
             } else if (["convert", "conv", "c"].includes(command)) {
                 await convert(message, prefix);
             } else if (command === "js") {
@@ -60,9 +61,16 @@ export async function messageIn(message) {
                 }
             } else if (command === "sub") {
                 await reddit.sub(message);
+            } else if (command === "db") {
+                if (["insert", "ins", "in"].includes(subCmd)) {
+                    await database.insert(message);
+                } else if (["update", "up", "upd"].includes(subCmd)) {
+                    await database.update(message);
+                }
+            } else if (["status", "stat"]) {
+                await database.insertStatus(message);
             }
         }
-
 
 
         if (message.content.startsWith(`$${reactCmd} <@665224627353681921>`) || message.content.startsWith(`$${reactCmd} <@!665224627353681921>`)) {
@@ -138,7 +146,7 @@ export async function reloadModules() {
 }
 
 async function jsEval(message) {
-    content = message.content.split();
+    content = message.content.split(" ");
     if (message.author.id === botOwner) {
         if (content.length === 1) {
             return await message.channel.send("You have to type **SOMETHING** at least");
@@ -160,7 +168,7 @@ async function jsEval(message) {
 
 
 async function avatarURL(message) {
-    const content = message.content.split();
+    const content = message.content.split(" ");
     let user;
 
     if (content.length === 1) {
@@ -194,7 +202,7 @@ async function avatarURL(message) {
 }
 
 async function convert(message, prefix) {
-    const content = message.content.split();
+    const content = message.content.split(" ");
     // const amount = parseFloat(interaction.options.getNumber("amount"));
     // const from = interaction.options.getString("from").toUpperCase();
     // const to = interaction.options.getString("to").toUpperCase();
