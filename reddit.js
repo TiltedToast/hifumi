@@ -39,7 +39,7 @@ export async function profile(interaction) {
 
 export async function sub(interaction) {
     await interaction.deferReply();
-    const subreddit = interaction.options.getString('subreddit');
+    const subreddit = interaction.options.getString('subreddit').toLowerCase();
     let nsfw;
     let force;
     let query;
@@ -108,7 +108,6 @@ export async function fetchSubmissions(subreddit, limit = 100) {
     const collection = db.collection(`${subreddit}`);
 
     const hotSubmissions = await RedditClient.getSubreddit(subreddit).getHot({ limit: limit })
-
     for (let submission of hotSubmissions) {
         if (await collection.findOne({ id: submission.id }) === null && !submission.is_self
             && (submission.url.includes("i.redd.it") || submission.url.includes("i.imgur.com"))) {
@@ -127,10 +126,6 @@ export async function fetchSubmissions(subreddit, limit = 100) {
     }
 
     const risingSubmissions = await RedditClient.getSubreddit(subreddit).getRising({ limit: limit })
-    if (db.collection(`${subreddit}`) === null) {
-        await db.createCollection(`${subreddit}`);
-    }
-
     for (let submission of risingSubmissions) {
         if (await collection.findOne({ id: submission.id }) === null && !submission.is_self
             && (submission.url.includes("i.redd.it") || submission.url.includes("i.imgur.com"))) {

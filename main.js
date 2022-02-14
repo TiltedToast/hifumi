@@ -3,42 +3,25 @@ import * as emoji from "./emoji.js";
 import * as imgProcess from "./imgProcess.js";
 import * as reddit from "./reddit.js";
 import { credentials } from "./config.js";
-import { Client, Intents, MessageEmbed } from "discord.js";
-import { MongoClient, ObjectId } from "mongodb";
-import axios from 'axios';
+import { MessageEmbed } from "discord.js";
+import { ObjectId } from "mongodb";
+import fetch from "node-fetch";
+import { mongoClient } from './app.js';
 
-const allIntents = new Intents(32767);
-export const client = new Client({ intents: allIntents });
-export const mongoClient = new MongoClient(credentials["mongoURI"]);
-const startTime = Date.now();
-
-client.once("ready", async () => {
-    const time = tools.strftime("%d/%m/%Y %H:%M:%S");
-    const doneLoadingTime = Date.now();
-
-    console.log(
-        `Started up in ${(doneLoadingTime - startTime) /
-        1000} seconds on ${time}`
-    );
-    console.log("Logged in as:");
-    console.log(client.user.username);
-    console.log(client.user.id);
-    console.log("------");
-
-    mongoClient.connect();
-    console.log("Connected to the database");
-
-    // await tools.setRandomStatus(client);
-
-    // const channel = client.channels.cache.get('655484804405657642');
-    // channel.send(`Logged in as:\n${client.user.username}\nTime: ${time}\n--------------------------`);
-    client.user.setActivity("with best girl Annie!", { type: "PLAYING" });
-});
+const botOwner = "258993932262834188";
 
 
 client.on("messageCreate", async (message) => {
     if (message.author.bot) return;
     const content = message.content.split();
+    let reactCmd;
+    let subCmd;
+    if (content.length > 1) {
+        reactCmd = content[0].slice(1);
+    }
+    if (content.length >= 2) {
+        subCmd = content[1];
+    }
 
     const server = message.guild;
     const prefixColl = mongoClient.db("hifumi").collection("prefixes");
@@ -54,20 +37,31 @@ client.on("messageCreate", async (message) => {
     const command = content[0].slice(prefix.length).toLowerCase();
 
     if (message.content.startsWith(prefix)) {
-        if (command === "ping") {message.channel.send(`API Latency is ${Math.round(client.ws.ping)}ms`);}
+        if (command in ["avatar", "pfp"]) {
+            await avatarURL(message);
+        } else if (command in ["convert", "conv", "c"]) {
+            await convert(message, prefix);
+        } else if (command === "js") {
+            await jsEval(message);
+        } else if (command === "urban") {
+            await urban(message);
+        } else if (command === "emoji") {
+
+            if (subCmd in ['add', 'ad', 'create']) {
+                await emoji.addEmoji(message);
+            } else if (subCmd in [['delete', 'delet', 'del', 'remove', 'rm']]) {
+                await emoji.removeEmoji(message);
+            } else if (subCmd in ['edit', 'e', 'rename', "rn"]) {
+                await emoji.renameEmoji(message);
+            }
+        } else if (command === "sub") {
+            await reddit.sub(message);
+        }
     }
 
 
 
-    let reactCmd;
-    if (content.length > 1) {
-        reactCmd = content[0].slice(1);
-    }
-
-    if (
-        message.content.startsWith(`$${reactCmd} <@665224627353681921>`) ||
-        message.content.startsWith(`$${reactCmd} <@!665224627353681921>`)
-    ) {
+    if (message.content.startsWith(`$${reactCmd} <@665224627353681921>`) || message.content.startsWith(`$${reactCmd} <@!665224627353681921>`)) {
         const collection = mongoClient.db("hifumi").collection("mikuReactions");
         const cmdAliases = await collection.findOne({ _id: ObjectId("61ed5a24955085f3e99f7c03") });
         const reactMsgs = await collection.findOne({ _id: ObjectId("61ed5cb4955085f3e99f7c0c") });
@@ -122,16 +116,45 @@ client.on("interactionCreate", async (interaction) => {
     }
 });
 
-async function avatarURL(interaction) {
-    await interaction.deferReply();
-    const optionsArray = tools.getOptionsArray(interaction.options.data);
-    const user = tools.getUserFromUserAndId(
-        client,
-        interaction,
-        optionsArray,
-        "user",
-        "userid"
-    );
+
+async function jsEval(message) {
+    content = message.content.split();
+    if (message.author.id === botOwner) {
+        if (content.length === 1) {
+            return await message.channel.send("You have to type **SOMETHING** at least");
+        }
+        let cmd = "";
+        for (let word of content.slice(1)) {
+            cmd += word + " ";
+        }
+        const rslt = eval(cmd);
+        if (rslt === undefined) {
+            return await message.channel.send("Cannot send an empty message!");
+        }
+        if (rslt.length > 2000) {
+            return await message.channel.send("The result is too long for discord!");
+        }
+        await message.channel.send(rslt);
+
+    }
+}
+
+
+async function avatarURL(message) {
+    const content = message.content.split();
+    let user;
+
+    if (content.length === 1) {
+        user = message.author;
+    } else if (message.mentions.has) {
+        user = message.mentions.users.first();
+    } else {
+        if (isNaN(content[1])) {
+            return await message.channel.send("Invalid ID! Use numbers only please");
+        }
+        user = await client.fetchUser(content[1]);
+
+    }
 
     const userID = user.id;
     const userName = user.username;
@@ -148,29 +171,39 @@ async function avatarURL(interaction) {
         .setTitle(`*${userName}'s Avatar*`)
         .setImage(url);
 
-    interaction.editReply({ embeds: [avatarEmbed] });
+    await message.channel.send({ embeds: [avatarEmbed] });
 }
 
-async function convert(interaction) {
-    await interaction.deferReply();
-    const amount = parseFloat(interaction.options.getNumber("amount"));
-    const from = interaction.options.getString("from").toUpperCase();
-    const to = interaction.options.getString("to").toUpperCase();
+async function convert(message, prefix) {
+    const content = message.content.split();
+    // const amount = parseFloat(interaction.options.getNumber("amount"));
+    // const from = interaction.options.getString("from").toUpperCase();
+    // const to = interaction.options.getString("to").toUpperCase();
 
-    const response = await axios.get(`https://prime.exchangerate-api.com/v5/${credentials["exchangeApiKey"]}/latest/${from}`);
-    const result = response.data
+    if (1 <= content.length <= 3) {
+        return await message.channel.send(`Usage: \`${prefix}convert <amount of money> <cur1> <cur2>\``);
+    }
+
+    if (!content[2].upper() in currencies && !content[3].upper() in currencies) {
+        return await message.channel.send(`Invalid currency codes! Check \`${prefix}currencies\` for a list`);
+    }
+
+    const response = await fetch(`https://prime.exchangerate-api.com/v5/${credentials["exchangeApiKey"]}/latest/${from}`);
+
+    if (!response.ok) { return await message.channel.send("Error! Please try again later"); }
+    const result = await response.json();
 
     // Checks for invalid inputs
     if (result["conversion_rates"] === undefined) {
-        return interaction.editReply("At least one of your currencies is not supported!");
+        return await message.channel.send("At least one of your currencies is not supported!");
     } else if (!result["conversion_rates"].hasOwnProperty(to)) {
-        return interaction.editReply("Your second currency is not supported!");
+        return await message.channel.send("Your second currency is not supported!");
     } else if (from === to) {
-        return interaction.editReply("Your first currency is the same as your second currency!");
+        return await message.channel.send("Your first currency is the same as your second currency!");
     } else if (amount < 0) {
-        return interaction.editReply("You can't convert a negative amount!");
+        return await message.channel.send("You can't convert a negative amount!");
     } else if (amount === 0) {
-        return interaction.editReply("Zero will obviously stay 0!");
+        return await message.channel.send("Zero will obviously stay 0!");
     }
 
     const rate = result["conversion_rates"][to];
@@ -185,16 +218,16 @@ async function convert(interaction) {
             text: `${tools.strftime("%d/%m/%Y %H:%M:%S")}`,
         });
 
-    interaction.editReply({ embeds: [convertEmbed] });
+    await message.channel.send({ embeds: [convertEmbed] });
 };
 
 
-async function urban(interaction) {
-    await interaction.deferReply();
+async function urban(message) {
     const query = interaction.options.getString("word");
-    const url = `https://api.urbandictionary.com/v0/define?term=${query}`;
 
-    const response = await axios.get(url);
+    const response = await fetch(`https://api.urbandictionary.com/v0/define?term=${query}`);
+
+    if (!response.ok) { return await message.channel.send("Error! Please try again later"); }
     const result = response.data;
 
     if (result["list"] === undefined) {
@@ -202,10 +235,6 @@ async function urban(interaction) {
     }
 
     const def = tools.randomElementArray(result["list"]);
-
-    if (def === undefined) {
-        return interaction.reply("No results found!");
-    }
 
     const word = def["word"];
     const definition = def["definition"];
@@ -224,7 +253,7 @@ async function urban(interaction) {
             text: `Upvotes: ${upvotes} Downvotes: ${downvotes}`,
         });
 
-    interaction.editReply({ embeds: [urbanEmbed] });
+    await message.channel.send({ embeds: [urbanEmbed] });
 }
 
 process.on("SIGINT", () => {
