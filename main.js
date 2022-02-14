@@ -7,7 +7,7 @@ import { credentials } from "./config.js";
 import { MessageEmbed } from "discord.js";
 import { ObjectId } from "mongodb";
 import fetch from "node-fetch";
-import { mongoClient } from './app.js';
+import { mongoClient, client } from './app.js';
 import clearModule from "clear-module";
 
 export const botOwner = "258993932262834188";
@@ -146,7 +146,7 @@ export async function reloadModules() {
 }
 
 async function jsEval(message) {
-    content = message.content.split(" ");
+    const content = message.content.split(" ");
     if (message.author.id === botOwner) {
         if (content.length === 1) {
             return await message.channel.send("You have to type **SOMETHING** at least");
@@ -156,13 +156,13 @@ async function jsEval(message) {
             cmd += word + " ";
         }
         const rslt = eval(cmd);
-        if (rslt === undefined) {
+        if (rslt.toString().length === 0) {
             return await message.channel.send("Cannot send an empty message!");
         }
-        if (rslt.length > 2000) {
+        if (rslt.toString().length > 2000) {
             return await message.channel.send("The result is too long for discord!");
         }
-        await message.channel.send(rslt);
+        await message.channel.send(rslt.toString());
     }
 }
 
