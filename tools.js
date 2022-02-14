@@ -79,7 +79,6 @@ export function strftime(sFormat, date) {
  * @param {Client} client Discord client which is used to access the API
  */
 export async function setRandomStatus(client) {
-    const randomDelay = randomIntFromInterval(300000, 900000)
     setInterval(async () => {
         const collection = mongoClient.db("hifumi").collection("statuses");
         const randomDoc = await collection.aggregate([{ $sample: { size: 1 } }]).toArray();
@@ -88,7 +87,7 @@ export async function setRandomStatus(client) {
 
         await client.user.setActivity(randomStatus, { type: randomType });
 
-    }, randomDelay);
+    }, randomIntFromInterval(300000, 900000));
 }
 
 
