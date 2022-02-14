@@ -9,6 +9,7 @@
         "axios": "^0.25.0",
         "canvas": "^2.9.0",
         "canvas-constructor": "^5.0.2",
+        "clear-module": "^4.1.2",
         "discord-api-types": "^0.26.1",
         "discord.js": "^13.1.0",
         "formdata-node": "^4.3.2",
