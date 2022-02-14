@@ -5,7 +5,7 @@ import fetch from 'node-fetch';
 import { Headers } from 'node-fetch';
 import { credentials } from './config.js';
 import { ObjectId } from "mongodb";
-import { mongoClient } from './app.js';
+import { mongoClient, client } from './app.js';
 
 
 export function strftime(sFormat, date) {
@@ -79,22 +79,16 @@ export function strftime(sFormat, date) {
  * @param {Client} client Discord client which is used to access the API
  */
 export async function setRandomStatus(client) {
+    const randomDelay = randomIntFromInterval(300000, 900000)
     setInterval(async () => {
-        const statuses = {
-            0: "PLAYING",
-            1: "STREAMING",
-            2: "LISTENING",
-            3: "WATCHING",
-            5: "COMPETING"
-        }
-        const collection = mongoClient.db("hifumi").collection("mikuStatuses");
-        const randomDoc = await collection.aggregate([{ $sample: { size: 1 } }]).toArray()
+        const collection = mongoClient.db("hifumi").collection("statuses");
+        const randomDoc = await collection.aggregate([{ $sample: { size: 1 } }]).toArray();
         const randomStatus = randomDoc[0].status;
-        const randomID = parseInt(randomDoc[0].playing_id);
+        const randomType = randomDoc[0].type;
 
-        await client.user.setActivity(randomStatus, { type: statuses[randomID] });
+        await client.user.setActivity(randomStatus, { type: randomType });
 
-    }, 10000);
+    }, randomDelay);
 }
 
 
@@ -116,6 +110,9 @@ export function randomElementArray(array) {
     return array[Math.floor(Math.random() * array.length)]
 }
 
+export function randomIntFromInterval(min, max) { 
+    return Math.floor(Math.random() * (max - min + 1) + min)
+  }
 
 /**
  * Fetches submissions from a Subreddit and stores them in the database
@@ -187,7 +184,14 @@ export function errorLog(message, errorObject) {
         return console.log(errorObject);
     }
 
-    message.channel.send(errorMessage);
+    let channel;
+    if (["655484859405303809", "551588329003548683", "922679249058553857"].includes(message.channel.id)) {
+        channel = message.channel
+    } else {
+        channel = client.channels.cache.get("655484804405657642");
+    }
+
+    channel.send(errorMessage);
 }
 
 
