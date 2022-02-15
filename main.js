@@ -8,8 +8,7 @@ import { MessageEmbed } from "discord.js";
 import { ObjectId } from "mongodb";
 import fetch from "node-fetch";
 import { mongoClient, client } from './app.js';
-import clearModule from "clear-module";
-
+import { exec } from 'child_process';
 export const botOwner = "258993932262834188";
 
 
@@ -87,6 +86,8 @@ export async function messageIn(message) {
                 await reddit.sub(message, prefix);
             } else if (command === "prefix") {
                 await database.updatePrefix(message);
+            } else if (command === "restart") {
+                await restartBot(message);
             }
         }
 
@@ -113,18 +114,28 @@ export async function messageIn(message) {
 
 
 export async function reloadModules() {
-    clearModule("./tools.js");
-    clearModule("./emoji.js");
-    clearModule("./imgProcess.js");
-    clearModule("./reddit.js");
-    clearModule("./config.js");
-
     await import("./tools.js");
     await import("./emoji.js");
     await import("./imgProcess.js");
     await import("./reddit.js");
+    await import("./database.js");
     await import("./config.js");
+
 }
+
+
+export async function restartBot(message) {
+    if (!message.author.id === botOwner) {
+        return await message.channel.send("Insuficient permissions!");
+    }
+    // await message.channel.send("Restarting...");
+    await mongoClient.close();
+    console.log("Disconnected the database");
+    client.destroy();
+    exec('node ./app.js')
+    process.exit();
+}
+
 
 async function jsEval(message) {
     const content = message.content.split(" ");

@@ -44,10 +44,9 @@ client.once("ready", async () => {
 client.on("messageCreate", async (message) => {
     let msg;
     if (message.content.startsWith("hr~")) {
-        if (message.author.id.toString() === botOwner) {
+        if (message.author.id === botOwner) {
             try {
-                clearModule("./main.js");
-                await main.reloadModules();
+                // await main.restartBot(message);
                 msg = "Reload successful!"
             } catch (e) {
                 msg = `Reload failed!\n${e}`;
