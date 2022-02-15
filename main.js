@@ -36,7 +36,6 @@ export async function messageIn(message) {
 
         const prefixDoc = await prefixColl.findOne({ serverId: server.id });
         const prefix = prefixDoc.prefix;
-
         const command = content[0].slice(prefix.length).toLowerCase();
 
         if (message.content.startsWith(prefix)) {
@@ -75,6 +74,16 @@ export async function messageIn(message) {
                 await bye(message);
             } else if (command === "urban") {
                 await urban(message, prefix);
+            } else if (command === "beautiful") {
+                await imgProcess.beautiful(message);
+            } else if (command === "resize") {
+                await imgProcess.resizeImg(message, prefix);
+            } else if (command === "imgur") {
+                await imgProcess.imgur(message, prefix);
+            } else if (command === "profile") {
+                await reddit.profile(message, prefix);
+            } else if (command === "sub") {
+                await reddit.sub(message, prefix);
             }
         }
 
@@ -99,43 +108,6 @@ export async function messageIn(message) {
     }
 };
 
-// client.on("interactionCreate", async (interaction) => {
-//     try {
-//         if (!interaction.isCommand()) return;
-
-//         const { commandName } = interaction;
-
-//         if (commandName === "avatar") {
-//             await avatarURL(interaction);
-//         } else if (commandName === "convert") {
-//             await convert(interaction);
-//         } else if (commandName === "emoji") {
-//             if (interaction.options.getSubcommand() === "add") {
-//                 await emoji.addEmoji(interaction);
-//             } else if (interaction.options.getSubcommand() === "remove") {
-//                 await emoji.removeEmoji(interaction);
-//             } else if (interaction.options.getSubcommand() === "rename") {
-//                 await emoji.renameEmoji(interaction);
-//             }
-//         } else if (commandName === "imgur") {
-//             await imgProcess.imgur(interaction);
-//         } else if (commandName === "urban") {
-//             await urban(interaction);
-//         } else if (commandName === "resize") {
-//             await imgProcess.resizeImg(interaction);
-//         } else if (commandName === "beautiful") {
-//             await imgProcess.beautiful(interaction);
-//         } else if (commandName === "reddit") {
-//             if (interaction.options.getSubcommand() === "profile") {
-//                 await reddit.profile(interaction);
-//             } else if (interaction.options.getSubcommand() === "image") {
-//                 await reddit.sub(interaction);
-//             }
-//         }
-//     } catch (error) {
-//         tools.errorLog(interaction, error);
-//     }
-// });
 
 export async function reloadModules() {
     clearModule("./tools.js");
@@ -178,20 +150,13 @@ async function jsEval(message) {
 
 
 async function avatarURL(message) {
-    const content = message.content.split(" ");
-    let user;
 
-    if (content.length === 1) {
-        user = message.author;
-    } else if (!isNaN(content[1])) {
-        user = await client.users.fetch(content[1]);
-    } else if (message.mentions.has) {
-        console.log("grrrr");
-        user = message.mentions.users.first();
-    } else if (!isNaN(content[1])) {
+    const pingId = message.content.split(" ")[1]
+    if (isNaN(pingId) && (!pingId.startsWith("<@"))) {
         return await message.channel.send("Invalid ID! Use numbers only please");
     }
 
+    const user = await tools.getUserObjectPingId(message);
     const userID = user.id;
     const userName = user.username;
     const avatarHash = user.avatar;
