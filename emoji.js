@@ -34,7 +34,7 @@ export async function addEmoji(message, prefix) {
 
     if (source.match(urlPattern) === null && !source.startsWith('<')) {
         return message.channel.send('Invalid source url!');
-    } else if (source.startsWith('<:')) {
+    } else if (source.startsWith('<')) {
         url = tools.extractEmoji(source);
     } else if (source.match(urlPattern).length === 1) {
         url = source.match(urlPattern)[0];
