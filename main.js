@@ -37,8 +37,9 @@ export async function messageIn(message) {
         const prefixDoc = await prefixColl.findOne({ serverId: server.id });
         const prefix = prefixDoc.prefix;
         const command = content[0].slice(prefix.length).toLowerCase();
+        const lowerCasePrefix = content[0].substring(0, prefix.length).toLowerCase();
 
-        if (message.content.startsWith(prefix)) {
+        if (message.content.toLowerCase().startsWith(lowerCasePrefix)) {
             if (["avatar", "pfp"].includes(command)) {
                 await avatarURL(message);
                 // if (command in ["avatar", "pfp"]) {
@@ -84,6 +85,8 @@ export async function messageIn(message) {
                 await reddit.profile(message, prefix);
             } else if (command === "sub") {
                 await reddit.sub(message, prefix);
+            } else if (command === "prefix") {
+                await database.updatePrefix(message);
             }
         }
 
@@ -151,12 +154,14 @@ async function jsEval(message) {
 
 async function avatarURL(message) {
 
-    const pingId = message.content.split(" ")[1]
-    if (isNaN(pingId) && (!pingId.startsWith("<@"))) {
-        return await message.channel.send("Invalid ID! Use numbers only please");
+    const content = message.content.split(" ");
+    if (content.length === 2) {
+        if (isNaN(content[1]) && (!content[1].startsWith("<@"))) {
+            return await message.channel.send("Invalid ID! Use numbers only please");
+        }
     }
 
-    const user = await tools.getUserObjectPingId(message);
+    const user = content.length === 1 ? message.author : await tools.getUserObjectPingId(message);
     const userID = user.id;
     const userName = user.username;
     const avatarHash = user.avatar;

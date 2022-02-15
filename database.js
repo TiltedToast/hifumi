@@ -1,5 +1,6 @@
 import { mongoClient } from "./app.js";
 import { botOwner } from "./main.js";
+import { Permissions } from 'discord.js';
 
 
 export async function insert(message) {
@@ -83,7 +84,7 @@ export async function insertStatus(message) {
     const content = message.content.split(" ");
 
     if (!content.length === 3) return message.channel.send("Invalid syntax!");
-    
+
     const status = content.slice(2).join(" ");
 
     const document = {
@@ -96,4 +97,24 @@ export async function insertStatus(message) {
 
     await message.channel.send("Status added!");
     await message.channel.send(JSON.stringify(document));
+}
+
+
+export async function updatePrefix(message) {
+
+    if (!message.member.permissions.has(Permissions.FLAGS.KICK_MEMBERS) && !message.author.id === botOwner) {
+        return message.channel.send("Insuficient permissions!");
+    }
+
+    const content = message.content.split(" ");
+    const collection = mongoClient.db("hifumi").collection("prefixes");
+
+    if (!content.length === 2) return await message.channel.send("Invalid syntax!");
+
+    const serverId = message.guild.id;
+    const filterDoc = { serverId: serverId };
+    const updateDoc = { $set: { prefix: content[1] } };
+    await collection.updateOne(filterDoc, updateDoc);
+    await message.channel.send(`Updated prefix for this server to \`${content[1]}\`!`);
+
 }
