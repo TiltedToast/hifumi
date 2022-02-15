@@ -101,6 +101,24 @@ export function sleep(ms) {
 }
 
 /**
+ * Returns a user object from either a user id or a ping 
+ * @param {*} message Discord message object
+ * @returns the user object
+ */
+export async function getUserObjectPingId(message) {
+    const content = message.content.split(" ");
+    
+    if (content.length === 1) {
+        return message.author;
+    } else if (!isNaN(content[1])) {
+        return await client.users.fetch(content[1]);
+    } else if (message.mentions.has) {
+        return message.mentions.users.first();
+    } 
+}
+
+
+/**
  * Takes an array and returns a random element from it.
  * @param {Array} array 
  * @returns a random Element from the array
@@ -109,9 +127,9 @@ export function randomElementArray(array) {
     return array[Math.floor(Math.random() * array.length)]
 }
 
-export function randomIntFromInterval(min, max) { 
+export function randomIntFromInterval(min, max) {
     return Math.floor(Math.random() * (max - min + 1) + min)
-  }
+}
 
 /**
  * Fetches submissions from a Subreddit and stores them in the database

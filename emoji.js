@@ -8,8 +8,10 @@ export async function addEmoji(message, prefix) {
     }
     const content = message.content.split(' ');
 
-    if (content.length === 2) {
+    if (content.length === 2 && message.attachments.size === 0) {
         return await message.channel.send(`Usage: \`${prefix}emoji add <name> <url/emoji>\``);
+    } else if (content.length === 2 && message.attachments.size > 0) {
+        return await message.channel.send("You have to specify a name!")
     }
 
     let name;
@@ -105,13 +107,13 @@ export async function renameEmoji(message, prefix) {
         if (!content.length === 4) {return await message.channel.send(`Usage: \`${prefix}emoji rename <new name> <emoji>\``);}
         const newName = content[2];
         const emojiString = content[3];
-        const emojiID = tools.extractEmoji(emojiString, true);
+        const emojiId = tools.extractEmoji(emojiString, true);
         const emojis = message.guild.emojis.cache
-        const emoji = emojis.find(emoji => emoji.id === emojiID);
+        const emoji = emojis.find(emoji => emoji.id === emojiId);
 
         if (emoji) {
             const oldName = emoji.name;
-            message.guild.emojis.fetch(emojiID).then(emoji => { emoji.edit({ name: newName }) });
+            message.guild.emojis.fetch(emojiId).then(emoji => { emoji.edit({ name: newName }) });
             message.channel.send(`Emoji successfully renamed from \`${oldName}\` to \`${newName}\`!`);
         } else {
             message.channel.send(`Emoji not found!`);

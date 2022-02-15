@@ -12,12 +12,17 @@ import { client } from './app.js';
 import axios from 'axios';
 
 
-export async function beautiful(interaction) {
-    await interaction.deferReply()
-    const optionsArray = tools.getOptionsArray(interaction.options.data);
+export async function beautiful(message) {
     tools.createTemp('temp');
 
-    const user = await tools.getUserFromUserAndId(client, interaction, optionsArray, 'user', 'userid');
+    // const user = await tools.getUserFromUserAndId(client, interaction, optionsArray, 'user', 'userid');
+    const pingId = message.content.split(" ")[1]
+    if (isNaN(pingId) && (!pingId.startsWith("<@"))) {
+        return await message.channel.send("Invalid ID! Use numbers only please");
+    }
+
+    const user = await tools.getUserObjectPingId(message);
+
 
     const avatarURL = `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=4096`
     await tools.downloadURL(avatarURL, `./temp/avatar.png`);
@@ -40,7 +45,7 @@ export async function beautiful(interaction) {
     const buffer = beautifulCanvas.toBuffer('image/png');
     fs.writeFileSync('./temp/beautiful.png', buffer);
 
-    await interaction.editReply({ files: ['./temp/beautiful.png'] });
+    await message.channel.send({ files: ['./temp/beautiful.png'] });
 }
 
 
@@ -50,21 +55,33 @@ export async function resize(fileLocation, width, saveLocation) {
 }
 
 
-export async function resizeImg(interaction) {
-    const source = interaction.options.getString('url');
-    const width = interaction.options.getInteger('width');
+export async function resizeImg(message, prefix) {
+    // const source = interaction.options.getString('url');
+    // const width = interaction.options.getInteger('width');
+    tools.createTemp('temp');
+    const content = message.content.split(" ");
+
+    if (!content.length === 3 && message.attachments.size === 0) {
+        return await message.channel.send(`Usage: \`${prefix}resize <width> <url>\``);
+    } else if (content.length === 1 && message.attachments.size > 0) {
+        return await message.channel.send("You have to provide the width!");
+    }
+
+    const width = parseInt(content[1]);
+    const source = message.attachments.size > 0 ? message.attachments.first().url : content[2];
+
     const urlPattern = /https?:\/\/.*\.(?:jpg|jpeg|png|webp|avif|gif|svg|tiff)/i;
-    await interaction.deferReply();
+
     tools.createTemp('temp');
 
     let url = '';
 
     if (source.match(urlPattern) === null) {
-        return interaction.editReply('Invalid source url!');
+        return await message.channel.send('Invalid source url!');
     } else if (source.match(urlPattern).length === 1) {
         url += source.match(urlPattern)[0];
     } else if (url.includes(".gif")) {
-        return interaction.editReply('Gifs are not supported!');
+        return await message.channel.send('Gifs are not supported!');
     }
 
     const imgType = tools.getImgType(url);
@@ -72,25 +89,28 @@ export async function resizeImg(interaction) {
     await resize(`./temp/unknown.${imgType}`, width, `./temp/unknown_resized.${imgType}`);
 
     if (!tools.isValidSize(`./temp/unknown_resized.${imgType}`, 8000000)) {
-        return interaction.editReply('File too large for Discord!');
+        return await message.channel.send('File too large for Discord!');
     }
 
-    await interaction.editReply({ files: [`./temp/unknown_resized.${imgType}`] });
+    await message.channel.send({ files: [`./temp/unknown_resized.${imgType}`] });
 }
 
 
-export async function imgur(interaction, url = null) {
+export async function imgur(message, prefix, url = null) {
+    const content = message.content.split(" ");
     let source;
     if (url) {
         source = url
+    } else if (!content.length !== 2 && message.attachments.size === 0) {
+        return await message.channel.send(`Usage: \`${prefix}imgur <url>\``);
     } else {
-        source = interaction.options.getString('url');
+        source = message.attachments.size > 0 ? message.attachments.first().url : content[1];
     }
-    await interaction.deferReply();
+
     const urlPattern = /https?:\/\/.*\.(?:png|jpg|jpeg|webp|gif)/i;
 
     if (source.match(urlPattern) === null) {
-        return interaction.reply('Invalid source url!');
+        return await message.channel.send('Invalid source url!');
     } else if (source.match(urlPattern).length === 1) {
         url = source.match(urlPattern)[0];
     }
@@ -112,12 +132,12 @@ export async function imgur(interaction, url = null) {
         redirect: 'follow'
     }
 
-    const response = await axios.get(url, {headers: {"Referer": "https://www.pixiv.net/"}});
+    const response = await axios.get(url, { headers: { "Referer": "https://www.pixiv.net/" } });
     if (!response.headers["content-length"]) {
         await tools.downloadURL(url, `./temp/unknown.${imgType}`);
 
         if (!tools.isValidSize(`./temp/unknown.${imgType}`, 10000000)) {
-            return interaction.editReply('File too large for Imgur! (10MB limit)');
+            return await message.channel.send('File too large for Imgur! (10MB limit)');
         }
 
         const contents = await fsPromise.readFile(`./temp/unknown.${imgType}`, 'base64');
@@ -128,9 +148,9 @@ export async function imgur(interaction, url = null) {
             .then(response => response.json())
             .then(result => {
                 const imageLink = result['data']['link'];
-                interaction.editReply(imageLink);
+                 message.channel.send(imageLink);
             })
-            .catch(() => { return interaction.editReply("An unknown error occured while uploading!") });
+            .catch(() => { return message.channel.send("An unknown error occured while uploading!") });
 
     } else if (response.headers["content-length"] <= 10000000) {
         formdata.append("image", url);
@@ -139,10 +159,10 @@ export async function imgur(interaction, url = null) {
             .then(response => response.json())
             .then(result => {
                 const imageLink = result['data']['link'];
-                interaction.editReply(imageLink);
+                message.channel.send(imageLink);
             })
-            .catch(() => { return interaction.editReply("An unknown error occured while uploading!") });
+            .catch(() => { return message.channel.send("An unknown error occured while uploading!") });
     } else {
-        return interaction.editReply('File too large for Imgur! (10MB limit)');
+        return await message.channel.send('File too large for Imgur! (10MB limit)');
     }
 }
