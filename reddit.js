@@ -43,19 +43,16 @@ export async function profile(message, prefix) {
 
 export async function sub(message, prefix) {
     let nsfw = false;
-    let force;
+    let force = false;
     let query;
 
     const content = message.content.split(" ").map(x => x.toLowerCase());
 
     if (content.length === 1) {
         return await message.channel.send(`Usage: \`${prefix}sub <subreddit>\``);
-    } else if (content.length === 2) {
-        force = false;
     } else if (content.length === 3) {
         if (content[2] === 'nsfw') {
             nsfw = true;
-            force = false;
         } else if (content[2] === 'force') {
             force = true;
         } else {

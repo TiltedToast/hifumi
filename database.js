@@ -110,6 +110,7 @@ export async function updatePrefix(message) {
     const collection = mongoClient.db("hifumi").collection("prefixes");
 
     if (!content.length === 2) return await message.channel.send("Invalid syntax!");
+    if (content[1].length > 5) return await message.channel.send("Prefix too long!");
 
     const serverId = message.guild.id;
     const filterDoc = { serverId: serverId };
