@@ -8,7 +8,7 @@ export async function insert(message) {
     }
 
     const content = message.content.split(" ");
-    if (!content.length >= 6) return message.channel.send("Invalid syntax!");
+    if (!content.length >= 6 && content.length % 2 !== 0) return message.channel.send("Invalid syntax!");
 
     const dbName = content[2];
     const collectionName = content[3];
@@ -44,7 +44,7 @@ export async function update(message) {
 
     const content = message.content.split(" ");
 
-    if (!content.length >= 8) return message.channel.send("Invalid syntax!");
+    if (!content.length >= 8 && content.length % 2 !== 0) return message.channel.send("Invalid syntax!");
 
     const dbName = content[2];
     const collectionName = content[3];
