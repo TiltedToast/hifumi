@@ -53,11 +53,11 @@ export async function messageIn(message) {
             } else if (command === "emoji") {
 
                 if (['add', 'ad', 'create'].includes(subCmd)) {
-                    await emoji.addEmoji(message);
+                    await emoji.addEmoji(message, prefix);
                 } else if (['delete', 'delet', 'del', 'remove', 'rm'].includes(subCmd)) {
-                    await emoji.removeEmoji(message);
+                    await emoji.removeEmoji(message, prefix);
                 } else if (['edit', 'e', 'rename', "rn"].includes(subCmd)) {
-                    await emoji.renameEmoji(message);
+                    await emoji.renameEmoji(message, prefix);
                 }
             } else if (command === "sub") {
                 await reddit.sub(message);
