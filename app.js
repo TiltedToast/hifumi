@@ -25,10 +25,15 @@ client.once("ready", async () => {
     console.log(client.user.id);
     console.log("------");
 
-    mongoClient.connect();
+    await mongoClient.connect();
     console.log("Connected to the database");
 
-    client.user.setActivity("with best girl Annie!", {type: "PLAYING"});
+    const collection = mongoClient.db("hifumi").collection("statuses");
+    const randomDoc = await collection.aggregate([{ $sample: { size: 1 } }]).toArray();
+    const randomStatus = randomDoc[0].status;
+    const randomType = randomDoc[0].type;
+
+    client.user.setActivity(randomStatus, { type: randomType });
     await tools.setRandomStatus(client);
 
     // const channel = client.channels.cache.get('655484804405657642');
