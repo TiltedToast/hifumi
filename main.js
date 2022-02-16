@@ -132,7 +132,7 @@ export async function restartBot(message) {
     await mongoClient.close();
     console.log("Disconnected the database");
     client.destroy();
-    exec('node ./app.js')
+    exec('node "./app.js"')
     process.exit();
 }
 

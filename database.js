@@ -4,12 +4,10 @@ import { Permissions } from 'discord.js';
 
 
 export async function insert(message) {
-    if (!message.author.id === botOwner) {
-        return;
-    }
+    if (!message.author.id === botOwner) return;
 
     const content = message.content.split(" ");
-    if (!content.length >= 6 && content.length % 2 !== 0) return message.channel.send("Invalid syntax!");
+    if (!content.length >= 6 && content.length % 2 !== 0) return await message.channel.send("Invalid syntax!");
 
     const dbName = content[2];
     const collectionName = content[3];
@@ -39,13 +37,11 @@ export async function insert(message) {
 
 
 export async function update(message) {
-    if (!message.author.id === botOwner) {
-        return;
-    }
+    if (!message.author.id === botOwner) return;
 
     const content = message.content.split(" ");
 
-    if (!content.length >= 8 && content.length % 2 !== 0) return message.channel.send("Invalid syntax!");
+    if (!content.length >= 8 && content.length % 2 !== 0) return await message.channel.send("Invalid syntax!");
 
     const dbName = content[2];
     const collectionName = content[3];
@@ -78,12 +74,11 @@ export async function update(message) {
 
 
 export async function insertStatus(message) {
-    if (!message.author.id === botOwner) {
-        return;
-    }
+    if (!message.author.id === botOwner) return;
+
     const content = message.content.split(" ");
 
-    if (!content.length === 3) return message.channel.send("Invalid syntax!");
+    if (!content.length === 3) return await message.channel.send("Invalid syntax!");
 
     const status = content.slice(2).join(" ");
 

@@ -32,11 +32,11 @@ export async function addEmoji(message, prefix) {
 
     const urlPattern = /https?:\/\/.*\.(?:png|jpg|jpeg|webp|gif)/i;
 
-    if (source.match(urlPattern) === null && !source.startsWith('<')) {
+    if (source.match(urlPattern) === null && !source.startsWith('<') && message.attachments.size === 0) {
         return message.channel.send('Invalid source url!');
     } else if (source.startsWith('<')) {
         url = tools.extractEmoji(source);
-    } else if (source.match(urlPattern).length === 1) {
+    } else if (!source.match(urlPattern) === null) {
         url = source.match(urlPattern)[0];
     } else if (message.attachments.size > 0) {
         url = message.attachments.first().url;
@@ -46,19 +46,19 @@ export async function addEmoji(message, prefix) {
     const imgType = tools.getImgType(url);
     await tools.downloadURL(url, `./temp/unknown.${imgType}`);
 
-    if (!tools.isValidSize(`./temp/unknown.${imgType}`, 256000) && imgType === "gif") {
+    if (!tools.isValidSize(`./temp/unknown.${imgType}`, 262144) && imgType === "gif") {
         return message.channel.send('Gif too large for Discord!');
     }
 
-    if (!tools.isValidSize(`./temp/unknown.${imgType}`, 256000)) {
+    if (!tools.isValidSize(`./temp/unknown.${imgType}`, 262144)) {
         await imgProcess.resize(`./temp/unknown.${imgType}`, 128, `./temp/unknown_resized.${imgType}`);
 
-        if (!tools.isValidSize(`./temp/unknown_resized.${imgType}`, 256000)) {
+        if (!tools.isValidSize(`./temp/unknown_resized.${imgType}`, 262144)) {
             return message.channel.send('File too large for Discord, even after resizing!');
         }
 
         emoji = await message.guild.emojis.create(`./temp/unknown_resized.${imgType}`, name);
-    } else if (tools.isValidSize(`./temp/unknown.${imgType}`, 256000)) {
+    } else if (tools.isValidSize(`./temp/unknown.${imgType}`, 262144)) {
         emoji = await message.guild.emojis.create(`./temp/unknown.${imgType}`, name);
     }
 
@@ -104,7 +104,7 @@ export async function renameEmoji(message, prefix) {
 
     try {
         const content = message.content.split(' ');
-        if (!content.length === 4) {return await message.channel.send(`Usage: \`${prefix}emoji rename <new name> <emoji>\``);}
+        if (!content.length === 4) { return await message.channel.send(`Usage: \`${prefix}emoji rename <new name> <emoji>\``); }
         const newName = content[2];
         const emojiString = content[3];
         const emojiId = tools.extractEmoji(emojiString, true);
