@@ -88,7 +88,7 @@ export async function resizeImg(message, prefix) {
     await tools.downloadURL(url, `./temp/unknown.${imgType}`);
     await resize(`./temp/unknown.${imgType}`, width, `./temp/unknown_resized.${imgType}`);
 
-    if (!tools.isValidSize(`./temp/unknown_resized.${imgType}`, 8000000)) {
+    if (!tools.isValidSize(`./temp/unknown_resized.${imgType}`, 8192000)) {
         return await message.channel.send('File too large for Discord!');
     }
 
@@ -136,7 +136,7 @@ export async function imgur(message, prefix, url = null) {
     if (!response.headers["content-length"]) {
         await tools.downloadURL(url, `./temp/unknown.${imgType}`);
 
-        if (!tools.isValidSize(`./temp/unknown.${imgType}`, 10000000)) {
+        if (!tools.isValidSize(`./temp/unknown.${imgType}`, 10240000)) {
             return await message.channel.send('File too large for Imgur! (10MB limit)');
         }
 
@@ -152,7 +152,7 @@ export async function imgur(message, prefix, url = null) {
             })
             .catch(() => { return message.channel.send("An unknown error occured while uploading!") });
 
-    } else if (response.headers["content-length"] <= 10000000) {
+    } else if (response.headers["content-length"] <= 10240000) {
         formdata.append("image", url);
 
         fetch("https://api.imgur.com/3/image", requestOptions)
