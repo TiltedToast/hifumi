@@ -70,6 +70,8 @@ client.on("messageCreate", async (message) => {
         const command = content[0].slice(prefix.length).toLowerCase();
         const lowerCasePrefix = content[0].substring(0, prefix.length).toLowerCase();
 
+        if (message.content.toLowerCase() === "hr~") await reloadBot(message);
+
         if (message.content.toLowerCase().startsWith(lowerCasePrefix)) {
             if (["avatar", "pfp"].includes(command)) {
                 await avatarURL(message);
@@ -118,10 +120,8 @@ client.on("messageCreate", async (message) => {
                 await reddit.sub(message, prefix);
             } else if (command === "prefix") {
                 await database.updatePrefix(message);
-            } else if (command === "restart") {
-                await restartBot(message);
             } else if (command === "con") {
-                await con(message);
+                await console_cmd(message);
             }
         }
 
@@ -147,18 +147,7 @@ client.on("messageCreate", async (message) => {
 });
 
 
-export async function reloadModules() {
-    await import("./tools.js");
-    await import("./emoji.js");
-    await import("./imgProcess.js");
-    await import("./reddit.js");
-    await import("./database.js");
-    await import("./config.js");
-
-}
-
-
-async function con(message) {
+async function console_cmd(message) {
     if (!message.author.id === botOwner) {
         return await message.channel.send("Insuficient permissions!");
     }
@@ -176,16 +165,15 @@ async function con(message) {
 }
 
 
-export async function restartBot(message) {
+export async function reloadBot(message) {
     if (!message.author.id === botOwner) {
         return await message.channel.send("Insuficient permissions!");
     }
-    // await message.channel.send("Restarting...");
     await mongoClient.close();
     console.log("Disconnected the database");
+    exec("pm2 reload app.js")
+    await message.channel.send("Reload successful!");
     client.destroy();
-    exec('node "./app.js"')
-    process.exit();
 }
 
 
