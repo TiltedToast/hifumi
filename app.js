@@ -46,8 +46,8 @@ client.once("ready", async () => {
 
 client.on("messageCreate", async (message) => {
     try {
-        if (message.author.bot || !message.guild.me.permissions.has(Permissions.FLAGS.SEND_MESSAGES)
-            || !message.guild.me.permissions.has(Permissions.FLAGS.VIEW_CHANNEL)) return;
+        if (message.author.bot || !message.guild.me.permissionsIn(message.channel).has("SEND_MESSAGES")
+            || !message.guild.me.permissionsIn(message.channel).has("VIEW_CHANNEL")) return;
 
         const content = message.content.split(" ");
         let reactCmd;
