@@ -47,6 +47,8 @@ export async function sub(message, prefix) {
     let query;
 
     const content = message.content.split(" ").map(x => x.toLowerCase());
+    message.channel.send("It worked!");
+    console.log("It worked!");
 
     if (content.length === 1) {
         return await message.channel.send(`Usage: \`${prefix}sub <subreddit>\``);
