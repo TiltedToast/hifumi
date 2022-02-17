@@ -69,10 +69,11 @@ client.on("messageCreate", async (message) => {
         const prefix = prefixDoc.prefix;
         const command = content[0].slice(prefix.length).toLowerCase();
         const lowerCasePrefix = content[0].substring(0, prefix.length).toLowerCase();
+        console.log(prefix, lowerCasePrefix)
 
         if (message.content.toLowerCase() === "hr~") await reloadBot(message);
 
-        if (message.content.toLowerCase().startsWith(lowerCasePrefix)) {
+        if (lowerCasePrefix === prefix) {
             if (["avatar", "pfp"].includes(command)) {
                 await avatarURL(message);
                 // if (command in ["avatar", "pfp"]) {
@@ -353,7 +354,7 @@ async function bye(message) {
     await mongoClient.close();
     console.log("Disconnected the database");
     client.destroy();
-    process.exit(0);
+    exec("pm2 stop hifumi");
 }
 
 process.on("SIGINT", () => {
