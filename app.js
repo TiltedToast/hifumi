@@ -7,7 +7,7 @@ import * as database from "./database.js";
 import { credentials } from "./config.js";
 import fetch from "node-fetch";
 import { exec } from 'child_process';
-import { Client, Intents, MessageEmbed } from "discord.js";
+import { Client, Intents, MessageEmbed, Permissions } from "discord.js";
 import { MongoClient, ObjectId } from "mongodb";
 
 
@@ -46,7 +46,8 @@ client.once("ready", async () => {
 
 client.on("messageCreate", async (message) => {
     try {
-        if (message.author.bot) return;
+        if (message.author.bot || !message.guild.me.permissions.has(Permissions.FLAGS.SEND_MESSAGES)) return;
+
         const content = message.content.split(" ");
         let reactCmd;
         let subCmd;
