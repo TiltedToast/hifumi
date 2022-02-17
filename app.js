@@ -12,7 +12,7 @@ import { MongoClient, ObjectId } from "mongodb";
 
 
 export const botOwner = "258993932262834188";
-export const embedColour =  "0xce3a9b";
+export const embedColour = "0xce3a9b";
 const allIntents = new Intents(32767);
 export const client = new Client({ intents: allIntents });
 export const mongoClient = new MongoClient(credentials["mongoURI"]);
@@ -22,10 +22,7 @@ client.once("ready", async () => {
     const time = tools.strftime("%d/%m/%Y %H:%M:%S");
     const doneLoadingTime = Date.now();
 
-    console.log(
-        `Started up in ${(doneLoadingTime - startTime) /
-        1000} seconds on ${time}`
-    );
+    console.log(`Started up in ${(doneLoadingTime - startTime) / 1000} seconds on ${time}`);
     console.log("Logged in as:");
     console.log(client.user.username);
     console.log(client.user.id);
@@ -123,6 +120,8 @@ client.on("messageCreate", async (message) => {
                 await database.updatePrefix(message);
             } else if (command === "restart") {
                 await restartBot(message);
+            } else if (command === "con") {
+                await con(message);
             }
         }
 
@@ -156,6 +155,24 @@ export async function reloadModules() {
     await import("./database.js");
     await import("./config.js");
 
+}
+
+
+async function con(message) {
+    if (!message.author.id === botOwner) {
+        return await message.channel.send("Insuficient permissions!");
+    }
+    const command = message.content.split(" ").slice(1).join(" ");
+    exec(command, async (err, stdout, stderr) => {
+        if (err) {
+            return message.channel.send(`Error: ${err.message}`);
+        }
+        if (stderr) {
+            return message.channel.send(`Error: ${stderr}`);
+        }
+        const msg = stdout ? `\`\`\`${stdout}\`\`\`` : "Command executed!";
+        await message.channel.send(msg);
+    });
 }
 
 
