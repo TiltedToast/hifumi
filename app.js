@@ -29,7 +29,6 @@ client.once("ready", async () => {
     console.log("------");
 
     await mongoClient.connect();
-    console.log("Connected to the database");
 
     const collection = mongoClient.db("hifumi").collection("statuses");
     const randomDoc = await collection.aggregate([{ $sample: { size: 1 } }]).toArray();
@@ -169,7 +168,6 @@ export async function reloadBot(message) {
         return await message.channel.send("Insuficient permissions!");
     }
     await mongoClient.close();
-    console.log("Disconnected the database");
     exec("pm2 reload app.js")
     await message.channel.send("Reload successful!");
     client.destroy();
@@ -350,14 +348,12 @@ async function bye(message) {
     }
     await message.channel.send("Bai baaaaaaaai!!");
     await mongoClient.close();
-    console.log("Disconnected the database");
     client.destroy();
     exec("pm2 stop hifumi");
 }
 
 process.on("SIGINT", () => {
     mongoClient.close(() => {
-        console.log("Disconnected the database");
         process.exit(0);
     });
 });
