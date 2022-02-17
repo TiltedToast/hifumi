@@ -39,8 +39,8 @@ client.once("ready", async () => {
     client.user.setActivity(randomStatus, { type: randomType });
     await tools.setRandomStatus(client);
 
-    // const channel = client.channels.cache.get('655484804405657642');
-    // channel.send(`Logged in as:\n${client.user.username}\nTime: ${time}\n--------------------------`);
+    const channel = client.channels.cache.get('655484804405657642');
+    channel.send(`Logged in as:\n${client.user.username}\nTime: ${time}\n--------------------------`);
 });
 
 
@@ -61,8 +61,8 @@ client.on("messageCreate", async (message) => {
         const prefixColl = mongoClient.db("hifumi").collection("prefixes");
 
         if (await prefixColl.findOne({ serverId: server.id }) === null) {
-            prefixColl.insertOne({ serverId: server.id, prefix: "h?" });
-            await message.channel.send("I have set the prefix to `h?`");
+            prefixColl.insertOne({ serverId: server.id, prefix: "h!" });
+            await message.channel.send("I have set the prefix to `h!`");
         }
 
         const prefixDoc = await prefixColl.findOne({ serverId: server.id });
@@ -76,8 +76,6 @@ client.on("messageCreate", async (message) => {
         if (lowerCasePrefix === prefix) {
             if (["avatar", "pfp"].includes(command)) {
                 await avatarURL(message);
-                // if (command in ["avatar", "pfp"]) {
-                //     await avatarURL(message);
             } else if (["convert", "conv", "c"].includes(command)) {
                 await convert(message, prefix);
             } else if (command === "js") {
@@ -126,8 +124,7 @@ client.on("messageCreate", async (message) => {
             }
         }
 
-
-        if (message.content.startsWith(`$${reactCmd} <@665224627353681921>`) || message.content.startsWith(`$${reactCmd} <@!665224627353681921>`)) {
+        if (message.content.startsWith(`$${reactCmd} <@641409330888835083>`) || message.content.startsWith(`$${reactCmd} <@!641409330888835083>`)) {
             const reactionsColl = mongoClient.db("hifumi").collection("mikuReactions");
             const cmdAliases = await reactionsColl.findOne({ _id: ObjectId("61ed5a24955085f3e99f7c03") });
             const reactMsgs = await reactionsColl.findOne({ _id: ObjectId("61ed5cb4955085f3e99f7c0c") });
