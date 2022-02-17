@@ -47,8 +47,6 @@ export async function sub(message, prefix) {
     let query;
 
     const content = message.content.split(" ").map(x => x.toLowerCase());
-    message.channel.send("It worked!");
-    console.log("It worked!");
 
     if (content.length === 1) {
         return await message.channel.send(`Usage: \`${prefix}sub <subreddit>\``);
@@ -60,14 +58,12 @@ export async function sub(message, prefix) {
         } else {
             return await message.channel.send(`Usage: \`${prefix}sub <subreddit> [nsfw/force]\``);
         }
-    } else if (content.length === 4) {
+    } else if (content.length >= 4) {
         if (content[3] === "force") {
             force = true;
         } else {
             return await message.channel.send(`Usage: \`${prefix}sub <subreddit> [nsfw] [force]\``);
         }
-    } else {
-        return await message.channel.send(`Usage: \`${prefix}sub <subreddit> [nsfw] [force]\``);
     }
 
     const subreddit = content[1];
