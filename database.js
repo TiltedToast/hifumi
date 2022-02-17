@@ -1,5 +1,5 @@
 import { mongoClient } from "./app.js";
-import { botOwner } from "./main.js";
+import { botOwner } from "./app.js";
 import { Permissions } from 'discord.js';
 
 

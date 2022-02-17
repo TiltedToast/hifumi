@@ -3,7 +3,7 @@ import { credentials } from './config.js'
 import Snoowrap from 'snoowrap';
 import { MessageEmbed } from "discord.js";
 import fetch from 'node-fetch';
-import { mongoClient } from './app.js';
+import { mongoClient, embedColour } from './app.js';
 
 
 const RedditClient = new Snoowrap({
@@ -32,7 +32,7 @@ export async function profile(message, prefix) {
                         Created on: ${userCreatedDate}`;
 
     const profileEmbed = new MessageEmbed()
-        .setColor(credentials['embedColour'])
+        .setColor(embedColour)
         .setTitle(`${user.name}'s profile`)
         .setDescription(description)
         .setThumbnail(user.icon_img)
@@ -106,7 +106,7 @@ export async function sub(message, prefix) {
     const submission = JSON.parse(JSON.stringify(randomSubmission[0]));
 
     const imgEmbed = new MessageEmbed()
-        .setColor(credentials['embedColour'])
+        .setColor(embedColour)
         .setTitle(submission.title)
         .setURL(`https://reddit.com${submission.permalink}`)
         .setImage(submission.url)
