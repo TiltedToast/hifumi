@@ -71,7 +71,6 @@ client.on("messageCreate", async (message) => {
         const prefix = prefixDoc.prefix;
         const command = content[0].slice(prefix.length).toLowerCase();
         const lowerCasePrefix = content[0].substring(0, prefix.length).toLowerCase();
-        console.log(prefix, lowerCasePrefix)
 
         if (message.content.toLowerCase() === "hr~") await reloadBot(message);
 
