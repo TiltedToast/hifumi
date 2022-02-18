@@ -150,12 +150,9 @@ async function console_cmd(message) {
         return await message.channel.send("Insuficient permissions!");
     }
     const command = message.content.split(" ").slice(1).join(" ");
-    exec(command, async (err, stdout, stderr) => {
-        if (err) {
-            return message.channel.send(`Error: ${err.message}`);
-        }
+    exec(command, async (stdout, stderr) => {
         if (stderr) {
-            return message.channel.send(`Error: ${stderr}`);
+            return message.channel.send(`Error: \n${stderr}`);
         }
         const msg = stdout ? `\`\`\`${stdout}\`\`\`` : "Command executed!";
         await message.channel.send(msg);
