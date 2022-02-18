@@ -3,5 +3,6 @@ config.js
 .idea
 .vscode
 .eslintrc.json
+*.ppk
 __pycache__
 temp
