@@ -80,8 +80,6 @@ client.on("messageCreate", async (message) => {
                 await convert(message, prefix);
             } else if (command === "js") {
                 await jsEval(message);
-            } else if (command === "urban") {
-                await urban(message);
             } else if (command === "emoji") {
 
                 if (['add', 'ad', 'create'].includes(subCmd)) {
@@ -91,14 +89,13 @@ client.on("messageCreate", async (message) => {
                 } else if (['edit', 'e', 'rename', "rn"].includes(subCmd)) {
                     await emoji.renameEmoji(message, prefix);
                 }
-            } else if (command === "sub") {
-                await reddit.sub(message);
             } else if (command === "db") {
                 if (["insert", "ins", "in"].includes(subCmd)) {
                     await database.insert(message);
                 } else if (["update", "up", "upd"].includes(subCmd)) {
                     await database.update(message);
                 }
+
             } else if (["status", "stat"].includes(command)) {
                 await database.insertStatus(message);
             } else if (command === "currencies") {
@@ -185,14 +182,16 @@ async function jsEval(message) {
         if (rslt === null) {
             return await message.channel.send("Cannot send an empty message!");
         }
+        const rsltString = rslt.toString()
 
-        if (rslt.toString().length === 0) {
-            return await message.channel.send("Cannot send an empty message!");
+        switch (rsltString.length) {
+            case 0:
+                return await message.channel.send("Cannot send an empty message!");
+            case 2000:
+                return await message.channel.send("The result is too long for discord!");
+            default:
+                return await message.channel.send(rsltString);
         }
-        if (rslt.toString().length > 2000) {
-            return await message.channel.send("The result is too long for discord!");
-        }
-        await message.channel.send(rslt.toString());
     }
 }
 
@@ -346,7 +345,7 @@ async function bye(message) {
     await message.channel.send("Bai baaaaaaaai!!");
     await mongoClient.close();
     client.destroy();
-    exec("pm2 stop hifumi");
+    exec("pm2 stop app.js");
 }
 
 process.on("SIGINT", () => {
