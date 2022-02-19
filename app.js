@@ -196,15 +196,20 @@ async function jsEval(message) {
 
 
 async function avatarURL(message) {
-
     const content = message.content.split(" ");
     if (content.length === 2) {
         if (isNaN(content[1]) && (!content[1].startsWith("<@"))) {
             return await message.channel.send("Invalid ID! Use numbers only please");
         }
     }
+    let user;
 
-    const user = content.length === 1 ? message.author : await tools.getUserObjectPingId(message);
+    try {
+        user = content.length === 1 ? message.author : await tools.getUserObjectPingId(message);
+    } catch (DiscordAPIError) {
+        return await message.channel.send("Unknown User")
+    }
+
     const userID = user.id;
     const userName = user.username;
     const avatarHash = user.avatar;

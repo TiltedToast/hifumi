@@ -107,18 +107,14 @@ export function sleep(ms) {
  */
 export async function getUserObjectPingId(message) {
     const content = message.content.split(" ");
-
-    try {
-        if (content.length === 1) {
-            return message.author;
-        } else if (!isNaN(content[1])) {
-            return await client.users.fetch(content[1]);
-        } else if (message.mentions.has) {
-            return message.mentions.users.first();
-        }
-    } catch (DiscordAPIError) {
-        return await message.channel.send("Unknown User")
-    }
+    
+    if (content.length === 1) {
+        return message.author;
+    } else if (!isNaN(content[1])) {
+        return await client.users.fetch(content[1]);
+    } else if (message.mentions.has) {
+        return message.mentions.users.first();
+    } 
 }
 
 
