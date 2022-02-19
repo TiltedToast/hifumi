@@ -184,14 +184,13 @@ async function jsEval(message) {
         }
         const rsltString = rslt.toString()
 
-        switch (rsltString.length) {
-            case 0:
-                return await message.channel.send("Cannot send an empty message!");
-            case 2000:
-                return await message.channel.send("The result is too long for discord!");
-            default:
-                return await message.channel.send(rsltString);
+        if (rsltString.length === 0) {
+            return await message.channel.send("Cannot send an empty message!");
         }
+        if (rsltString.length > 2000) {
+            return await message.channel.send("The result is too long for discord!")
+        }
+        return await message.channel.send(rsltString);
     }
 }
 
