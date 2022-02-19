@@ -107,14 +107,14 @@ export function sleep(ms) {
  */
 export async function getUserObjectPingId(message) {
     const content = message.content.split(" ");
-    
+
     if (content.length === 1) {
         return message.author;
     } else if (!isNaN(content[1])) {
         return await client.users.fetch(content[1]);
     } else if (message.mentions.has) {
         return message.mentions.users.first();
-    } 
+    }
 }
 
 
@@ -126,7 +126,12 @@ export async function getUserObjectPingId(message) {
 export function randomElementArray(array) {
     return array[Math.floor(Math.random() * array.length)]
 }
-
+/**
+ * Returns a random integer between min (inclusive) and max (inclusive)
+ * @param  {Number} min Minimium Integer value to return
+ * @param  {Number} max Maximum Integer value to return
+ * @returns a random integer between min and max
+ */
 export function randomIntFromInterval(min, max) {
     return Math.floor(Math.random() * (max - min + 1) + min)
 }
@@ -139,8 +144,11 @@ export function randomIntFromInterval(min, max) {
  * @param {} db Database to store the fetched submissions in
  * @param {*} RedditClient Snoowrap Reddit Client instance
  * @param {*} limit Amount of posts to fetch
+ * @returns {Promise} Promise that resolves to the amount of submissions fetched
  */
 export async function fetchTopPosts(subreddit, mode, counter, db, RedditClient, limit = 100) {
+    // Fetches Top posts from a subreddit
+    // Only accepts images hosted on reddit or imgur to avoid Embeds not working
     const submissions = await RedditClient.getSubreddit(subreddit).getTop({ time: mode, limit: limit });
     const collection = db.collection(`${subreddit}`);
     for (let submission of submissions) {
@@ -150,11 +158,13 @@ export async function fetchTopPosts(subreddit, mode, counter, db, RedditClient, 
             counter += 1;
         }
     }
+    return counter;
 }
 
 
 /**
- * Parses an array of interaction.options.data to get applied options 
+ * Parses an array of interaction.options.data to get applied options
+ * !Assumes you're using slash commands
  * @param {Array} array Array of strings
  * @returns an array that contains the input options
  */
@@ -202,6 +212,8 @@ export function errorLog(message, errorObject) {
     }
 
     let channel;
+    // Chooses channel to send error to
+    // The list below are channels that are actively used for testing purposes
     if (["655484859405303809", "551588329003548683", "922679249058553857"].includes(message.channel.id)) {
         channel = message.channel
     } else {
@@ -213,7 +225,9 @@ export function errorLog(message, errorObject) {
 
 
 /**
- * Chooses a User Object to use for further processing 
+ * Chooses a User Object to use for further processing\
+ * 
+ * !Assumes you're using slash commands
  * @param {Client} client The Discord Client being used to access the API
  * @param {BaseCommandInteraction} interaction The interaction that is unique to each command execution
  * @param {Array} optionsArray An array of two strings, the first being the name of the user, the second being the ID of the user
@@ -253,6 +267,7 @@ export async function downloadURL(url, saveLocation) {
     const myHeaders = new Headers();
     myHeaders.append('User-Agent', 'hifumi-js:v1.0.0:tiltedtoast27@gmail.com');
 
+    // Pixiv requires a Referrer header, no idea why
     if (url.includes("pximg")) {
         myHeaders.append('Referer', 'https://www.pixiv.net/');
     }
@@ -263,6 +278,7 @@ export async function downloadURL(url, saveLocation) {
         redirect: 'follow'
     }
 
+    // Fetches the file from the URL and saves it to the file path
     await fetch(url, requestOptions)
         .then(response => response.arrayBuffer())
         .then(buffer => fsPromise.writeFile(absSaveLocation, new Uint8Array(buffer)))

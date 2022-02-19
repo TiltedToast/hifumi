@@ -15,7 +15,7 @@ import axios from 'axios';
 export async function beautiful(message) {
     tools.createTemp('temp');
 
-    // const user = await tools.getUserFromUserAndId(client, interaction, optionsArray, 'user', 'userid');
+    // Checks for invalid User ID 
     const pingId = message.content.split(" ")[1]
     if (isNaN(pingId) && (!pingId.startsWith("<@"))) {
         return await message.channel.send("Invalid ID! Use numbers only please");
@@ -23,11 +23,12 @@ export async function beautiful(message) {
 
     const user = await tools.getUserObjectPingId(message);
 
-
+    // Downloads User Avatar and resizes it to the size required (180x180)
     const avatarURL = `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=4096`
     await tools.downloadURL(avatarURL, `./temp/avatar.png`);
     await resize('./temp/avatar.png', 180, './temp/avatar_resized.png');
 
+    // Creates a canvas and adds avatar as well as the backgrund to it
     const beautifulCanvas = new canvas.Canvas(640, 674);
     const ctx = beautifulCanvas.getContext('2d')
 
@@ -42,25 +43,31 @@ export async function beautiful(message) {
         .then(img => { ctx.drawImage(img, 0, 0) });
 
 
+    // Saves the output buffer to a file and sends it to the channel
     const buffer = beautifulCanvas.toBuffer('image/png');
     fs.writeFileSync('./temp/beautiful.png', buffer);
 
     await message.channel.send({ files: ['./temp/beautiful.png'] });
 }
 
-
+/**
+ * Resizes an image file using sharp
+ * @param  {} fileLocation The location of the image file to resize
+ * @param  {} width The desired width of the image
+ * @param  {} saveLocation The location to save the resized image
+ */
 export async function resize(fileLocation, width, saveLocation) {
+    // Sharp has a tendency to cache the image, so we need to clear the cache first
     sharp.cache(false);
     await sharp(fileLocation).resize(width).toFile(saveLocation);
 }
 
 
 export async function resizeImg(message, prefix) {
-    // const source = interaction.options.getString('url');
-    // const width = interaction.options.getInteger('width');
     tools.createTemp('temp');
     const content = message.content.split(" ");
 
+    // Checks for invalid User input
     if (!content.length === 3 && message.attachments.size === 0) {
         return await message.channel.send(`Usage: \`${prefix}resize <width> <url>\``);
     } else if (content.length === 1 && message.attachments.size > 0) {
@@ -76,6 +83,8 @@ export async function resizeImg(message, prefix) {
 
     let url = '';
 
+    // Matches URL against a regex pattern and invalidates gif files (they are not supported yet)
+    // TODO - Add support for gif files
     if (source.match(urlPattern) === null) {
         return await message.channel.send('Invalid source url!');
     } else if (source.match(urlPattern).length === 1) {
@@ -84,6 +93,8 @@ export async function resizeImg(message, prefix) {
         return await message.channel.send('Gifs are not supported!');
     }
 
+    // Downloads the image and resizes it
+    // Sends the resized image to the channel if it's within the size limit
     const imgType = tools.getImgType(url);
     await tools.downloadURL(url, `./temp/unknown.${imgType}`);
     await resize(`./temp/unknown.${imgType}`, width, `./temp/unknown_resized.${imgType}`);
@@ -109,12 +120,14 @@ export async function imgur(message, prefix, url = null) {
 
     const urlPattern = /https?:\/\/.*\.(?:png|jpg|jpeg|webp|gif)/i;
 
+    // Matches URL against a regex pattern 
     if (source.match(urlPattern) === null) {
         return await message.channel.send('Invalid source url!');
     } else if (source.match(urlPattern).length === 1) {
         url = source.match(urlPattern)[0];
     }
 
+    // Imgur API doesn't support webp images 
     if (url.includes('webp')) {
         url = url.replace('webp', 'png');
     }
@@ -132,6 +145,9 @@ export async function imgur(message, prefix, url = null) {
         redirect: 'follow'
     }
 
+    // Checks for valid image size via Content-Length header if possible
+    // If present, uploads the image to Imgur and sends the link to the channel if it's within the size limit (10MB)
+    // If not, downloads the image and checks for valid size before uploading to Imgur
     const response = await axios.get(url, { headers: { "Referer": "https://www.pixiv.net/" } });
     if (!response.headers["content-length"]) {
         await tools.downloadURL(url, `./temp/unknown.${imgType}`);
@@ -148,7 +164,7 @@ export async function imgur(message, prefix, url = null) {
             .then(response => response.json())
             .then(result => {
                 const imageLink = result['data']['link'];
-                 message.channel.send(imageLink);
+                message.channel.send(imageLink);
             })
             .catch(() => { return message.channel.send("An unknown error occured while uploading!") });
 

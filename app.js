@@ -45,12 +45,15 @@ client.once("ready", async () => {
 
 client.on("messageCreate", async (message) => {
     try {
+        // Permission check for the channel which the message was sent in to avoid breaking the bot
         if (message.author.bot || !message.guild.me.permissionsIn(message.channel).has("SEND_MESSAGES")
             || !message.guild.me.permissionsIn(message.channel).has("VIEW_CHANNEL")) return;
 
         const content = message.content.split(" ");
         let reactCmd;
         let subCmd;
+
+        // Sub command check for reacting to Miku's emote commands
         if (content.length > 1) {
             reactCmd = content[0].slice(1);
         }
@@ -61,11 +64,14 @@ client.on("messageCreate", async (message) => {
         const server = message.guild;
         const prefixColl = mongoClient.db("hifumi").collection("prefixes");
 
+        // Adds a default prefix to the db if it doesn't exist
         if (await prefixColl.findOne({ serverId: server.id }) === null) {
             prefixColl.insertOne({ serverId: server.id, prefix: "h!" });
             await message.channel.send("I have set the prefix to `h!`");
         }
 
+        // Gets the prefix from the db and compares to the message's beginning 
+        // This way the prefix can be case insensitive
         const prefixDoc = await prefixColl.findOne({ serverId: server.id });
         const prefix = prefixDoc.prefix;
         const command = content[0].slice(prefix.length).toLowerCase();
@@ -121,6 +127,8 @@ client.on("messageCreate", async (message) => {
             }
         }
 
+        // Reacting to Miku's emote commands
+        // Grabs a random reply from the db and sents it as a message after a fixed delay
         if (message.content.startsWith(`$${reactCmd} <@641409330888835083>`) || message.content.startsWith(`$${reactCmd} <@!641409330888835083>`)) {
             const reactionsColl = mongoClient.db("hifumi").collection("mikuReactions");
             const cmdAliases = await reactionsColl.findOne({ _id: ObjectId("61ed5a24955085f3e99f7c03") });
@@ -146,6 +154,8 @@ async function console_cmd(message) {
     if (!message.author.id === botOwner) {
         return await message.channel.send("Insuficient permissions!");
     }
+    // Creates a new string with the message content without the command
+    // And runs it in a new shell process
     const command = message.content.split(" ").slice(1).join(" ");
     exec(command, async (stdout, stderr) => {
         if (stderr) {
@@ -161,6 +171,7 @@ export async function reloadBot(message) {
     if (!message.author.id === botOwner) {
         return await message.channel.send("Insuficient permissions!");
     }
+    // Reloads the bot using the pm2 module
     await mongoClient.close();
     exec("pm2 reload app.js")
     await message.channel.send("Reload successful!");
@@ -174,11 +185,12 @@ async function jsEval(message) {
         if (content.length === 1) {
             return await message.channel.send("You have to type **SOMETHING** at least");
         }
-        let cmd = "";
-        for (let word of content.slice(1)) {
-            cmd += word + " ";
-        }
-        const rslt = eval(cmd);
+
+        // Creates a new string with the message content without the command
+        // And evalutes it via the JS engine
+        // Checks for a valid length and sends the result
+        const command = message.content.split(" ").slice(1).join(" ");
+        const rslt = eval(command);
         if (rslt === null) {
             return await message.channel.send("Cannot send an empty message!");
         }
@@ -197,6 +209,8 @@ async function jsEval(message) {
 
 async function avatarURL(message) {
     const content = message.content.split(" ");
+
+    // Checks for invalid provided User ID
     if (content.length === 2) {
         if (isNaN(content[1]) && (!content[1].startsWith("<@"))) {
             return await message.channel.send("Invalid ID! Use numbers only please");
@@ -235,6 +249,7 @@ async function listCurrencies(message) {
     const columns = ["", "", ""]
     const currencyKeys = Object.keys(currencies).sort().slice(0, -1);
 
+    // Equally divides the currencies into 3 columns
     for (let i = 0; i < currencyKeys.length; i++) {
         if (i <= 16) {
             columns[0] += `**${currencyKeys[i]}** - ${currencies[currencyKeys[i]]}\n`;
@@ -249,6 +264,7 @@ async function listCurrencies(message) {
         .setColor(embedColour)
         .setTitle(title)
 
+    // Loops over the columns and adds them to the embed
     for (let i = 0; i < columns.length; i++) {
         currEmbed.addField('\u200b', columns[i], true);
     }
@@ -279,7 +295,7 @@ async function convert(message, prefix) {
     if (!response.ok) { return await message.channel.send("Error! Please try again later"); }
     const result = await response.json();
 
-    // Checks for invalid inputs
+    // Checks for possible pointless conversions
     if (from === to) {
         return await message.channel.send("Your first currency is the same as your second currency!");
     } else if (amount < 0) {
@@ -288,6 +304,7 @@ async function convert(message, prefix) {
         return await message.channel.send("Zero will obviously stay 0!");
     }
 
+    // Calculates the converted amount and sends it via an Embed
     const rate = result["conversion_rates"][to];
     const rslt = Math.round(amount * rate * 100) / 100;
     const description = `**${tools.advRound(amount)} ${from} ≈ ${tools.advRound(rslt)} ${to}**\n\nExchange Rate: 1 ${from} ≈ ${rate} ${to}`;
@@ -346,12 +363,15 @@ async function bye(message) {
     if (!message.author.id === botOwner) {
         return await message.channel.send("Insuficient permissions!");
     }
+
+    // Closes the MongoDB connection and stops the running daemon via pm2
     await message.channel.send("Bai baaaaaaaai!!");
     await mongoClient.close();
     client.destroy();
     exec("pm2 stop app.js");
 }
 
+// Makes sure Ctrl + C shuts down the bot properly
 process.on("SIGINT", () => {
     mongoClient.close(() => {
         process.exit(0);
