@@ -159,7 +159,7 @@ async function console_cmd(message) {
     const command = message.content.split(" ").slice(1).join(" ");
     exec(command, async (stdout, stderr) => {
         if (stderr) {
-            return message.channel.send(`Error: \n${stderr}`);
+            return message.channel.send(`\`\`\`Error: \n${stderr}\`\`\``);
         }
         const msg = stdout ? `\`\`\`${stdout}\`\`\`` : "Command executed!";
         await message.channel.send(msg);
