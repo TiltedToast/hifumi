@@ -8,6 +8,7 @@ export async function addEmoji(message, prefix) {
     }
     const content = message.content.split(' ');
 
+    // Check if the user provided a name and an image
     if (content.length === 2 && message.attachments.size === 0) {
         return await message.channel.send(`Usage: \`${prefix}emoji add <name> <url/emoji>\``);
     } else if (content.length === 2 && message.attachments.size > 0) {
@@ -18,6 +19,7 @@ export async function addEmoji(message, prefix) {
     let emoji;
     let url;
 
+    // Sets name based on whether the user provided an emoji or not
     if (content[2].startsWith('<:') && content[2].includes('>')) {
         name = content[2].split(':')[1]
     } else {
@@ -32,6 +34,7 @@ export async function addEmoji(message, prefix) {
 
     const urlPattern = /https?:\/\/.*\.(?:png|jpg|jpeg|webp|gif)/i;
 
+    // Matches the source string against a url regex and sets the url variable
     if (source.match(urlPattern) === null && !source.startsWith('<') && message.attachments.size === 0) {
         return message.channel.send('Invalid source url!');
     } else if (source.startsWith('<')) {
@@ -46,10 +49,12 @@ export async function addEmoji(message, prefix) {
     const imgType = tools.getImgType(url);
     await tools.downloadURL(url, `./temp/unknown.${imgType}`);
 
+    // 256KB max size
     if (!tools.isValidSize(`./temp/unknown.${imgType}`, 262144) && imgType === "gif") {
         return message.channel.send('Gif too large for Discord!');
     }
 
+    // Resizes image, checks size again and creates emoji
     if (!tools.isValidSize(`./temp/unknown.${imgType}`, 262144)) {
         await imgProcess.resize(`./temp/unknown.${imgType}`, 128, `./temp/unknown_resized.${imgType}`);
 
@@ -62,6 +67,7 @@ export async function addEmoji(message, prefix) {
         emoji = await message.guild.emojis.create(`./temp/unknown.${imgType}`, name);
     }
 
+    // Sends newly created emoji to the channel
     if (emoji && emoji.animated) {
         message.channel.send(`Emoji added! <a:${emoji.name}:${emoji.id}>`);
     } else if (emoji && !emoji.animated) {

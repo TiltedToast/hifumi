@@ -14,6 +14,7 @@ export async function insert(message) {
 
     let document = {};
 
+    // Loops over the argument pairs and adds them to as key value pairs in the document
     for (let i = 4; i < content.length; i++) {
         if (i % 2 === 0) {
             if (content[i + 1].includes("_")) {
@@ -50,6 +51,7 @@ export async function update(message) {
 
     let updateDoc = {};
 
+    // Loops over the argument pairs and adds them to as key value pairs in the document
     for (let i = 6; i < content.length; i++) {
         if (i % 2 === 0) {
             if (content[i + 1].includes("_")) {
@@ -82,6 +84,7 @@ export async function insertStatus(message) {
 
     const status = content.slice(2).join(" ");
 
+    // Uppercases the type to conform to discord's API 
     const document = {
         type: content[1].toUpperCase(),
         status: status
@@ -96,7 +99,7 @@ export async function insertStatus(message) {
 
 
 export async function updatePrefix(message) {
-
+    // Permission check for Kick Permissions or being the Bot Owner
     if (!message.member.permissions.has(Permissions.FLAGS.KICK_MEMBERS) && !message.author.id === botOwner) {
         return message.channel.send("Insuficient permissions!");
     }
@@ -104,9 +107,12 @@ export async function updatePrefix(message) {
     const content = message.content.split(" ");
     const collection = mongoClient.db("hifumi").collection("prefixes");
 
+    // Syntax check as well as avoiding cluttering the database with long impractical prefixes
     if (!content.length === 2) return await message.channel.send("Invalid syntax!");
     if (content[1].length > 5) return await message.channel.send("Prefix too long!");
 
+    // Finds the guild's document in the database
+    // Updates said docment with the new prefix
     const serverId = message.guild.id;
     const filterDoc = { serverId: serverId };
     const updateDoc = { $set: { prefix: content[1] } };

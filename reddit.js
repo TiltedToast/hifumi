@@ -20,6 +20,8 @@ export async function profile(message, prefix) {
         return message.channel.send(`Usage: \`${prefix}profile <username>\``);
     }
 
+    // Make sure the provided username is valid
+    // If it is, create an embed with the user's profile
     const userName = content[1].toLowerCase();
     const response = await fetch(`https://www.reddit.com/user/${userName}/about.json`)
     if (!response.ok) { return await message.channel.send(`User not found!`) }
@@ -48,6 +50,7 @@ export async function sub(message, prefix) {
 
     const content = message.content.split(" ").map(x => x.toLowerCase());
 
+    // Set the value for the nsfw & force flags
     if (content.length === 1) {
         return await message.channel.send(`Usage: \`${prefix}sub <subreddit>\``);
     } else if (content.length === 3) {
@@ -66,10 +69,12 @@ export async function sub(message, prefix) {
         }
     }
 
+    // Check if command has been run in a channel marked as NSFW to avoid potential NSFW posts in non-NSFW channels
     if (nsfw && !message.channel.nsfw) return await message.channel.send("You have to be in a NSFW channel for this")
 
     const subreddit = content[1];
 
+    // Check if the subreddit exists
     const res = await fetch(`https://www.reddit.com/r/${subreddit}/about.json`);
     if (!res.ok) { return await message.channel.send(`Subreddit not found!`) }
 
@@ -80,19 +85,22 @@ export async function sub(message, prefix) {
 
     if (force) {
         await message.channel.send('Force fetching images, this might take a while...');
-        await fetchSubmissions(subreddit);
+        await fetchSubmissions(subreddit, message);
 
     } else if (!collectionNames.includes(subreddit)) {
         await message.channel.send('Fetching images for the first time, this might take a while...');
-        await fetchSubmissions(subreddit);
+        await fetchSubmissions(subreddit, message);
     }
 
+    // If true, looks for only NSFW posts
+    // If false, looks for only SFW posts
     if (nsfw) {
         query = { over_18: true }
     } else {
         query = { over_18: false }
     }
 
+    // Get a random post that's stored in the database and send it via an Embed
     const collection = db.collection(subreddit);
     const randomSubmission = await collection.aggregate([
         { $match: query },
@@ -116,22 +124,25 @@ export async function sub(message, prefix) {
 
 }
 
-export async function fetchSubmissions(subreddit, limit = 100) {
-    let insertedCount = 0;
+export async function fetchSubmissions(subreddit, message, limit = 100) {
+    let counter = 0;
     const db = mongoClient.db('reddit');
 
+    // Make sure there's a collection ready for the subreddit
     if (db.collection(`${subreddit}`) === null) {
         await db.createCollection(`${subreddit}`);
     }
 
     const collection = db.collection(`${subreddit}`);
 
+    // Fetches posts from the subreddit based on the limit (default 100) and stores them in the database
+    // Only fetches posts that are hosted on reddit/imgur to avoid Embeds not loading
     const hotSubmissions = await RedditClient.getSubreddit(subreddit).getHot({ limit: limit })
     for (let submission of hotSubmissions) {
         if (await collection.findOne({ id: submission.id }) === null && !submission.is_self
             && (submission.url.includes("i.redd.it") || submission.url.includes("i.imgur.com"))) {
             await collection.insertOne(JSON.parse(JSON.stringify(submission)));
-            insertedCount += 1;
+            counter += 1;
         }
     }
 
@@ -140,7 +151,7 @@ export async function fetchSubmissions(subreddit, limit = 100) {
         if (await collection.findOne({ id: submission.id }) === null && !submission.is_self
             && (submission.url.includes("i.redd.it") || submission.url.includes("i.imgur.com"))) {
             await collection.insertOne(JSON.parse(JSON.stringify(submission)));
-            insertedCount += 1;
+            counter += 1;
         }
     }
 
@@ -149,15 +160,18 @@ export async function fetchSubmissions(subreddit, limit = 100) {
         if (await collection.findOne({ id: submission.id }) === null && !submission.is_self
             && (submission.url.includes("i.redd.it") || submission.url.includes("i.imgur.com"))) {
             await collection.insertOne(JSON.parse(JSON.stringify(submission)));
-            insertedCount += 1;
+            counter += 1;
         }
     }
 
+    // Fetches all possible Top posts from the subreddit and stores them in the database
+    // Sends the total amount of posts fetched to the user
+    counter = await tools.fetchTopPosts(subreddit, 'hour', counter, db, RedditClient);
+    counter = await tools.fetchTopPosts(subreddit, 'day', counter, db, RedditClient);
+    counter = await tools.fetchTopPosts(subreddit, 'week', counter, db, RedditClient);
+    counter = await tools.fetchTopPosts(subreddit, 'month', counter, db, RedditClient);
+    counter = await tools.fetchTopPosts(subreddit, 'year', counter, db, RedditClient);
+    counter = await tools.fetchTopPosts(subreddit, 'all', counter, db, RedditClient);
 
-    await tools.fetchTopPosts(subreddit, 'hour', insertedCount, db, RedditClient);
-    await tools.fetchTopPosts(subreddit, 'day', insertedCount, db, RedditClient);
-    await tools.fetchTopPosts(subreddit, 'week', insertedCount, db, RedditClient);
-    await tools.fetchTopPosts(subreddit, 'month', insertedCount, db, RedditClient);
-    await tools.fetchTopPosts(subreddit, 'year', insertedCount, db, RedditClient);
-    await tools.fetchTopPosts(subreddit, 'all', insertedCount, db, RedditClient);
+    await message.channel.send(`Fetched ${counter} new images for ${subreddit}`);
 }
