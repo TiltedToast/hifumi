@@ -173,7 +173,7 @@ export async function reloadBot(message: Message) {
     }
     // Reloads the bot using the pm2 module
     await mongoClient.close();
-    exec("pm2 reload hifumi")
+    exec("npm run restart")
     await message.channel.send("Reload successful!");
     client.destroy();
 }
