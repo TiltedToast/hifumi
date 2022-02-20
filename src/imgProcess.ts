@@ -4,7 +4,7 @@ import { FormData } from "formdata-node"
 import fetch from 'node-fetch';
 import * as tools from './tools.js';
 import { credentials } from './config.js';
-import { MessageEmbed } from 'discord.js';
+import { Message, MessageEmbed } from 'discord.js';
 import { Headers } from 'node-fetch';
 import sharp from 'sharp';
 import canvas from 'canvas';
@@ -12,12 +12,12 @@ import { client } from './app.js';
 import axios from 'axios';
 
 
-export async function beautiful(message) {
+export async function beautiful(message: Message): Promise<Message> {
     tools.createTemp('temp');
 
     // Checks for invalid User ID 
     const pingId = message.content.split(" ")[1]
-    if (isNaN(pingId) && (!pingId.startsWith("<@"))) {
+    if (isNaN(parseInt(pingId)) && (!pingId.startsWith("<@"))) {
         return await message.channel.send("Invalid ID! Use numbers only please");
     }
 
@@ -52,23 +52,23 @@ export async function beautiful(message) {
 
 /**
  * Resizes an image file using sharp
- * @param  {} fileLocation The location of the image file to resize
- * @param  {} width The desired width of the image
- * @param  {} saveLocation The location to save the resized image
+ * @param  {string} fileLocation The location of the image file to resize
+ * @param  {number} width The desired width of the image
+ * @param  {string} saveLocation The location to save the resized image
  */
-export async function resize(fileLocation, width, saveLocation) {
+export async function resize(fileLocation: string, width: number, saveLocation: string): Promise<void> {
     // Sharp has a tendency to cache the image, so we need to clear the cache first
     sharp.cache(false);
     await sharp(fileLocation).resize(width).toFile(saveLocation);
 }
 
 
-export async function resizeImg(message, prefix) {
+export async function resizeImg(message: Message, prefix: string): Promise<Message> {
     tools.createTemp('temp');
     const content = message.content.split(" ");
 
     // Checks for invalid User input
-    if (!content.length === 3 && message.attachments.size === 0) {
+    if (!(content.length === 3) && message.attachments.size === 0) {
         return await message.channel.send(`Usage: \`${prefix}resize <width> <url>\``);
     } else if (content.length === 1 && message.attachments.size > 0) {
         return await message.channel.send("You have to provide the width!");
@@ -107,12 +107,12 @@ export async function resizeImg(message, prefix) {
 }
 
 
-export async function imgur(message, prefix, url = null) {
+export async function imgur(message: Message, prefix: string, url?: string): Promise<Message> {
     const content = message.content.split(" ");
     let source;
     if (url) {
         source = url
-    } else if (!content.length !== 2 && message.attachments.size === 0) {
+    } else if (!(content.length !== 2) && message.attachments.size === 0) {
         return await message.channel.send(`Usage: \`${prefix}imgur <url>\``);
     } else {
         source = message.attachments.size > 0 ? message.attachments.first().url : content[1];
@@ -138,7 +138,7 @@ export async function imgur(message, prefix, url = null) {
     const formdata = new FormData();
     myHeaders.append("Authorization", `Client-ID ${credentials['imgurClientId']}`);
 
-    const requestOptions = {
+    const requestOptions: any = {
         method: 'POST',
         headers: myHeaders,
         body: formdata,
@@ -168,7 +168,7 @@ export async function imgur(message, prefix, url = null) {
             })
             .catch(() => { return message.channel.send("An unknown error occured while uploading!") });
 
-    } else if (response.headers["content-length"] <= 10240000) {
+    } else if (parseInt(response.headers["content-length"]) <= 10240000) {
         formdata.append("image", url);
 
         fetch("https://api.imgur.com/3/image", requestOptions)

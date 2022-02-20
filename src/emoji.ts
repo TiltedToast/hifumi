@@ -1,8 +1,8 @@
 import * as tools from './tools.js';
-import { Permissions } from 'discord.js';
+import { Emoji, GuildEmoji, Message, Permissions } from 'discord.js';
 import * as imgProcess from './imgProcess.js';
 
-export async function addEmoji(message, prefix) {
+export async function addEmoji(message: Message, prefix: string): Promise<Message> {
     if (!message.member.permissions.has(Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS)) {
         return await message.channel.send('You need the "Manage Emojis" permission to add emojis!');
     }
@@ -15,9 +15,9 @@ export async function addEmoji(message, prefix) {
         return await message.channel.send("You have to specify a name!")
     }
 
-    let name;
-    let emoji;
-    let url;
+    let name: string;
+    let emoji: GuildEmoji;
+    let url: string;
 
     // Sets name based on whether the user provided an emoji or not
     if (content[2].startsWith('<:') && content[2].includes('>')) {
@@ -69,13 +69,13 @@ export async function addEmoji(message, prefix) {
 
     // Sends newly created emoji to the channel
     if (emoji && emoji.animated) {
-        message.channel.send(`Emoji added! <a:${emoji.name}:${emoji.id}>`);
+        return await message.channel.send(`Emoji added! <a:${emoji.name}:${emoji.id}>`);
     } else if (emoji && !emoji.animated) {
-        message.channel.send(`Emoji added! <:${emoji.name}:${emoji.id}>`);
+        return await message.channel.send(`Emoji added! <:${emoji.name}:${emoji.id}>`);
     }
 }
 
-export async function removeEmoji(message, prefix) {
+export async function removeEmoji(message: Message, prefix: string): Promise<Message> {
     if (!message.member.permissions.has(Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS)) {
         return message.channel.send('You need the "Manage Emojis" permission to remove emojis!');
     }
@@ -83,7 +83,7 @@ export async function removeEmoji(message, prefix) {
     const content = message.content.split(' ');
 
     try {
-        if (!content.length === 3) {
+        if (!(content.length === 3)) {
             return await message.channel.send(`Usage: \`${prefix}emoji remove <emoji>\``);
         }
         const emojiString = content[2];
@@ -103,14 +103,14 @@ export async function removeEmoji(message, prefix) {
 }
 
 
-export async function renameEmoji(message, prefix) {
+export async function renameEmoji(message: Message, prefix: string): Promise<Message> {
     if (!message.member.permissions.has(Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS)) {
         return message.channel.send('You need the "Manage Emojis" permission to rename emojis!');
     }
 
     try {
         const content = message.content.split(' ');
-        if (!content.length === 4) { return await message.channel.send(`Usage: \`${prefix}emoji rename <new name> <emoji>\``); }
+        if (!(content.length === 4)) { return await message.channel.send(`Usage: \`${prefix}emoji rename <new name> <emoji>\``); }
         const newName = content[2];
         const emojiString = content[3];
         const emojiId = tools.extractEmoji(emojiString, true);
