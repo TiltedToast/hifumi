@@ -38,6 +38,6 @@
         "reload": "pm2 reload hifumi",
         "stop": "pm2 stop hifumi",
         "delete": "pm2 delete hifumi",
-        "restart": "pm2 delete hifumi && tsc && pm2 start ./dist/app.js --name hifumi --time"
+        "restart": "tsc && pm2 reload hifumi"
     }
 }
