@@ -38,8 +38,8 @@ client.once("ready", async () => {
     client.user.setActivity(randomStatus, { type: randomType });
     await tools.setRandomStatus(client);
 
-    // const channel = client.channels.cache.get('655484804405657642');
-    // (channel as TextChannel).send(`Logged in as:\n${client.user.username}\nTime: ${time}\n--------------------------`);
+    const channel = client.channels.cache.get('655484804405657642');
+    (channel as TextChannel).send(`Logged in as:\n${client.user.username}\nTime: ${time}\n--------------------------`);
 });
 
 
@@ -73,7 +73,7 @@ client.on("messageCreate", async (message: Message) => {
 
         if (message.content.toLowerCase() === "hr~") await reloadBot(message);
 
-        if (lowerCasePrefix === "h?") {
+        if (lowerCasePrefix === prefix) {
             if (["avatar", "pfp"].includes(command)) {
                 await avatarURL(message);
             } else if (["convert", "conv", "c"].includes(command)) {
