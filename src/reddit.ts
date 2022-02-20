@@ -1,7 +1,7 @@
 import * as tools from './tools.js';
 import { credentials } from './config.js'
 import Snoowrap from 'snoowrap';
-import { MessageEmbed } from "discord.js";
+import { Message, MessageEmbed, TextChannel } from "discord.js";
 import fetch from 'node-fetch';
 import { mongoClient, embedColour } from './app.js';
 
@@ -13,7 +13,7 @@ const RedditClient = new Snoowrap({
     refreshToken: credentials['redditRefreshToken']
 });
 
-export async function profile(message, prefix) {
+export async function profile(message: Message, prefix: string): Promise<Message> {
     const content = message.content.split(" ");
 
     if (content.length !== 2) {
@@ -26,7 +26,7 @@ export async function profile(message, prefix) {
     const response = await fetch(`https://www.reddit.com/user/${userName}/about.json`)
     if (!response.ok) { return await message.channel.send(`User not found!`) }
 
-    const user = await RedditClient.getUser(userName).fetch()
+    const user = RedditClient.getUser(userName);
     const userCreatedDate = tools.strftime("%d/%m/%Y", new Date(user.created_utc * 1000));
     const description = `[Link to profile](https://www.reddit.com/user/${user.name})
                         Post Karma: ${user.link_karma.toLocaleString()}
@@ -43,10 +43,10 @@ export async function profile(message, prefix) {
 }
 
 
-export async function sub(message, prefix) {
-    let nsfw = false;
-    let force = false;
-    let query;
+export async function sub(message: Message, prefix: string): Promise<Message> {
+    let nsfw: boolean = false;
+    let force: boolean = false;
+    let query: object;
 
     const content = message.content.split(" ").map(x => x.toLowerCase());
 
@@ -70,9 +70,9 @@ export async function sub(message, prefix) {
     }
 
     // Check if command has been run in a channel marked as NSFW to avoid potential NSFW posts in non-NSFW channels
-    if (nsfw && !message.channel.nsfw) return await message.channel.send("You have to be in a NSFW channel for this")
+    if (nsfw && !(message.channel as TextChannel).nsfw) return await message.channel.send("You have to be in a NSFW channel for this")
 
-    const subreddit = content[1];
+    const subreddit: string = content[1];
 
     // Check if the subreddit exists
     const res = await fetch(`https://www.reddit.com/r/${subreddit}/about.json`);
@@ -124,7 +124,7 @@ export async function sub(message, prefix) {
 
 }
 
-export async function fetchSubmissions(subreddit, message, limit = 100) {
+export async function fetchSubmissions(subreddit: string, message: Message, limit: number = 100) {
     let counter = 0;
     const db = mongoClient.db('reddit');
 

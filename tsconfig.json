@@ -1,0 +1,15 @@
+{
+    "compilerOptions": {
+        "module": "ES2020",
+        "target": "ES6",
+        "outDir": "dist",
+        "rootDir": "src",
+        "skipLibCheck": true,
+        "strictNullChecks": false,
+        "esModuleInterop": true,
+        "moduleResolution": "node",
+    },
+    "include": [
+        "src/**/*.ts"
+    ],
+}

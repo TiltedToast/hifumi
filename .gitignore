@@ -1,8 +1,10 @@
 node_modules
-config.js
+**/config.ts
 .idea
 .vscode
 .eslintrc.json
 *.ppk
+*.pem
 __pycache__
 temp
+dist

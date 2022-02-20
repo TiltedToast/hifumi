@@ -1,13 +1,13 @@
 import { mongoClient } from "./app.js";
 import { botOwner } from "./app.js";
-import { Permissions } from 'discord.js';
+import { Message, Permissions } from 'discord.js';
 
 
-export async function insert(message) {
-    if (!message.author.id === botOwner) return;
+export async function insert(message: Message) {
+    if (!(message.author.id === botOwner)) return;
 
     const content = message.content.split(" ");
-    if (!content.length >= 6 && content.length % 2 !== 0) return await message.channel.send("Invalid syntax!");
+    if (!(content.length >= 6) && (content.length % 2 !== 0)) return await message.channel.send("Invalid syntax!");
 
     const dbName = content[2];
     const collectionName = content[3];
@@ -37,12 +37,12 @@ export async function insert(message) {
 }
 
 
-export async function update(message) {
-    if (!message.author.id === botOwner) return;
+export async function update(message: Message) {
+    if (!(message.author.id === botOwner)) return;
 
     const content = message.content.split(" ");
 
-    if (!content.length >= 8 && content.length % 2 !== 0) return await message.channel.send("Invalid syntax!");
+    if (!(content.length >= 8) && (content.length % 2 !== 0)) return await message.channel.send("Invalid syntax!");
 
     const dbName = content[2];
     const collectionName = content[3];
@@ -75,12 +75,12 @@ export async function update(message) {
 }
 
 
-export async function insertStatus(message) {
-    if (!message.author.id === botOwner) return;
+export async function insertStatus(message: Message) {
+    if (!(message.author.id === botOwner)) return;
 
     const content = message.content.split(" ");
 
-    if (!content.length === 3) return await message.channel.send("Invalid syntax!");
+    if (!(content.length === 3)) return await message.channel.send("Invalid syntax!");
 
     const status = content.slice(2).join(" ");
 
@@ -98,9 +98,9 @@ export async function insertStatus(message) {
 }
 
 
-export async function updatePrefix(message) {
+export async function updatePrefix(message: Message) {
     // Permission check for Kick Permissions or being the Bot Owner
-    if (!message.member.permissions.has(Permissions.FLAGS.KICK_MEMBERS) && !message.author.id === botOwner) {
+    if (!message.member.permissions.has(Permissions.FLAGS.KICK_MEMBERS) && !(message.author.id === botOwner)) {
         return message.channel.send("Insuficient permissions!");
     }
 
@@ -108,7 +108,7 @@ export async function updatePrefix(message) {
     const collection = mongoClient.db("hifumi").collection("prefixes");
 
     // Syntax check as well as avoiding cluttering the database with long impractical prefixes
-    if (!content.length === 2) return await message.channel.send("Invalid syntax!");
+    if (!(content.length === 2)) return await message.channel.send("Invalid syntax!");
     if (content[1].length > 5) return await message.channel.send("Prefix too long!");
 
     // Finds the guild's document in the database
