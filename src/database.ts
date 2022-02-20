@@ -80,7 +80,7 @@ export async function insertStatus(message: Message) {
 
     const content = message.content.split(" ");
 
-    if (!(content.length === 3)) return await message.channel.send("Invalid syntax!");
+    if (!(content.length >= 3)) return await message.channel.send("Invalid syntax!");
 
     const status = content.slice(2).join(" ");
 
