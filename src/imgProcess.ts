@@ -4,7 +4,7 @@ import { FormData } from "formdata-node"
 import fetch from 'node-fetch';
 import * as tools from './tools.js';
 import { credentials } from './config.js';
-import { Message, MessageEmbed } from 'discord.js';
+import { Message, MessageAttachment, MessageEmbed } from 'discord.js';
 import { Headers } from 'node-fetch';
 import sharp from 'sharp';
 import canvas from 'canvas';
@@ -12,7 +12,7 @@ import { client } from './app.js';
 import axios from 'axios';
 
 
-export async function beautiful(message: Message): Promise<Message> {
+export async function beautiful(message: Message): Promise<any> {
     tools.createTemp('temp');
 
     // Checks for invalid User ID 
@@ -22,7 +22,7 @@ export async function beautiful(message: Message): Promise<Message> {
     }
 
     const user = await tools.getUserObjectPingId(message);
-
+    if (user === undefined) return;
     // Downloads User Avatar and resizes it to the size required (180x180)
     const avatarURL = `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=4096`
     await tools.downloadURL(avatarURL, `./temp/avatar.png`);
@@ -47,7 +47,7 @@ export async function beautiful(message: Message): Promise<Message> {
     const buffer = beautifulCanvas.toBuffer('image/png');
     fs.writeFileSync('./temp/beautiful.png', buffer);
 
-    await message.channel.send({ files: ['./temp/beautiful.png'] });
+    return await message.channel.send({ files: ['./temp/beautiful.png'] });
 }
 
 /**
@@ -63,7 +63,7 @@ export async function resize(fileLocation: string, width: number, saveLocation: 
 }
 
 
-export async function resizeImg(message: Message, prefix: string): Promise<Message> {
+export async function resizeImg(message: Message, prefix: string): Promise<any> {
     tools.createTemp('temp');
     const content = message.content.split(" ");
 
@@ -75,8 +75,8 @@ export async function resizeImg(message: Message, prefix: string): Promise<Messa
     }
 
     const width = parseInt(content[1]);
-    const source = message.attachments.size > 0 ? message.attachments.first().url : content[2];
-
+    const source = message.attachments.size > 0 ? (message.attachments.first() as MessageAttachment).url : content[2];
+    if (source === undefined) return await message.channel.send("Invalid URL!");
     const urlPattern = /https?:\/\/.*\.(?:jpg|jpeg|png|webp|avif|gif|svg|tiff)/i;
 
     tools.createTemp('temp');
@@ -87,8 +87,8 @@ export async function resizeImg(message: Message, prefix: string): Promise<Messa
     // TODO - Add support for gif files
     if (source.match(urlPattern) === null) {
         return await message.channel.send('Invalid source url!');
-    } else if (source.match(urlPattern).length === 1) {
-        url += source.match(urlPattern)[0];
+    } else if ((source.match(urlPattern) as RegExpMatchArray).length === 1) {
+        url += (source.match(urlPattern) as RegExpMatchArray)[0];
     } else if (url.includes(".gif")) {
         return await message.channel.send('Gifs are not supported!');
     }
@@ -107,7 +107,7 @@ export async function resizeImg(message: Message, prefix: string): Promise<Messa
 }
 
 
-export async function imgur(message: Message, prefix: string, url?: string): Promise<Message> {
+export async function imgur(message: Message, prefix: string, url?: string): Promise<any> {
     const content = message.content.split(" ");
     let source;
     if (url) {
@@ -115,18 +115,21 @@ export async function imgur(message: Message, prefix: string, url?: string): Pro
     } else if (!(content.length !== 2) && message.attachments.size === 0) {
         return await message.channel.send(`Usage: \`${prefix}imgur <url>\``);
     } else {
-        source = message.attachments.size > 0 ? message.attachments.first().url : content[1];
+        source = message.attachments.size > 0 ? (message.attachments.first() as MessageAttachment).url : content[1];
     }
+
+    if (source === undefined) return await message.channel.send("Invalid URL!");
 
     const urlPattern = /https?:\/\/.*\.(?:png|jpg|jpeg|webp|gif)/i;
 
     // Matches URL against a regex pattern 
     if (source.match(urlPattern) === null) {
         return await message.channel.send('Invalid source url!');
-    } else if (source.match(urlPattern).length === 1) {
-        url = source.match(urlPattern)[0];
+    } else if ((source.match(urlPattern) as RegExpMatchArray).length === 1) {
+        url = (source.match(urlPattern) as RegExpMatchArray)[0];
     }
 
+    if (url === undefined) return;
     // Imgur API doesn't support webp images 
     if (url.includes('webp')) {
         url = url.replace('webp', 'png');

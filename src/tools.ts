@@ -9,73 +9,8 @@ import { mongoClient, client } from './app.js';
 import { Client, Message, TextChannel, User } from 'discord.js';
 import Snoowrap from 'snoowrap';
 import { Timespan } from 'snoowrap/dist/objects/Subreddit';
+import strftime from 'strftime';
 
-
-export function strftime(sFormat: string, date?: Date): string {
-    if (!(date instanceof Date)) date = new Date();
-    let nDay = date.getDay(),
-        nDate = date.getDate(),
-        nMonth = date.getMonth(),
-        nYear = date.getFullYear(),
-        nHour = date.getHours(),
-        aDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
-        aMonths = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
-        aDayCount = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334],
-        isLeapYear = function () {
-            return (nYear % 4 === 0 && nYear % 100 !== 0) || nYear % 400 === 0;
-        },
-        getThursday = function () {
-            let target = new Date(date);
-            target.setDate(nDate - ((nDay + 6) % 7) + 3);
-            return target;
-        },
-        zeroPad = function (nNum: number, nPad: number) {
-            return ((Math.pow(10, nPad) + nNum) + '').slice(1);
-        };
-    return sFormat.replace(/%[a-z]/gi, function (sMatch) {
-        return (({
-            '%a': aDays[nDay].slice(0, 3),
-            '%A': aDays[nDay],
-            '%b': aMonths[nMonth].slice(0, 3),
-            '%B': aMonths[nMonth],
-            '%c': date.toUTCString(),
-            '%C': Math.floor(nYear / 100),
-            '%d': zeroPad(nDate, 2),
-            '%e': nDate,
-            '%F': date.toISOString().slice(0, 10),
-            '%G': getThursday().getFullYear(),
-            '%g': (getThursday().getFullYear() + '').slice(2),
-            '%H': zeroPad(nHour, 2),
-            '%I': zeroPad((nHour + 11) % 12 + 1, 2),
-            '%j': zeroPad(aDayCount[nMonth] + nDate + ((nMonth > 1 && isLeapYear()) ? 1 : 0), 3),
-            '%k': nHour,
-            '%l': (nHour + 11) % 12 + 1,
-            '%m': zeroPad(nMonth + 1, 2),
-            '%n': nMonth + 1,
-            '%M': zeroPad(date.getMinutes(), 2),
-            '%p': (nHour < 12) ? 'AM' : 'PM',
-            '%P': (nHour < 12) ? 'am' : 'pm',
-            '%s': Math.round(date.getTime() / 1000),
-            '%S': zeroPad(date.getSeconds(), 2),
-            '%u': nDay || 7,
-            '%V': (function () {
-                let target: any = getThursday(),
-                    n1stThu = target.valueOf();
-                target.setMonth(0, 1);
-                let nJan1 = target.getDay();
-                if (nJan1 !== 4) target.setMonth(0, 1 + ((4 - nJan1) + 7) % 7);
-                return zeroPad(1 + Math.ceil((n1stThu - target) / 604800000), 2);
-            })(),
-            '%w': nDay,
-            '%x': date.toLocaleDateString(),
-            '%X': date.toLocaleTimeString(),
-            '%y': (nYear + '').slice(2),
-            '%Y': nYear,
-            '%z': date.toTimeString().replace(/.+GMT([+-]\d+).+/, '$1'),
-            '%Z': date.toTimeString().replace(/.+\((.+?)\)$/, '$1')
-        }[sMatch] || '') + '') || sMatch;
-    });
-}
 
 /**
  * Starts a loop which periodically changes the status to a random entry in the database
@@ -83,6 +18,7 @@ export function strftime(sFormat: string, date?: Date): string {
  */
 export async function setRandomStatus(client: Client) {
     setInterval(async () => {
+        if (!client.user) return;
         const collection = mongoClient.db("hifumi").collection("statuses");
         const randomDoc = await collection.aggregate([{ $sample: { size: 1 } }]).toArray();
         const randomStatus = randomDoc[0].status;
@@ -107,14 +43,14 @@ export function sleep(ms: number) {
  * @param {Message} message Discord message object
  * @returns The user object
  */
-export async function getUserObjectPingId(message: Message): Promise<User> {
+export async function getUserObjectPingId(message: Message): Promise<User | undefined> {
     const content = message.content.split(" ");
 
     if (content.length === 1) {
         return message.author;
     } else if (!isNaN(parseInt(content[1]))) {
         return await client.users.fetch(content[1]);
-    } else if (message.mentions.has) {
+    } else if (message.mentions.has(message.channel.id)) {
         return message.mentions.users.first();
     }
 }
@@ -187,7 +123,9 @@ export function errorLog(message: Message, errorObject: Error) {
     const currentTime = strftime("%d/%m/%Y %H:%M:%S");
     let channel;
 
-    let errorMessage = `An Error occurred on ${currentTime} UTC
+    if (!message.guild) return message.channel.send(`Unknown guild!`);
+
+    let errorMessage = `An Error occurred on ${currentTime}
   **Server:** ${message.guild.name} - ${message.guild.id}
   **Room:** ${(message.channel as TextChannel).name} - ${message.channel.id}
   **User:** ${message.author.username} - ${message.author.id}
@@ -270,6 +208,8 @@ export function getImgType(url: string): string {
         return "gif";
     } else if (url.includes(".svg")) {
         return "svg";
+    } else {
+        return "unknown";
     }
 }
 

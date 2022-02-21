@@ -100,7 +100,7 @@ export async function insertStatus(message: Message) {
 
 export async function updatePrefix(message: Message) {
     // Permission check for Kick Permissions or being the Bot Owner
-    if (!message.member.permissions.has(Permissions.FLAGS.KICK_MEMBERS) && !(message.author.id === botOwner)) {
+    if (!message.member?.permissions.has(Permissions.FLAGS.KICK_MEMBERS) && !(message.author.id === botOwner)) {
         return message.channel.send("Insuficient permissions!");
     }
 
@@ -113,7 +113,7 @@ export async function updatePrefix(message: Message) {
 
     // Finds the guild's document in the database
     // Updates said docment with the new prefix
-    const serverId = message.guild.id;
+    const serverId = message.guild?.id;
     const filterDoc = { serverId: serverId };
     const updateDoc = { $set: { prefix: content[1] } };
     await collection.updateOne(filterDoc, updateDoc);
