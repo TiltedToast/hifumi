@@ -18,9 +18,9 @@ export async function insert(message: Message) {
     for (let i = 4; i < content.length; i++) {
         if (i % 2 === 0) {
             if (content[i + 1].includes("_")) {
-                document[content[i]] = content[i + 1].replace(/_/g, " ");
+                (document as any)[content[i]] = content[i + 1].replace(/_/g, " ");
             } else {
-                document[content[i]] = content[i + 1];
+                (document as any)[content[i]] = content[i + 1];
             }
         } else {
             continue;
@@ -55,9 +55,9 @@ export async function update(message: Message) {
     for (let i = 6; i < content.length; i++) {
         if (i % 2 === 0) {
             if (content[i + 1].includes("_")) {
-                updateDoc[content[i]] = content[i + 1].replace(/_/g, " ");
+                (updateDoc as any)[content[i]] = content[i + 1].replace(/_/g, " ");
             } else {
-                updateDoc[content[i]] = content[i + 1];
+                (updateDoc as any)[content[i]] = content[i + 1];
             }
         } else {
             continue;

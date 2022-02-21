@@ -300,7 +300,7 @@ async function convert(message: Message, prefix: string): Promise<any> {
     }
 
     // Calculates the converted amount and sends it via an Embed
-    const rate: number = result["conversion_rates"][to];
+    const rate: number = (result as any)["conversion_rates"][to];
     const rslt = Math.round(amount * rate * 100) / 100;
     const description = `**${tools.advRound(amount)} ${from} ≈ ${tools.advRound(rslt)} ${to}**\n\nExchange Rate: 1 ${from} ≈ ${rate} ${to}`;
 
@@ -327,11 +327,11 @@ async function urban(message: Message, prefix: string): Promise<any> {
     if (!response.ok) { return await message.channel.send("Error! Please try again later"); }
     const result = await response.json();
 
-    if (result["list"].length === 0) {
+    if ((result as any)["list"].length === 0) {
         return message.channel.send("No results found!");
     }
 
-    const def = tools.randomElementArray(result["list"]);
+    const def = tools.randomElementArray((result as any)["list"]);
 
     const word = def["word"];
     const definition = def["definition"];
