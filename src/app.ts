@@ -44,14 +44,13 @@ client.once("ready", async () => {
 
 
 client.on("messageCreate", async (message: Message) => {
+    let reactCmd: string, subCmd: string;
     try {
         // Permission check for the channel which the message was sent in to avoid breaking the bot
         if (message.author.bot || !message.guild.me.permissionsIn(message.channel.id).has("SEND_MESSAGES")
             || !message.guild.me.permissionsIn(message.channel.id).has("VIEW_CHANNEL")) return;
 
         const content: Array<string> = message.content.split(" ");
-        let reactCmd: string;
-        let subCmd: string;
 
         // Sub command check for reacting to Miku's emote commands
         if (content.length > 1) {
@@ -211,6 +210,7 @@ async function jsEval(message: Message) {
 
 async function avatarURL(message: Message) {
     // Checks for invalid provided User ID
+    let url: string;
     const content = message.content.split(" ");
     if (content.length === 2) {
         if (isNaN(parseInt(content[1])) && (!content[1].startsWith("<@"))) {
@@ -222,7 +222,6 @@ async function avatarURL(message: Message) {
     const userID = user.id;
     const userName = user.username;
     const avatarHash = user.avatar;
-    let url: string;
 
     if (user.avatarURL({ dynamic: true }).includes("gif")) {
         url = `https://cdn.discordapp.com/avatars/${userID}/${avatarHash}.gif?size=4096`;

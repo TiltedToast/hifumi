@@ -3,6 +3,8 @@ import { Emoji, GuildEmoji, Message, Permissions } from 'discord.js';
 import * as imgProcess from './imgProcess.js';
 
 export async function addEmoji(message: Message, prefix: string): Promise<Message> {
+    let name: string, emoji: GuildEmoji, url: string;
+    
     if (!message.member.permissions.has(Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS)) {
         return await message.channel.send('You need the "Manage Emojis" permission to add emojis!');
     }
@@ -15,9 +17,6 @@ export async function addEmoji(message: Message, prefix: string): Promise<Messag
         return await message.channel.send("You have to specify a name!")
     }
 
-    let name: string;
-    let emoji: GuildEmoji;
-    let url: string;
 
     // Sets name based on whether the user provided an emoji or not
     if (content[2].startsWith('<:') && content[2].includes('>')) {

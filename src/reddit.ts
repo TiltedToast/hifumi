@@ -44,9 +44,7 @@ export async function profile(message: Message, prefix: string): Promise<Message
 
 
 export async function sub(message: Message, prefix: string): Promise<Message> {
-    let nsfw: boolean = false;
-    let force: boolean = false;
-    let query: object;
+    let nsfw: boolean = false, force: boolean = false, query: object;
 
     const content = message.content.split(" ").map(x => x.toLowerCase());
 
