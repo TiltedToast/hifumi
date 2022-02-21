@@ -1,11 +1,11 @@
 import * as tools from './tools.js';
-import { Emoji, GuildEmoji, Message, Permissions } from 'discord.js';
+import { Collection, Emoji, GuildEmoji, Message, MessageAttachment, Permissions } from 'discord.js';
 import * as imgProcess from './imgProcess.js';
 
-export async function addEmoji(message: Message, prefix: string): Promise<Message> {
-    let name: string, emoji: GuildEmoji, url: string;
-    
-    if (!message.member.permissions.has(Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS)) {
+export async function addEmoji(message: Message, prefix: string): Promise<Message | undefined> {
+    let name: string = "", emoji, url: string = "";
+
+    if (!message.member?.permissions.has(Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS)) {
         return await message.channel.send('You need the "Manage Emojis" permission to add emojis!');
     }
     const content = message.content.split(' ');
@@ -30,6 +30,7 @@ export async function addEmoji(message: Message, prefix: string): Promise<Messag
     }
 
     const source = content.length >= 4 ? content[3] : content[2];
+    if (source === null) return message.channel.send('You have to provide an image!');
 
     const urlPattern = /https?:\/\/.*\.(?:png|jpg|jpeg|webp|gif)/i;
 
@@ -39,9 +40,9 @@ export async function addEmoji(message: Message, prefix: string): Promise<Messag
     } else if (source.startsWith('<')) {
         url = tools.extractEmoji(source);
     } else if (!source.match(urlPattern) === null) {
-        url = source.match(urlPattern)[0];
+        url = (source.match(urlPattern) as RegExpMatchArray)[0];
     } else if (message.attachments.size > 0) {
-        url = message.attachments.first().url;
+        url = (message.attachments.first() as MessageAttachment).url;
     }
 
     tools.createTemp('temp');
@@ -60,9 +61,10 @@ export async function addEmoji(message: Message, prefix: string): Promise<Messag
         if (!tools.isValidSize(`./temp/unknown_resized.${imgType}`, 262144)) {
             return message.channel.send('File too large for Discord, even after resizing!');
         }
-
+        if (message.guild === null) return message.channel.send('You can\'t add emojis to DMs!');
         emoji = await message.guild.emojis.create(`./temp/unknown_resized.${imgType}`, name);
     } else if (tools.isValidSize(`./temp/unknown.${imgType}`, 262144)) {
+        if (message.guild === null) return message.channel.send('You can\'t add emojis to DMs!');
         emoji = await message.guild.emojis.create(`./temp/unknown.${imgType}`, name);
     }
 
@@ -75,7 +77,7 @@ export async function addEmoji(message: Message, prefix: string): Promise<Messag
 }
 
 export async function removeEmoji(message: Message, prefix: string): Promise<Message> {
-    if (!message.member.permissions.has(Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS)) {
+    if (!message.member?.permissions.has(Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS)) {
         return message.channel.send('You need the "Manage Emojis" permission to remove emojis!');
     }
 
@@ -87,14 +89,14 @@ export async function removeEmoji(message: Message, prefix: string): Promise<Mes
         }
         const emojiString = content[2];
         const emojiID = tools.extractEmoji(emojiString, true);
-        const emojis = message.guild.emojis.cache
-        const emoji = emojis.find(emoji => emoji.id === emojiID);
+        const emojis = message.guild?.emojis.cache
+        const emoji = emojis?.find(emoji => emoji.id === emojiID);
 
         if (emoji) {
             emoji.delete();
-            message.channel.send(`Emoji successfully deleted!`);
+            return message.channel.send(`Emoji successfully deleted!`);
         } else {
-            message.channel.send(`Emoji not found!`);
+            return message.channel.send(`Emoji not found!`);
         }
     } catch (error) {
         return await message.channel.send(`Usage: \`${prefix}emoji remove <emoji>\``);
@@ -103,7 +105,7 @@ export async function removeEmoji(message: Message, prefix: string): Promise<Mes
 
 
 export async function renameEmoji(message: Message, prefix: string): Promise<Message> {
-    if (!message.member.permissions.has(Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS)) {
+    if (!message.member?.permissions.has(Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS)) {
         return message.channel.send('You need the "Manage Emojis" permission to rename emojis!');
     }
 
@@ -113,15 +115,15 @@ export async function renameEmoji(message: Message, prefix: string): Promise<Mes
         const newName = content[2];
         const emojiString = content[3];
         const emojiId = tools.extractEmoji(emojiString, true);
-        const emojis = message.guild.emojis.cache
-        const emoji = emojis.find(emoji => emoji.id === emojiId);
+        const emojis = message.guild?.emojis.cache
+        const emoji = emojis?.find(emoji => emoji.id === emojiId);
 
         if (emoji) {
             const oldName = emoji.name;
-            message.guild.emojis.fetch(emojiId).then(emoji => { emoji.edit({ name: newName }) });
-            message.channel.send(`Emoji successfully renamed from \`${oldName}\` to \`${newName}\`!`);
+            message.guild?.emojis.fetch(emojiId).then(emoji => { emoji.edit({ name: newName }) });
+            return message.channel.send(`Emoji successfully renamed from \`${oldName}\` to \`${newName}\`!`);
         } else {
-            message.channel.send(`Emoji not found!`);
+            return message.channel.send(`Emoji not found!`);
         }
     } catch (err) {
         return await message.channel.send(`Usage: \`${prefix}emoji rename <new name> <emoji>\``);

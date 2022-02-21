@@ -9,6 +9,7 @@ import fetch from "node-fetch";
 import { exec } from 'child_process';
 import { Client, Intents, Message, MessageEmbed, Permissions, TextChannel } from "discord.js";
 import { MongoClient, ObjectId } from "mongodb";
+import strftime from 'strftime';
 
 
 export const botOwner: string = "258993932262834188";
@@ -19,8 +20,10 @@ export const mongoClient: MongoClient = new MongoClient(credentials["mongoURI"])
 const startTime = Date.now();
 
 client.once("ready", async () => {
-    const time = tools.strftime("%d/%m/%Y %H:%M:%S");
+    const time = strftime("%d/%m/%Y %H:%M:%S");
     const doneLoadingTime = Date.now();
+
+    if (!client.user) return;
 
     console.log(`Started up in ${(doneLoadingTime - startTime) / 1000} seconds on ${time}`);
     console.log("Logged in as:");
@@ -44,7 +47,8 @@ client.once("ready", async () => {
 
 
 client.on("messageCreate", async (message: Message) => {
-    let reactCmd: string, subCmd: string;
+    let reactCmd: string = '', subCmd: string = '';
+    if (message.guild === null || message.guild.me === null) return;
     try {
         // Permission check for the channel which the message was sent in to avoid breaking the bot
         if (message.author.bot || !message.guild.me.permissionsIn(message.channel.id).has("SEND_MESSAGES")
@@ -72,7 +76,7 @@ client.on("messageCreate", async (message: Message) => {
         // Gets the prefix from the db and compares to the message's beginning 
         // This way the prefix can be case insensitive
         const prefixDoc = await prefixColl.findOne({ serverId: server.id });
-        const prefix = prefixDoc.prefix;
+        const prefix = prefixDoc !== null ? prefixDoc.prefix : "h!";
         const command = content[0].slice(prefix.length).toLowerCase();
         const lowerCasePrefix = content[0].substring(0, prefix.length).toLowerCase();
 
@@ -132,6 +136,7 @@ client.on("messageCreate", async (message: Message) => {
             const reactionsColl = mongoClient.db("hifumi").collection("mikuReactions");
             const cmdAliases = await reactionsColl.findOne({ _id: new ObjectId("61ed5a24955085f3e99f7c03") });
             const reactMsgs = await reactionsColl.findOne({ _id: new ObjectId("61ed5cb4955085f3e99f7c0c") });
+            if (reactMsgs === null) return;
 
             for (const cmdType in cmdAliases) {
                 if (Object.values(cmdAliases[cmdType]).includes(reactCmd)) {
@@ -219,11 +224,12 @@ async function avatarURL(message: Message) {
     }
 
     const user = content.length === 1 ? message.author : await tools.getUserObjectPingId(message);
+    if (user === null || user === undefined) return
     const userID = user.id;
     const userName = user.username;
     const avatarHash = user.avatar;
 
-    if (user.avatarURL({ dynamic: true }).includes("gif")) {
+    if ((user.avatarURL({ dynamic: true }) as string).includes("gif")) {
         url = `https://cdn.discordapp.com/avatars/${userID}/${avatarHash}.gif?size=4096`;
     } else {
         url = `https://cdn.discordapp.com/avatars/${userID}/${avatarHash}.png?size=4096`;
@@ -239,6 +245,7 @@ async function avatarURL(message: Message) {
 
 async function listCurrencies(message: Message) {
     const currencies = await mongoClient.db("hifumi").collection("currencies").findOne({ _id: new ObjectId("620bb1d76e6a2b90f475d556") });
+    if (currencies === null) return;
     const title = 'List of currencies available for conversion'
     const columns = ["", "", ""]
     const currencyKeys = Object.keys(currencies).sort().slice(0, -1);
@@ -271,6 +278,7 @@ async function convert(message: Message, prefix: string): Promise<any> {
     const content: Array<string> = message.content.split(" ");
 
     const currencies = await mongoClient.db("hifumi").collection("currencies").findOne({ _id: new ObjectId("620bb1d76e6a2b90f475d556") });
+    if (currencies === null) return;
 
     if (!(content.length === 4)) {
         return await message.channel.send(`Usage: \`${prefix}convert <amount of money> <cur1> <cur2>\``);
@@ -307,7 +315,7 @@ async function convert(message: Message, prefix: string): Promise<any> {
         .setColor(embedColour)
         .setTitle(`Converting ${from} to ${to}`)
         .setDescription(description)
-        .setFooter({ text: `${tools.strftime("%d/%m/%Y %H:%M:%S")}` });
+        .setFooter({ text: `${strftime("%d/%m/%Y %H:%M:%S")}` });
 
     await message.channel.send({ embeds: [convertEmbed] });
 };

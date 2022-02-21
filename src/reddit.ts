@@ -4,6 +4,7 @@ import Snoowrap from 'snoowrap';
 import { Message, MessageEmbed, TextChannel } from "discord.js";
 import fetch from 'node-fetch';
 import { mongoClient, embedColour } from './app.js';
+import strftime from 'strftime';
 
 
 const RedditClient = new Snoowrap({
@@ -27,7 +28,7 @@ export async function profile(message: Message, prefix: string): Promise<Message
     if (!response.ok) { return await message.channel.send(`User not found!`) }
 
     const user = RedditClient.getUser(userName);
-    const userCreatedDate = tools.strftime("%d/%m/%Y", new Date(user.created_utc * 1000));
+    const userCreatedDate = strftime("%d/%m/%Y", new Date(user.created_utc * 1000));
     const description = `[Link to profile](https://www.reddit.com/user/${user.name})
                         Post Karma: ${user.link_karma.toLocaleString()}
                         Comment Karma: ${user.comment_karma.toLocaleString()}
@@ -39,7 +40,7 @@ export async function profile(message: Message, prefix: string): Promise<Message
         .setDescription(description)
         .setThumbnail(user.icon_img)
 
-    await message.channel.send({ embeds: [profileEmbed] });
+    return await message.channel.send({ embeds: [profileEmbed] });
 }
 
 
@@ -117,7 +118,7 @@ export async function sub(message: Message, prefix: string): Promise<Message> {
         .setURL(`https://reddit.com${submission.permalink}`)
         .setImage(submission.url)
 
-    await message.channel.send({ embeds: [imgEmbed] });
+    return await message.channel.send({ embeds: [imgEmbed] });
 
 
 }
