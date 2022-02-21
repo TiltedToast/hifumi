@@ -163,7 +163,7 @@ export async function imgur(message: Message, prefix: string, url?: string): Pro
         fetch("https://api.imgur.com/3/image", requestOptions)
             .then(response => response.json())
             .then(result => {
-                const imageLink = result['data']['link'];
+                const imageLink = (result as any)['data']['link'];
                 message.channel.send(imageLink);
             })
             .catch(() => { return message.channel.send("An unknown error occured while uploading!") });
@@ -174,7 +174,7 @@ export async function imgur(message: Message, prefix: string, url?: string): Pro
         fetch("https://api.imgur.com/3/image", requestOptions)
             .then(response => response.json())
             .then(result => {
-                const imageLink = result['data']['link'];
+                const imageLink = (result as any)['data']['link'];
                 message.channel.send(imageLink);
             })
             .catch(() => { return message.channel.send("An unknown error occured while uploading!") });

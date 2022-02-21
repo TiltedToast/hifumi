@@ -4,6 +4,7 @@
         "target": "es2021",
         "outDir": "dist",
         "rootDir": "src",
+        "strict": true,
         "skipLibCheck": true,
         "strictNullChecks": false,
         "esModuleInterop": true,
