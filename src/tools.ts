@@ -185,6 +185,7 @@ export function getOptionsArray(array: Array<any>) {
  */
 export function errorLog(message: Message, errorObject: Error) {
     const currentTime = strftime("%d/%m/%Y %H:%M:%S");
+    let channel;
 
     let errorMessage = `An Error occurred on ${currentTime} UTC
   **Server:** ${message.guild.name} - ${message.guild.id}
@@ -213,7 +214,6 @@ export function errorLog(message: Message, errorObject: Error) {
         return console.log(errorObject);
     }
 
-    let channel;
     // Chooses channel to send error to
     // The list below are channels that are actively used for testing purposes
     if (["655484859405303809", "551588329003548683", "922679249058553857"].includes(message.channel.id)) {
