@@ -1,5 +1,4 @@
-import { mongoClient } from "./app.js";
-import { botOwner } from "./app.js";
+import { mongoClient, botOwner, prefixDict, statusArr } from "./app.js";
 import { Message, Permissions } from 'discord.js';
 
 
@@ -83,15 +82,17 @@ export async function insertStatus(message: Message) {
     if (!(content.length >= 3)) return await message.channel.send("Invalid syntax!");
 
     const status = content.slice(2).join(" ");
+    const type = content[1].toUpperCase()
 
     // Uppercases the type to conform to discord's API 
     const document = {
-        type: content[1].toUpperCase(),
+        type: type,
         status: status
     };
 
     const collection = mongoClient.db("hifumi").collection("statuses");
     await collection.insertOne(document);
+    statusArr.push(document);
 
     await message.channel.send("Status added!");
     await message.channel.send(JSON.stringify(document));
@@ -113,10 +114,13 @@ export async function updatePrefix(message: Message) {
 
     // Finds the guild's document in the database
     // Updates said docment with the new prefix
-    const serverId = message.guild?.id;
+    if (message.guild === null) return;
+
+    const serverId = message.guild.id;
     const filterDoc = { serverId: serverId };
     const updateDoc = { $set: { prefix: content[1] } };
     await collection.updateOne(filterDoc, updateDoc);
+    (prefixDict as any)[serverId] = content[1];
     await message.channel.send(`Updated prefix for this server to \`${content[1]}\`!`);
 
 }

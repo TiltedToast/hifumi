@@ -5,7 +5,7 @@ import fetch from 'node-fetch';
 import { Headers } from 'node-fetch';
 import { credentials } from './config.js';
 import { Db, ObjectId } from "mongodb";
-import { mongoClient, client } from './app.js';
+import { mongoClient, client, statusArr } from './app.js';
 import { Client, Message, TextChannel, User } from 'discord.js';
 import Snoowrap from 'snoowrap';
 import { Timespan } from 'snoowrap/dist/objects/Subreddit';
@@ -19,10 +19,9 @@ import strftime from 'strftime';
 export async function setRandomStatus(client: Client) {
     setInterval(async () => {
         if (!client.user) return;
-        const collection = mongoClient.db("hifumi").collection("statuses");
-        const randomDoc = await collection.aggregate([{ $sample: { size: 1 } }]).toArray();
-        const randomStatus = randomDoc[0].status;
-        const randomType = randomDoc[0].type;
+        const randomStatusDoc = randomElementArray(statusArr);
+        const randomType = randomStatusDoc.type;
+        const randomStatus = randomStatusDoc.status;
 
         client.user.setActivity(randomStatus, { type: randomType });
 
@@ -37,6 +36,12 @@ export async function setRandomStatus(client: Client) {
 export function sleep(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
+
+
+export function randomProperty(obj: any) {
+    const keys = Object.keys(obj);
+    return obj[keys[ keys.length * Math.random() << 0]];
+};
 
 /**
  * Returns a user object from either a user id or a ping 
