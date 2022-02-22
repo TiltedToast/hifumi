@@ -18,6 +18,8 @@ const allIntents = new Intents(32767);
 export const client: Client = new Client({ intents: allIntents });
 export const mongoClient: MongoClient = new MongoClient(credentials["mongoURI"]);
 const startTime = Date.now();
+export let prefixDict = {};
+export let statusArr: any[] = [];
 
 client.once("ready", async () => {
     const time = strftime("%d/%m/%Y %H:%M:%S");
@@ -33,13 +35,23 @@ client.once("ready", async () => {
 
     await mongoClient.connect();
 
-    const collection = mongoClient.db("hifumi").collection("statuses");
-    const randomDoc = await collection.aggregate([{ $sample: { size: 1 } }]).toArray();
-    const randomStatus = randomDoc[0].status;
-    const randomType = randomDoc[0].type;
+    // Puts all statuses into an array to avoid reading the database on every status change
+    const statusDocs = await mongoClient.db("hifumi").collection("statuses").find().toArray();
+    statusArr = statusDocs
+
+    const randomStatusDoc = tools.randomElementArray(statusArr);
+    const randomType = randomStatusDoc.type;
+    const randomStatus = randomStatusDoc.status;
 
     client.user.setActivity(randomStatus, { type: randomType });
     await tools.setRandomStatus(client);
+
+    // Gets all prefixes from the database and puts them into a dictionary to avoid reading 
+    // The database every time a message is received
+    const prefixDocs = await mongoClient.db("hifumi").collection("prefixes").find().toArray();
+    for (const prefixDoc of prefixDocs) {
+        (prefixDict as any)[prefixDoc.serverId] = prefixDoc.prefix;
+    }
 
     const channel = client.channels.cache.get('655484804405657642');
     (channel as TextChannel).send(`Logged in as:\n${client.user.username}\nTime: ${time}\n--------------------------`);
@@ -68,15 +80,15 @@ client.on("messageCreate", async (message: Message) => {
         const prefixColl = mongoClient.db("hifumi").collection("prefixes");
 
         // Adds a default prefix to the db if it doesn't exist
-        if (await prefixColl.findOne({ serverId: server.id }) === null) {
+        if (!message.author.bot && !(server.id in prefixDict)) {
             prefixColl.insertOne({ serverId: server.id, prefix: "h!" });
+            (prefixDict as any)[server.id] = "h!";
             await message.channel.send("I have set the prefix to `h!`");
         }
 
         // Gets the prefix from the db and compares to the message's beginning 
         // This way the prefix can be case insensitive
-        const prefixDoc = await prefixColl.findOne({ serverId: server.id });
-        const prefix = prefixDoc !== null ? prefixDoc.prefix : "h!";
+        const prefix = (prefixDict as any)[server.id] !== null ? (prefixDict as any)[server.id] : "h!";
         const command = content[0].slice(prefix.length).toLowerCase();
         const lowerCasePrefix = content[0].substring(0, prefix.length).toLowerCase();
 
@@ -388,7 +400,7 @@ async function bye(message: Message): Promise<any> {
     await message.channel.send("Bai baaaaaaaai!!");
     await mongoClient.close();
     client.destroy();
-    exec("pm2 stop app.js");
+    exec("pm2 delete hifumi");
 }
 
 // Makes sure Ctrl + C shuts down the bot properly
