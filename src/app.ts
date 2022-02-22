@@ -161,7 +161,7 @@ async function helpCmd(message: Message, prefix: string) {
     const helpMsgArray = await mongoClient.db("hifumi").collection("helpMsgs").find().sort({ cmd: 1 }).toArray();
 
     for (const helpMsgObj of helpMsgArray) {
-        helpMsg += `**${prefix}${helpMsgObj.cmd}** - ${helpMsgObj.cmd}\n`;
+        helpMsg += `**${prefix}${helpMsgObj.cmd}** - ${helpMsgObj.desc}\n`;
     }
 
     const helpEmbed = new MessageEmbed()
