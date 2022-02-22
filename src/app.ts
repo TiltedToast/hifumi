@@ -127,6 +127,8 @@ client.on("messageCreate", async (message: Message) => {
                 await database.updatePrefix(message);
             } else if (command === "con") {
                 await console_cmd(message);
+            } else if (['commands', 'command', 'comm', 'com', 'help'].includes(command)) {
+                await helpCmd(message, prefix);
             }
         }
 
@@ -152,6 +154,23 @@ client.on("messageCreate", async (message: Message) => {
         tools.errorLog(message, err)
     }
 });
+
+
+async function helpCmd(message: Message, prefix: string) {
+    let helpMsg = "";
+    const helpMsgArray = await mongoClient.db("hifumi").collection("helpMsgs").find().sort({ cmd: 1 }).toArray();
+
+    for (const helpMsgObj of helpMsgArray) {
+        helpMsg += `**${prefix}${helpMsgObj.cmd}** - ${helpMsgObj.cmd}\n`;
+    }
+
+    const helpEmbed = new MessageEmbed()
+        .setColor(embedColour)
+        .setTitle("**Hifumi's commands**")
+        .setDescription(helpMsg);
+
+    return await message.channel.send({ embeds: [helpEmbed] });
+}
 
 
 async function console_cmd(message: Message) {
