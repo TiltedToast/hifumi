@@ -94,7 +94,7 @@ client.on("messageCreate", async (message: Message) => {
 
         if (message.content.toLowerCase() === "hr~") await reloadBot(message);
 
-        if (lowerCasePrefix === prefix) {
+        if (lowerCasePrefix === prefix.toLowerCase()) {
             if (["avatar", "pfp"].includes(command)) {
                 await avatarURL(message);
             } else if (["convert", "conv", "c"].includes(command)) {
