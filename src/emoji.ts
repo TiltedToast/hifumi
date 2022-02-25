@@ -19,7 +19,7 @@ export async function addEmoji(message: Message, prefix: string): Promise<Messag
 
 
     // Sets name based on whether the user provided an emoji or not
-    if (content[2].startsWith('<:') && content[2].includes('>')) {
+    if (content[2].startsWith('<') && content[2].endsWith('>')) {
         name = content[2].split(':')[1]
     } else {
         name = content[2];
