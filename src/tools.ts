@@ -19,15 +19,15 @@ import strftime from 'strftime';
  * @returns Promise that resolves into the parsed argument document
  */
 export async function parseDbArgs(start: number, content: string[]): Promise<any> {
-    const document = {};
+    const document: any = {};
 
     // Loops over the argument pairs and adds them to as key value pairs in the document
     for (let i = start; i < content.length; i++) {
         if (i % 2 === 0) {
             if (content[i + 1].includes("_")) {
-                (document as any)[content[i]] = content[i + 1].replace(/_/g, " ");
+                document[content[i]] = content[i + 1].replace(/_/g, " ");
             } else {
-                (document as any)[content[i]] = content[i + 1];
+                document[content[i]] = content[i + 1];
             }
         } else {
             continue;

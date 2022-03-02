@@ -123,11 +123,12 @@ export async function imgur(message: Message, prefix: string, url?: string): Pro
 
     const urlPattern = /https?:\/\/.*\.(?:png|jpg|jpeg|webp|gif)/i;
 
+    const matchedArray = source.match(urlPattern);
     // Matches URL against a regex pattern 
-    if (source.match(urlPattern) === null) {
+    if (matchedArray === null) {
         return await message.channel.send('Invalid source url!');
-    } else if ((source.match(urlPattern) as RegExpMatchArray).length === 1) {
-        url = (source.match(urlPattern) as RegExpMatchArray)[0];
+    } else if ((matchedArray as RegExpMatchArray).length === 1) {
+        url = (matchedArray as RegExpMatchArray)[0];
     }
 
     if (url === undefined) return;
