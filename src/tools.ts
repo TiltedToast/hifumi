@@ -18,8 +18,7 @@ import strftime from 'strftime';
  * @param  {Message} message The message object passed to interact with the Discord API
  * @returns Promise that resolves into the parsed argument document
  */
-export async function parseDbArgs(start: number, message: Message): Promise<any> {
-    const content = message.content.split(" ");
+export async function parseDbArgs(start: number, content: string[]): Promise<any> {
     const document = {};
 
     // Loops over the argument pairs and adds them to as key value pairs in the document

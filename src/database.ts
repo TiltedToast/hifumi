@@ -12,7 +12,7 @@ export async function insert(message: Message) {
     const dbName = content[2];
     const collectionName = content[3];
 
-    const document = await tools.parseDbArgs(4, message)
+    const document = await tools.parseDbArgs(4, content);
 
 
     const collection = mongoClient.db(dbName).collection(collectionName);
@@ -36,7 +36,7 @@ export async function update(message: Message) {
 
     const filterDoc = { [content[4]]: content[5] }
 
-    const updateDoc = await tools.parseDbArgs(6, message);
+    const updateDoc = await tools.parseDbArgs(6, content);
 
 
     const collection = mongoClient.db(dbName).collection(collectionName);
