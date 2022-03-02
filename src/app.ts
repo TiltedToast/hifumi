@@ -308,7 +308,7 @@ async function listCurrencies(message: Message) {
 }
 
 async function convert(message: Message, prefix: string): Promise<any> {
-    const content: Array<string> = message.content.split(" ");
+    const content = message.content.split(" ");
 
     const currencies = await mongoClient.db("hifumi").collection("currencies").findOne({ _id: new ObjectId("620bb1d76e6a2b90f475d556") });
     if (currencies === null) return;
@@ -360,11 +360,11 @@ async function urban(message: Message, prefix: string): Promise<any> {
     if (!(content.length === 2)) {
         return await message.channel.send(`Usage: \`${prefix}urban <word>\``);
     }
-    const query: string = content[1];
+    const query = content[1];
 
     const response = await fetch(`https://api.urbandictionary.com/v0/define?term=${query}`);
 
-    if (!response.ok) { return await message.channel.send("Error! Please try again later"); }
+    if (!response.ok) { return await message.channel.send(`Error ${response.status}! Please try again later`); }
     const result: any = await response.json();
 
     if (result["list"].length === 0) {
