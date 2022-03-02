@@ -47,6 +47,7 @@ export async function addEmoji(message: Message, prefix: string): Promise<Messag
 
     tools.createTemp('temp');
     const imgType = tools.getImgType(url);
+    if (imgType === "unknown") return await message.channel.send("Invalid image type!");
     await tools.downloadURL(url, `./temp/unknown.${imgType}`);
 
     // 256KB max size

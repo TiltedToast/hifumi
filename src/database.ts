@@ -1,5 +1,6 @@
 import { mongoClient, botOwner, prefixDict, statusArr } from "./app.js";
 import { Message, Permissions } from 'discord.js';
+import * as tools from './tools.js';
 
 
 export async function insert(message: Message) {
@@ -11,20 +12,7 @@ export async function insert(message: Message) {
     const dbName = content[2];
     const collectionName = content[3];
 
-    let document = {};
-
-    // Loops over the argument pairs and adds them to as key value pairs in the document
-    for (let i = 4; i < content.length; i++) {
-        if (i % 2 === 0) {
-            if (content[i + 1].includes("_")) {
-                (document as any)[content[i]] = content[i + 1].replace(/_/g, " ");
-            } else {
-                (document as any)[content[i]] = content[i + 1];
-            }
-        } else {
-            continue;
-        }
-    }
+    const document = await tools.parseDbArgs(4, message)
 
 
     const collection = mongoClient.db(dbName).collection(collectionName);
@@ -48,20 +36,7 @@ export async function update(message: Message) {
 
     const filterDoc = { [content[4]]: content[5] }
 
-    let updateDoc = {};
-
-    // Loops over the argument pairs and adds them to as key value pairs in the document
-    for (let i = 6; i < content.length; i++) {
-        if (i % 2 === 0) {
-            if (content[i + 1].includes("_")) {
-                (updateDoc as any)[content[i]] = content[i + 1].replace(/_/g, " ");
-            } else {
-                (updateDoc as any)[content[i]] = content[i + 1];
-            }
-        } else {
-            continue;
-        }
-    }
+    const updateDoc = await tools.parseDbArgs(6, message);
 
 
     const collection = mongoClient.db(dbName).collection(collectionName);
@@ -69,7 +44,7 @@ export async function update(message: Message) {
 
     await message.channel.send(`Updated document in ${dbName}.${collectionName}`);
 
-    const updatedDoc = await collection.findOne(updateDoc);
+    const updatedDoc = collection.findOne(updateDoc);
     await message.channel.send(JSON.stringify(updatedDoc));
 }
 
@@ -120,7 +95,7 @@ export async function updatePrefix(message: Message) {
     const filterDoc = { serverId: serverId };
     const updateDoc = { $set: { prefix: content[1] } };
     await collection.updateOne(filterDoc, updateDoc);
-    (prefixDict as any)[serverId] = content[1];
+    prefixDict[serverId] = content[1];
     await message.channel.send(`Updated prefix for this server to \`${content[1]}\`!`);
 
 }

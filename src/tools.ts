@@ -13,6 +13,34 @@ import strftime from 'strftime';
 
 
 /**
+ * Parses key value pairs from discord messages into a JavaScript object that can be used to interact with the Database
+ * @param  {number} start The content index after which arguments are expected to be present 
+ * @param  {Message} message The message object passed to interact with the Discord API
+ * @returns Promise that resolves into the parsed argument document
+ */
+export async function parseDbArgs(start: number, message: Message): Promise<any> {
+    const content = message.content.split(" ");
+    const document = {};
+
+    // Loops over the argument pairs and adds them to as key value pairs in the document
+    for (let i = start; i < content.length; i++) {
+        if (i % 2 === 0) {
+            if (content[i + 1].includes("_")) {
+                (document as any)[content[i]] = content[i + 1].replace(/_/g, " ");
+            } else {
+                (document as any)[content[i]] = content[i + 1];
+            }
+        } else {
+            continue;
+        }
+    }
+    return document;
+}
+
+
+
+
+/**
  * Starts a loop which periodically changes the status to a random entry in the database
  * @param {Client} client Discord client which is used to access the API
  */
@@ -37,10 +65,14 @@ export function sleep(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-
-export function randomProperty(obj: any) {
+/**
+ * Takes an object and returns the value of a random key
+ * @param  {any} obj Javascript Object to check
+ * @returns {any} Returns a random Property of an object
+ */
+export function randomProperty(obj: any): any {
     const keys = Object.keys(obj);
-    return obj[keys[ keys.length * Math.random() << 0]];
+    return obj[keys[keys.length * Math.random() << 0]];
 };
 
 /**
@@ -107,7 +139,7 @@ export async function fetchTopPosts(subreddit: string, mode: Timespan, counter: 
 
 /**
  * Parses an array of interaction.options.data to get applied options
- * !Assumes you're using slash commands
+ * ! Assumes you're using slash commands
  * @param {Array} array Array of strings
  * @returns an array that contains the input options
  */
@@ -256,7 +288,7 @@ export function extractEmoji(emojiString: string, id: boolean = false): string {
  * Takes a directory, checks whether it exists. If it does, it deletes it and recreates it. If it doesn't, it creates it
  * @param {String} directory Path to the temporary directory you want to create
  */
-export function createTemp(directory: string) {
+export function createTemp(directory: string): void {
     const absPath = path.resolve(directory);
 
     if (fs.existsSync(absPath)) {
