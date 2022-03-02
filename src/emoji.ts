@@ -34,13 +34,14 @@ export async function addEmoji(message: Message, prefix: string): Promise<Messag
 
     const urlPattern = /https?:\/\/.*\.(?:png|jpg|jpeg|webp|gif)/i;
 
+    const matchesArr = source.match(urlPattern);
     // Matches the source string against a url regex and sets the url variable
-    if (source.match(urlPattern) === null && !source.startsWith('<') && message.attachments.size === 0) {
+    if (matchesArr === null && !source.startsWith('<') && message.attachments.size === 0) {
         return message.channel.send('Invalid source url!');
     } else if (source.startsWith('<')) {
         url = tools.extractEmoji(source);
-    } else if (!source.match(urlPattern) === null) {
-        url = (source.match(urlPattern) as RegExpMatchArray)[0];
+    } else if (!matchesArr === null) {
+        url = (matchesArr as RegExpMatchArray)[0];
     } else if (message.attachments.size > 0) {
         url = (message.attachments.first() as MessageAttachment).url;
     }

@@ -256,11 +256,13 @@ async function avatarURL(message: Message) {
 
     const user = content.length === 1 ? message.author : await tools.getUserObjectPingId(message);
     if (user === null || user === undefined) return
+
     const userID = user.id;
     const userName = user.username;
     const avatarHash = user.avatar;
+    const avatarURL = user.avatarURL({ dynamic: true });
 
-    if ((user.avatarURL({ dynamic: true }) as string).includes("gif")) {
+    if ((avatarURL as string).includes("gif")) {
         url = `https://cdn.discordapp.com/avatars/${userID}/${avatarHash}.gif?size=4096`;
     } else {
         url = `https://cdn.discordapp.com/avatars/${userID}/${avatarHash}.png?size=4096`;
@@ -326,7 +328,7 @@ async function convert(message: Message, prefix: string): Promise<any> {
     const response = await fetch(`https://prime.exchangerate-api.com/v5/${credentials["exchangeApiKey"]}/latest/${from}`);
 
     if (!response.ok) { return await message.channel.send("Error! Please try again later"); }
-    const result = await response.json();
+    const result: any = await response.json();
 
     // Checks for possible pointless conversions
     if (from === to) {
@@ -338,7 +340,7 @@ async function convert(message: Message, prefix: string): Promise<any> {
     }
 
     // Calculates the converted amount and sends it via an Embed
-    const rate: number = (result as any)["conversion_rates"][to];
+    const rate: number = result["conversion_rates"][to];
     const rslt = Math.round(amount * rate * 100) / 100;
     const description = `**${tools.advRound(amount)} ${from} ≈ ${tools.advRound(rslt)} ${to}**\n\nExchange Rate: 1 ${from} ≈ ${rate} ${to}`;
 
@@ -363,13 +365,13 @@ async function urban(message: Message, prefix: string): Promise<any> {
     const response = await fetch(`https://api.urbandictionary.com/v0/define?term=${query}`);
 
     if (!response.ok) { return await message.channel.send("Error! Please try again later"); }
-    const result = await response.json();
+    const result: any = await response.json();
 
-    if ((result as any)["list"].length === 0) {
+    if (result["list"].length === 0) {
         return message.channel.send("No results found!");
     }
 
-    const def = tools.randomElementArray((result as any)["list"]);
+    const def = tools.randomElementArray(result["list"]);
 
     const word = def["word"];
     const definition = def["definition"];
