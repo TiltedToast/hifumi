@@ -132,6 +132,7 @@ export async function imgur(message: Message, prefix: string, url?: string): Pro
     }
 
     if (url === undefined) return;
+    
     // Imgur API doesn't support webp images 
     if (url.includes('webp')) {
         url = url.replace('webp', 'png');
