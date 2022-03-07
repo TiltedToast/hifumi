@@ -210,7 +210,6 @@ export async function reloadBot(message: Message) {
     await mongoClient.close();
     exec("npm run restart")
     await message.channel.send("Reload successful!");
-    client.destroy();
 }
 
 
