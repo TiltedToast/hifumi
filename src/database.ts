@@ -77,7 +77,7 @@ export async function insertStatus(message: Message) {
 export async function updatePrefix(message: Message) {
     // Permission check for Kick Permissions or being the Bot Owner
     if (!message.member?.permissions.has(Permissions.FLAGS.KICK_MEMBERS) && !(message.author.id === botOwner)) {
-        return message.channel.send("Insuficient permissions!");
+        return message.channel.send("Insufficient permissions!");
     }
 
     const content = message.content.split(" ");

@@ -88,9 +88,9 @@ client.on("messageCreate", async (message: Message) => {
 
         // Gets the prefix from the db and compares to the message's beginning 
         // This way the prefix can be case insensitive
-        const prefix = prefixDict[server.id] !== null ? prefixDict[server.id] : "h!";
-        const command = content[0].slice(prefix.length).toLowerCase();
-        const lowerCasePrefix = content[0].substring(0, prefix.length).toLowerCase();
+        const prefix: string = prefixDict[server.id] !== null ? prefixDict[server.id] : "h!";
+        const command: string = content[0].slice(prefix.length).toLowerCase();
+        const lowerCasePrefix: string = content[0].substring(0, prefix.length).toLowerCase();
 
         if (message.content.toLowerCase() === "hr~") await reloadBot(message);
 
@@ -187,7 +187,7 @@ async function helpCmd(message: Message, prefix: string) {
 
 async function console_cmd(message: Message) {
     if (!(message.author.id === botOwner)) {
-        return await message.channel.send("Insuficient permissions!");
+        return await message.channel.send("Insufficient permissions!");
     }
     // Creates a new string with the message content without the command
     // And runs it in a new shell process
@@ -204,7 +204,7 @@ async function console_cmd(message: Message) {
 
 export async function reloadBot(message: Message) {
     if (!(message.author.id === botOwner)) {
-        return await message.channel.send("Insuficient permissions!");
+        return await message.channel.send("Insufficient permissions!");
     }
     // Reloads the bot using the pm2 module
     await mongoClient.close();
@@ -396,7 +396,7 @@ async function urban(message: Message, prefix: string): Promise<any> {
 
 async function bye(message: Message): Promise<any> {
     if (!(message.author.id === botOwner)) {
-        return await message.channel.send("Insuficient permissions!");
+        return await message.channel.send("Insufficient permissions!");
     }
     // Closes the MongoDB connection and stops the running daemon via pm2
     await message.channel.send("Bai baaaaaaaai!!");
