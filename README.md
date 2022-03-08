@@ -1,5 +1,5 @@
 ***REMOVED***
-The main thing you will have to add is a config.ts file that looks as follows:
+The main thing you will have to add is a `config.ts` file that looks as follows:
 
 ***REMOVED***ts
 export const credentials = {
