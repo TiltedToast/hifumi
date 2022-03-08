@@ -404,9 +404,18 @@ async function bye(message: Message): Promise<any> {
     exec("pm2 delete hifumi");
 }
 
-// Makes sure Ctrl + C shuts down the bot properly
+// Graceful Shutdown on Ctrl + C
 process.on("SIGINT", () => {
     mongoClient.close(() => {
+        client.destroy();
+        process.exit(0);
+    });
+});
+
+// Graceful shutdown on Docker Container stop
+process.on("SIGTERM", () => {
+    mongoClient.close(() => {
+        client.destroy();
         process.exit(0);
     });
 });
