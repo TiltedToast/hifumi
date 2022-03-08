@@ -39,9 +39,8 @@
     },
     "scripts": {
         "start": "tsc && pm2 start ./dist/app.js --name hifumi --time",
-        "reload": "pm2 reload hifumi",
-        "stop": "pm2 stop hifumi",
         "delete": "pm2 delete hifumi",
-        "restart": "tsc && pm2 reload hifumi"
+        "restart": "tsc && pm2 reload hifumi",
+        "docker-build": "tsc && node ./dist/app.js"
     }
 }
