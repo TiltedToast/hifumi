@@ -38,8 +38,7 @@ export async function beautiful(message: Message): Promise<any> {
     await canvas.loadImage('./temp/avatar_resized.png')
         .then(img => { ctx.drawImage(img, 430, 377) });
 
-
-    await canvas.loadImage('./files/background.png')
+    await canvas.loadImage('./src/files/background.png')
         .then(img => { ctx.drawImage(img, 0, 0) });
 
 
