@@ -1,5 +1,5 @@
 # Deploying her yourself
-The main thing you will have to add is a config.ts file that looks as follows:
+The main thing you will have to add is a `config.ts` file that looks as follows:
 
 ```ts
 export const credentials = {
