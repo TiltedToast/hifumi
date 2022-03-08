@@ -1,10 +1,5 @@
 node_modules
 **/config.ts
-.idea
-.vscode
 .eslintrc.json
-*.ppk
-*.pem
-__pycache__
 temp
 dist
