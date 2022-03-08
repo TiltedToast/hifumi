@@ -14,14 +14,20 @@ import axios from 'axios';
 
 export async function beautiful(message: Message): Promise<any> {
     tools.createTemp('temp');
+    const content = message.content.split(' ');
+    let user: any;
 
     // Checks for invalid User ID 
-    const pingId = message.content.split(" ")[1]
-    if (isNaN(parseInt(pingId)) && (!pingId.startsWith("<@"))) {
-        return await message.channel.send("Invalid ID! Use numbers only please");
+    if (content.length === 1) {
+        user = message.author;
+    } else if (content.length === 2) {
+        const pingId = content[1]
+        if (isNaN(parseInt(pingId)) && (!pingId.startsWith("<@"))) {
+            return await message.channel.send("Invalid ID! Use numbers only please");
+        }
+        user = await tools.getUserObjectPingId(message);
     }
 
-    const user = await tools.getUserObjectPingId(message);
     if (user === undefined) return;
     // Downloads User Avatar and resizes it to the size required (180x180)
     const avatarURL = `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=4096`
@@ -131,7 +137,7 @@ export async function imgur(message: Message, prefix: string, url?: string): Pro
     }
 
     if (url === undefined) return;
-    
+
     // Imgur API doesn't support webp images 
     if (url.includes('webp')) {
         url = url.replace('webp', 'png');

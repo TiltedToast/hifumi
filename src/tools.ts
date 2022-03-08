@@ -82,12 +82,11 @@ export function randomProperty(obj: any): any {
 export async function getUserObjectPingId(message: Message): Promise<User | undefined> {
     const content = message.content.split(" ");
 
-    if (content.length === 1) {
-        return message.author;
-    } else if (!isNaN(parseInt(content[1]))) {
+    if (!isNaN(parseInt(content[1]))) {
         return await client.users.fetch(content[1]);
-    } else if (message.mentions.has(message.channel.id)) {
-        return message.mentions.users.first();
+    } else {
+        const user = message.mentions.users.first();
+        return user ? user : undefined;
     }
 }
 
