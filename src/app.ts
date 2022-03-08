@@ -404,20 +404,15 @@ async function bye(message: Message): Promise<any> {
     exec("pm2 delete hifumi");
 }
 
-// Graceful Shutdown on Ctrl + C
+// Graceful Shutdown on Ctrl + C / Docker stop
 process.on("SIGINT", () => {
     mongoClient.close(() => {
+        console.log("Closed MongoDB connection");
         client.destroy();
+        console.log("Closed Discord client");
         process.exit(0);
     });
 });
 
-// Graceful shutdown on Docker Container stop
-process.on("SIGTERM", () => {
-    mongoClient.close(() => {
-        client.destroy();
-        process.exit(0);
-    });
-});
 
 client.login(credentials["token"]);
