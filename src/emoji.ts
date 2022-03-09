@@ -1,9 +1,9 @@
 import * as tools from './tools.js';
-import { Collection, Emoji, GuildEmoji, Message, MessageAttachment, Permissions } from 'discord.js';
+import { Message, MessageAttachment, Permissions } from 'discord.js';
 import * as imgProcess from './imgProcess.js';
 
 export async function addEmoji(message: Message, prefix: string): Promise<Message | undefined> {
-    let name: string = "", emoji, url: string = "";
+    let name = "", emoji, url = "";
 
     if (!message.member?.permissions.has(Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS)) {
         return await message.channel.send('You need the "Manage Emojis" permission to add emojis!');
