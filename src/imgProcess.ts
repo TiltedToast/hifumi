@@ -4,18 +4,18 @@ import { FormData } from "formdata-node"
 import fetch from 'node-fetch';
 import * as tools from './tools.js';
 import { credentials } from './config.js';
-import { Message, MessageAttachment, MessageEmbed } from 'discord.js';
+import { Message, MessageAttachment } from 'discord.js';
 import { Headers } from 'node-fetch';
+import { ImgurResult } from './interfaces.js';
 import sharp from 'sharp';
 import canvas from 'canvas';
-import { client } from './app.js';
 import axios from 'axios';
 
 
-export async function beautiful(message: Message): Promise<any> {
+export async function beautiful(message: Message): Promise<Message | undefined> {
     tools.createTemp('temp');
     const content = message.content.split(' ');
-    let user: any;
+    let user;
 
     // Checks for invalid User ID 
     if (content.length === 1) {
@@ -68,7 +68,7 @@ export async function resize(fileLocation: string, width: number, saveLocation: 
 }
 
 
-export async function resizeImg(message: Message, prefix: string): Promise<any> {
+export async function resizeImg(message: Message, prefix: string): Promise<Message> {
     tools.createTemp('temp');
     const content = message.content.split(" ");
 
@@ -109,16 +109,16 @@ export async function resizeImg(message: Message, prefix: string): Promise<any> 
         return await message.channel.send('File too large for Discord!');
     }
 
-    await message.channel.send({ files: [`./temp/unknown_resized.${imgType}`] });
+    return await message.channel.send({ files: [`./temp/unknown_resized.${imgType}`] });
 }
 
 
-export async function imgur(message: Message, prefix: string, url?: string): Promise<any> {
+export async function imgur(message: Message, prefix: string, url?: string): Promise<Message | undefined> {
     const content = message.content.split(" ");
     let source;
     if (url) {
         source = url
-    } else if (!(content.length !== 2) && message.attachments.size === 0) {
+    } else if ((content.length !== 2) && message.attachments.size === 0) {
         return await message.channel.send(`Usage: \`${prefix}imgur <url>\``);
     } else {
         source = message.attachments.size > 0 ? (message.attachments.first() as MessageAttachment).url : content[1];
@@ -150,7 +150,7 @@ export async function imgur(message: Message, prefix: string, url?: string): Pro
     const formdata = new FormData();
     myHeaders.append("Authorization", `Client-ID ${credentials['imgurClientId']}`);
 
-    const requestOptions: any = {
+    const requestOptions: Record<string, unknown> = {
         method: 'POST',
         headers: myHeaders,
         body: formdata,
@@ -175,7 +175,7 @@ export async function imgur(message: Message, prefix: string, url?: string): Pro
         fetch("https://api.imgur.com/3/image", requestOptions)
             .then(response => response.json())
             .then(result => {
-                const imageLink = (result as any)['data']['link'];
+                const imageLink = (result as ImgurResult)["data"]['link'];
                 message.channel.send(imageLink);
             })
             .catch(() => { return message.channel.send("An unknown error occured while uploading!") });
@@ -186,7 +186,7 @@ export async function imgur(message: Message, prefix: string, url?: string): Pro
         fetch("https://api.imgur.com/3/image", requestOptions)
             .then(response => response.json())
             .then(result => {
-                const imageLink = (result as any)['data']['link'];
+                const imageLink = (result as ImgurResult)['data']['link'];
                 message.channel.send(imageLink);
             })
             .catch(() => { return message.channel.send("An unknown error occured while uploading!") });

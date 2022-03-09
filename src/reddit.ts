@@ -45,7 +45,7 @@ export async function profile(message: Message, prefix: string): Promise<Message
 
 
 export async function sub(message: Message, prefix: string): Promise<Message> {
-    let nsfw: boolean = false, force: boolean = false, query: object;
+    let nsfw = false, force = false, query: object;
 
     const content = message.content.split(" ").map(x => x.toLowerCase());
 
@@ -123,7 +123,7 @@ export async function sub(message: Message, prefix: string): Promise<Message> {
 
 }
 
-export async function fetchSubmissions(subreddit: string, message: Message, limit: number = 100) {
+export async function fetchSubmissions(subreddit: string, message: Message, limit = 100) {
     let counter = 0;
     const db = mongoClient.db('reddit');
 
@@ -137,7 +137,7 @@ export async function fetchSubmissions(subreddit: string, message: Message, limi
     // Fetches posts from the subreddit based on the limit (default 100) and stores them in the database
     // Only fetches posts that are hosted on reddit/imgur to avoid Embeds not loading
     const hotSubmissions = await RedditClient.getSubreddit(subreddit).getHot({ limit: limit })
-    for (let submission of hotSubmissions) {
+    for (const submission of hotSubmissions) {
         if (await collection.findOne({ id: submission.id }) === null && !submission.is_self
             && (submission.url.includes("i.redd.it") || submission.url.includes("i.imgur.com"))) {
             await collection.insertOne(JSON.parse(JSON.stringify(submission)));
@@ -146,7 +146,7 @@ export async function fetchSubmissions(subreddit: string, message: Message, limi
     }
 
     const newSubmissions = await RedditClient.getSubreddit(subreddit).getNew({ limit: limit })
-    for (let submission of newSubmissions) {
+    for (const submission of newSubmissions) {
         if (await collection.findOne({ id: submission.id }) === null && !submission.is_self
             && (submission.url.includes("i.redd.it") || submission.url.includes("i.imgur.com"))) {
             await collection.insertOne(JSON.parse(JSON.stringify(submission)));
@@ -155,7 +155,7 @@ export async function fetchSubmissions(subreddit: string, message: Message, limi
     }
 
     const risingSubmissions = await RedditClient.getSubreddit(subreddit).getRising({ limit: limit })
-    for (let submission of risingSubmissions) {
+    for (const submission of risingSubmissions) {
         if (await collection.findOne({ id: submission.id }) === null && !submission.is_self
             && (submission.url.includes("i.redd.it") || submission.url.includes("i.imgur.com"))) {
             await collection.insertOne(JSON.parse(JSON.stringify(submission)));
@@ -165,12 +165,12 @@ export async function fetchSubmissions(subreddit: string, message: Message, limi
 
     // Fetches all possible Top posts from the subreddit and stores them in the database
     // Sends the total amount of posts fetched to the user
-    counter = await tools.fetchTopPosts(subreddit, 'hour', counter, db, RedditClient);
-    counter = await tools.fetchTopPosts(subreddit, 'day', counter, db, RedditClient);
-    counter = await tools.fetchTopPosts(subreddit, 'week', counter, db, RedditClient);
-    counter = await tools.fetchTopPosts(subreddit, 'month', counter, db, RedditClient);
-    counter = await tools.fetchTopPosts(subreddit, 'year', counter, db, RedditClient);
-    counter = await tools.fetchTopPosts(subreddit, 'all', counter, db, RedditClient);
+    counter = await tools.fetchTopPosts(subreddit, 'hour', counter, db, RedditClient, 100);
+    counter = await tools.fetchTopPosts(subreddit, 'day', counter, db, RedditClient, 100);
+    counter = await tools.fetchTopPosts(subreddit, 'week', counter, db, RedditClient, 100);
+    counter = await tools.fetchTopPosts(subreddit, 'month', counter, db, RedditClient, 100);
+    counter = await tools.fetchTopPosts(subreddit, 'year', counter, db, RedditClient, 100);
+    counter = await tools.fetchTopPosts(subreddit, 'all', counter, db, RedditClient, 100);
 
     await message.channel.send(`Fetched ${counter} new images for ${subreddit}`);
 }

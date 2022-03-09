@@ -3,14 +3,14 @@ import * as fs from 'fs';
 import * as path from 'path';
 import fetch from 'node-fetch';
 import { Headers } from 'node-fetch';
-import { credentials } from './config.js';
-import { Db, ObjectId } from "mongodb";
+import { Db } from "mongodb";
 import { mongoClient, client, statusArr } from './app.js';
 import { Client, Message, TextChannel, User } from 'discord.js';
 import Snoowrap from 'snoowrap';
 import { Timespan } from 'snoowrap/dist/objects/Subreddit';
 import strftime from 'strftime';
-
+import { Document } from 'mongodb';
+import { StatusDoc } from './interfaces.js';
 
 /**
  * Parses key value pairs from discord messages into a JavaScript object that can be used to interact with the Database
@@ -18,8 +18,8 @@ import strftime from 'strftime';
  * @param  {Message} message The message object passed to interact with the Discord API
  * @returns Promise that resolves into the parsed argument document
  */
-export async function parseDbArgs(start: number, content: string[]): Promise<any> {
-    const document: any = {};
+export async function parseDbArgs(start: number, content: string[]): Promise<Document> {
+    const document: Document = {};
 
     // Loops over the argument pairs and adds them to as key value pairs in the document
     for (let i = start; i < content.length; i++) {
@@ -46,7 +46,7 @@ export async function parseDbArgs(start: number, content: string[]): Promise<any
 export async function setRandomStatus(client: Client) {
     setInterval(async () => {
         if (!client.user) return;
-        const randomStatusDoc = randomElementArray(statusArr);
+        const randomStatusDoc = randomElementArray(statusArr) as StatusDoc;
         const randomType = randomStatusDoc.type;
         const randomStatus = randomStatusDoc.status;
 
@@ -69,10 +69,10 @@ export function sleep(ms: number) {
  * @param  {any} obj Javascript Object to check
  * @returns {any} Returns a random Property of an object
  */
-export function randomProperty(obj: any): any {
+export function randomProperty(obj: Record<string, unknown>): unknown {
     const keys = Object.keys(obj);
     return obj[keys[keys.length * Math.random() << 0]];
-};
+}
 
 /**
  * Returns a user object from either a user id or a ping 
@@ -96,7 +96,7 @@ export async function getUserObjectPingId(message: Message): Promise<User | unde
  * @param {Array} array 
  * @returns a random Element from the array
  */
-export function randomElementArray(array: Array<any>): any {
+export function randomElementArray(array: unknown[]): unknown {
     return array[Math.floor(Math.random() * array.length)]
 }
 /**
@@ -116,15 +116,15 @@ export function randomIntFromRange(min: number, max: number): number {
  * @param {Integer} counter Number used to calculate the total fetched submissions
  * @param {Db} db Database to store the fetched submissions in
  * @param {Snoowrap} RedditClient Snoowrap Reddit Client instance
- * @param {Number} limit Amount of posts to fetch
+ * @param {number} limit Amount of posts to fetch
  * @returns {Promise} Promise that resolves to the amount of submissions fetched
  */
-export async function fetchTopPosts(subreddit: string, mode: Timespan, counter: number, db: Db, RedditClient: Snoowrap, limit: number = 100): Promise<number> {
+export async function fetchTopPosts(subreddit: string, mode: Timespan, counter: number, db: Db, RedditClient: Snoowrap, limit: number): Promise<number> {
     // Fetches Top posts from a subreddit
     // Only accepts images hosted on reddit or imgur to avoid Embeds not working
     const submissions = await RedditClient.getSubreddit(subreddit).getTop({ time: mode, limit: limit });
     const collection = db.collection(`${subreddit}`);
-    for (let submission of submissions) {
+    for (const submission of submissions) {
         if (await collection.findOne({ id: submission.id }) === null && !submission.is_self
             && (submission.url.includes("i.redd.it") || submission.url.includes("i.imgur.com"))) {
             await collection.insertOne(JSON.parse(JSON.stringify(submission)));
@@ -134,20 +134,6 @@ export async function fetchTopPosts(subreddit: string, mode: Timespan, counter: 
     return counter;
 }
 
-
-/**
- * Parses an array of interaction.options.data to get applied options
- * ! Assumes you're using slash commands
- * @param {Array} array Array of strings
- * @returns an array that contains the input options
- */
-export function getOptionsArray(array: Array<any>) {
-    let optionsArray = [];
-    for (let i = 0; i < array.length; i++) {
-        optionsArray.push(array[i].name);
-    }
-    return optionsArray;
-}
 
 /**
  * Parses an interaction and error and sends it to the channel to avoid Hifumi dying every time an Error occurs
@@ -215,7 +201,7 @@ export async function downloadURL(url: string, saveLocation: string) {
         myHeaders.append('Referer', 'https://www.pixiv.net/');
     }
 
-    const requestOptions: Object = {
+    const requestOptions: Record<string, unknown> = {
         method: 'GET',
         headers: myHeaders,
         redirect: 'follow'
@@ -267,7 +253,7 @@ export function advRound(x: number): number {
  * @param {Boolean} id Whether or not you only want the ID or the URL
  * @returns {String} The ID or URL of the emoji
  */
-export function extractEmoji(emojiString: string, id: boolean = false): string {
+export function extractEmoji(emojiString: string, id?: boolean): string {
     const emojiID = emojiString.split(":")[2].slice(0, -1)
 
     if (id) {
