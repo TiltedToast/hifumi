@@ -3,23 +3,23 @@ import * as emoji from "./emoji.js";
 import * as imgProcess from "./imgProcess.js";
 import * as reddit from "./reddit.js";
 import * as database from "./database.js";
-
 import { credentials } from "./config.js";
 import fetch from "node-fetch";
 import { exec } from 'child_process';
-import { Client, Intents, Message, MessageEmbed, TextChannel } from "discord.js";
-import { MongoClient, ObjectId } from "mongodb";
+import { Client, Intents, Message, MessageEmbed, TextChannel, ColorResolvable } from "discord.js";
+import { MongoClient, ObjectId, Document } from "mongodb";
 import strftime from 'strftime';
+import { UrbanResult, UrbanEntry, ConvertResult, StatusDoc } from "./interfaces.js";
 
 
-export const botOwner: string = "258993932262834188";
-export const embedColour: any = "0xce3a9b";
+export const botOwner = "258993932262834188";
+export const embedColour: ColorResolvable = "#ce3a9b";
 const allIntents = new Intents(32767);
 export const client = new Client({ intents: allIntents });
 export const mongoClient = new MongoClient(credentials["mongoURI"]);
 const startTime = Date.now();
-export let prefixDict: any = {};
-export let statusArr: any[] = [];
+export const prefixDict: Record<string, string> = {};
+export let statusArr: Document[] = [];
 
 client.once("ready", async () => {
     const time = strftime("%d/%m/%Y %H:%M:%S");
@@ -39,7 +39,7 @@ client.once("ready", async () => {
     const statusDocs = await mongoClient.db("hifumi").collection("statuses").find().toArray();
     statusArr = statusDocs
 
-    const randomStatusDoc = tools.randomElementArray(statusArr);
+    const randomStatusDoc = tools.randomElementArray(statusArr) as StatusDoc;
     const randomType = randomStatusDoc.type;
     const randomStatus = randomStatusDoc.status;
 
@@ -59,7 +59,7 @@ client.once("ready", async () => {
 
 
 client.on("messageCreate", async (message: Message) => {
-    let reactCmd: string = '', subCmd: string = '';
+    let reactCmd = '', subCmd = '';
     if (message.guild === null || message.guild.me === null) return;
     try {
         // Permission check for the channel which the message was sent in to avoid breaking the bot
@@ -154,16 +154,15 @@ client.on("messageCreate", async (message: Message) => {
 
             for (const cmdType in cmdAliases) {
                 if (Object.values(cmdAliases[cmdType]).includes(reactCmd)) {
-                    const msg = tools
-                        .randomElementArray(reactMsgs[cmdType])
+                    const msg = (tools.randomElementArray(reactMsgs[cmdType]) as string)
                         .replace("{0}", message.author.username);
                     await tools.sleep(1000);
                     await message.channel.send(msg);
                 }
             }
         }
-    } catch (err: any) {
-        tools.errorLog(message, err)
+    } catch (err: unknown) {
+        tools.errorLog(message, err as Error);
     }
 });
 
@@ -306,7 +305,7 @@ async function listCurrencies(message: Message) {
 
 }
 
-async function convert(message: Message, prefix: string): Promise<any> {
+async function convert(message: Message, prefix: string): Promise<Message | undefined> {
     const content = message.content.split(" ");
 
     const currencies = await mongoClient.db("hifumi").collection("currencies").findOne({ _id: new ObjectId("620bb1d76e6a2b90f475d556") });
@@ -327,7 +326,7 @@ async function convert(message: Message, prefix: string): Promise<any> {
     const response = await fetch(`https://prime.exchangerate-api.com/v5/${credentials["exchangeApiKey"]}/latest/${from}`);
 
     if (!response.ok) { return await message.channel.send("Error! Please try again later"); }
-    const result: any = await response.json();
+    const result = await response.json() as ConvertResult;
 
     // Checks for possible pointless conversions
     if (from === to) {
@@ -350,10 +349,10 @@ async function convert(message: Message, prefix: string): Promise<any> {
         .setFooter({ text: `${strftime("%d/%m/%Y %H:%M:%S")}` });
 
     await message.channel.send({ embeds: [convertEmbed] });
-};
+}
 
 
-async function urban(message: Message, prefix: string): Promise<any> {
+async function urban(message: Message, prefix: string): Promise<Message> {
     const content = message.content.split(" ");
 
     if (!(content.length === 2)) {
@@ -364,13 +363,13 @@ async function urban(message: Message, prefix: string): Promise<any> {
     const response = await fetch(`https://api.urbandictionary.com/v0/define?term=${query}`);
 
     if (!response.ok) { return await message.channel.send(`Error ${response.status}! Please try again later`); }
-    const result: any = await response.json();
+    const result = await response.json() as UrbanResult;
 
     if (result["list"].length === 0) {
         return message.channel.send("No results found!");
     }
 
-    const def = tools.randomElementArray(result["list"]);
+    const def = tools.randomElementArray(result["list"]) as UrbanEntry;
 
     const word = def["word"];
     const definition = def["definition"];
@@ -389,11 +388,11 @@ async function urban(message: Message, prefix: string): Promise<any> {
             text: `Upvotes: ${upvotes} Downvotes: ${downvotes}`,
         });
 
-    await message.channel.send({ embeds: [urbanEmbed] });
+    return await message.channel.send({ embeds: [urbanEmbed] });
 }
 
 
-async function bye(message: Message): Promise<any> {
+async function bye(message: Message): Promise<Message | void> {
     if (!(message.author.id === botOwner)) {
         return await message.channel.send("Insufficient permissions!");
     }
