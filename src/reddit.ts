@@ -5,6 +5,7 @@ import { Message, MessageEmbed, TextChannel } from "discord.js";
 import fetch from 'node-fetch';
 import { mongoClient, embedColour } from './app.js';
 import strftime from 'strftime';
+import { Timespan } from 'snoowrap/dist/objects/Subreddit';
 
 
 const RedditClient = new Snoowrap({
@@ -165,12 +166,9 @@ export async function fetchSubmissions(subreddit: string, message: Message, limi
 
     // Fetches all possible Top posts from the subreddit and stores them in the database
     // Sends the total amount of posts fetched to the user
-    counter = await tools.fetchTopPosts(subreddit, 'hour', counter, db, RedditClient, 100);
-    counter = await tools.fetchTopPosts(subreddit, 'day', counter, db, RedditClient, 100);
-    counter = await tools.fetchTopPosts(subreddit, 'week', counter, db, RedditClient, 100);
-    counter = await tools.fetchTopPosts(subreddit, 'month', counter, db, RedditClient, 100);
-    counter = await tools.fetchTopPosts(subreddit, 'year', counter, db, RedditClient, 100);
-    counter = await tools.fetchTopPosts(subreddit, 'all', counter, db, RedditClient, 100);
+    for (const mode of ["hour", "day", "week", "month", "year", "all"]) {
+        counter += await tools.fetchTopPosts(subreddit, mode as Timespan, counter, db, RedditClient, 100);
+    }
 
     await message.channel.send(`Fetched ${counter} new images for ${subreddit}`);
 }
