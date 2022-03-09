@@ -167,7 +167,7 @@ export async function fetchSubmissions(subreddit: string, message: Message, limi
     // Fetches all possible Top posts from the subreddit and stores them in the database
     // Sends the total amount of posts fetched to the user
     for (const mode of ["hour", "day", "week", "month", "year", "all"]) {
-        counter += await tools.fetchTopPosts(subreddit, mode as Timespan, counter, db, RedditClient, 100);
+        counter = await tools.fetchTopPosts(subreddit, mode as Timespan, counter, db, RedditClient, 100);
     }
 
     await message.channel.send(`Fetched ${counter} new images for ${subreddit}`);
