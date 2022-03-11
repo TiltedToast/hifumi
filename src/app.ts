@@ -3,13 +3,13 @@ import * as emoji from "./emoji.js";
 import * as imgProcess from "./imgProcess.js";
 import * as reddit from "./reddit.js";
 import * as database from "./database.js";
-import { credentials } from "./config.js";
+import {credentials} from "./config.js";
 import fetch from "node-fetch";
-import { exec } from 'child_process';
-import { Client, Intents, Message, MessageEmbed, TextChannel, ColorResolvable } from "discord.js";
-import { MongoClient, ObjectId, Document } from "mongodb";
+import {exec} from 'child_process';
+import {Client, ColorResolvable, Intents, Message, MessageEmbed, TextChannel} from "discord.js";
+import {Document, MongoClient, ObjectId} from "mongodb";
 import strftime from 'strftime';
-import { UrbanResult, UrbanEntry, ConvertResult, StatusDoc } from "./interfaces.js";
+import {ConvertResult, StatusDoc, UrbanEntry, UrbanResult} from "./interfaces.js";
 
 
 export const botOwner = "258993932262834188";
@@ -36,8 +36,7 @@ client.once("ready", async () => {
     await mongoClient.connect();
 
     // Puts all statuses into an array to avoid reading the database on every status change
-    const statusDocs = await mongoClient.db("hifumi").collection("statuses").find().toArray();
-    statusArr = statusDocs
+    statusArr = await mongoClient.db("hifumi").collection("statuses").find().toArray()
 
     const randomStatusDoc = tools.randomElementArray(statusArr) as StatusDoc;
     const randomType = randomStatusDoc.type;
@@ -81,7 +80,7 @@ client.on("messageCreate", async (message: Message) => {
 
         // Adds a default prefix to the db if it doesn't exist
         if (!message.author.bot && !(server.id in prefixDict)) {
-            prefixColl.insertOne({ serverId: server.id, prefix: "h!" });
+            await prefixColl.insertOne({serverId: server.id, prefix: "h!"});
             prefixDict[server.id] = "h!";
             await message.channel.send("I have set the prefix to `h!`");
         }
