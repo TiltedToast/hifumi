@@ -1,15 +1,10 @@
-export type JSONValue =
-    | string
-    | number
-    | boolean
-    | JSONObject
-    | JSONArray;
+export type JSONValue = string | number | boolean | JSONObject | JSONArray;
 
 export interface JSONObject {
     [x: string]: JSONValue;
 }
 
-export type JSONArray = Array<JSONValue>
+export type JSONArray = Array<JSONValue>;
 
 export interface ConvertResult {
     result: string;
@@ -41,7 +36,6 @@ export interface UrbanEntry {
     example: string;
     thumbs_down: number;
 }
-
 
 export interface ImgurResult {
     data: ImgurData;

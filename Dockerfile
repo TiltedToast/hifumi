@@ -1,4 +1,4 @@
-FROM node:17
+FROM node:16.14.0
 WORKDIR /hifumi
 COPY package*.json ./
 RUN npm install && npm install -g typescript 
