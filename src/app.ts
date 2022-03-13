@@ -52,10 +52,7 @@ client.once("ready", async () => {
     }
 
     const channel = client.channels.cache.get("655484804405657642");
-    (channel as TextChannel).send(`Logged in as:
-        ${client.user.username}
-        Time: ${time}
-        --------------------------`);
+    (channel as TextChannel).send(`Logged in as:\n${client.user.username}\nTime: ${time}\n--------------------------`);
 });
 
 client.on("messageCreate", async (message: Message) => {
