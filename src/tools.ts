@@ -1,20 +1,20 @@
-import * as fsPromise from 'fs/promises';
-import * as fs from 'fs';
-import * as path from 'path';
-import fetch from 'node-fetch';
-import { Headers } from 'node-fetch';
+import * as fsPromise from "fs/promises";
+import * as fs from "fs";
+import * as path from "path";
+import fetch from "node-fetch";
+import { Headers } from "node-fetch";
 import { Db } from "mongodb";
-import { mongoClient, client, statusArr } from './app.js';
-import { Client, Message, TextChannel, User } from 'discord.js';
-import Snoowrap from 'snoowrap';
-import { Timespan } from 'snoowrap/dist/objects/Subreddit';
-import strftime from 'strftime';
-import { Document } from 'mongodb';
-import { StatusDoc } from './interfaces.js';
+import { mongoClient, client, statusArr } from "./app.js";
+import { Client, Message, TextChannel, User } from "discord.js";
+import Snoowrap from "snoowrap";
+import { Timespan } from "snoowrap/dist/objects/Subreddit";
+import strftime from "strftime";
+import { Document } from "mongodb";
+import { StatusDoc } from "./interfaces.js";
 
 /**
  * Parses key value pairs from discord messages into a JavaScript object that can be used to interact with the Database
- * @param  {number} start The content index after which arguments are expected to be present 
+ * @param  {number} start The content index after which arguments are expected to be present
  * @param  {Message} message The message object passed to interact with the Discord API
  * @returns Promise that resolves into the parsed argument document
  */
@@ -36,9 +36,6 @@ export async function parseDbArgs(start: number, content: string[]): Promise<Doc
     return document;
 }
 
-
-
-
 /**
  * Starts a loop which periodically changes the status to a random entry in the database
  * @param {Client} client Discord client which is used to access the API
@@ -51,17 +48,15 @@ export async function setRandomStatus(client: Client) {
         const randomStatus = randomStatusDoc.status;
 
         client.user.setActivity(randomStatus, { type: randomType });
-
     }, randomIntFromRange(300000, 900000));
 }
-
 
 /**
  * Simple function to create delays
  * @param {Number} ms The amount of milliseconds to wait
  */
 export function sleep(ms: number) {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 /**
@@ -71,11 +66,11 @@ export function sleep(ms: number) {
  */
 export function randomProperty(obj: Record<string, unknown>): unknown {
     const keys = Object.keys(obj);
-    return obj[keys[keys.length * Math.random() << 0]];
+    return obj[keys[(keys.length * Math.random()) << 0]];
 }
 
 /**
- * Returns a user object from either a user id or a ping 
+ * Returns a user object from either a user id or a ping
  * @param {Message} message Discord message object
  * @returns The user object
  */
@@ -90,14 +85,13 @@ export async function getUserObjectPingId(message: Message): Promise<User | unde
     }
 }
 
-
 /**
  * Takes an array and returns a random element from it.
- * @param {Array} array 
+ * @param {Array} array
  * @returns a random Element from the array
  */
 export function randomElementArray(array: unknown[]): unknown {
-    return array[Math.floor(Math.random() * array.length)]
+    return array[Math.floor(Math.random() * array.length)];
 }
 /**
  * Returns a random integer between min (inclusive) and max (inclusive)
@@ -106,7 +100,7 @@ export function randomElementArray(array: unknown[]): unknown {
  * @returns a random integer between min and max
  */
 export function randomIntFromRange(min: number, max: number): number {
-    return Math.floor(Math.random() * (max - min + 1) + min)
+    return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
 /**
@@ -119,21 +113,30 @@ export function randomIntFromRange(min: number, max: number): number {
  * @param {number} limit Amount of posts to fetch
  * @returns {Promise} Promise that resolves to the amount of submissions fetched
  */
-export async function fetchTopPosts(subreddit: string, mode: Timespan, counter: number, db: Db, RedditClient: Snoowrap, limit: number): Promise<number> {
+export async function fetchTopPosts(
+    subreddit: string,
+    mode: Timespan,
+    counter: number,
+    db: Db,
+    RedditClient: Snoowrap,
+    limit: number
+): Promise<number> {
     // Fetches Top posts from a subreddit
     // Only accepts images hosted on reddit or imgur to avoid Embeds not working
     const submissions = await RedditClient.getSubreddit(subreddit).getTop({ time: mode, limit: limit });
     const collection = db.collection(`${subreddit}`);
     for (const submission of submissions) {
-        if (await collection.findOne({ id: submission.id }) === null && !submission.is_self
-            && (submission.url.includes("i.redd.it") || submission.url.includes("i.imgur.com"))) {
+        if (
+            (await collection.findOne({ id: submission.id })) === null &&
+            !submission.is_self &&
+            (submission.url.includes("i.redd.it") || submission.url.includes("i.imgur.com"))
+        ) {
             await collection.insertOne(JSON.parse(JSON.stringify(submission)));
             counter += 1;
         }
     }
     return counter;
 }
-
 
 /**
  * Parses an interaction and error and sends it to the channel to avoid Hifumi dying every time an Error occurs
@@ -153,7 +156,7 @@ export function errorLog(message: Message, errorObject: Error) {
   **Command used:** ${message.content}
   **Error:** ${errorObject.message}\n
   **${errorObject.stack}**\n
-  <@258993932262834188>`
+  <@258993932262834188>`;
 
     const collection = mongoClient.db("hifumi").collection("errorLog");
     collection.insertOne({
@@ -165,25 +168,27 @@ export function errorLog(message: Message, errorObject: Error) {
         stack: errorObject.stack,
         date: `${currentTime}`,
         timestamp: Date.now(),
-        log: errorMessage
+        log: errorMessage,
     });
 
     if (errorMessage.length > 2000) {
-        errorMessage = `An Error occurred on ${currentTime}\nCheck console for full error (2000 character limit)\n<@258993932262834188>`
+        errorMessage = `An Error occurred on ${currentTime}
+        Check console for full error (2000 character limit)
+        <@258993932262834188>`;
+
         return console.log(errorObject);
     }
 
     // Chooses channel to send error to
     // The list below are channels that are actively used for testing purposes
     if (["655484859405303809", "551588329003548683", "922679249058553857"].includes(message.channel.id)) {
-        channel = message.channel
+        channel = message.channel;
     } else {
         channel = client.channels.cache.get("655484804405657642");
     }
 
     (channel as TextChannel).send(errorMessage);
 }
-
 
 /**
  * Takes a URL as well as a file path and downloads the file to the file path
@@ -194,26 +199,25 @@ export async function downloadURL(url: string, saveLocation: string) {
     const absSaveLocation = path.resolve(saveLocation);
 
     const myHeaders = new Headers();
-    myHeaders.append('User-Agent', 'hifumi-js:v1.0.0:tiltedtoast27@gmail.com');
+    myHeaders.append("User-Agent", "hifumi-js:v1.0.0:tiltedtoast27@gmail.com");
 
     // Pixiv requires a Referrer header, no idea why
     if (url.includes("pximg")) {
-        myHeaders.append('Referer', 'https://www.pixiv.net/');
+        myHeaders.append("Referer", "https://www.pixiv.net/");
     }
 
     const requestOptions: Record<string, unknown> = {
-        method: 'GET',
+        method: "GET",
         headers: myHeaders,
-        redirect: 'follow'
-    }
+        redirect: "follow",
+    };
 
     // Fetches the file from the URL and saves it to the file path
     await fetch(url, requestOptions)
-        .then(response => response.arrayBuffer())
-        .then(buffer => fsPromise.writeFile(absSaveLocation, new Uint8Array(buffer)))
-        .catch(error => console.log('error', error));
+        .then((response) => response.arrayBuffer())
+        .then((buffer) => fsPromise.writeFile(absSaveLocation, new Uint8Array(buffer)))
+        .catch((error) => console.log("error", error));
 }
-
 
 /**
  * Takes an image URL and returns the file extension
@@ -223,7 +227,7 @@ export async function downloadURL(url: string, saveLocation: string) {
 export function getImgType(url: string): string {
     if (url.includes(".png") || url.includes(".webp")) {
         return "png";
-    } else if (url.includes(".jpeg") || (url.includes(".jpg"))) {
+    } else if (url.includes(".jpeg") || url.includes(".jpg")) {
         return "jpeg";
     } else if (url.includes(".gif")) {
         return "gif";
@@ -236,7 +240,7 @@ export function getImgType(url: string): string {
 
 /**
  * Takes a numer and turns rounds it into an Integer or Float
- * @param {Number} x The number you want to round 
+ * @param {Number} x The number you want to round
  * @returns {Number} The rounded number
  */
 export function advRound(x: number): number {
@@ -254,7 +258,7 @@ export function advRound(x: number): number {
  * @returns {String} The ID or URL of the emoji
  */
 export function extractEmoji(emojiString: string, id?: boolean): string {
-    const emojiID = emojiString.split(":")[2].slice(0, -1)
+    const emojiID = emojiString.split(":")[2].slice(0, -1);
 
     if (id) {
         return emojiID;
@@ -266,7 +270,6 @@ export function extractEmoji(emojiString: string, id?: boolean): string {
         return `https://cdn.discordapp.com/emojis/${emojiID}.png`;
     }
 }
-
 
 /**
  * Takes a directory, checks whether it exists. If it does, it deletes it and recreates it. If it doesn't, it creates it
@@ -287,7 +290,7 @@ export function createTemp(directory: string): void {
  * Checks whether the size of the file is greater than the max size allowed
  * @param {String} fileLocation The location of the file
  * @param {Number} size The max size allowed
- * @returns {Boolean} Whether or not the file is small enough 
+ * @returns {Boolean} Whether or not the file is small enough
  */
 export function isValidSize(fileLocation: string, size: number): boolean {
     return fs.statSync(fileLocation).size <= size;
