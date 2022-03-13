@@ -1,43 +1,38 @@
 import { mongoClient, botOwner, prefixDict, statusArr } from "./app.js";
-import { Message, Permissions } from 'discord.js';
-import * as tools from './tools.js';
-
+import { Message, Permissions } from "discord.js";
+import * as tools from "./tools.js";
 
 export async function insert(message: Message) {
     if (!(message.author.id === botOwner)) return;
 
     const content = message.content.split(" ");
-    if (!(content.length >= 6) && (content.length % 2 !== 0)) return await message.channel.send("Invalid syntax!");
+    if (!(content.length >= 6) && content.length % 2 !== 0) return await message.channel.send("Invalid syntax!");
 
     const dbName = content[2];
     const collectionName = content[3];
 
     const document = await tools.parseDbArgs(4, content);
 
-
     const collection = mongoClient.db(dbName).collection(collectionName);
     await collection.insertOne(document);
 
     await message.channel.send(`Inserted document into ${dbName}.${collectionName}`);
     await message.channel.send(JSON.stringify(document));
-
 }
-
 
 export async function update(message: Message) {
     if (!(message.author.id === botOwner)) return;
 
     const content = message.content.split(" ");
 
-    if (!(content.length >= 8) && (content.length % 2 !== 0)) return await message.channel.send("Invalid syntax!");
+    if (!(content.length >= 8) && content.length % 2 !== 0) return await message.channel.send("Invalid syntax!");
 
     const dbName = content[2];
     const collectionName = content[3];
 
-    const filterDoc = { [content[4]]: content[5] }
+    const filterDoc = { [content[4]]: content[5] };
 
     const updateDoc = await tools.parseDbArgs(6, content);
-
 
     const collection = mongoClient.db(dbName).collection(collectionName);
     await collection.updateOne(filterDoc, { $set: updateDoc });
@@ -48,7 +43,6 @@ export async function update(message: Message) {
     await message.channel.send(JSON.stringify(updatedDoc));
 }
 
-
 export async function insertStatus(message: Message) {
     if (!(message.author.id === botOwner)) return;
 
@@ -57,12 +51,12 @@ export async function insertStatus(message: Message) {
     if (!(content.length >= 3)) return await message.channel.send("Invalid syntax!");
 
     const status = content.slice(2).join(" ");
-    const type = content[1].toUpperCase()
+    const type = content[1].toUpperCase();
 
-    // Uppercases the type to conform to discord's API 
+    // Uppercases the type to conform to discord's API
     const document = {
         type: type,
-        status: status
+        status: status,
     };
 
     const collection = mongoClient.db("hifumi").collection("statuses");
@@ -72,7 +66,6 @@ export async function insertStatus(message: Message) {
     await message.channel.send("Status added!");
     await message.channel.send(JSON.stringify(document));
 }
-
 
 export async function updatePrefix(message: Message) {
     // Permission check for Kick Permissions or being the Bot Owner
@@ -97,5 +90,4 @@ export async function updatePrefix(message: Message) {
     await collection.updateOne(filterDoc, updateDoc);
     prefixDict[serverId] = content[1];
     await message.channel.send(`Updated prefix for this server to \`${content[1]}\`!`);
-
 }
