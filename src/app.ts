@@ -51,8 +51,12 @@ client.once("ready", async () => {
         prefixDict[prefixDoc.serverId] = prefixDoc.prefix;
     }
 
-    const channel = client.channels.cache.get("655484804405657642");
-    (channel as TextChannel).send(`Logged in as:\n${client.user.username}\nTime: ${time}\n--------------------------`);
+    if (!("dev" in credentials)) {
+        const channel = client.channels.cache.get("655484804405657642");
+        (channel as TextChannel).send(
+            `Logged in as:\n${client.user.username}\nTime: ${time}\n--------------------------`
+        );
+    }
 });
 
 client.on("messageCreate", async (message: Message) => {
@@ -90,11 +94,17 @@ client.on("messageCreate", async (message: Message) => {
 
         // Gets the prefix from the db and compares to the message's beginning
         // This way the prefix can be case insensitive
-        const prefix: string = prefixDict[server.id] !== null ? prefixDict[server.id] : "h!";
+        let prefix: string = prefixDict[server.id] !== null ? prefixDict[server.id] : "h!";
         const command: string = content[0].slice(prefix.length).toLowerCase();
         const lowerCasePrefix: string = content[0].substring(0, prefix.length).toLowerCase();
 
-        if (message.content.toLowerCase() === "hr~") await reloadBot(message);
+        if ("dev" in credentials) {
+            prefix = "h?";
+        }
+
+        if (message.content.toLowerCase() === "hr~~~~" && !("dev" in credentials)) await reloadBot(message);
+
+        if (message.content.toLowerCase() === "hr~" && "dev" in credentials) await reloadBot(message);
 
         if (lowerCasePrefix === prefix.toLowerCase()) {
             if (["avatar", "pfp"].includes(command)) {
@@ -146,9 +156,12 @@ client.on("messageCreate", async (message: Message) => {
 
         // Reacting to Miku's emote commands
         // Grabs a random reply from the db and sents it as a message after a fixed delay
+
+        const botId = "dev" in credentials ? "665224627353681921" : "641409330888835083";
+
         if (
-            message.content.startsWith(`$${reactCmd} <@641409330888835083>`) ||
-            message.content.startsWith(`$${reactCmd} <@!641409330888835083>`)
+            message.content.startsWith(`$${reactCmd} <@${botId}>`) ||
+            message.content.startsWith(`$${reactCmd} <@!${botId}>`)
         ) {
             const reactionsColl = mongoClient.db("hifumi").collection("mikuReactions");
             const cmdAliases = await reactionsColl.findOne({ _id: new ObjectId("61ed5a24955085f3e99f7c03") });
