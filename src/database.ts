@@ -1,7 +1,7 @@
 import { mongoClient, botOwner, prefixDict, statusArr } from "./app.js";
 import { Message, Permissions } from "discord.js";
 import * as tools from "./tools.js";
-import { credentials } from "./config.js";
+import { isDev } from "./tools.js";
 
 export async function insert(message: Message) {
     if (!(message.author.id === botOwner)) return;
@@ -9,7 +9,7 @@ export async function insert(message: Message) {
     const content = message.content.split(" ");
     if (!(content.length >= 6) && content.length % 2 !== 0) return await message.channel.send("Invalid syntax!");
 
-    if ("dev" in credentials)
+    if (isDev())
         await message.channel.send("Add your stuff to the cloud db instead <:emiliaSMH:747132102645907587>");
 
     const dbName = content[2];
@@ -31,7 +31,7 @@ export async function update(message: Message) {
 
     if (!(content.length >= 8) && content.length % 2 !== 0) return await message.channel.send("Invalid syntax!");
 
-    if ("dev" in credentials) await message.channel.send("Update the cloud db instead <:emiliaSMH:747132102645907587>");
+    if (isDev()) await message.channel.send("Update the cloud db instead <:emiliaSMH:747132102645907587>");
 
     const dbName = content[2];
     const collectionName = content[3];
@@ -56,7 +56,7 @@ export async function insertStatus(message: Message) {
 
     if (!(content.length >= 3)) return await message.channel.send("Invalid syntax!");
 
-    if ("dev" in credentials)
+    if (isDev())
         await message.channel.send("Add your statuses to the cloud db instead <:emiliaSMH:747132102645907587>");
 
     const status = content.slice(2).join(" ");
@@ -89,7 +89,7 @@ export async function updatePrefix(message: Message) {
     if (!(content.length === 2)) return await message.channel.send("Invalid syntax!");
     if (content[1].length > 5) return await message.channel.send("Prefix too long!");
 
-    if ("dev" in credentials) await message.channel.send("Wrong database <:emiliaSMH:747132102645907587>");
+    if (isDev()) await message.channel.send("Wrong database <:emiliaSMH:747132102645907587>");
 
     // Finds the guild's document in the database
     // Updates said docment with the new prefix

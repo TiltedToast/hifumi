@@ -6,6 +6,7 @@ import * as database from "./database.js";
 import { credentials } from "./config.js";
 import fetch from "node-fetch";
 import { exec } from "child_process";
+import { isDev } from "./tools.js";
 import { Client, ColorResolvable, Intents, Message, MessageEmbed, TextChannel } from "discord.js";
 import { Document, MongoClient, ObjectId } from "mongodb";
 import strftime from "strftime";
@@ -51,7 +52,7 @@ client.once("ready", async () => {
         prefixDict[prefixDoc.serverId] = prefixDoc.prefix;
     }
 
-    if (!("dev" in credentials)) {
+    if (!isDev()) {
         const channel = client.channels.cache.get("655484804405657642");
         (channel as TextChannel).send(
             `Logged in as:\n${client.user.username}\nTime: ${time}\n--------------------------`
@@ -86,7 +87,7 @@ client.on("messageCreate", async (message: Message) => {
         const prefixColl = mongoClient.db("hifumi").collection("prefixes");
 
         // Adds a default prefix to the db if it doesn't exist
-        if (!message.author.bot && !(server.id in prefixDict) && !("dev" in credentials)) {
+        if (!message.author.bot && !(server.id in prefixDict) && !isDev) {
             await prefixColl.insertOne({ serverId: server.id, prefix: "h!" });
             prefixDict[server.id] = "h!";
             await message.channel.send("I have set the prefix to `h!`");
@@ -98,13 +99,13 @@ client.on("messageCreate", async (message: Message) => {
         const command: string = content[0].slice(prefix.length).toLowerCase();
         const lowerCasePrefix: string = content[0].substring(0, prefix.length).toLowerCase();
 
-        if ("dev" in credentials) {
+        if (isDev()) {
             prefix = "h?";
         }
 
-        if (message.content.toLowerCase() === "hr~~~~" && !("dev" in credentials)) await reloadBot(message);
+        if (message.content.toLowerCase() === "hr~~~~" && !isDev) await reloadBot(message);
 
-        if (message.content.toLowerCase() === "hr~" && "dev" in credentials) await reloadBot(message);
+        if (message.content.toLowerCase() === "hr~" && isDev) await reloadBot(message);
 
         if (lowerCasePrefix === prefix.toLowerCase()) {
             if (["avatar", "pfp"].includes(command)) {
@@ -157,7 +158,7 @@ client.on("messageCreate", async (message: Message) => {
         // Reacting to Miku's emote commands
         // Grabs a random reply from the db and sents it as a message after a fixed delay
 
-        const botId = "dev" in credentials ? "665224627353681921" : "641409330888835083";
+        const botId = isDev() ? "665224627353681921" : "641409330888835083";
 
         if (
             message.content.startsWith(`$${reactCmd} <@${botId}>`) ||
