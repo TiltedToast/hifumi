@@ -208,12 +208,22 @@ async function console_cmd(message: Message) {
     // Creates a new string with the message content without the command
     // And runs it in a new shell process
     const command = message.content.split(" ").slice(1).join(" ");
-    exec(command, async (stdout, stderr) => {
+    exec(command, async (err, stdout, stderr) => {
         if (stderr) {
             return message.channel.send(`\`\`\`${stderr}\`\`\``);
         }
+        if (err) {
+            tools.errorLog(message, err);
+        }
+
         const msg = stdout ? `\`\`\`${stdout}\`\`\`` : "Command executed!";
-        await message.channel.send(msg);
+
+        switch (true) {
+            case msg.length > 2000:
+                return message.channel.send("Command output too long!");
+            default:
+                return message.channel.send(msg);
+        }
     });
 }
 
@@ -248,8 +258,8 @@ async function jsEval(message: Message) {
         switch (true) {
             case rsltString.length === 0:
                 return await message.channel.send("Cannot send an empty message!");
-            case rsltString.length > 2000:
-                return await message.channel.send("The result is too long for discord!");
+            // case rsltString.length > 2000:
+            //     return await message.channel.send("The result is too long for discord!");
             default:
                 return await message.channel.send(rsltString);
         }
