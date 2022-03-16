@@ -86,7 +86,7 @@ client.on("messageCreate", async (message: Message) => {
         const prefixColl = mongoClient.db("hifumi").collection("prefixes");
 
         // Adds a default prefix to the db if it doesn't exist
-        if (!message.author.bot && !(server.id in prefixDict)) {
+        if (!message.author.bot && !(server.id in prefixDict) && !("dev" in credentials)) {
             await prefixColl.insertOne({ serverId: server.id, prefix: "h!" });
             prefixDict[server.id] = "h!";
             await message.channel.send("I have set the prefix to `h!`");
