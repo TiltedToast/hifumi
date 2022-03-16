@@ -87,7 +87,7 @@ client.on("messageCreate", async (message: Message) => {
         const prefixColl = mongoClient.db("hifumi").collection("prefixes");
 
         // Adds a default prefix to the db if it doesn't exist
-        if (!message.author.bot && !(server.id in prefixDict) && !isDev) {
+        if (!message.author.bot && !(server.id in prefixDict) && !isDev()) {
             await prefixColl.insertOne({ serverId: server.id, prefix: "h!" });
             prefixDict[server.id] = "h!";
             await message.channel.send("I have set the prefix to `h!`");
@@ -103,9 +103,9 @@ client.on("messageCreate", async (message: Message) => {
             prefix = "h?";
         }
 
-        if (message.content.toLowerCase() === "hr~~~" && !isDev) await reloadBot(message);
+        if (message.content.toLowerCase() === "hr~~~" && !isDev()) await reloadBot(message);
 
-        if (message.content.toLowerCase() === "hr~" && isDev) await reloadBot(message);
+        if (message.content.toLowerCase() === "hr~" && isDev()) await reloadBot(message);
 
         if (lowerCasePrefix === prefix.toLowerCase()) {
             if (["avatar", "pfp"].includes(command)) {
