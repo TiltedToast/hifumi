@@ -103,7 +103,7 @@ client.on("messageCreate", async (message: Message) => {
             prefix = "h?";
         }
 
-        if (message.content.toLowerCase() === "hr~~~~" && !isDev) await reloadBot(message);
+        if (message.content.toLowerCase() === "hr~~~" && !isDev) await reloadBot(message);
 
         if (message.content.toLowerCase() === "hr~" && isDev) await reloadBot(message);
 

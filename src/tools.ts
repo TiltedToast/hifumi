@@ -42,7 +42,7 @@ export async function parseDbArgs(start: number, content: string[]): Promise<Doc
  * @returns {boolean} Whether or not the bot is the dev version
  */
 export function isDev(): boolean {
-    return ("dev" in credentials);
+    return credentials.dev === true;
 }
 
 /**
