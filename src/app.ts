@@ -152,6 +152,8 @@ client.on("messageCreate", async (message: Message) => {
                 await console_cmd(message);
             } else if (["commands", "command", "comm", "com", "help"].includes(command)) {
                 await helpCmd(message, prefix);
+            } else if (command === "qr") {
+                await imgProcess.qrCode(message);
             }
         }
 

@@ -7,6 +7,8 @@ import { credentials } from "./config.js";
 import { Message, MessageAttachment } from "discord.js";
 import { Headers } from "node-fetch";
 import { ImgurResult } from "./interfaces.js";
+import * as qrcode from "qrcode";
+
 import sharp from "sharp";
 import canvas from "canvas";
 import axios from "axios";
@@ -54,6 +56,22 @@ export async function beautiful(message: Message): Promise<Message | undefined> 
     fs.writeFileSync("./temp/beautiful.png", buffer);
 
     return await message.channel.send({ files: ["./temp/beautiful.png"] });
+}
+
+export async function qrCode(message: Message): Promise<Message> {
+    const content = message.content.split(" ");
+    if (content.length === 1) {
+        return await message.channel.send("Missing argument!");
+    }
+    tools.createTemp("temp");
+
+    const qrText = content.slice(1).join(" ");
+    try {
+        await qrcode.toFile("./temp/qr.png", qrText);
+    } catch (err) {
+        return await message.channel.send("Data too big to fit into a QR code!");
+    }
+    return await message.channel.send({ files: ["./temp/qr.png"] });
 }
 
 /**
