@@ -5,3 +5,14 @@ services:
     build:
       context: ./
       dockerfile: Dockerfile
+    links:
+      - mongo
+
+  mongo:
+    image: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./data:/data/mongo
+    command: mongod --quiet --logpath /dev/null 
+
