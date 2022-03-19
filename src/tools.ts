@@ -181,11 +181,9 @@ export function errorLog(message: Message, errorObject: Error) {
     });
 
     if (errorMessage.length > 2000) {
-        errorMessage = `An Error occurred on ${currentTime}
-        Check console for full error (2000 character limit)
-        <@258993932262834188>`;
+        errorMessage = `An Error occurred on ${currentTime}\nCheck console for full error (2000 character limit)\n<@258993932262834188>`;
 
-        return console.log(errorObject);
+        console.log(errorObject);
     }
 
     // Chooses channel to send error to
