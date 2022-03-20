@@ -1,10 +1,8 @@
-import * as tools from "./tools.js";
 import Snoowrap from "snoowrap";
 import { Message, MessageEmbed, TextChannel } from "discord.js";
 import fetch from "node-fetch";
 import { mongoClient, embedColour } from "./app.js";
 import strftime from "strftime";
-import { Timespan } from "snoowrap/dist/objects/Subreddit";
 
 const RedditClient = new Snoowrap({
     userAgent: "windows:hifumi:v1.0.0 (by /u/tilted_toast)",
@@ -134,46 +132,39 @@ export async function fetchSubmissions(subreddit: string, message: Message, limi
 
     // Fetches posts from the subreddit based on the limit (default 100) and stores them in the database
     // Only fetches posts that are hosted on reddit/imgur to avoid Embeds not loading
-    const hotSubmissions = await RedditClient.getSubreddit(subreddit).getHot({ limit: limit });
-    for (const submission of hotSubmissions) {
-        if (
-            (await collection.findOne({ id: submission.id })) === null &&
-            !submission.is_self &&
-            (submission.url.includes("i.redd.it") || submission.url.includes("i.imgur.com"))
-        ) {
-            await collection.insertOne(JSON.parse(JSON.stringify(submission)));
-            counter += 1;
-        }
-    }
+    const hotSubmissions = RedditClient.getSubreddit(subreddit).getHot({ limit: limit });
+    const newSubmissions = RedditClient.getSubreddit(subreddit).getNew({ limit: limit });
+    const risingSubmissions = RedditClient.getSubreddit(subreddit).getRising({ limit: limit });
+    const topHour = RedditClient.getSubreddit(subreddit).getTop({ time: "hour", limit: limit });
+    const topDay = RedditClient.getSubreddit(subreddit).getTop({ time: "day", limit: limit });
+    const topweek = RedditClient.getSubreddit(subreddit).getTop({ time: "week", limit: limit });
+    const topmonth = RedditClient.getSubreddit(subreddit).getTop({ time: "month", limit: limit });
+    const topyear = RedditClient.getSubreddit(subreddit).getTop({ time: "year", limit: limit });
+    const topAll = RedditClient.getSubreddit(subreddit).getTop({ time: "all", limit: limit });
 
-    const newSubmissions = await RedditClient.getSubreddit(subreddit).getNew({ limit: limit });
-    for (const submission of newSubmissions) {
-        if (
-            (await collection.findOne({ id: submission.id })) === null &&
-            !submission.is_self &&
-            (submission.url.includes("i.redd.it") || submission.url.includes("i.imgur.com"))
-        ) {
-            await collection.insertOne(JSON.parse(JSON.stringify(submission)));
-            counter += 1;
-        }
-    }
+    const submissionsArray = await Promise.all([
+        hotSubmissions,
+        newSubmissions,
+        risingSubmissions,
+        topHour,
+        topDay,
+        topweek,
+        topmonth,
+        topyear,
+        topAll,
+    ]);
 
-    const risingSubmissions = await RedditClient.getSubreddit(subreddit).getRising({ limit: limit });
-    for (const submission of risingSubmissions) {
-        if (
-            (await collection.findOne({ id: submission.id })) === null &&
-            !submission.is_self &&
-            (submission.url.includes("i.redd.it") || submission.url.includes("i.imgur.com"))
-        ) {
-            await collection.insertOne(JSON.parse(JSON.stringify(submission)));
-            counter += 1;
+    for (const submissionType of submissionsArray) {
+        for (const submission of submissionType) {
+            if (
+                (await collection.findOne({ id: submission.id })) === null &&
+                !submission.is_self &&
+                (submission.url.includes("i.redd.it") || submission.url.includes("i.imgur.com"))
+            ) {
+                await collection.insertOne(JSON.parse(JSON.stringify(submission)));
+                counter++;
+            }
         }
-    }
-
-    // Fetches all possible Top posts from the subreddit and stores them in the database
-    // Sends the total amount of posts fetched to the user
-    for (const mode of ["hour", "day", "week", "month", "year", "all"]) {
-        counter = await tools.fetchTopPosts(subreddit, mode as Timespan, counter, db, RedditClient, 100);
     }
 
     await message.channel.send(`Fetched ${counter} new images for ${subreddit}`);

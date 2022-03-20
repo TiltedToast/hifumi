@@ -3,11 +3,8 @@ import * as fs from "fs";
 import * as path from "path";
 import fetch from "node-fetch";
 import { Headers } from "node-fetch";
-import { Db } from "mongodb";
 import { mongoClient, client, statusArr } from "./app.js";
 import { Client, Message, TextChannel, User } from "discord.js";
-import Snoowrap from "snoowrap";
-import { Timespan } from "snoowrap/dist/objects/Subreddit";
 import strftime from "strftime";
 import { Document } from "mongodb";
 import { StatusDoc } from "./interfaces.js";
@@ -109,41 +106,6 @@ export function randomElementArray(array: unknown[]): unknown {
  */
 export function randomIntFromRange(min: number, max: number): number {
     return Math.floor(Math.random() * (max - min + 1) + min);
-}
-
-/**
- * Fetches submissions from a Subreddit and stores them in the database
- * @param {String} subreddit The subreddit to fetch posts from
- * @param {String} mode The type of top posts to fetch
- * @param {Integer} counter Number used to calculate the total fetched submissions
- * @param {Db} db Database to store the fetched submissions in
- * @param {Snoowrap} RedditClient Snoowrap Reddit Client instance
- * @param {number} limit Amount of posts to fetch
- * @returns {Promise} Promise that resolves to the amount of submissions fetched
- */
-export async function fetchTopPosts(
-    subreddit: string,
-    mode: Timespan,
-    counter: number,
-    db: Db,
-    RedditClient: Snoowrap,
-    limit: number
-): Promise<number> {
-    // Fetches Top posts from a subreddit
-    // Only accepts images hosted on reddit or imgur to avoid Embeds not working
-    const submissions = await RedditClient.getSubreddit(subreddit).getTop({ time: mode, limit: limit });
-    const collection = db.collection(`${subreddit}`);
-    for (const submission of submissions) {
-        if (
-            (await collection.findOne({ id: submission.id })) === null &&
-            !submission.is_self &&
-            (submission.url.includes("i.redd.it") || submission.url.includes("i.imgur.com"))
-        ) {
-            await collection.insertOne(JSON.parse(JSON.stringify(submission)));
-            counter += 1;
-        }
-    }
-    return counter;
 }
 
 /**
