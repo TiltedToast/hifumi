@@ -1,9 +1,9 @@
+import "dotenv/config";
 import * as tools from "./tools.js";
 import * as emoji from "./emoji.js";
 import * as imgProcess from "./imgProcess.js";
 import * as reddit from "./reddit.js";
 import * as database from "./database.js";
-import { credentials } from "./config.js";
 import fetch from "node-fetch";
 import { exec } from "child_process";
 import { isDev } from "./tools.js";
@@ -16,7 +16,7 @@ export const botOwner = "258993932262834188";
 export const embedColour: ColorResolvable = "#ce3a9b";
 const allIntents = new Intents(32767);
 export const client = new Client({ intents: allIntents });
-export const mongoClient = new MongoClient(credentials["mongoURI"]);
+export const mongoClient = new MongoClient(process.env.MONGO_URI);
 const startTime = Date.now();
 export const prefixDict: Record<string, string> = {};
 export let statusArr: Document[] = [];
@@ -352,7 +352,7 @@ async function convert(message: Message, prefix: string): Promise<Message | unde
     }
 
     const response = await fetch(
-        `https://prime.exchangerate-api.com/v5/${credentials["exchangeApiKey"]}/latest/${from}`
+        `https://prime.exchangerate-api.com/v5/${process.env.EXCHANGE_API_KEY}/latest/${from}`
     );
 
     if (!response.ok) {
@@ -448,4 +448,4 @@ process.on("SIGINT", () => {
     });
 });
 
-client.login(credentials["token"]);
+client.login(process.env.BOT_TOKEN);
