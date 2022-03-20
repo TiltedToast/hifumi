@@ -3,7 +3,6 @@ import * as fs from "fs";
 import { FormData } from "formdata-node";
 import fetch from "node-fetch";
 import * as tools from "./tools.js";
-import { credentials } from "./config.js";
 import { Message, MessageAttachment } from "discord.js";
 import { Headers } from "node-fetch";
 import { ImgurResult } from "./interfaces.js";
@@ -165,7 +164,7 @@ export async function imgur(message: Message, prefix: string, url?: string): Pro
     if (imgType === "unknown") return await message.channel.send("Invalid image type!");
     const myHeaders = new Headers();
     const formdata = new FormData();
-    myHeaders.append("Authorization", `Client-ID ${credentials["imgurClientId"]}`);
+    myHeaders.append("Authorization", `Client-ID ${process.env.IMGUR_CLIENT_ID}`);
 
     const requestOptions: Record<string, unknown> = {
         method: "POST",

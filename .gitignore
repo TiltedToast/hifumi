@@ -6,3 +6,6 @@ node_modules
 .prettierrc.json
 temp
 dist
+data
+src/*.d.ts
+.env
