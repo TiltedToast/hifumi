@@ -9,8 +9,7 @@ export async function insert(message: Message) {
     const content = message.content.split(" ");
     if (!(content.length >= 6) && content.length % 2 !== 0) return await message.channel.send("Invalid syntax!");
 
-    if (isDev())
-        await message.channel.send("Add your stuff to the cloud db instead <:emiliaSMH:747132102645907587>");
+    if (isDev()) await message.channel.send("Add your stuff to the cloud db instead <:emiliaSMH:747132102645907587>");
 
     const dbName = content[2];
     const collectionName = content[3];
@@ -21,7 +20,7 @@ export async function insert(message: Message) {
     await collection.insertOne(document);
 
     await message.channel.send(`Inserted document into ${dbName}.${collectionName}`);
-    await message.channel.send(JSON.stringify(document));
+    await message.channel.send(`\`\`\`json\n${JSON.stringify(document, null, 4)}\n\`\`\``);
 }
 
 export async function update(message: Message) {
@@ -46,7 +45,7 @@ export async function update(message: Message) {
     await message.channel.send(`Updated document in ${dbName}.${collectionName}`);
 
     const updatedDoc = collection.findOne(updateDoc);
-    await message.channel.send(JSON.stringify(updatedDoc));
+    await message.channel.send(`\`\`\`json\n${JSON.stringify(updatedDoc, null, 4)}\n\`\`\``);
 }
 
 export async function insertStatus(message: Message) {
@@ -73,7 +72,7 @@ export async function insertStatus(message: Message) {
     statusArr.push(document);
 
     await message.channel.send("Status added!");
-    await message.channel.send(JSON.stringify(document));
+    await message.channel.send(`\`\`\`json\n${JSON.stringify(document, null, 4)}\n\`\`\``);
 }
 
 export async function updatePrefix(message: Message) {
