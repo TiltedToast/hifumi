@@ -7,5 +7,4 @@ node_modules
 temp
 dist
 data
-src/*.d.ts
 .env
