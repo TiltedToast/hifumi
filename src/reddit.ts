@@ -1,5 +1,4 @@
 import * as tools from "./tools.js";
-import { credentials } from "./config.js";
 import Snoowrap from "snoowrap";
 import { Message, MessageEmbed, TextChannel } from "discord.js";
 import fetch from "node-fetch";
@@ -9,9 +8,9 @@ import { Timespan } from "snoowrap/dist/objects/Subreddit";
 
 const RedditClient = new Snoowrap({
     userAgent: "windows:hifumi:v1.0.0 (by /u/tilted_toast)",
-    clientId: credentials["redditClientId"],
-    clientSecret: credentials["redditClientSecret"],
-    refreshToken: credentials["redditRefreshToken"],
+    clientId: process.env.REDDIT_CLIENT_ID,
+    clientSecret: process.env.REDDIT_CLIENT_SECRET,
+    refreshToken: process.env.REDDIT_REFRESH_TOKEN,
 });
 
 export async function profile(message: Message, prefix: string): Promise<Message> {
