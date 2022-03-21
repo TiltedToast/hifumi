@@ -260,8 +260,8 @@ async function jsEval(message: Message) {
         switch (true) {
             case rsltString.length === 0:
                 return await message.channel.send("Cannot send an empty message!");
-            // case rsltString.length > 2000:
-            //     return await message.channel.send("The result is too long for discord!");
+            case rsltString.length > 2000:
+                return await message.channel.send("The result is too long for discord!");
             default:
                 return await message.channel.send(rsltString);
         }
