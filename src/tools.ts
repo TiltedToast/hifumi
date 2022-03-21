@@ -110,7 +110,7 @@ export function randomIntFromRange(min: number, max: number): number {
 
 /**
  * Parses an interaction and error and sends it to the channel to avoid Hifumi dying every time an Error occurs
- * @param {BaseCommandInteraction} interaction The Interaction that is unique to each command execution
+ * @param {BaseCommandInteraction} message The Message object passed on each command execution
  * @param {Error} errorObject The error object that is passed to the command through try/catch
  */
 export function errorLog(message: Message, errorObject: Error) {

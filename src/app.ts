@@ -212,7 +212,7 @@ async function console_cmd(message: Message) {
     const command = message.content.split(" ").slice(1).join(" ");
     exec(command, async (err, stdout, stderr) => {
         if (stderr) {
-            return message.channel.send(`\`\`\`${stderr}\`\`\``);
+            await message.channel.send(`\`\`\`${stderr}\`\`\``);
         }
         if (err) {
             tools.errorLog(message, err);
