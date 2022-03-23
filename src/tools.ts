@@ -12,7 +12,7 @@ import { StatusDoc } from "./interfaces.js";
 /**
  * Parses key value pairs from discord messages into a JavaScript object that can be used to interact with the Database
  * @param  {number} start The content index after which arguments are expected to be present
- * @param  {Message} message The message object passed to interact with the Discord API
+ * @param {string[]} content The content of the message after being split by spaces
  * @returns Promise that resolves into the parsed argument document
  */
 export async function parseDbArgs(start: number, content: string[]): Promise<Document> {
@@ -26,15 +26,13 @@ export async function parseDbArgs(start: number, content: string[]): Promise<Doc
             } else {
                 document[content[i]] = content[i + 1];
             }
-        } else {
-            continue;
         }
     }
     return document;
 }
 
 /**
- * Checks whether or not the currently active bot is the dev version or not
+ * Checks whether the currently active bot is the dev version or not
  * @returns {boolean} Whether or not the bot is the dev version
  */
 export function isDev(): boolean {
@@ -100,7 +98,7 @@ export function randomElementArray(array: unknown[]): unknown {
 }
 /**
  * Returns a random integer between min (inclusive) and max (inclusive)
- * @param  {Number} min Minimium Integer value to return
+ * @param  {Number} min Minimum Integer value to return
  * @param  {Number} max Maximum Integer value to return
  * @returns a random integer between min and max
  */
@@ -110,7 +108,7 @@ export function randomIntFromRange(min: number, max: number): number {
 
 /**
  * Parses an interaction and error and sends it to the channel to avoid Hifumi dying every time an Error occurs
- * @param {BaseCommandInteraction} message The Message object passed on each command execution
+ * @param {Message} message The Message object passed on each command execution
  * @param {Error} errorObject The error object that is passed to the command through try/catch
  */
 export function errorLog(message: Message, errorObject: Error) {
@@ -207,12 +205,12 @@ export function getImgType(url: string): string {
 }
 
 /**
- * Takes a numer and turns rounds it into an Integer or Float
+ * Takes a number and turns rounds it into an Integer or Float
  * @param {Number} x The number you want to round
  * @returns {Number} The rounded number
  */
 export function advRound(x: number): number {
-    if (Math.floor(x / 1) + (x % 1) === parseInt(x.toString())) {
+    if (Math.floor(x) + (x % 1) === parseInt(x.toString())) {
         return parseInt(x.toString());
     } else {
         return parseFloat(x.toString());

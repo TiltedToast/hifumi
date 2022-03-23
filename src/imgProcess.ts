@@ -34,7 +34,7 @@ export async function beautiful(message: Message): Promise<Message | undefined> 
     await tools.downloadURL(avatarURL, `./temp/avatar.png`);
     await resize("./temp/avatar.png", 180, "./temp/avatar_resized.png");
 
-    // Creates a canvas and adds avatar as well as the backgrund to it
+    // Creates a canvas and adds avatar as well as the background to it
     const beautifulCanvas = new canvas.Canvas(640, 674);
     const ctx = beautifulCanvas.getContext("2d");
 
