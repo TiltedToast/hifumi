@@ -5,7 +5,7 @@ import { mongoClient, embedColour } from "./app.js";
 import strftime from "strftime";
 
 const RedditClient = new Snoowrap({
-    userAgent: "windows:hifumi:v1.0.0 (by /u/tilted_toast)",
+    userAgent: "linux:hifumi:v1.0.0 (by /u/tilted_toast)",
     clientId: process.env.REDDIT_CLIENT_ID,
     clientSecret: process.env.REDDIT_CLIENT_SECRET,
     refreshToken: process.env.REDDIT_REFRESH_TOKEN,
@@ -130,16 +130,16 @@ export async function fetchSubmissions(subreddit: string, message: Message, limi
 
     const collection = db.collection(`${subreddit}`);
 
-    // Fetches posts from the subreddit based on the limit (default 100) and stores them in the database
+    // Fetch posts from the subreddit based on the limit (default 100) and stores them in the database
     // Only fetches posts that are hosted on reddit/imgur to avoid Embeds not loading
     const hotSubmissions = RedditClient.getSubreddit(subreddit).getHot({ limit: limit });
     const newSubmissions = RedditClient.getSubreddit(subreddit).getNew({ limit: limit });
     const risingSubmissions = RedditClient.getSubreddit(subreddit).getRising({ limit: limit });
     const topHour = RedditClient.getSubreddit(subreddit).getTop({ time: "hour", limit: limit });
     const topDay = RedditClient.getSubreddit(subreddit).getTop({ time: "day", limit: limit });
-    const topweek = RedditClient.getSubreddit(subreddit).getTop({ time: "week", limit: limit });
-    const topmonth = RedditClient.getSubreddit(subreddit).getTop({ time: "month", limit: limit });
-    const topyear = RedditClient.getSubreddit(subreddit).getTop({ time: "year", limit: limit });
+    const topWeek = RedditClient.getSubreddit(subreddit).getTop({ time: "week", limit: limit });
+    const topMonth = RedditClient.getSubreddit(subreddit).getTop({ time: "month", limit: limit });
+    const topYear = RedditClient.getSubreddit(subreddit).getTop({ time: "year", limit: limit });
     const topAll = RedditClient.getSubreddit(subreddit).getTop({ time: "all", limit: limit });
 
     const submissionsArray = await Promise.all([
@@ -148,9 +148,9 @@ export async function fetchSubmissions(subreddit: string, message: Message, limi
         risingSubmissions,
         topHour,
         topDay,
-        topweek,
-        topmonth,
-        topyear,
+        topWeek,
+        topMonth,
+        topYear,
         topAll,
     ]);
 

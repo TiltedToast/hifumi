@@ -91,7 +91,7 @@ export async function updatePrefix(message: Message) {
     if (isDev()) await message.channel.send("Wrong database <:emiliaSMH:747132102645907587>");
 
     // Finds the guild's document in the database
-    // Updates said docment with the new prefix
+    // Updates said document with the new prefix
     if (message.guild === null) return;
 
     const serverId = message.guild.id;

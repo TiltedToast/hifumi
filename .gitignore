@@ -2,7 +2,7 @@ node_modules
 .devcontainer
 .idea
 **/config.ts
-.eslintrc.json
+.eslintrc
 .prettierrc.json
 temp
 dist
