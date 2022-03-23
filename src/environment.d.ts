@@ -9,7 +9,7 @@ declare global {
             REDDIT_CLIENT_SECRET: string;
             REDDIT_REFRESH_TOKEN: string;
             MONGO_URI: string;
-            DEV_MODE: string;
+            DEV_MODE: "true" | "false";
         }
     }
 }
