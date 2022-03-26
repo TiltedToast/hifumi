@@ -61,8 +61,6 @@ client.once("ready", async () => {
 });
 
 client.on("messageCreate", async (message: Message) => {
-    let reactCmd = "",
-        subCmd = "";
     if (message.guild === null || message.guild.me === null) return;
     try {
         // Permission check for the channel which the message was sent in to avoid breaking the bot
@@ -76,12 +74,8 @@ client.on("messageCreate", async (message: Message) => {
         const content: Array<string> = message.content.split(" ");
 
         // Sub command check for reacting to Miku's emote commands
-        if (content.length > 1) {
-            reactCmd = content[0].slice(1);
-        }
-        if (content.length >= 2) {
-            subCmd = content[1];
-        }
+        const reactCmd = content.length > 1 ? content[0].slice(1) : "";
+        const subCmd = content.length >= 2 ? content[1] : "";
 
         const server = message.guild;
         const prefixColl = mongoClient.db("hifumi").collection("prefixes");
