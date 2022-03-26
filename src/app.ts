@@ -96,12 +96,11 @@ client.on("messageCreate", async (message: Message) => {
         // Gets the prefix from the db and compares to the message's beginning
         // This way the prefix can be case insensitive
         let prefix: string = prefixDict[server.id] !== null ? prefixDict[server.id] : "h!";
+
+        if (isDev()) prefix = "h?";
+
         const command: string = content[0].slice(prefix.length).toLowerCase();
         const lowerCasePrefix: string = content[0].substring(0, prefix.length).toLowerCase();
-
-        if (isDev()) {
-            prefix = "h?";
-        }
 
         if (message.content.toLowerCase() === "hr~~~" && !isDev()) await reloadBot(message);
 
