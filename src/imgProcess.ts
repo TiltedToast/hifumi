@@ -7,10 +7,14 @@ import { Message, MessageAttachment } from "discord.js";
 import { Headers } from "node-fetch";
 import { ImgurResult } from "./interfaces.js";
 import * as qrcode from "qrcode";
-
+import { exec } from "child_process";
+import util from "util";
+ 
 import sharp from "sharp";
 import canvas from "canvas";
 import axios from "axios";
+
+const execPromise = util.promisify(exec);
 
 export async function beautiful(message: Message): Promise<Message | undefined> {
     tools.createTemp("temp");
@@ -85,6 +89,10 @@ export async function resize(fileLocation: string, width: number, saveLocation: 
     await sharp(fileLocation).resize(width).toFile(saveLocation);
 }
 
+async function resizeGif(fileLocation: string, width: number, saveLocation: string): Promise<void> {
+    await execPromise(`gifsicle --resize-width ${width} ${fileLocation} > ${saveLocation}`);
+}
+
 export async function resizeImg(message: Message, prefix: string): Promise<Message> {
     tools.createTemp("temp");
     const content = message.content.split(" ");
@@ -111,16 +119,19 @@ export async function resizeImg(message: Message, prefix: string): Promise<Messa
         return await message.channel.send("Invalid source url!");
     } else if ((source.match(urlPattern) as RegExpMatchArray).length === 1) {
         url += (source.match(urlPattern) as RegExpMatchArray)[0];
-    } else if (url.includes(".gif")) {
-        return await message.channel.send("Gifs are not supported!");
     }
 
     // Downloads the image and resizes it
     // Sends the resized image to the channel if it's within the size limit
-    const imgType = tools.getImgType(url);
+    const imgType = !url.includes("gif") ? tools.getImgType(url) : "gif";
     if (imgType === "unknown") return await message.channel.send("Invalid image type!");
     await tools.downloadURL(url, `./temp/unknown.${imgType}`);
-    await resize(`./temp/unknown.${imgType}`, width, `./temp/unknown_resized.${imgType}`);
+
+    if (imgType === "gif") {
+        await resizeGif(`./temp/unknown.${imgType}`, width, `./temp/unknown_resized.${imgType}`);
+    } else {
+        await resize(`./temp/unknown.${imgType}`, width, `./temp/unknown_resized.${imgType}`);
+    }
 
     if (!tools.isValidSize(`./temp/unknown_resized.${imgType}`, 8192000)) {
         return await message.channel.send("File too large for Discord!");
