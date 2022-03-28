@@ -17,6 +17,8 @@ export async function addEmoji(message: Message, prefix: string): Promise<Messag
         return await message.channel.send(`Usage: \`${prefix}emoji add <name> <url/emoji>\``);
     } else if (content.length === 2 && message.attachments.size > 0) {
         return await message.channel.send("You have to specify a name!");
+    } else if (content.length === 3 && message.content.startsWith("http")) {
+        return await message.channel.send("You have to specify a name!");
     }
 
     // Sets name based on whether the user provided an emoji or not
@@ -26,26 +28,24 @@ export async function addEmoji(message: Message, prefix: string): Promise<Messag
         name = content[2];
     }
 
-    if (content.length >= 4 && (name.length < 2 || name.length > 32)) {
+    if (!(2 < name.length && name.length < 32))
         return message.channel.send("The name must be between 2 and 32 characters long.");
-    }
 
     const source = content.length >= 4 ? content[3] : content[2];
     if (source === null) return message.channel.send("You have to provide an image!");
 
-    const urlPattern = /https?:\/\/.*\.(?:png|jpg|jpeg|webp|gif)/i;
-
-    const matchesArr = source.match(urlPattern);
+    const urlPattern = new RegExp(/https?:\/\/.*\.(?:png|jpg|jpeg|webp|gif)/i);
+    const isValidURL = urlPattern.test(source);
 
     // Matches the source string against a url regex and sets the url variable
-    if (matchesArr === null && !source.startsWith("<") && message.attachments.size === 0) {
+    if (!isValidURL && !source.startsWith("<") && message.attachments.size === 0) {
         return message.channel.send("Invalid source url!");
     } else if (source.startsWith("<")) {
         url = tools.extractEmoji(source);
-    } else if (!(matchesArr === null)) {
-        url = (matchesArr as RegExpMatchArray)[0];
+    } else if (isValidURL) {
+        url = source;
     } else if (message.attachments.size > 0) {
-        url = (message.attachments.first() as MessageAttachment).url;
+        url = (message.attachments?.first() as MessageAttachment).url;
     }
 
     tools.createTemp("temp");

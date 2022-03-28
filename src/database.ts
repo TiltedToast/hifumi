@@ -4,7 +4,7 @@ import * as tools from "./tools.js";
 import { isDev } from "./tools.js";
 
 export async function insert(message: Message) {
-    if (!(message.author.id === botOwner)) return;
+    if (message.author.id !== botOwner) return;
 
     const content = message.content.split(" ");
     if (!(content.length >= 6) && content.length % 2 !== 0) return await message.channel.send("Invalid syntax!");
@@ -24,7 +24,7 @@ export async function insert(message: Message) {
 }
 
 export async function update(message: Message) {
-    if (!(message.author.id === botOwner)) return;
+    if (message.author.id !== botOwner) return;
 
     const content = message.content.split(" ");
 
@@ -49,7 +49,7 @@ export async function update(message: Message) {
 }
 
 export async function insertStatus(message: Message) {
-    if (!(message.author.id === botOwner)) return;
+    if (message.author.id !== botOwner) return;
 
     const content = message.content.split(" ");
 
@@ -77,7 +77,7 @@ export async function insertStatus(message: Message) {
 
 export async function updatePrefix(message: Message) {
     // Permission check for Kick Permissions or being the Bot Owner
-    if (!message.member?.permissions.has(Permissions.FLAGS.KICK_MEMBERS) && !(message.author.id === botOwner)) {
+    if (!message.member?.permissions.has(Permissions.FLAGS.KICK_MEMBERS) && (message.author.id !== botOwner)) {
         return message.channel.send("Insufficient permissions!");
     }
 

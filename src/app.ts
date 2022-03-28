@@ -71,7 +71,7 @@ client.on("messageCreate", async (message: Message) => {
         )
             return;
 
-        const content: Array<string> = message.content.split(" ");
+        const content = message.content.split(" ");
 
         // Sub command check for reacting to Miku's emote commands
         const reactCmd = content.length > 1 ? content[0].slice(1) : "";
@@ -89,12 +89,12 @@ client.on("messageCreate", async (message: Message) => {
 
         // Gets the prefix from the db and compares to the message's beginning
         // This way the prefix can be case insensitive
-        let prefix: string = prefixDict[server.id] !== null ? prefixDict[server.id] : "h!";
+        let prefix = prefixDict[server.id] ?? "h!";
 
         if (isDev()) prefix = "h?";
 
-        const command: string = content[0].slice(prefix.length).toLowerCase();
-        const lowerCasePrefix: string = content[0].substring(0, prefix.length).toLowerCase();
+        const command = content[0].slice(prefix.length).toLowerCase();
+        const lowerCasePrefix = content[0].substring(0, prefix.length).toLowerCase();
 
         if (message.content.toLowerCase() === "hr~~~" && !isDev()) await reloadBot(message);
 
@@ -213,12 +213,8 @@ async function console_cmd(message: Message) {
 
         const msg = stdout ? `\`\`\`${stdout}\`\`\`` : "Command executed!";
 
-        switch (true) {
-            case msg.length > 2000:
-                return message.channel.send("Command output too long!");
-            default:
-                return message.channel.send(msg);
-        }
+        if (msg.length > 2000) return await message.channel.send("Command output too long!");
+        return await message.channel.send(msg);
     });
 }
 
@@ -233,32 +229,25 @@ export async function reloadBot(message: Message) {
 }
 
 async function jsEval(message: Message) {
+    if (!(message.author.id === botOwner)) return;
+
     const content = message.content.split(" ");
-    if (message.author.id === botOwner) {
-        if (content.length === 1) {
-            return await message.channel.send("You have to type **SOMETHING** at least");
-        }
 
-        // Creates a new string with the message content without the command
-        // And evalutes it via the JS engine
-        // Checks for a valid length and sends the result
-        const command = message.content.split(" ").slice(1).join(" ");
-        const rslt = eval(command);
+    if (content.length === 1) return await message.channel.send("You have to type **SOMETHING** at least");
 
-        if (rslt === null) {
-            return await message.channel.send("Cannot send an empty message!");
-        }
-        const rsltString = rslt.toString();
+    // Creates a new string with the message content without the command
+    // And evalutes it via the JS engine
+    // Checks for a valid length and sends the result
+    const command = message.content.split(" ").slice(1).join(" ");
+    const rslt = eval(command);
 
-        switch (true) {
-            case rsltString.length === 0:
-                return await message.channel.send("Cannot send an empty message!");
-            case rsltString.length > 2000:
-                return await message.channel.send("The result is too long for discord!");
-            default:
-                return await message.channel.send(rsltString);
-        }
-    }
+    if (rslt === null) return await message.channel.send("Cannot send an empty message!");
+
+    const resultLength = rslt.toString().length;
+
+    if (resultLength === 0 || resultLength > 2000)
+        return await message.channel.send("Invalid message length for discord!");
+    return await message.channel.send(rslt);
 }
 
 async function avatarURL(message: Message) {
@@ -272,14 +261,16 @@ async function avatarURL(message: Message) {
     }
 
     const user = content.length === 1 ? message.author : await tools.getUserObjectPingId(message);
-    if (user === null || user === undefined) return;
+    if (!user) return;
 
     const userID = user.id;
     const userName = user.username;
     const avatarHash = user.avatar;
     const avatarURL = user.avatarURL({ dynamic: true });
 
-    if ((avatarURL as string).includes("gif")) {
+    if (!avatarURL) return await message.channel.send("No avatar found!");
+
+    if (avatarURL.includes("gif")) {
         url = `https://cdn.discordapp.com/avatars/${userID}/${avatarHash}.gif?size=4096`;
     } else {
         url = `https://cdn.discordapp.com/avatars/${userID}/${avatarHash}.png?size=4096`;
@@ -330,11 +321,11 @@ async function convert(message: Message, prefix: string): Promise<Message | unde
         .db("hifumi")
         .collection("currencies")
         .findOne({ _id: new ObjectId("620bb1d76e6a2b90f475d556") });
+
     if (currencies === null) return;
 
-    if (!(content.length === 4)) {
+    if (!(content.length === 4))
         return await message.channel.send(`Usage: \`${prefix}convert <amount of money> <cur1> <cur2>\``);
-    }
 
     const amount = parseFloat(content[1]);
     const from = content[2].toUpperCase();
@@ -381,21 +372,17 @@ async function convert(message: Message, prefix: string): Promise<Message | unde
 async function urban(message: Message, prefix: string): Promise<Message> {
     const content = message.content.split(" ");
 
-    if (!(content.length === 2)) {
-        return await message.channel.send(`Usage: \`${prefix}urban <word>\``);
-    }
+    if (!(content.length === 2)) return await message.channel.send(`Usage: \`${prefix}urban <word>\``);
+
     const query = content[1];
 
     const response = await fetch(`https://api.urbandictionary.com/v0/define?term=${query}`);
 
-    if (!response.ok) {
-        return await message.channel.send(`Error ${response.status}! Please try again later`);
-    }
+    if (!response.ok) return await message.channel.send(`Error ${response.status}! Please try again later`);
+
     const result = (await response.json()) as UrbanResult;
 
-    if (result["list"].length === 0) {
-        return message.channel.send("No results found!");
-    }
+    if (result["list"].length === 0) return message.channel.send("No results found!");
 
     const def = tools.randomElementArray(result["list"]) as UrbanEntry;
 
@@ -421,9 +408,8 @@ async function urban(message: Message, prefix: string): Promise<Message> {
 }
 
 async function bye(message: Message): Promise<Message | void> {
-    if (!(message.author.id === botOwner)) {
-        return await message.channel.send("Insufficient permissions!");
-    }
+    if (message.author.id !== botOwner) return await message.channel.send("Insufficient permissions!");
+
     // Closes the MongoDB connection and stops the running daemon via pm2
     await message.channel.send("Bai baaaaaaaai!!");
     await mongoClient.close();

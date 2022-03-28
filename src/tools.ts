@@ -141,7 +141,6 @@ export function errorLog(message: Message, errorObject: Error) {
 
     if (errorMessage.length > 2000) {
         errorMessage = `An Error occurred on ${currentTime}\nCheck console for full error (2000 character limit)\n<@258993932262834188>`;
-
         console.log(errorObject);
     }
 
@@ -168,9 +167,7 @@ export async function downloadURL(url: string, saveLocation: string) {
     myHeaders.append("User-Agent", "hifumi-js:v1.0.0:tiltedtoast27@gmail.com");
 
     // Pixiv requires a Referrer header, no idea why
-    if (url.includes("pximg")) {
-        myHeaders.append("Referer", "https://www.pixiv.net/");
-    }
+    if (url.includes("pximg")) myHeaders.append("Referer", "https://www.pixiv.net/");
 
     const requestOptions: Record<string, unknown> = {
         method: "GET",
@@ -179,10 +176,11 @@ export async function downloadURL(url: string, saveLocation: string) {
     };
 
     // Fetches the file from the URL and saves it to the file path
-    await fetch(url, requestOptions)
-        .then((response) => response.arrayBuffer())
-        .then((buffer) => fsPromise.writeFile(absSaveLocation, new Uint8Array(buffer)))
-        .catch((error) => console.log("error", error));
+    const response = await fetch(url, requestOptions);
+    if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
+
+    const buffer = await response.arrayBuffer();
+    await fsPromise.writeFile(absSaveLocation, new Uint8Array(buffer));
 }
 
 /**
@@ -226,15 +224,10 @@ export function advRound(x: number): number {
 export function extractEmoji(emojiString: string, id?: boolean): string {
     const emojiID = emojiString.split(":")[2].slice(0, -1);
 
-    if (id) {
-        return emojiID;
-    }
+    if (id) return emojiID;
 
-    if (emojiString[1] === "a") {
-        return `https://cdn.discordapp.com/emojis/${emojiID}.gif`;
-    } else {
-        return `https://cdn.discordapp.com/emojis/${emojiID}.png`;
-    }
+    if (emojiString[1] === "a") return `https://cdn.discordapp.com/emojis/${emojiID}.gif`;
+    return `https://cdn.discordapp.com/emojis/${emojiID}.png`;
 }
 
 /**

@@ -14,17 +14,13 @@ const RedditClient = new Snoowrap({
 export async function profile(message: Message, prefix: string): Promise<Message> {
     const content = message.content.split(" ");
 
-    if (content.length !== 2) {
-        return message.channel.send(`Usage: \`${prefix}profile <username>\``);
-    }
+    if (content.length !== 2) return message.channel.send(`Usage: \`${prefix}profile <username>\``);
 
     // Make sure the provided username is valid
     // If it is, create an embed with the user's profile
     const userName = content[1].toLowerCase();
     const response = await fetch(`https://www.reddit.com/user/${userName}/about.json`);
-    if (!response.ok) {
-        return await message.channel.send(`User not found!`);
-    }
+    if (!response.ok) return await message.channel.send(`User not found!`);
 
     const user = RedditClient.getUser(userName);
     const userCreatedDate = strftime("%d/%m/%Y", new Date(user.created_utc * 1000));
@@ -45,7 +41,7 @@ export async function profile(message: Message, prefix: string): Promise<Message
 export async function sub(message: Message, prefix: string): Promise<Message> {
     let nsfw = false,
         force = false,
-        query: object;
+        query;
 
     const content = message.content.split(" ").map((x) => x.toLowerCase());
 
@@ -72,13 +68,11 @@ export async function sub(message: Message, prefix: string): Promise<Message> {
     if (nsfw && !(message.channel as TextChannel).nsfw)
         return await message.channel.send("You have to be in a NSFW channel for this");
 
-    const subreddit: string = content[1];
+    const subreddit = content[1];
 
     // Check if the subreddit exists
-    const res = await fetch(`https://www.reddit.com/r/${subreddit}/about.json`);
-    if (!res.ok) {
-        return await message.channel.send(`Subreddit not found!`);
-    }
+    const response = await fetch(`https://www.reddit.com/r/${subreddit}/about.json`);
+    if (!response.ok) return await message.channel.send(`Subreddit not found!`);
 
     const db = mongoClient.db("reddit");
     const collections = await db.listCollections().toArray();
@@ -92,8 +86,6 @@ export async function sub(message: Message, prefix: string): Promise<Message> {
         await fetchSubmissions(subreddit, message);
     }
 
-    // If true, looks for only NSFW posts
-    // If false, looks for only SFW posts
     if (nsfw) {
         query = { over_18: true };
     } else {
@@ -104,9 +96,7 @@ export async function sub(message: Message, prefix: string): Promise<Message> {
     const collection = db.collection(subreddit);
     const randomSubmission = await collection.aggregate([{ $match: query }, { $sample: { size: 1 } }]).toArray();
 
-    if (randomSubmission.length === 0) {
-        return await message.channel.send("No images found!");
-    }
+    if (randomSubmission.length === 0) return await message.channel.send("No images found!");
 
     const submission = JSON.parse(JSON.stringify(randomSubmission[0]));
 
@@ -124,9 +114,7 @@ export async function fetchSubmissions(subreddit: string, message: Message, limi
     const db = mongoClient.db("reddit");
 
     // Make sure there's a collection ready for the subreddit
-    if (db.collection(`${subreddit}`) === null) {
-        await db.createCollection(`${subreddit}`);
-    }
+    if (db.collection(`${subreddit}`) === null) await db.createCollection(`${subreddit}`);
 
     const collection = db.collection(`${subreddit}`);
 
