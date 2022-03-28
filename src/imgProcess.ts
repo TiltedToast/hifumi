@@ -36,7 +36,10 @@ export async function beautiful(message: Message): Promise<Message | undefined> 
         );
     // Downloads User Avatar and resizes it to the size required (180x180)
     const avatarURL = `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=4096`;
-    await tools.downloadURL(avatarURL, `./temp/avatar.png`);
+
+    const fetchErrorMsg = await tools.downloadURL(avatarURL, `./temp/avatar.png`);
+    if (fetchErrorMsg) return await message.channel.send(fetchErrorMsg);
+
     await resize("./temp/avatar.png", 180, "./temp/avatar_resized.png");
 
     // Creates a canvas and adds avatar as well as the background to it
@@ -122,7 +125,8 @@ export async function resizeImg(message: Message, prefix: string): Promise<Messa
     const imgType = !source.includes("gif") ? tools.getImgType(source) : "gif";
     if (imgType === "unknown") return await message.channel.send("Invalid image type!");
 
-    await tools.downloadURL(source, `./temp/unknown.${imgType}`);
+    const fetchErrorMsg = await tools.downloadURL(source, `./temp/unknown.${imgType}`);
+    if (fetchErrorMsg) return await message.channel.send(fetchErrorMsg);
 
     if (imgType === "gif") {
         await resizeGif(`./temp/unknown.${imgType}`, width, `./temp/unknown_resized.${imgType}`);
@@ -180,7 +184,8 @@ export async function imgur(message: Message, prefix: string, url?: string): Pro
     // If not, downloads the image and checks for valid size before uploading to Imgur
     const response = await axios.get(source, { headers: { Referer: "https://www.pixiv.net/" } });
     if (!response.headers["content-length"]) {
-        await tools.downloadURL(source, `./temp/unknown.${imgType}`);
+        const fetchErrorMsg = await tools.downloadURL(source, `./temp/unknown.${imgType}`);
+        if (fetchErrorMsg) return await message.channel.send(fetchErrorMsg);
 
         if (!tools.isValidSize(`./temp/unknown.${imgType}`, 10240000)) {
             return await message.channel.send("File too large for Imgur! (10MB limit)");
