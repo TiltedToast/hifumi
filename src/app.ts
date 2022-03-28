@@ -201,9 +201,7 @@ async function helpCmd(message: Message, prefix: string) {
 }
 
 async function console_cmd(message: Message) {
-    if (!(message.author.id === botOwner)) {
-        return await message.channel.send("Insufficient permissions!");
-    }
+    if (message.author.id !== botOwner) return await message.channel.send("Insufficient permissions!");
     // Creates a new string with the message content without the command
     // And runs it in a new shell process
     const command = message.content.split(" ").slice(1).join(" ");
@@ -223,9 +221,7 @@ async function console_cmd(message: Message) {
 }
 
 export async function reloadBot(message: Message) {
-    if (!(message.author.id === botOwner)) {
-        return await message.channel.send("Insufficient permissions!");
-    }
+    if (message.author.id !== botOwner) return;
     // Reloads the bot using the pm2 module
     await mongoClient.close();
     exec("npm run restart");
@@ -233,7 +229,7 @@ export async function reloadBot(message: Message) {
 }
 
 async function jsEval(message: Message) {
-    if (!(message.author.id === botOwner)) return;
+    if (message.author.id !== botOwner) return;
 
     const content = message.content.split(" ");
 
@@ -245,7 +241,7 @@ async function jsEval(message: Message) {
     const command = message.content.split(" ").slice(1).join(" ");
     const rslt = eval(command);
 
-    if (rslt === null) return await message.channel.send("Cannot send an empty message!");
+    if (!rslt) return await message.channel.send("Cannot send an empty message!");
 
     const resultLength = rslt.toString().length;
 
@@ -329,7 +325,7 @@ async function convert(message: Message, prefix: string): Promise<Message | unde
         .collection("currencies")
         .findOne({ _id: new ObjectId("620bb1d76e6a2b90f475d556") });
 
-        if (currencies === null) return await message.channel.send("Couldn't find any currencies in the database");
+    if (currencies === null) return await message.channel.send("Couldn't find any currencies in the database");
 
     if (!(content.length === 4))
         return await message.channel.send(`Usage: \`${prefix}convert <amount of money> <cur1> <cur2>\``);
