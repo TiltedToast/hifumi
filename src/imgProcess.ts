@@ -30,7 +30,10 @@ export async function beautiful(message: Message): Promise<Message | undefined> 
 
     const user = content.length === 1 ? message.author : await tools.getUserObjectPingId(message);
 
-    if (!user) return;
+    if (!user)
+        return await message.channel.send(
+            "Couldn't find the specified User, Discord may be having issues with their API"
+        );
     // Downloads User Avatar and resizes it to the size required (180x180)
     const avatarURL = `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=4096`;
     await tools.downloadURL(avatarURL, `./temp/avatar.png`);

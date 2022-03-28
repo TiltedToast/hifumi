@@ -61,13 +61,13 @@ client.once("ready", async () => {
 });
 
 client.on("messageCreate", async (message: Message) => {
-    if (message.guild === null || message.guild.me === null) return;
+    if (message.guild?.me === null) return;
     try {
         // Permission check for the channel which the message was sent in to avoid breaking the bot
         if (
             message.author.bot ||
-            !message.guild.me.permissionsIn(message.channel.id).has("SEND_MESSAGES") ||
-            !message.guild.me.permissionsIn(message.channel.id).has("VIEW_CHANNEL")
+            !message.guild?.me.permissionsIn(message.channel.id).has("SEND_MESSAGES") ||
+            !message.guild?.me.permissionsIn(message.channel.id).has("VIEW_CHANNEL")
         )
             return;
 
@@ -162,7 +162,11 @@ client.on("messageCreate", async (message: Message) => {
             const reactionsColl = mongoClient.db("hifumi").collection("mikuReactions");
             const cmdAliases = await reactionsColl.findOne({ _id: new ObjectId("61ed5a24955085f3e99f7c03") });
             const reactMsgs = await reactionsColl.findOne({ _id: new ObjectId("61ed5cb4955085f3e99f7c0c") });
-            if (reactMsgs === null) return;
+
+            if (reactMsgs === null) {
+                await message.channel.send("Couldn't find any reactions in the database");
+                return;
+            }
 
             for (const cmdType in cmdAliases) {
                 if (Object.values(cmdAliases[cmdType]).includes(reactCmd)) {
@@ -261,7 +265,10 @@ async function avatarURL(message: Message) {
     }
 
     const user = content.length === 1 ? message.author : await tools.getUserObjectPingId(message);
-    if (!user) return;
+    if (!user)
+        return await message.channel.send(
+            "Couldn't find the specified User, Discord may be having issues with their API"
+        );
 
     const userID = user.id;
     const userName = user.username;
@@ -287,7 +294,7 @@ async function listCurrencies(message: Message) {
         .collection("currencies")
         .findOne({ _id: new ObjectId("620bb1d76e6a2b90f475d556") });
 
-    if (currencies === null) return;
+    if (currencies === null) return await message.channel.send("Couldn't find any currencies in the database");
 
     const title = "List of currencies available for conversion";
     const columns = ["", "", ""];
@@ -322,7 +329,7 @@ async function convert(message: Message, prefix: string): Promise<Message | unde
         .collection("currencies")
         .findOne({ _id: new ObjectId("620bb1d76e6a2b90f475d556") });
 
-    if (currencies === null) return;
+        if (currencies === null) return await message.channel.send("Couldn't find any currencies in the database");
 
     if (!(content.length === 4))
         return await message.channel.send(`Usage: \`${prefix}convert <amount of money> <cur1> <cur2>\``);
