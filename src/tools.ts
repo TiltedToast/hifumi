@@ -45,7 +45,7 @@ export function isDev(): boolean {
  */
 export async function setRandomStatus(client: Client) {
     setInterval(async () => {
-        if (!client.user) return;
+        if (!client.user) return console.log("Could not set status, client user is undefined");
         const randomStatusDoc = randomElementArray(statusArr) as StatusDoc;
         const randomType = randomStatusDoc.type;
         const randomStatus = randomStatusDoc.status;
