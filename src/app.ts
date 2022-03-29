@@ -81,7 +81,7 @@ client.on("messageCreate", async (message: Message) => {
         const prefixColl = mongoClient.db("hifumi").collection("prefixes");
 
         // Adds a default prefix to the db if it doesn't exist
-        if (!message.author.bot && !(server.id in prefixDict) && !isDev()) {
+        if (!(server.id in prefixDict) && !isDev()) {
             await prefixColl.insertOne({ serverId: server.id, prefix: "h!" });
             prefixDict[server.id] = "h!";
             await message.channel.send("I have set the prefix to `h!`");
@@ -97,58 +97,40 @@ client.on("messageCreate", async (message: Message) => {
         const lowerCasePrefix = content[0].substring(0, prefix.length).toLowerCase();
 
         if (message.content.toLowerCase() === "hr~~~" && !isDev()) await reloadBot(message);
-
         if (message.content.toLowerCase() === "hr~" && isDev()) await reloadBot(message);
 
-        if (lowerCasePrefix === prefix.toLowerCase()) {
-            if (["avatar", "pfp"].includes(command)) {
-                await avatarURL(message);
-            } else if (["convert", "conv", "c"].includes(command)) {
-                await convert(message, prefix);
-            } else if (command === "js") {
-                await jsEval(message);
-            } else if (command === "emoji") {
-                if (["add", "ad", "create"].includes(subCmd)) {
-                    await emoji.addEmoji(message, prefix);
-                } else if (["delete", "delet", "del", "remove", "rm"].includes(subCmd)) {
-                    await emoji.removeEmoji(message, prefix);
-                } else if (["edit", "e", "rename", "rn"].includes(subCmd)) {
-                    await emoji.renameEmoji(message, prefix);
-                }
-            } else if (command === "db") {
-                if (["insert", "ins", "in"].includes(subCmd)) {
-                    await database.insert(message);
-                } else if (["update", "up", "upd"].includes(subCmd)) {
-                    await database.update(message);
-                }
-            } else if (["status", "stat"].includes(command)) {
-                await database.insertStatus(message);
-            } else if (command === "currencies") {
-                await listCurrencies(message);
-            } else if (command === "bye") {
-                await bye(message);
-            } else if (command === "urban") {
-                await urban(message, prefix);
-            } else if (command === "beautiful") {
-                await imgProcess.beautiful(message);
-            } else if (command === "resize") {
-                await imgProcess.resizeImg(message, prefix);
-            } else if (command === "imgur") {
-                await imgProcess.imgur(message, prefix);
-            } else if (command === "profile") {
-                await reddit.profile(message, prefix);
-            } else if (command === "sub") {
-                await reddit.sub(message, prefix);
-            } else if (command === "prefix") {
-                await database.updatePrefix(message);
-            } else if (command === "con") {
-                await console_cmd(message);
-            } else if (["commands", "command", "comm", "com", "help"].includes(command)) {
-                await helpCmd(message, prefix);
-            } else if (command === "qr") {
-                await imgProcess.qrCode(message);
+        if (lowerCasePrefix !== prefix.toLowerCase()) return;
+
+        if (command === "emoji") {
+            if (["add", "ad", "create"].includes(subCmd)) {
+                await emoji.addEmoji(message, prefix);
+            } else if (["delete", "delet", "del", "remove", "rm"].includes(subCmd)) {
+                await emoji.removeEmoji(message, prefix);
+            } else if (["edit", "e", "rename", "rn"].includes(subCmd)) {
+                await emoji.renameEmoji(message, prefix);
             }
-        }
+        } else if (command === "db") {
+            if (["insert", "ins", "in"].includes(subCmd)) {
+                await database.insert(message);
+            } else if (["update", "up", "upd"].includes(subCmd)) {
+                await database.update(message);
+            }
+        } else if (["status", "stat"].includes(command)) await database.insertStatus(message);
+        else if (["commands", "command", "comm", "com", "help"].includes(command)) await helpCmd(message, prefix);
+        else if (["convert", "conv", "c"].includes(command)) await convert(message, prefix);
+        else if (["avatar", "pfp"].includes(command)) await avatarURL(message);
+        else if (command === "currencies") await listCurrencies(message);
+        else if (command === "bye") await bye(message);
+        else if (command === "urban") await urban(message, prefix);
+        else if (command === "beautiful") await imgProcess.beautiful(message);
+        else if (command === "resize") await imgProcess.resizeImg(message, prefix);
+        else if (command === "imgur") await imgProcess.imgur(message, prefix);
+        else if (command === "profile") await reddit.profile(message, prefix);
+        else if (command === "sub") await reddit.sub(message, prefix);
+        else if (command === "prefix") await database.updatePrefix(message);
+        else if (command === "con") await console_cmd(message);
+        else if (command === "qr") await imgProcess.qrCode(message);
+        else if (command === "js") await jsEval(message);
 
         // Reacting to Miku's emote commands
         // Grabs a random reply from the db and sents it as a message after a fixed delay
