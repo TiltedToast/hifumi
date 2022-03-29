@@ -183,17 +183,13 @@ async function helpCmd(message: Message, prefix: string) {
 }
 
 async function console_cmd(message: Message) {
-    if (message.author.id !== botOwner) return await message.channel.send("Insufficient permissions!");
+    if (message.author.id !== botOwner) return;
     // Creates a new string with the message content without the command
     // And runs it in a new shell process
     const command = message.content.split(" ").slice(1).join(" ");
     exec(command, async (err, stdout, stderr) => {
-        if (stderr) {
-            await message.channel.send(`\`\`\`${stderr}\`\`\``);
-        }
-        if (err) {
-            tools.errorLog(message, err);
-        }
+        if (stderr) await message.channel.send(`\`\`\`${stderr}\`\`\``);
+        if (err) tools.errorLog(message, err);
 
         const msg = stdout ? `\`\`\`${stdout}\`\`\`` : "Command executed!";
 
@@ -243,10 +239,11 @@ async function avatarURL(message: Message) {
     }
 
     const user = content.length === 1 ? message.author : await tools.getUserObjectPingId(message);
-    if (!user)
+    if (!user) {
         return await message.channel.send(
             "Couldn't find the specified User, Discord may be having issues with their API"
         );
+    }
 
     const userID = user.id;
     const userName = user.username;
@@ -323,10 +320,7 @@ async function convert(message: Message, prefix: string): Promise<Message | unde
     const response = await fetch(
         `https://prime.exchangerate-api.com/v5/${process.env.EXCHANGE_API_KEY}/latest/${from}`
     );
-
-    if (!response.ok) {
-        return await message.channel.send("Error! Please try again later");
-    }
+    if (!response.ok) return await message.channel.send("Error! Please try again later");
     const result = (await response.json()) as ConvertResult;
 
     // Checks for possible pointless conversions
@@ -391,7 +385,7 @@ async function urban(message: Message, prefix: string): Promise<Message> {
 }
 
 async function bye(message: Message): Promise<Message | void> {
-    if (message.author.id !== botOwner) return await message.channel.send("Insufficient permissions!");
+    if (message.author.id !== botOwner) return;
 
     // Closes the MongoDB connection and stops the running daemon via pm2
     await message.channel.send("Bai baaaaaaaai!!");
