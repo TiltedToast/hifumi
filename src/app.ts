@@ -227,7 +227,7 @@ async function jsEval(message: Message) {
 
     const resultLength = rslt.toString().length;
 
-    if (resultLength === 0 || resultLength > 2000)
+    if (!rslt.toString() || resultLength > 2000)
         return await message.channel.send("Invalid message length for discord!");
     return await message.channel.send(rslt);
 }
@@ -302,15 +302,15 @@ async function listCurrencies(message: Message) {
 async function convert(message: Message, prefix: string): Promise<Message | undefined> {
     const content = message.content.split(" ");
 
+    if (content.length !== 4)
+        return await message.channel.send(`Usage: \`${prefix}convert <amount of money> <cur1> <cur2>\``);
+
     const currencies = await mongoClient
         .db("hifumi")
         .collection("currencies")
         .findOne({ _id: new ObjectId("620bb1d76e6a2b90f475d556") });
 
     if (currencies === null) return await message.channel.send("Couldn't find any currencies in the database");
-
-    if (!(content.length === 4))
-        return await message.channel.send(`Usage: \`${prefix}convert <amount of money> <cur1> <cur2>\``);
 
     const amount = parseFloat(content[1]);
     const from = content[2].toUpperCase();
@@ -357,12 +357,10 @@ async function convert(message: Message, prefix: string): Promise<Message | unde
 async function urban(message: Message, prefix: string): Promise<Message> {
     const content = message.content.split(" ");
 
-    if (!(content.length === 2)) return await message.channel.send(`Usage: \`${prefix}urban <word>\``);
+    if (content.length !== 2) return await message.channel.send(`Usage: \`${prefix}urban <word>\``);
 
     const query = content[1];
-
     const response = await fetch(`https://api.urbandictionary.com/v0/define?term=${query}`);
-
     if (!response.ok) return await message.channel.send(`Error ${response.status}! Please try again later`);
 
     const result = (await response.json()) as UrbanResult;

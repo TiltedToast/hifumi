@@ -44,23 +44,15 @@ export async function sub(message: Message, prefix: string): Promise<Message> {
         query;
 
     const content = message.content.split(" ").map((x) => x.toLowerCase());
+    if (content.length === 1) return await message.channel.send(`Usage: \`${prefix}sub <subreddit>\``);
 
-    // Set the value for the nsfw & force flags
-    if (content.length === 1) {
-        return await message.channel.send(`Usage: \`${prefix}sub <subreddit>\``);
-    } else if (content.length === 3) {
-        if (content[2] === "nsfw") {
-            nsfw = true;
-        } else if (content[2] === "force") {
-            force = true;
-        } else {
-            return await message.channel.send(`Usage: \`${prefix}sub <subreddit> [nsfw/force]\``);
-        }
-    } else if (content.length >= 4) {
-        if (content[3] === "force") {
-            force = true;
-        } else {
-            return await message.channel.send(`Usage: \`${prefix}sub <subreddit> [nsfw] [force]\``);
+    if (content.length >= 3) {
+        for (let i = 2; i < content.length; i++) {
+            if (content[i] === "nsfw") {
+                nsfw = true;
+            } else if (content[i] === "force") {
+                force = true;
+            }
         }
     }
 
