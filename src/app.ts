@@ -74,7 +74,7 @@ client.on("messageCreate", async (message: Message) => {
         const content = message.content.split(" ");
 
         // Sub command check for reacting to Miku's emote commands
-        const reactCmd = content.length > 1 ? content[0].slice(1) : "";
+        const reactCmd = content.length >= 1 ? content[0].slice(1) : "";
         const subCmd = content.length >= 2 ? content[1] : "";
 
         const server = message.guild;
@@ -99,38 +99,38 @@ client.on("messageCreate", async (message: Message) => {
         if (message.content.toLowerCase() === "hr~~~" && !isDev()) await reloadBot(message);
         if (message.content.toLowerCase() === "hr~" && isDev()) await reloadBot(message);
 
-        if (lowerCasePrefix !== prefix.toLowerCase()) return;
-
-        if (command === "emoji") {
-            if (["add", "ad", "create"].includes(subCmd)) {
-                await emoji.addEmoji(message, prefix);
-            } else if (["delete", "delet", "del", "remove", "rm"].includes(subCmd)) {
-                await emoji.removeEmoji(message, prefix);
-            } else if (["edit", "e", "rename", "rn"].includes(subCmd)) {
-                await emoji.renameEmoji(message, prefix);
-            }
-        } else if (command === "db") {
-            if (["insert", "ins", "in"].includes(subCmd)) {
-                await database.insert(message);
-            } else if (["update", "up", "upd"].includes(subCmd)) {
-                await database.update(message);
-            }
-        } else if (["status", "stat"].includes(command)) await database.insertStatus(message);
-        else if (["commands", "command", "comm", "com", "help"].includes(command)) await helpCmd(message, prefix);
-        else if (["convert", "conv", "c"].includes(command)) await convert(message, prefix);
-        else if (["avatar", "pfp"].includes(command)) await avatarURL(message);
-        else if (command === "currencies") await listCurrencies(message);
-        else if (command === "bye") await bye(message);
-        else if (command === "urban") await urban(message, prefix);
-        else if (command === "beautiful") await imgProcess.beautiful(message);
-        else if (command === "resize") await imgProcess.resizeImg(message, prefix);
-        else if (command === "imgur") await imgProcess.imgur(message, prefix);
-        else if (command === "profile") await reddit.profile(message, prefix);
-        else if (command === "sub") await reddit.sub(message, prefix);
-        else if (command === "prefix") await database.updatePrefix(message);
-        else if (command === "con") await console_cmd(message);
-        else if (command === "qr") await imgProcess.qrCode(message);
-        else if (command === "js") await jsEval(message);
+        if (lowerCasePrefix === prefix.toLowerCase()) {
+            if (command === "emoji") {
+                if (["add", "ad", "create"].includes(subCmd)) {
+                    await emoji.addEmoji(message, prefix);
+                } else if (["delete", "delet", "del", "remove", "rm"].includes(subCmd)) {
+                    await emoji.removeEmoji(message, prefix);
+                } else if (["edit", "e", "rename", "rn"].includes(subCmd)) {
+                    await emoji.renameEmoji(message, prefix);
+                }
+            } else if (command === "db") {
+                if (["insert", "ins", "in"].includes(subCmd)) {
+                    await database.insert(message);
+                } else if (["update", "up", "upd"].includes(subCmd)) {
+                    await database.update(message);
+                }
+            } else if (["status", "stat"].includes(command)) await database.insertStatus(message);
+            else if (["commands", "command", "comm", "com", "help"].includes(command)) await helpCmd(message, prefix);
+            else if (["convert", "conv", "c"].includes(command)) await convert(message, prefix);
+            else if (["avatar", "pfp"].includes(command)) await avatarURL(message);
+            else if (command === "currencies") await listCurrencies(message);
+            else if (command === "bye") await bye(message);
+            else if (command === "urban") await urban(message, prefix);
+            else if (command === "beautiful") await imgProcess.beautiful(message);
+            else if (command === "resize") await imgProcess.resizeImg(message, prefix);
+            else if (command === "imgur") await imgProcess.imgur(message, prefix);
+            else if (command === "profile") await reddit.profile(message, prefix);
+            else if (command === "sub") await reddit.sub(message, prefix);
+            else if (command === "prefix") await database.updatePrefix(message);
+            else if (command === "con") await console_cmd(message);
+            else if (command === "qr") await imgProcess.qrCode(message);
+            else if (command === "js") await jsEval(message);
+        }
 
         // Reacting to Miku's emote commands
         // Grabs a random reply from the db and sents it as a message after a fixed delay
@@ -145,8 +145,8 @@ client.on("messageCreate", async (message: Message) => {
             const cmdAliases = await reactionsColl.findOne({ _id: new ObjectId("61ed5a24955085f3e99f7c03") });
             const reactMsgs = await reactionsColl.findOne({ _id: new ObjectId("61ed5cb4955085f3e99f7c0c") });
 
-            if (reactMsgs === null) {
-                await message.channel.send("Couldn't find any reactions in the database");
+            if (cmdAliases === null || reactMsgs === null) {
+                await message.channel.send("Couldn't find the necessary entries in the database");
                 return;
             }
 
