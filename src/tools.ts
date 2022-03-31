@@ -8,6 +8,7 @@ import { Client, Message, TextChannel, User } from "discord.js";
 import strftime from "strftime";
 import { Document } from "mongodb";
 import { StatusDoc } from "./interfaces.js";
+import { DEV_MODE } from "./config.js";
 
 /**
  * Parses key value pairs from discord messages into a JavaScript object that can be used to interact with the Database
@@ -36,7 +37,7 @@ export async function parseDbArgs(start: number, content: string[]): Promise<Doc
  * @returns {boolean} Whether or not the bot is the dev version
  */
 export function isDev(): boolean {
-    return process.env.DEV_MODE === "true";
+    return DEV_MODE === "true";
 }
 
 /**

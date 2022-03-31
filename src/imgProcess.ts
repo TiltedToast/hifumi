@@ -9,6 +9,7 @@ import { ImgurResult } from "./interfaces.js";
 import * as qrcode from "qrcode";
 import { exec } from "child_process";
 import { promisify } from "util";
+import { IMGUR_CLIENT_ID } from "./config.js";
 
 import sharp from "sharp";
 import canvas from "canvas";
@@ -170,7 +171,7 @@ export async function imgur(message: Message, prefix: string, url?: string): Pro
     if (imgType === "unknown") return await message.channel.send("Invalid image type!");
     const myHeaders = new Headers();
     const formdata = new FormData();
-    myHeaders.append("Authorization", `Client-ID ${process.env.IMGUR_CLIENT_ID}`);
+    myHeaders.append("Authorization", `Client-ID ${IMGUR_CLIENT_ID}`);
 
     const requestOptions: Record<string, unknown> = {
         method: "POST",

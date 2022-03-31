@@ -3,13 +3,13 @@ import { Message, MessageEmbed, TextChannel } from "discord.js";
 import fetch from "node-fetch";
 import { mongoClient } from "./app.js";
 import strftime from "strftime";
-import { EMBED_COLOUR } from "./constants.js";
+import { REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET, REDDIT_REFRESH_TOKEN, EMBED_COLOUR } from "./config.js";
 
 const RedditClient = new Snoowrap({
     userAgent: "linux:hifumi:v1.0.0 (by /u/tilted_toast)",
-    clientId: process.env.REDDIT_CLIENT_ID,
-    clientSecret: process.env.REDDIT_CLIENT_SECRET,
-    refreshToken: process.env.REDDIT_REFRESH_TOKEN,
+    clientId: REDDIT_CLIENT_ID,
+    clientSecret: REDDIT_CLIENT_SECRET,
+    refreshToken: REDDIT_REFRESH_TOKEN,
 });
 
 export async function profile(message: Message, prefix: string): Promise<Message> {

@@ -2,7 +2,7 @@ import { mongoClient, prefixDict, statusArr } from "./app.js";
 import { Message, Permissions } from "discord.js";
 import * as tools from "./tools.js";
 import { isDev } from "./tools.js";
-import { BOT_OWNER } from "./constants.js";
+import { BOT_OWNER } from "./config.js";
 
 export async function insert(message: Message) {
     if (message.author.id !== BOT_OWNER) return;

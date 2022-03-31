@@ -7,15 +7,15 @@ import * as database from "./database.js";
 import fetch from "node-fetch";
 import { exec } from "child_process";
 import { isDev } from "./tools.js";
-import { Client, Intents, Message, MessageEmbed, TextChannel } from "discord.js";
-import { Document, MongoClient, ObjectId } from "mongodb";
 import strftime from "strftime";
+import { Document, MongoClient, ObjectId } from "mongodb";
 import { ConvertResult, StatusDoc, UrbanEntry, UrbanResult } from "./interfaces.js";
-import { BOT_OWNER, EMBED_COLOUR } from "./constants.js";
+import { Client, Intents, Message, MessageEmbed, TextChannel } from "discord.js";
+import { BOT_TOKEN, BOT_OWNER, EMBED_COLOUR, MONGO_URI, EXCHANGE_API_KEY } from "./config.js";
 
 const allIntents = new Intents(32767);
 export const client = new Client({ intents: allIntents });
-export const mongoClient = new MongoClient(process.env.MONGO_URI);
+export const mongoClient = new MongoClient(MONGO_URI);
 const startTime = Date.now();
 export const prefixDict: Record<string, string> = {};
 export let statusArr: Document[] = [];
@@ -316,9 +316,7 @@ async function convert(message: Message, prefix: string): Promise<Message | unde
         return await message.channel.send(`Invalid currency codes! Check \`${prefix}currencies\` for a list`);
     }
 
-    const response = await fetch(
-        `https://prime.exchangerate-api.com/v5/${process.env.EXCHANGE_API_KEY}/latest/${from}`
-    );
+    const response = await fetch(`https://prime.exchangerate-api.com/v5/${EXCHANGE_API_KEY}/latest/${from}`);
     if (!response.ok) return await message.channel.send("Error! Please try again later");
     const result = (await response.json()) as ConvertResult;
 
@@ -403,4 +401,4 @@ process.on("SIGINT", () => {
     });
 });
 
-client.login(process.env.BOT_TOKEN);
+client.login(BOT_TOKEN);
