@@ -321,16 +321,12 @@ async function convert(message: Message, prefix: string): Promise<Message | unde
     const result = (await response.json()) as ConvertResult;
 
     // Checks for possible pointless conversions
-    if (from === to) {
-        return await message.channel.send("Your first currency is the same as your second currency!");
-    } else if (amount < 0) {
-        return await message.channel.send("You can't convert a negative amount!");
-    } else if (amount === 0) {
-        return await message.channel.send("Zero will obviously stay 0!");
-    }
+    if (from === to) return await message.channel.send("Your first currency is the same as your second currency!");
+    if (amount < 0) return await message.channel.send("You can't convert a negative amount!");
+    if (amount === 0) return await message.channel.send("Zero will obviously stay 0!");
 
     // Calculates the converted amount and sends it via an Embed
-    const rate: number = result["conversion_rates"][to];
+    const rate = result["conversion_rates"][to];
     const rslt = Math.round(amount * rate * 100) / 100;
     const description = `**${tools.advRound(amount)} ${from} ≈ ${tools.advRound(
         rslt
