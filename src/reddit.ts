@@ -1,8 +1,9 @@
 import Snoowrap from "snoowrap";
 import { Message, MessageEmbed, TextChannel } from "discord.js";
 import fetch from "node-fetch";
-import { mongoClient, embedColour } from "./app.js";
+import { mongoClient } from "./app.js";
 import strftime from "strftime";
+import { EMBED_COLOUR } from "./constants.js";
 
 const RedditClient = new Snoowrap({
     userAgent: "linux:hifumi:v1.0.0 (by /u/tilted_toast)",
@@ -30,7 +31,7 @@ export async function profile(message: Message, prefix: string): Promise<Message
                         Created on: ${userCreatedDate}`;
 
     const profileEmbed = new MessageEmbed()
-        .setColor(embedColour)
+        .setColor(EMBED_COLOUR)
         .setTitle(`${user.name}'s profile`)
         .setDescription(description)
         .setThumbnail(user.icon_img);
@@ -93,7 +94,7 @@ export async function sub(message: Message, prefix: string): Promise<Message> {
     const submission = JSON.parse(JSON.stringify(randomSubmission[0]));
 
     const imgEmbed = new MessageEmbed()
-        .setColor(embedColour)
+        .setColor(EMBED_COLOUR)
         .setTitle(submission.title)
         .setURL(`https://reddit.com${submission.permalink}`)
         .setImage(submission.url);

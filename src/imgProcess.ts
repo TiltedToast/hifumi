@@ -8,13 +8,13 @@ import { Headers } from "node-fetch";
 import { ImgurResult } from "./interfaces.js";
 import * as qrcode from "qrcode";
 import { exec } from "child_process";
-import util from "util";
+import { promisify } from "util";
 
 import sharp from "sharp";
 import canvas from "canvas";
 import axios from "axios";
 
-const execPromise = util.promisify(exec);
+const execPromise = promisify(exec);
 
 export async function beautiful(message: Message): Promise<Message | undefined> {
     tools.createTemp("temp");

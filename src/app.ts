@@ -7,13 +7,12 @@ import * as database from "./database.js";
 import fetch from "node-fetch";
 import { exec } from "child_process";
 import { isDev } from "./tools.js";
-import { Client, ColorResolvable, Intents, Message, MessageEmbed, TextChannel } from "discord.js";
+import { Client, Intents, Message, MessageEmbed, TextChannel } from "discord.js";
 import { Document, MongoClient, ObjectId } from "mongodb";
 import strftime from "strftime";
 import { ConvertResult, StatusDoc, UrbanEntry, UrbanResult } from "./interfaces.js";
+import { BOT_OWNER, EMBED_COLOUR } from "./constants.js";
 
-export const botOwner = "258993932262834188";
-export const embedColour: ColorResolvable = "#ce3a9b";
 const allIntents = new Intents(32767);
 export const client = new Client({ intents: allIntents });
 export const mongoClient = new MongoClient(process.env.MONGO_URI);
@@ -175,7 +174,7 @@ async function helpCmd(message: Message, prefix: string) {
     }
 
     const helpEmbed = new MessageEmbed()
-        .setColor(embedColour)
+        .setColor(EMBED_COLOUR)
         .setTitle("**Hifumi's commands**")
         .setDescription(helpMsg);
 
@@ -183,7 +182,7 @@ async function helpCmd(message: Message, prefix: string) {
 }
 
 async function console_cmd(message: Message) {
-    if (message.author.id !== botOwner) return;
+    if (message.author.id !== BOT_OWNER) return;
     // Creates a new string with the message content without the command
     // And runs it in a new shell process
     const command = message.content.split(" ").slice(1).join(" ");
@@ -199,7 +198,7 @@ async function console_cmd(message: Message) {
 }
 
 export async function reloadBot(message: Message) {
-    if (message.author.id !== botOwner) return;
+    if (message.author.id !== BOT_OWNER) return;
     // Reloads the bot using the pm2 module
     await mongoClient.close();
     exec("npm run restart");
@@ -207,7 +206,7 @@ export async function reloadBot(message: Message) {
 }
 
 async function jsEval(message: Message) {
-    if (message.author.id !== botOwner) return;
+    if (message.author.id !== BOT_OWNER) return;
 
     const content = message.content.split(" ");
 
@@ -258,7 +257,7 @@ async function avatarURL(message: Message) {
         url = `https://cdn.discordapp.com/avatars/${userID}/${avatarHash}.png?size=4096`;
     }
 
-    const avatarEmbed = new MessageEmbed().setColor(embedColour).setTitle(`*${userName}'s Avatar*`).setImage(url);
+    const avatarEmbed = new MessageEmbed().setColor(EMBED_COLOUR).setTitle(`*${userName}'s Avatar*`).setImage(url);
 
     await message.channel.send({ embeds: [avatarEmbed] });
 }
@@ -286,7 +285,7 @@ async function listCurrencies(message: Message) {
         }
     }
 
-    const currEmbed = new MessageEmbed().setColor(embedColour).setTitle(title);
+    const currEmbed = new MessageEmbed().setColor(EMBED_COLOUR).setTitle(title);
 
     // Loops over the columns and adds them to the embed
     for (let i = 0; i < columns.length; i++) {
@@ -340,7 +339,7 @@ async function convert(message: Message, prefix: string): Promise<Message | unde
     )} ${to}**\n\nExchange Rate: 1 ${from} ≈ ${rate} ${to}`;
 
     const convertEmbed = new MessageEmbed()
-        .setColor(embedColour)
+        .setColor(EMBED_COLOUR)
         .setTitle(`Converting ${from} to ${to}`)
         .setDescription(description)
         .setFooter({ text: `${strftime("%d/%m/%Y %H:%M:%S")}` });
@@ -376,7 +375,7 @@ async function urban(message: Message, prefix: string): Promise<Message> {
         **Permalink:** [${permalink}](${permalink})`.replace(/\]|\[/g, "");
 
     const urbanEmbed = new MessageEmbed()
-        .setColor(embedColour)
+        .setColor(EMBED_COLOUR)
         .setTitle(`*${word}*`)
         .setDescription(description)
         .setFooter({ text: `Upvotes: ${upvotes} Downvotes: ${downvotes}` });
@@ -385,7 +384,7 @@ async function urban(message: Message, prefix: string): Promise<Message> {
 }
 
 async function bye(message: Message): Promise<Message | void> {
-    if (message.author.id !== botOwner) return;
+    if (message.author.id !== BOT_OWNER) return;
 
     // Closes the MongoDB connection and stops the running daemon via pm2
     await message.channel.send("Bai baaaaaaaai!!");
