@@ -8,7 +8,7 @@ import { Client, Message, TextChannel, User } from "discord.js";
 import strftime from "strftime";
 import { Document } from "mongodb";
 import { StatusDoc } from "./interfaces.js";
-import { DEV_MODE } from "./config.js";
+import { DEV_MODE, BOT_OWNER } from "./config.js";
 
 /**
  * Parses key value pairs from discord messages into a JavaScript object that can be used to interact with the Database
@@ -124,7 +124,7 @@ export function errorLog(message: Message, errorObject: Error) {
   **Command used:** ${message.content}
   **Error:** ${errorObject.message}\n
   **${errorObject.stack}**\n
-  <@258993932262834188>`;
+  <@${BOT_OWNER}>`;
 
     const collection = mongoClient.db("hifumi").collection("errorLog");
     collection.insertOne({
