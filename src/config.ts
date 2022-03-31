@@ -9,3 +9,4 @@ export const MONGO_URI = process.env.MONGO_URI ?? "mongodb://localhost:27017/";
 export const DEV_MODE = process.env.DEV_MODE ?? "false";
 export const BOT_OWNER = process.env.BOT_OWNER ?? "258993932262834188";
 export const EMBED_COLOUR = "#ce3a9b";
+export const DEV_CHANNELS = ["655484859405303809", "551588329003548683", "922679249058553857"];
