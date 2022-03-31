@@ -1,5 +1,3 @@
-import { ColorResolvable } from "discord.js";
-
 declare global {
     namespace NodeJS {
         interface ProcessEnv {
@@ -12,8 +10,6 @@ declare global {
             REDDIT_REFRESH_TOKEN: string;
             MONGO_URI: string;
             DEV_MODE: "true" | "false";
-            BOT_OWNER: string;
-            EMBED_COLOUR: ColorResolvable;
         }
     }
 }
