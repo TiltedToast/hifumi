@@ -8,7 +8,7 @@ import { Client, Message, TextChannel, User } from "discord.js";
 import strftime from "strftime";
 import { Document } from "mongodb";
 import { StatusDoc } from "./interfaces.js";
-import { DEV_MODE, BOT_OWNER } from "./config.js";
+import { DEV_MODE, BOT_OWNER, DEV_CHANNELS } from "./config.js";
 
 /**
  * Parses key value pairs from discord messages into a JavaScript object that can be used to interact with the Database
@@ -146,7 +146,7 @@ export function errorLog(message: Message, errorObject: Error) {
 
     // Chooses channel to send error to
     // The list below are channels that are actively used for testing purposes
-    if (["655484859405303809", "551588329003548683", "922679249058553857"].includes(message.channel.id)) {
+    if (DEV_CHANNELS.includes(message.channel.id)) {
         channel = message.channel;
     } else {
         channel = client.channels.cache.get("655484804405657642");
