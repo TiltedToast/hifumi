@@ -82,10 +82,9 @@ export async function getUserObjectPingId(message: Message): Promise<User | unde
 
     if (!isNaN(parseInt(content[1]))) {
         return await client.users.fetch(content[1]);
-    } else {
-        const user = message.mentions.users.first();
-        return user ? user : undefined;
     }
+    const user = message.mentions.users.first();
+    return user ? user : undefined;
 }
 
 /**
@@ -189,17 +188,11 @@ export async function downloadURL(url: string, saveLocation: string) {
  * @returns {String} The file extension of the image
  */
 export function getImgType(url: string): string {
-    if (url.includes(".png") || url.includes(".webp")) {
-        return "png";
-    } else if (url.includes(".jpeg") || url.includes(".jpg")) {
-        return "jpeg";
-    } else if (url.includes(".gif")) {
-        return "gif";
-    } else if (url.includes(".svg")) {
-        return "svg";
-    } else {
-        return "unknown";
-    }
+    if (url.includes(".png") || url.includes(".webp")) return "png";
+    else if (url.includes(".jpeg") || url.includes(".jpg")) return "jpeg";
+    else if (url.includes(".gif")) return "gif";
+    else if (url.includes(".svg")) return "svg";
+    return "unknown";
 }
 
 /**
@@ -210,9 +203,8 @@ export function getImgType(url: string): string {
 export function advRound(x: number): number {
     if (Math.floor(x) + (x % 1) === parseInt(x.toString())) {
         return parseInt(x.toString());
-    } else {
-        return parseFloat(x.toString());
     }
+    return parseFloat(x.toString());
 }
 
 /**
