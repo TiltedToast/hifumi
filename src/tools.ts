@@ -4,7 +4,7 @@ import * as path from "path";
 import fetch from "node-fetch";
 import { Headers } from "node-fetch";
 import { mongoClient, client, statusArr } from "./app.js";
-import { Client, Message, TextChannel, User } from "discord.js";
+import { AnyChannel, Client, Message, TextChannel, User } from "discord.js";
 import strftime from "strftime";
 import { Document } from "mongodb";
 import { StatusDoc } from "./interfaces.js";
@@ -113,18 +113,22 @@ export function randomIntFromRange(min: number, max: number): number {
  */
 export function errorLog(message: Message, errorObject: Error) {
     const currentTime = strftime("%d/%m/%Y %H:%M:%S");
-    let channel;
+    let channel: AnyChannel | undefined;
 
     if (!message.guild) return message.channel.send(`Unknown guild!`);
+    if (!errorObject) return message.channel.send(`Unknown error!`);
 
-    let errorMessage = `An Error occurred on ${currentTime}
-  **Server:** ${message.guild.name} - ${message.guild.id}
-  **Room:** ${(message.channel as TextChannel).name} - ${message.channel.id}
-  **User:** ${message.author.username} - ${message.author.id}
-  **Command used:** ${message.content}
-  **Error:** ${errorObject.message}\n
-  **${errorObject.stack}**\n
-  <@${BOT_OWNER}>`;
+    // I'm so sorry future me 
+    const errorMessageWithoutStack = `An Error occurred on ${currentTime}\n**Server:** ${message.guild.name} - ${
+        message.guild.id
+    }\n**Room:** ${(message.channel as TextChannel).name} - ${message.channel.id}\n**User:** ${
+        message.author.username
+    } - ${message.author.id}\n**Command used:** ${message.content}\n**Error:** ${errorObject.message}`;
+
+    const preCutErrorMessage =
+        `${errorMessageWithoutStack}\n\n**${errorObject.stack?.substring(0, 1900 - errorMessageWithoutStack.length)}`;
+
+    let errorMessage = `${preCutErrorMessage.split("\n").slice(0, -2).join("\n")}**\n\n<@${BOT_OWNER}>`;
 
     const collection = mongoClient.db("hifumi").collection("errorLog");
     collection.insertOne({
@@ -141,11 +145,9 @@ export function errorLog(message: Message, errorObject: Error) {
 
     if (errorMessage.length > 2000) {
         errorMessage = `An Error occurred on ${currentTime}\nCheck console for full error (2000 character limit)\n<@258993932262834188>`;
-        console.log(errorObject);
     }
-
     // Chooses channel to send error to
-    // The list below are channels that are actively used for testing purposes
+    // DEV_CHANNELS are channels that are actively used for testing purposes
     if (DEV_CHANNELS.includes(message.channel.id)) {
         channel = message.channel;
     } else {
