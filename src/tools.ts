@@ -114,21 +114,22 @@ export function randomIntFromRange(min: number, max: number): number {
 export function errorLog(message: Message, errorObject: Error) {
     const currentTime = strftime("%d/%m/%Y %H:%M:%S");
     let channel: AnyChannel | undefined;
+    let errorMessage: string;
 
     if (!message.guild) return message.channel.send(`Unknown guild!`);
     if (!errorObject) return message.channel.send(`Unknown error!`);
 
-    // I'm so sorry future me 
-    const errorMessageWithoutStack = `An Error occurred on ${currentTime}\n**Server:** ${message.guild.name} - ${
-        message.guild.id
-    }\n**Room:** ${(message.channel as TextChannel).name} - ${message.channel.id}\n**User:** ${
-        message.author.username
-    } - ${message.author.id}\n**Command used:** ${message.content}\n**Error:** ${errorObject.message}`;
+    const errorMessageWithoutStack = `An Error occurred on ${currentTime}
+    **Server:** ${message.guild.name} - ${message.guild.id}
+    **Room:** ${(message.channel as TextChannel).name} - ${message.channel.id}
+    **User:** ${message.author.username} - ${message.author.id}
+    **Command used:** ${message.content}
+    **Error:** ${errorObject.message}`;
 
-    const preCutErrorMessage =
-        `${errorMessageWithoutStack}\n\n**${errorObject.stack?.substring(0, 1900 - errorMessageWithoutStack.length)}`;
+    const fullErrorMsg = `${errorMessageWithoutStack}\n\n**${errorObject.stack}\n\n<@${BOT_OWNER}>`;
+    const preCutErrorMessage = fullErrorMsg.substring(0, 1900 - errorMessageWithoutStack.length);
 
-    let errorMessage = `${preCutErrorMessage.split("\n").slice(0, -2).join("\n")}**\n\n<@${BOT_OWNER}>`;
+    const postCutErrorMessage = `${preCutErrorMessage.split("\n").slice(0, -2).join("\n")}**\n\n<@${BOT_OWNER}>`;
 
     const collection = mongoClient.db("hifumi").collection("errorLog");
     collection.insertOne({
@@ -140,12 +141,17 @@ export function errorLog(message: Message, errorObject: Error) {
         stack: errorObject.stack,
         date: `${currentTime}`,
         timestamp: Date.now(),
-        log: errorMessage,
+        log: fullErrorMsg,
     });
 
-    if (errorMessage.length > 2000) {
+    if (fullErrorMsg.length <= 2000) {
+        errorMessage = fullErrorMsg;
+    } else if (postCutErrorMessage.length > 2000) {
         errorMessage = `An Error occurred on ${currentTime}\nCheck console for full error (2000 character limit)\n<@258993932262834188>`;
+    } else {
+        errorMessage = postCutErrorMessage;
     }
+
     // Chooses channel to send error to
     // DEV_CHANNELS are channels that are actively used for testing purposes
     if (DEV_CHANNELS.includes(message.channel.id)) {
