@@ -216,7 +216,9 @@ async function jsEval(message: Message) {
     // And evalutes it via the JS engine
     // Checks for a valid length and sends the result
     const command = message.content.split(" ").slice(1).join(" ");
-    const rslt = eval(command);
+    let rslt = eval(command);
+
+    if (typeof rslt === "object") rslt = `\`\`\`${JSON.stringify(rslt, null, 4)}\`\`\``;
 
     if (!rslt) return await message.channel.send("Cannot send an empty message!");
 
