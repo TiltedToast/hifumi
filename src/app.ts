@@ -133,7 +133,6 @@ client.on("messageCreate", async (message: Message) => {
 
         // Reacting to Miku's emote commands
         // Grabs a random reply from the db and sents it as a message after a fixed delay
-
         const botId = isDev() ? "665224627353681921" : "641409330888835083";
 
         if (
@@ -186,9 +185,9 @@ async function console_cmd(message: Message) {
     // Creates a new string with the message content without the command
     // And runs it in a new shell process
     const command = message.content.split(" ").slice(1).join(" ");
-    exec(command, async (err, stdout, stderr) => {
-        if (stderr) await message.channel.send(`\`\`\`${stderr}\`\`\``);
-        if (err) tools.errorLog(message, err);
+    exec(command, async (error, stdout, stderr) => {
+        if (stderr) return await message.channel.send(`\`\`\`${stderr}\`\`\``);
+        if (error) return tools.errorLog(message, error);
 
         const msg = stdout ? `\`\`\`${stdout}\`\`\`` : "Command executed!";
 
