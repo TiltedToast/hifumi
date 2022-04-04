@@ -46,18 +46,13 @@ export async function beautiful(message: Message): Promise<Message | undefined> 
     // Creates a canvas and adds avatar as well as the background to it
     const beautifulCanvas = new canvas.Canvas(640, 674);
     const ctx = beautifulCanvas.getContext("2d");
+    const avatar = await canvas.loadImage("./temp/avatar_resized.png");
+    const background = await canvas.loadImage("./src/files/background.png")
 
-    await canvas.loadImage("./temp/avatar_resized.png").then((img) => {
-        ctx.drawImage(img, 422, 35);
-    });
-
-    await canvas.loadImage("./temp/avatar_resized.png").then((img) => {
-        ctx.drawImage(img, 430, 377);
-    });
-
-    await canvas.loadImage("./src/files/background.png").then((img) => {
-        ctx.drawImage(img, 0, 0);
-    });
+    ctx.drawImage(avatar, 422, 35);
+    ctx.drawImage(avatar, 430, 377);
+    ctx.drawImage(background, 0, 0);
+    
 
     // Saves the output buffer to a file and sends it to the channel
     const buffer = beautifulCanvas.toBuffer("image/png");
