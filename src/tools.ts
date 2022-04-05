@@ -128,7 +128,6 @@ export function errorLog(message: Message, errorObject: Error) {
 
     const fullErrorMsg = `${errorMessageWithoutStack}\n\n**${errorObject.stack}\n\n<@${BOT_OWNER}>`;
     const preCutErrorMessage = fullErrorMsg.substring(0, 1900 - errorMessageWithoutStack.length);
-
     const postCutErrorMessage = `${preCutErrorMessage.split("\n").slice(0, -2).join("\n")}**\n\n<@${BOT_OWNER}>`;
 
     const collection = mongoClient.db("hifumi").collection("errorLog");

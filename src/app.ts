@@ -148,9 +148,9 @@ client.on("messageCreate", async (message: Message) => {
                 return;
             }
 
-            for (const cmdType in cmdAliases) {
-                if (Object.values(cmdAliases[cmdType]).includes(reactCmd)) {
-                    const msg = (tools.randomElementArray(reactMsgs[cmdType]) as string).replace(
+            for (const alias in cmdAliases) {
+                if (Object.values(cmdAliases[alias]).includes(reactCmd)) {
+                    const msg = (tools.randomElementArray(reactMsgs[alias]) as string).replace(
                         "{0}",
                         message.author.username
                     );
