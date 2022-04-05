@@ -130,6 +130,8 @@ export async function fetchSubmissions(subreddit: string, message: Message, limi
                 !submission.is_self &&
                 (submission.url.includes("i.redd.it") || submission.url.includes("i.imgur.com"))
             ) {
+                // This is on purpose, somehow it doesn't recognise submission 
+                // as json that can be put into the db
                 await collection.insertOne(JSON.parse(JSON.stringify(submission)));
                 counter++;
             }
