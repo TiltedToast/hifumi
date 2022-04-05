@@ -4,6 +4,7 @@ import fetch from "node-fetch";
 import { mongoClient } from "./app.js";
 import strftime from "strftime";
 import { REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET, REDDIT_REFRESH_TOKEN, EMBED_COLOUR } from "./config.js";
+import { Timespan } from "snoowrap/dist/objects/Subreddit";
 
 const RedditClient = new Snoowrap({
     userAgent: "linux:hifumi:v1.0.0 (by /u/tilted_toast)",
@@ -40,9 +41,8 @@ export async function profile(message: Message, prefix: string): Promise<Message
 }
 
 export async function sub(message: Message, prefix: string): Promise<Message> {
-    let nsfw = false,
-        force = false,
-        query;
+    let isNSFW = false,
+        force = false;
 
     const content = message.content.split(" ").map((x) => x.toLowerCase());
     if (content.length === 1) return await message.channel.send(`Usage: \`${prefix}sub <subreddit>\``);
@@ -50,7 +50,7 @@ export async function sub(message: Message, prefix: string): Promise<Message> {
     if (content.length >= 3) {
         for (let i = 2; i < content.length; i++) {
             if (content[i] === "nsfw") {
-                nsfw = true;
+                isNSFW = true;
             } else if (content[i] === "force") {
                 force = true;
             }
@@ -58,7 +58,7 @@ export async function sub(message: Message, prefix: string): Promise<Message> {
     }
 
     // Check if command has been run in a channel marked as NSFW to avoid potential NSFW posts in non-NSFW channels
-    if (nsfw && !(message.channel as TextChannel).nsfw)
+    if (isNSFW && !(message.channel as TextChannel).nsfw)
         return await message.channel.send("You have to be in a NSFW channel for this");
 
     const subreddit = content[1];
@@ -79,11 +79,7 @@ export async function sub(message: Message, prefix: string): Promise<Message> {
         await fetchSubmissions(subreddit, message);
     }
 
-    if (nsfw) {
-        query = { over_18: true };
-    } else {
-        query = { over_18: false };
-    }
+    const query = { over_18: isNSFW };
 
     // Get a random post that's stored in the database and send it via an Embed
     const collection = db.collection(subreddit);
@@ -91,7 +87,7 @@ export async function sub(message: Message, prefix: string): Promise<Message> {
 
     if (randomSubmission.length === 0) return await message.channel.send("No images found!");
 
-    const submission = JSON.parse(JSON.stringify(randomSubmission[0]));
+    const submission = randomSubmission[0];
 
     const imgEmbed = new MessageEmbed()
         .setColor(EMBED_COLOUR)
@@ -113,26 +109,18 @@ export async function fetchSubmissions(subreddit: string, message: Message, limi
 
     // Fetch posts from the subreddit based on the limit (default 100) and stores them in the database
     // Only fetches posts that are hosted on reddit/imgur to avoid Embeds not loading
-    const hotSubmissions = RedditClient.getSubreddit(subreddit).getHot({ limit: limit });
-    const newSubmissions = RedditClient.getSubreddit(subreddit).getNew({ limit: limit });
-    const risingSubmissions = RedditClient.getSubreddit(subreddit).getRising({ limit: limit });
-    const topHour = RedditClient.getSubreddit(subreddit).getTop({ time: "hour", limit: limit });
-    const topDay = RedditClient.getSubreddit(subreddit).getTop({ time: "day", limit: limit });
-    const topWeek = RedditClient.getSubreddit(subreddit).getTop({ time: "week", limit: limit });
-    const topMonth = RedditClient.getSubreddit(subreddit).getTop({ time: "month", limit: limit });
-    const topYear = RedditClient.getSubreddit(subreddit).getTop({ time: "year", limit: limit });
-    const topAll = RedditClient.getSubreddit(subreddit).getTop({ time: "all", limit: limit });
+    const topSubmissions = [];
+    const timeSpans: Timespan[] = ["hour", "day", "week", "month", "year", "all"];
+
+    for (const mode of timeSpans) {
+        topSubmissions.push(RedditClient.getSubreddit(subreddit).getTop({ time: mode, limit: limit }));
+    }
 
     const submissionsArray = await Promise.all([
-        hotSubmissions,
-        newSubmissions,
-        risingSubmissions,
-        topHour,
-        topDay,
-        topWeek,
-        topMonth,
-        topYear,
-        topAll,
+        RedditClient.getSubreddit(subreddit).getHot({ limit: limit }),
+        RedditClient.getSubreddit(subreddit).getNew({ limit: limit }),
+        RedditClient.getSubreddit(subreddit).getRising({ limit: limit }),
+        ...topSubmissions,
     ]);
 
     for (const submissionType of submissionsArray) {
