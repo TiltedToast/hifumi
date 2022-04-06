@@ -54,7 +54,6 @@ export async function addEmoji(message: Message, prefix: string): Promise<Messag
     const fetchErrorMsg = await tools.downloadURL(url, `./temp/unknown.${imgType}`);
     if (fetchErrorMsg) return await message.channel.send(fetchErrorMsg);
 
-
     // Resizes image, checks size again and creates emoji
     if (!tools.isValidSize(`./temp/unknown.${imgType}`, 262144)) {
         await tools.resize(`./temp/unknown.${imgType}`, 128, `./temp/unknown_resized.${imgType}`);
@@ -85,9 +84,8 @@ export async function removeEmoji(message: Message, prefix: string): Promise<Mes
     const content = message.content.split(" ");
 
     try {
-        if (!(content.length === 3)) {
-            return await message.channel.send(`Usage: \`${prefix}emoji remove <emoji>\``);
-        }
+        if (content.length !== 3) return await message.channel.send(`Usage: \`${prefix}emoji remove <emoji>\``);
+
         const emojiString = content[2];
         const emojiID = tools.extractEmoji(emojiString, true);
         const emojis = message.guild?.emojis.cache;
@@ -111,9 +109,9 @@ export async function renameEmoji(message: Message, prefix: string): Promise<Mes
 
     try {
         const content = message.content.split(" ");
-        if (!(content.length === 4)) {
+        if (content.length !== 4)
             return await message.channel.send(`Usage: \`${prefix}emoji rename <new name> <emoji>\``);
-        }
+
         const newName = content[2];
         const emojiString = content[3];
         const emojiId = tools.extractEmoji(emojiString, true);
