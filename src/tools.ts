@@ -94,14 +94,14 @@ export function randomProperty(obj: Record<string, unknown>): unknown {
  * @param {Message} message Discord message object
  * @returns The user object
  */
-export async function getUserObjectPingId(message: Message): Promise<User | undefined> {
+export async function getUserObjectPingId(message: Message): Promise<User | null> {
     const content = message.content.split(" ");
 
     if (!isNaN(parseInt(content[1]))) {
         return await client.users.fetch(content[1]);
     }
     const user = message.mentions.users.first();
-    return user ? user : undefined;
+    return user ? user : null;
 }
 
 /**
