@@ -10,25 +10,20 @@ import { Document } from "mongodb";
 import { StatusDoc } from "./interfaces.js";
 import { promisify } from "util";
 import { exec } from "child_process";
-import sharp from "sharp";
 import { DEV_MODE, BOT_OWNER, DEV_CHANNELS } from "./config.js";
 
 const execPromise = promisify(exec);
 
-/**
- * Resizes an image file using sharp
- * @param  {string} fileLocation The location of the image file to resize
- * @param  {number} width The desired width of the image
- * @param  {string} saveLocation The location to save the resized image
- */
 export async function resize(fileLocation: string, width: number, saveLocation: string): Promise<void> {
-    // Sharp has a tendency to cache the image, so we need to clear the cache first
-    sharp.cache(false);
-    await sharp(fileLocation).resize(width).toFile(saveLocation);
-}
-
-export async function resizeGif(fileLocation: string, width: number, saveLocation: string): Promise<void> {
-    await execPromise(`gifsicle --resize-width ${width} ${fileLocation} > ${saveLocation}`);
+    if (fileLocation.endsWith(".gif")) {
+        await execPromise(`gifsicle --resize-width ${width} ${fileLocation} > ${saveLocation}`);
+    } else {
+        if (process.platform === "win32") {
+            await execPromise(`magick convert -resize ${width} ${fileLocation} ${saveLocation}`);
+        } else {
+            await execPromise(`convert -resize ${width} ${fileLocation} ${saveLocation}`);
+        }
+    }
 }
 
 /**
