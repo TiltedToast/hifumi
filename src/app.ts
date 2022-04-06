@@ -54,12 +54,12 @@ client.once("ready", async () => {
         prefixDict[prefixDoc.serverId] = prefixDoc.prefix;
     }
 
-    if (!isDev()) {
-        const channel = client.channels.cache.get("655484804405657642");
-        await (channel as TextChannel).send(
-            `Logged in as:\n${client.user.username}\nTime: ${time}\n--------------------------`
-        );
-    }
+    if (isDev()) return;
+
+    const channel = client.channels.cache.get("655484804405657642");
+    await (channel as TextChannel).send(
+        `Logged in as:\n${client.user.username}\nTime: ${time}\n--------------------------`
+    );
 });
 
 client.on("messageCreate", async (message: Message) => {
@@ -227,7 +227,7 @@ async function jsEval(message: Message) {
 
     if (!rslt.toString() || resultLength > 2000)
         return await message.channel.send("Invalid message length for discord!");
-    return await message.channel.send(rslt);
+    return await message.channel.send(rslt.toString());
 }
 
 async function avatarURL(message: Message) {
@@ -289,10 +289,8 @@ async function listCurrencies(message: Message) {
     }
 
     const currEmbed = new MessageEmbed().setColor(EMBED_COLOUR).setTitle(title);
-
-    // Loops over the columns and adds them to the embed
-    for (let i = 0; i < columns.length; i++) {
-        currEmbed.addField("\u200b", columns[i], true);
+    for (const column of columns) {
+        currEmbed.addField("\u200b", column, true);
     }
 
     await message.channel.send({ embeds: [currEmbed] });
