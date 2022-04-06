@@ -9,9 +9,9 @@ import { exec } from "child_process";
 import { isDev } from "./tools.js";
 import strftime from "strftime";
 import { Document, MongoClient, ObjectId } from "mongodb";
-import { ConvertResult } from "./interfaces/CurrencyConversion.js";
+import { ConvertResponse } from "./interfaces/ConvertResponse.js";
 import { StatusDoc } from "./interfaces/StatusDoc.js";
-import { UrbanEntry, UrbanResult } from "./interfaces/UrbanDictionary.js";
+import { UrbanEntry, UrbanResponse } from "./interfaces/UrbanResponse.js";
 
 import { Client, Intents, Message, MessageEmbed, TextChannel } from "discord.js";
 import { BOT_TOKEN, BOT_OWNER, EMBED_COLOUR, MONGO_URI, EXCHANGE_API_KEY } from "./config.js";
@@ -321,7 +321,7 @@ async function convert(message: Message, prefix: string): Promise<Message | unde
 
     const response = await fetch(`https://prime.exchangerate-api.com/v5/${EXCHANGE_API_KEY}/latest/${from}`);
     if (!response.ok) return await message.channel.send("Error! Please try again later");
-    const result = (await response.json()) as ConvertResult;
+    const result = (await response.json()) as ConvertResponse;
 
     // Checks for possible pointless conversions
     if (from === to) return await message.channel.send("Your first currency is the same as your second currency!");
@@ -353,7 +353,7 @@ async function urban(message: Message, prefix: string): Promise<Message> {
     const response = await fetch(`https://api.urbandictionary.com/v0/define?term=${query}`);
     if (!response.ok) return await message.channel.send(`Error ${response.status}! Please try again later`);
 
-    const result = (await response.json()) as UrbanResult;
+    const result = (await response.json()) as UrbanResponse;
 
     if (result["list"].length === 0) return message.channel.send("No results found!");
 
