@@ -7,7 +7,7 @@ import { mongoClient, client, statusArr } from "./app.js";
 import { AnyChannel, Client, Message, TextChannel, User } from "discord.js";
 import strftime from "strftime";
 import { Document } from "mongodb";
-import { StatusDoc } from "./interfaces.js";
+import { StatusDoc } from "./interfaces/StatusDoc.js";
 import { promisify } from "util";
 import { exec } from "child_process";
 import { DEV_MODE, BOT_OWNER, DEV_CHANNELS } from "./config.js";

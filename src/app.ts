@@ -9,7 +9,10 @@ import { exec } from "child_process";
 import { isDev } from "./tools.js";
 import strftime from "strftime";
 import { Document, MongoClient, ObjectId } from "mongodb";
-import { ConvertResult, StatusDoc, UrbanEntry, UrbanResult } from "./interfaces.js";
+import { ConvertResult } from "./interfaces/CurrencyConversion.js";
+import { StatusDoc } from "./interfaces/StatusDoc.js";
+import { UrbanEntry, UrbanResult } from "./interfaces/UrbanDictionary.js";
+
 import { Client, Intents, Message, MessageEmbed, TextChannel } from "discord.js";
 import { BOT_TOKEN, BOT_OWNER, EMBED_COLOUR, MONGO_URI, EXCHANGE_API_KEY } from "./config.js";
 
