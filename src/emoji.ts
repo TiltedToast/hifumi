@@ -1,6 +1,20 @@
 import * as tools from "./tools.js";
 import { Message, MessageAttachment, Permissions } from "discord.js";
 
+export async function linkEmoji(message: Message) {
+    let output = "";
+
+    const emojiRegex = new RegExp(/<a?:[a-zA-Z0-9]{1,32}:[0-9]{18}>/gi);
+
+    const emojis = message.content.match(emojiRegex);
+    if (!emojis) return await message.channel.send("You have to specify at least one emoji!");
+
+    for (const emoji of emojis) {
+        output += `${tools.extractEmoji(emoji)}\n`;
+    }
+    await message.channel.send(output);
+}
+
 export async function addEmoji(message: Message, prefix: string): Promise<Message | undefined> {
     let name = "",
         emoji,

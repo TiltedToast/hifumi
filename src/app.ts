@@ -132,6 +132,7 @@ client.on("messageCreate", async (message: Message) => {
             else if (command === "con") await console_cmd(message);
             else if (command === "qr") await imgProcess.qrCode(message);
             else if (command === "js") await jsEval(message);
+            else if (command === "link") await emoji.linkEmoji(message);
         }
 
         // Reacting to Miku's emote commands
