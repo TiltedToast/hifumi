@@ -5,7 +5,7 @@ import fetch from "node-fetch";
 import * as tools from "./tools.js";
 import { Message, MessageAttachment } from "discord.js";
 import { Headers } from "node-fetch";
-import { ImgurResult } from "./interfaces.js";
+import { ImgurResult } from "./interfaces/Imgur.js";
 import * as qrcode from "qrcode";
 import { IMGUR_CLIENT_ID } from "./config.js";
 
