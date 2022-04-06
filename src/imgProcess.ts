@@ -5,7 +5,7 @@ import fetch from "node-fetch";
 import * as tools from "./tools.js";
 import { Message, MessageAttachment } from "discord.js";
 import { Headers } from "node-fetch";
-import { ImgurResult } from "./interfaces/Imgur.js";
+import { ImgurResponse } from "./interfaces/ImgurResponse.js";
 import * as qrcode from "qrcode";
 import { IMGUR_CLIENT_ID } from "./config.js";
 
@@ -172,7 +172,7 @@ export async function imgur(message: Message, prefix: string, url?: string): Pro
         if (!response.ok) return message.channel.send("An unknown error occured while uploading!");
 
         const result = await response.json();
-        const imageLink = (result as ImgurResult)["data"]["link"];
+        const imageLink = (result as ImgurResponse)["data"]["link"];
         return await message.channel.send(imageLink);
     } else if (parseInt(response.headers["content-length"]) <= 10240000) {
         formdata.append("image", source);
@@ -181,7 +181,7 @@ export async function imgur(message: Message, prefix: string, url?: string): Pro
         if (!response.ok) return message.channel.send("An unknown error occured while uploading!");
 
         const result = await response.json();
-        const imageLink = (result as ImgurResult)["data"]["link"];
+        const imageLink = (result as ImgurResponse)["data"]["link"];
         return await message.channel.send(imageLink);
     } else {
         return await message.channel.send("File too large for Imgur! (10MB limit)");
