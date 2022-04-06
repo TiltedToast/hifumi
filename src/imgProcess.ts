@@ -7,15 +7,11 @@ import { Message, MessageAttachment } from "discord.js";
 import { Headers } from "node-fetch";
 import { ImgurResult } from "./interfaces.js";
 import * as qrcode from "qrcode";
-import { exec } from "child_process";
-import { promisify } from "util";
 import { IMGUR_CLIENT_ID } from "./config.js";
 
-import sharp from "sharp";
 import canvas from "canvas";
 import axios from "axios";
 
-const execPromise = promisify(exec);
 
 export async function beautiful(message: Message): Promise<Message | undefined> {
     tools.createTemp("temp");
@@ -41,7 +37,7 @@ export async function beautiful(message: Message): Promise<Message | undefined> 
     const fetchErrorMsg = await tools.downloadURL(avatarURL, `./temp/avatar.png`);
     if (fetchErrorMsg) return await message.channel.send(fetchErrorMsg);
 
-    await resize("./temp/avatar.png", 180, "./temp/avatar_resized.png");
+    await tools.resize("./temp/avatar.png", 180, "./temp/avatar_resized.png");
 
     // Creates a canvas and adds avatar as well as the background to it
     const beautifulCanvas = new canvas.Canvas(640, 674);
@@ -76,21 +72,6 @@ export async function qrCode(message: Message): Promise<Message> {
     return await message.channel.send({ files: ["./temp/qr.png"] });
 }
 
-/**
- * Resizes an image file using sharp
- * @param  {string} fileLocation The location of the image file to resize
- * @param  {number} width The desired width of the image
- * @param  {string} saveLocation The location to save the resized image
- */
-export async function resize(fileLocation: string, width: number, saveLocation: string): Promise<void> {
-    // Sharp has a tendency to cache the image, so we need to clear the cache first
-    sharp.cache(false);
-    await sharp(fileLocation).resize(width).toFile(saveLocation);
-}
-
-async function resizeGif(fileLocation: string, width: number, saveLocation: string): Promise<void> {
-    await execPromise(`gifsicle --resize-width ${width} ${fileLocation} > ${saveLocation}`);
-}
 
 export async function resizeImg(message: Message, prefix: string): Promise<Message> {
     tools.createTemp("temp");
@@ -125,9 +106,9 @@ export async function resizeImg(message: Message, prefix: string): Promise<Messa
     if (fetchErrorMsg) return await message.channel.send(fetchErrorMsg);
 
     if (imgType === "gif") {
-        await resizeGif(`./temp/unknown.${imgType}`, width, `./temp/unknown_resized.${imgType}`);
+        await tools.resizeGif(`./temp/unknown.${imgType}`, width, `./temp/unknown_resized.${imgType}`);
     } else {
-        await resize(`./temp/unknown.${imgType}`, width, `./temp/unknown_resized.${imgType}`);
+        await tools.resize(`./temp/unknown.${imgType}`, width, `./temp/unknown_resized.${imgType}`);
     }
 
     if (!tools.isValidSize(`./temp/unknown_resized.${imgType}`, 8192000)) {
