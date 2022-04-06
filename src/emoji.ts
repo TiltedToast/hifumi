@@ -1,6 +1,5 @@
 import * as tools from "./tools.js";
 import { Message, MessageAttachment, Permissions } from "discord.js";
-import * as imgProcess from "./imgProcess.js";
 
 export async function addEmoji(message: Message, prefix: string): Promise<Message | undefined> {
     let name = "",
@@ -55,14 +54,10 @@ export async function addEmoji(message: Message, prefix: string): Promise<Messag
     const fetchErrorMsg = await tools.downloadURL(url, `./temp/unknown.${imgType}`);
     if (fetchErrorMsg) return await message.channel.send(fetchErrorMsg);
 
-    // 256KB max size
-    if (!tools.isValidSize(`./temp/unknown.${imgType}`, 262144) && imgType === "gif") {
-        return message.channel.send("Gif too large for Discord!");
-    }
 
     // Resizes image, checks size again and creates emoji
     if (!tools.isValidSize(`./temp/unknown.${imgType}`, 262144)) {
-        await imgProcess.resize(`./temp/unknown.${imgType}`, 128, `./temp/unknown_resized.${imgType}`);
+        await tools.resize(`./temp/unknown.${imgType}`, 128, `./temp/unknown_resized.${imgType}`);
 
         if (!tools.isValidSize(`./temp/unknown_resized.${imgType}`, 262144)) {
             return message.channel.send("File too large for Discord, even after resizing!");

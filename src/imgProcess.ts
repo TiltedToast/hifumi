@@ -105,11 +105,7 @@ export async function resizeImg(message: Message, prefix: string): Promise<Messa
     const fetchErrorMsg = await tools.downloadURL(source, `./temp/unknown.${imgType}`);
     if (fetchErrorMsg) return await message.channel.send(fetchErrorMsg);
 
-    if (imgType === "gif") {
-        await tools.resizeGif(`./temp/unknown.${imgType}`, width, `./temp/unknown_resized.${imgType}`);
-    } else {
-        await tools.resize(`./temp/unknown.${imgType}`, width, `./temp/unknown_resized.${imgType}`);
-    }
+    await tools.resize(`./temp/unknown.${imgType}`, width, `./temp/unknown_resized.${imgType}`);
 
     if (!tools.isValidSize(`./temp/unknown_resized.${imgType}`, 8192000)) {
         return await message.channel.send("File too large for Discord!");
