@@ -77,7 +77,7 @@ export async function addEmoji(message: Message, prefix: string): Promise<Messag
         }
         if (message.guild === null) return message.channel.send("You can't add emojis to DMs!");
         emoji = await message.guild.emojis.create(`./temp/unknown_resized.${imgType}`, name);
-    } else if (tools.isValidSize(`./temp/unknown.${imgType}`, 262144)) {
+    } else {
         if (message.guild === null) return message.channel.send("You can't add emojis to DMs!");
         emoji = await message.guild.emojis.create(`./temp/unknown.${imgType}`, name);
     }
