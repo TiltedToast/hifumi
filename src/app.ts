@@ -244,7 +244,7 @@ async function avatar(message: Message) {
     const user = content.length === 1 ? message.author : await tools.getUserObjectPingId(message);
     if (!user) {
         return await message.channel.send(
-            "Couldn't find the specified User, Discord may be having issues with their API"
+            "Couldn't find the specified User!"
         );
     }
 

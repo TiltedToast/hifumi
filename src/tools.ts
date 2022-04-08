@@ -95,13 +95,19 @@ export function randomProperty(obj: Record<string, unknown>): unknown {
  * @returns The user object
  */
 export async function getUserObjectPingId(message: Message): Promise<User | null> {
+    let user: User | undefined;
     const content = message.content.split(" ");
+    const pingOrIdString = content[1];
 
-    if (!isNaN(parseInt(content[1]))) {
-        return await client.users.fetch(content[1]);
+    try {
+        if (!isNaN(parseInt(pingOrIdString))) {
+            user = await client.users.fetch(pingOrIdString);
+        }
+        if (!user && pingOrIdString.startsWith("<")) user = message.mentions.users.first();
+        return user ? user : null;
+    } catch (err) {
+        return null;
     }
-    const user = message.mentions.users.first();
-    return user ? user : null;
 }
 
 /**
