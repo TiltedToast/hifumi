@@ -99,21 +99,18 @@ export async function sub(message: Message, prefix: string): Promise<Message> {
 }
 
 export async function fetchSubmissions(subreddit: string, message: Message, limit = 100) {
-    let counter = 0;
+    const posts: Snoowrap.Submission[] = [];
     const db = mongoClient.db("reddit");
 
     // Make sure there's a collection ready for the subreddit
     if (db.collection(`${subreddit}`) === null) await db.createCollection(`${subreddit}`);
 
     const collection = db.collection(`${subreddit}`);
-
-    // Fetch posts from the subreddit based on the limit (default 100) and stores them in the database
-    // Only fetches posts that are hosted on reddit/imgur to avoid Embeds not loading
     const topSubmissions = [];
     const timeSpans: Timespan[] = ["hour", "day", "week", "month", "year", "all"];
 
-    for (const mode of timeSpans) {
-        topSubmissions.push(RedditClient.getSubreddit(subreddit).getTop({ time: mode, limit: limit }));
+    for (const timeSpan of timeSpans) {
+        topSubmissions.push(RedditClient.getSubreddit(subreddit).getTop({ time: timeSpan, limit: limit }));
     }
 
     const submissionsArray = await Promise.all([
@@ -130,13 +127,13 @@ export async function fetchSubmissions(subreddit: string, message: Message, limi
                 !submission.is_self &&
                 (submission.url.includes("i.redd.it") || submission.url.includes("i.imgur.com"))
             ) {
-                // This is on purpose, somehow it doesn't recognise submission 
+                // This is on purpose, somehow it doesn't recognise submission
                 // as json that can be put into the db
-                await collection.insertOne(JSON.parse(JSON.stringify(submission)));
-                counter++;
+                posts.push(JSON.parse(JSON.stringify(submission)));
             }
         }
     }
 
-    await message.channel.send(`Fetched ${counter} new images for ${subreddit}`);
+    await collection.insertMany(posts);
+    await message.channel.send(`Fetched ${posts.length} new images for ${subreddit}`);
 }
