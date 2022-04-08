@@ -119,7 +119,7 @@ client.on("messageCreate", async (message: Message) => {
             } else if (["status", "stat"].includes(command)) await database.insertStatus(message);
             else if (["commands", "command", "comm", "com", "help"].includes(command)) await helpCmd(message, prefix);
             else if (["convert", "conv", "c"].includes(command)) await convert(message, prefix);
-            else if (["avatar", "pfp"].includes(command)) await avatarURL(message);
+            else if (["avatar", "pfp"].includes(command)) await avatar(message);
             else if (command === "currencies") await listCurrencies(message);
             else if (command === "bye") await bye(message);
             else if (command === "urban") await urban(message, prefix);
@@ -231,7 +231,7 @@ async function jsEval(message: Message) {
     return await message.channel.send(rslt.toString());
 }
 
-async function avatarURL(message: Message) {
+async function avatar(message: Message) {
     // Checks for invalid provided User ID
     let url: string;
     const content = message.content.split(" ");
