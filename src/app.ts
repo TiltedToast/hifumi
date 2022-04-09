@@ -8,7 +8,7 @@ import fetch from "node-fetch";
 import { exec } from "child_process";
 import { isDev } from "./tools.js";
 import strftime from "strftime";
-import { Document, MongoClient, ObjectId } from "mongodb";
+import { Document, MongoClient } from "mongodb";
 import { ConvertResponse } from "./interfaces/ConvertResponse.js";
 import { StatusDoc } from "./interfaces/StatusDoc.js";
 import { UrbanEntry, UrbanResponse } from "./interfaces/UrbanResponse.js";
@@ -243,9 +243,7 @@ async function avatar(message: Message) {
 
     const user = content.length === 1 ? message.author : await tools.getUserObjectPingId(message);
     if (!user) {
-        return await message.channel.send(
-            "Couldn't find the specified User!"
-        );
+        return await message.channel.send("Couldn't find the specified User!");
     }
 
     const userID = user.id;
@@ -267,10 +265,7 @@ async function avatar(message: Message) {
 }
 
 async function listCurrencies(message: Message) {
-    const currencies = await mongoClient
-        .db("hifumi")
-        .collection("currencies")
-        .findOne({ _id: new ObjectId("620bb1d76e6a2b90f475d556") });
+    const currencies = (await mongoClient.db("hifumi").collection("currencies").find().toArray())[0];
 
     if (currencies === null) return await message.channel.send("Couldn't find any currencies in the database");
 
@@ -303,10 +298,7 @@ async function convert(message: Message, prefix: string): Promise<Message | unde
     if (content.length !== 4)
         return await message.channel.send(`Usage: \`${prefix}convert <amount of money> <cur1> <cur2>\``);
 
-    const currencies = await mongoClient
-        .db("hifumi")
-        .collection("currencies")
-        .findOne({ _id: new ObjectId("620bb1d76e6a2b90f475d556") });
+    const currencies = (await mongoClient.db("hifumi").collection("currencies").find().toArray())[0];
 
     if (currencies === null) return await message.channel.send("Couldn't find any currencies in the database");
 
