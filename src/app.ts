@@ -143,9 +143,9 @@ client.on("messageCreate", async (message: Message) => {
             message.content.startsWith(`$${reactCmd} <@${botId}>`) ||
             message.content.startsWith(`$${reactCmd} <@!${botId}>`)
         ) {
-            const reactionsColl = mongoClient.db("hifumi").collection("mikuReactions");
-            const cmdAliases = await reactionsColl.findOne({ _id: new ObjectId("61ed5a24955085f3e99f7c03") });
-            const reactMsgs = await reactionsColl.findOne({ _id: new ObjectId("61ed5cb4955085f3e99f7c0c") });
+            const mikuReactions = await mongoClient.db("hifumi").collection("mikuReactions").find().toArray();
+            const cmdAliases = mikuReactions[0];
+            const reactMsgs = mikuReactions[1];
 
             if (cmdAliases === null || reactMsgs === null) {
                 await message.channel.send("Couldn't find the necessary entries in the database");
