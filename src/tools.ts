@@ -34,10 +34,10 @@ export async function resize(fileLocation: string, width: number, saveLocation: 
  */
 export async function parseDbArgs(start: number, content: string[]): Promise<Document> {
     const document: Document = {};
-
+    const evenOrOdd = start % 2 === 0 ? 0 : 1;
     // Loops over the argument pairs and adds them to as key value pairs in the document
     for (let i = start; i < content.length; i++) {
-        if (i % 2 === 0) {
+        if (i % 2 === evenOrOdd) {
             if (content[i + 1].includes("_")) {
                 document[content[i]] = content[i + 1].replace(/_/g, " ");
             } else {
