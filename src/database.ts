@@ -8,7 +8,7 @@ export async function insert(message: Message) {
     if (message.author.id !== BOT_OWNER) return;
 
     const content = message.content.split(" ");
-    if (!(content.length >= 6) && content.length % 2 !== 0) return await message.channel.send("Invalid syntax!");
+    if (content.length <= 6 && content.length % 2 !== 0) return await message.channel.send("Invalid syntax!");
 
     if (isDev()) await message.channel.send("Add your stuff to the cloud db instead <:emiliaSMH:747132102645907587>");
 
@@ -29,7 +29,7 @@ export async function update(message: Message) {
 
     const content = message.content.split(" ");
 
-    if (!(content.length >= 8) && content.length % 2 !== 0) return await message.channel.send("Invalid syntax!");
+    if (content.length <= 8 && content.length % 2 !== 0) return await message.channel.send("Invalid syntax!");
 
     if (isDev()) await message.channel.send("Update the cloud db instead <:emiliaSMH:747132102645907587>");
 
@@ -54,7 +54,7 @@ export async function insertStatus(message: Message) {
 
     const content = message.content.split(" ");
 
-    if (!(content.length >= 3)) return await message.channel.send("Invalid syntax!");
+    if (content.length <= 3) return await message.channel.send("Invalid syntax!");
 
     if (isDev())
         await message.channel.send("Add your statuses to the cloud db instead <:emiliaSMH:747132102645907587>");
@@ -86,7 +86,7 @@ export async function updatePrefix(message: Message) {
     const collection = mongoClient.db("hifumi").collection("prefixes");
 
     // Syntax check as well as avoiding cluttering the database with long impractical prefixes
-    if (!(content.length === 2)) return await message.channel.send("Invalid syntax!");
+    if (content.length !== 2) return await message.channel.send("Invalid syntax!");
     if (content[1].length > 5) return await message.channel.send("Prefix too long!");
 
     if (isDev()) await message.channel.send("Wrong database <:emiliaSMH:747132102645907587>");
