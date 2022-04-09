@@ -168,7 +168,7 @@ export function errorLog(message: Message, errorObject: Error) {
     if (fullErrorMsg.length <= 2000) {
         errorMessage = fullErrorMsg;
     } else if (postCutErrorMessage.length > 2000) {
-        errorMessage = `An Error occurred on ${currentTime}\nCheck console for full error (2000 character limit)\n<@258993932262834188>`;
+        errorMessage = `An Error occurred on ${currentTime}\nCheck console for full error (2000 character limit)\n<@${BOT_OWNER}>`;
     } else {
         errorMessage = postCutErrorMessage;
     }
