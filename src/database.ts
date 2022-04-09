@@ -8,7 +8,7 @@ export async function insert(message: Message) {
     if (message.author.id !== BOT_OWNER) return;
 
     const content = message.content.split(" ");
-    if (content.length <= 6 && content.length % 2 !== 0) return await message.channel.send("Invalid syntax!");
+    if (content.length < 6 || content.length % 2 !== 0) return await message.channel.send("Invalid syntax!");
 
     if (isDev()) await message.channel.send("Add your stuff to the cloud db instead <:emiliaSMH:747132102645907587>");
 
@@ -29,7 +29,7 @@ export async function update(message: Message) {
 
     const content = message.content.split(" ");
 
-    if (content.length <= 8 && content.length % 2 !== 0) return await message.channel.send("Invalid syntax!");
+    if (content.length < 8 || content.length % 2 !== 0) return await message.channel.send("Invalid syntax!");
 
     if (isDev()) await message.channel.send("Update the cloud db instead <:emiliaSMH:747132102645907587>");
 
@@ -38,14 +38,15 @@ export async function update(message: Message) {
 
     const filterDoc = { [content[4]]: content[5] };
 
-    const updateDoc = await tools.parseDbArgs(6, content);
+    const newValues = await tools.parseDbArgs(6, content);
 
     const collection = mongoClient.db(dbName).collection(collectionName);
-    await collection.updateOne(filterDoc, { $set: updateDoc });
+    const updateDoc = await collection.findOneAndUpdate(filterDoc, { $set: newValues });
+    if (!updateDoc["ok"]) return await message.channel.send("Couldn't update document");    
+
+    const updatedDoc = await collection.findOne(newValues);
 
     await message.channel.send(`Updated document in ${dbName}.${collectionName}`);
-
-    const updatedDoc = collection.findOne(updateDoc);
     await message.channel.send(`\`\`\`json\n${JSON.stringify(updatedDoc, null, 4)}\n\`\`\``);
 }
 
@@ -54,7 +55,7 @@ export async function insertStatus(message: Message) {
 
     const content = message.content.split(" ");
 
-    if (content.length <= 3) return await message.channel.send("Invalid syntax!");
+    if (content.length < 3) return await message.channel.send("Invalid syntax!");
 
     if (isDev())
         await message.channel.send("Add your statuses to the cloud db instead <:emiliaSMH:747132102645907587>");
