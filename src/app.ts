@@ -12,7 +12,6 @@ import { Document, MongoClient } from "mongodb";
 import { ConvertResponse } from "./interfaces/ConvertResponse.js";
 import { StatusDoc } from "./interfaces/StatusDoc.js";
 import { UrbanEntry, UrbanResponse } from "./interfaces/UrbanResponse.js";
-
 import { Client, Intents, Message, MessageEmbed, TextChannel } from "discord.js";
 import { BOT_TOKEN, BOT_OWNER, EMBED_COLOUR, MONGO_URI, EXCHANGE_API_KEY } from "./config.js";
 
@@ -54,12 +53,16 @@ client.once("ready", async () => {
         prefixDict[prefixDoc.serverId] = prefixDoc.prefix;
     }
 
+    const catFactChannel = client.channels.cache.get("655484859405303809");
+    await tools.sendRandomCatFact(catFactChannel as TextChannel);
+
     if (isDev()) return;
 
     const channel = client.channels.cache.get("655484804405657642");
     await (channel as TextChannel).send(
         `Logged in as:\n${client.user.username}\nTime: ${time}\n--------------------------`
     );
+
 });
 
 client.on("messageCreate", async (message: Message) => {
