@@ -11,6 +11,7 @@ import { StatusDoc } from "./interfaces/StatusDoc.js";
 import { promisify } from "util";
 import { exec } from "child_process";
 import { DEV_MODE, BOT_OWNER, DEV_CHANNELS } from "./config.js";
+import { CatFactResponse } from "./interfaces/CatFactResponse.js";
 
 const execPromise = promisify(exec);
 
@@ -54,6 +55,14 @@ export async function parseDbArgs(start: number, content: string[]): Promise<Doc
  */
 export function isDev(): boolean {
     return DEV_MODE === "true";
+}
+
+export async function sendRandomCatFact(channel: TextChannel): Promise<void> {
+    setInterval(async () => {
+        const response = await fetch("https://catfact.ninja/fact");
+        const json = (await response.json()) as CatFactResponse;
+        await channel.send(json.fact);
+    }, randomIntFromRange(54000000, 86400000)); // 15h-24h
 }
 
 /**
