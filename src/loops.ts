@@ -3,6 +3,7 @@ import { CatFactResponse } from "./interfaces/CatFactResponse";
 import { StatusDoc } from "./interfaces/StatusDoc";
 import { TextChannel, Client } from "discord.js";
 import { statusArr } from "./app.js";
+import fetch from "node-fetch";
 
 export async function startCatFactLoop(channel: TextChannel): Promise<void> {
     setInterval(async () => {
