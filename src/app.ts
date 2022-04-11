@@ -12,6 +12,7 @@ import { Document, MongoClient } from "mongodb";
 import { ConvertResponse } from "./interfaces/ConvertResponse.js";
 import { StatusDoc } from "./interfaces/StatusDoc.js";
 import { UrbanEntry, UrbanResponse } from "./interfaces/UrbanResponse.js";
+import { startCatFactLoop, startStatusLoop } from "./loops.js";
 import { Client, Intents, Message, MessageEmbed, TextChannel } from "discord.js";
 import { BOT_TOKEN, BOT_OWNER, EMBED_COLOUR, MONGO_URI, EXCHANGE_API_KEY } from "./config.js";
 
@@ -44,7 +45,7 @@ client.once("ready", async () => {
     const randomStatus = randomStatusDoc.status;
 
     client.user.setActivity(randomStatus, { type: randomType });
-    await tools.setRandomStatus(client);
+    await startStatusLoop(client);
 
     // Gets all prefixes from the database and puts them into a dictionary to avoid reading
     // The database every time a message is received
@@ -54,7 +55,7 @@ client.once("ready", async () => {
     }
 
     const catFactChannel = client.channels.cache.get("655484859405303809");
-    await tools.sendRandomCatFact(catFactChannel as TextChannel);
+    await startCatFactLoop(catFactChannel as TextChannel);
 
     if (isDev()) return;
 
