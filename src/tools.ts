@@ -3,15 +3,13 @@ import * as fs from "fs";
 import * as path from "path";
 import fetch from "node-fetch";
 import { Headers } from "node-fetch";
-import { mongoClient, client, statusArr } from "./app.js";
-import { AnyChannel, Client, Message, TextChannel, User } from "discord.js";
+import { mongoClient, client } from "./app.js";
+import { AnyChannel, Message, TextChannel, User } from "discord.js";
 import strftime from "strftime";
 import { Document } from "mongodb";
-import { StatusDoc } from "./interfaces/StatusDoc.js";
 import { promisify } from "util";
 import { exec } from "child_process";
 import { DEV_MODE, BOT_OWNER, DEV_CHANNELS } from "./config.js";
-import { CatFactResponse } from "./interfaces/CatFactResponse.js";
 
 const execPromise = promisify(exec);
 
@@ -55,29 +53,6 @@ export async function parseDbArgs(start: number, content: string[]): Promise<Doc
  */
 export function isDev(): boolean {
     return DEV_MODE === "true";
-}
-
-export async function sendRandomCatFact(channel: TextChannel): Promise<void> {
-    setInterval(async () => {
-        const response = await fetch("https://catfact.ninja/fact");
-        const json = (await response.json()) as CatFactResponse;
-        await channel.send(json.fact);
-    }, randomIntFromRange(54000000, 86400000)); // 15h-24h
-}
-
-/**
- * Starts a loop which periodically changes the status to a random entry in the database
- * @param {Client} client Discord client which is used to access the API
- */
-export async function setRandomStatus(client: Client) {
-    setInterval(async () => {
-        if (!client.user) return console.log("Could not set status, client user is undefined");
-        const randomStatusDoc = randomElementArray(statusArr) as StatusDoc;
-        const randomType = randomStatusDoc.type;
-        const randomStatus = randomStatusDoc.status;
-
-        client.user.setActivity(randomStatus, { type: randomType });
-    }, randomIntFromRange(300000, 900000));
 }
 
 /**
