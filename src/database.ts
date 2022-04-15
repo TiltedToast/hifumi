@@ -42,7 +42,7 @@ export async function update(message: Message) {
 
     const collection = mongoClient.db(dbName).collection(collectionName);
     const updateDoc = await collection.findOneAndUpdate(filterDoc, { $set: newValues });
-    if (!updateDoc["ok"]) return await message.channel.send("Couldn't update document");    
+    if (!updateDoc["ok"]) return await message.channel.send("Couldn't update document");
 
     const updatedDoc = await collection.findOne(newValues);
 
@@ -57,11 +57,15 @@ export async function insertStatus(message: Message) {
 
     if (content.length < 3) return await message.channel.send("Invalid syntax!");
 
-    if (isDev())
-        await message.channel.send("Add your statuses to the cloud db instead <:emiliaSMH:747132102645907587>");
-
     const status = content.slice(2).join(" ");
     const type = content[1].toUpperCase();
+
+    if (!["LISTENING", "STREAMING", "WATCHING", "PLAYING", "COMPETING"].includes(type)) {
+        return await message.channel.send("Invalid type!");
+    }
+
+    if (isDev())
+        await message.channel.send("Add your statuses to the cloud db instead <:emiliaSMH:747132102645907587>");
 
     // Uppercases the type to conform to discord's API
     const document = {
