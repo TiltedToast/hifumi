@@ -100,7 +100,7 @@ export async function resizeImg(message: Message, prefix: string): Promise<Messa
     // Downloads the image and resizes it
     // Sends the resized image to the channel if it's within the size limit
     const imgType = !source.includes("gif") ? tools.getImgType(source) : "gif";
-    if (imgType === "unknown") return await message.channel.send("Invalid image type!");
+    if (imgType === null) return await message.channel.send("Invalid image type!");
 
     const fetchErrorMsg = await tools.downloadURL(source, `./temp/unknown.${imgType}`);
     if (fetchErrorMsg) return await message.channel.send(fetchErrorMsg);
@@ -140,7 +140,7 @@ export async function imgur(message: Message, prefix: string, url?: string): Pro
 
     tools.createTemp("temp");
     const imgType = tools.getImgType(source);
-    if (imgType === "unknown") return await message.channel.send("Invalid image type!");
+    if (imgType === null) return await message.channel.send("Invalid image type!");
     const myHeaders = new Headers();
     const formdata = new FormData();
     myHeaders.append("Authorization", `Client-ID ${IMGUR_CLIENT_ID}`);
