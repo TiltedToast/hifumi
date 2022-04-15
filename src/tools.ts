@@ -201,12 +201,12 @@ export async function downloadURL(url: string, saveLocation: string) {
  * @param {String} url The URL to whatever image you want to get the extension of
  * @returns {String} The file extension of the image
  */
-export function getImgType(url: string): string {
+export function getImgType(url: string): string | null {
     if (url.includes(".png") || url.includes(".webp")) return "png";
     else if (url.includes(".jpeg") || url.includes(".jpg")) return "jpeg";
     else if (url.includes(".gif")) return "gif";
     else if (url.includes(".svg")) return "svg";
-    return "unknown";
+    return null;
 }
 
 /**

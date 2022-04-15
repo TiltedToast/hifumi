@@ -1,5 +1,5 @@
 import * as tools from "./tools.js";
-import { Message, MessageAttachment, Permissions } from "discord.js";
+import { Message, MessageAttachment, Permissions, GuildEmoji } from "discord.js";
 
 export async function linkEmoji(message: Message) {
     let output = "";
@@ -30,7 +30,7 @@ export async function addEmoji(message: Message, prefix: string): Promise<Messag
         return await message.channel.send(`Usage: \`${prefix}emoji add <name> <url/emoji>\``);
     } else if (content.length === 2 && message.attachments.size > 0) {
         return await message.channel.send("You have to specify a name!");
-    } else if (content.length === 3 && message.content.startsWith("http")) {
+    } else if (content.length === 3 && content[2].startsWith("http")) {
         return await message.channel.send("You have to specify a name!");
     }
 
@@ -39,6 +39,48 @@ export async function addEmoji(message: Message, prefix: string): Promise<Messag
         name = content[2].split(":")[1];
     } else {
         name = content[2];
+    }
+
+    const emojiRegex = new RegExp(/<a?:[a-zA-Z0-9]{1,32}:[0-9]{18}>/gi);
+    const emojis = message.content.match(emojiRegex);
+
+    tools.createTemp("temp");
+
+    if (emojis?.includes(content[2])) {
+        let output = "";
+        let msg: string;
+        let emoji: GuildEmoji | undefined;
+
+        for (const emojiStr of emojis) {
+            const url = tools.extractEmoji(emojiStr);
+            const imgType = tools.getImgType(url);
+            const name = emojiStr.split(":")[1];
+            const filePath = `temp/${name}.${imgType}`;
+
+            await tools.downloadURL(url, filePath);
+
+            try {
+                emoji = await message.guild?.emojis.create(filePath, name);
+            } catch (error) {
+                await message.channel.send(`Could not add ${name}, you've hit the limit!`);
+                continue;
+            }
+            if (emoji === undefined) {
+                await message.channel.send("Couldn't create emoji, Discord might be having issues with their API!");
+                continue;
+            }
+
+            if (imgType === "gif") {
+                msg = `<a:${emoji.name}:${emoji.id}>`;
+            } else if (imgType !== "gif") {
+                msg = `<:${emoji.name}:${emoji.id}>`;
+            } else {
+                msg = emojiStr;
+            }
+
+            output += `${msg}\n`;
+        }
+        return await message.channel.send(output);
     }
 
     if (!(2 < name.length && name.length < 32))
