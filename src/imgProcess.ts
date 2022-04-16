@@ -43,7 +43,7 @@ export async function beautiful(message: Message): Promise<Message | undefined> 
     const beautifulCanvas = new canvas.Canvas(640, 674);
     const ctx = beautifulCanvas.getContext("2d");
     const avatar = await canvas.loadImage("./temp/avatar_resized.png");
-    const background = await canvas.loadImage("./src/files/background.png")
+    const background = await canvas.loadImage("./src/assets/background.png")
 
     ctx.drawImage(avatar, 422, 35);
     ctx.drawImage(avatar, 430, 377);
