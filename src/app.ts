@@ -175,6 +175,7 @@ client.on("messageCreate", async (message: Message) => {
 async function helpCmd(message: Message, prefix: string) {
     let helpMsg = "";
     const helpMsgArray = await mongoClient.db("hifumi").collection("helpMsgs").find().sort({ cmd: 1 }).toArray();
+    if (helpMsgArray.length === 0) return await message.channel.send("Seems there aren't any help messages saved in the database");
 
     for (const helpMsgObj of helpMsgArray) {
         helpMsg += `**${prefix}${helpMsgObj.cmd}** - ${helpMsgObj.desc}\n`;
