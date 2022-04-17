@@ -27,15 +27,15 @@ export async function resize(fileLocation: string, width: number, saveLocation: 
 
 /**
  * Parses key value pairs from discord messages into a JavaScript object that can be used to interact with the Database
- * @param  {number} start The content index after which arguments are expected to be present
+ * @param  {number} startIndex The content index after which arguments are expected to be present
  * @param {string[]} content The content of the message after being split by spaces
  * @returns Promise that resolves into the parsed argument document
  */
-export async function parseDbArgs(start: number, content: string[]): Promise<Document> {
+export async function parseDbArgs(startIndex: number, content: string[]): Promise<Document> {
     const document: Document = {};
-    const evenOrOdd = start % 2 === 0 ? 0 : 1;
+    const evenOrOdd = startIndex % 2 === 0 ? 0 : 1;
     // Loops over the argument pairs and adds them to as key value pairs in the document
-    for (let i = start; i < content.length; i++) {
+    for (let i = startIndex; i < content.length; i++) {
         if (i % 2 === evenOrOdd) {
             if (content[i + 1].includes("_")) {
                 document[content[i]] = content[i + 1].replace(/_/g, " ");
@@ -84,9 +84,7 @@ export async function getUserObjectPingId(message: Message): Promise<User | null
     const pingOrIdString = content[1];
 
     try {
-        if (!isNaN(parseInt(pingOrIdString))) {
-            user = await client.users.fetch(pingOrIdString);
-        }
+        if (!isNaN(parseInt(pingOrIdString))) user = await client.users.fetch(pingOrIdString);
         if (!user && pingOrIdString.startsWith("<")) user = message.mentions.users.first();
         return user ? user : null;
     } catch (err) {
