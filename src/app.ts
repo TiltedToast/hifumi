@@ -63,7 +63,6 @@ client.once("ready", async () => {
     await (channel as TextChannel).send(
         `Logged in as:\n${client.user.username}\nTime: ${time}\n--------------------------`
     );
-
 });
 
 client.on("messageCreate", async (message: Message) => {
@@ -137,6 +136,7 @@ client.on("messageCreate", async (message: Message) => {
             else if (command === "qr") await imgProcess.qrCode(message);
             else if (command === "js") await jsEval(message);
             else if (command === "link") await emoji.linkEmoji(message);
+            else if (command === "leet") await leet(message);
         }
 
         // Reacting to Miku's emote commands
@@ -172,10 +172,33 @@ client.on("messageCreate", async (message: Message) => {
     }
 });
 
+async function leet(message: Message) {
+    const inputWords = message.content.split(" ").slice(1);
+    const leetDoc = (await mongoClient.db("hifumi").collection("leet").find().toArray())[0];
+
+    if (leetDoc === null) return message.channel.send("Couldn't find the necessary entries in the database");
+
+
+    const leetOutput = inputWords
+        .map((word) => {
+            return word
+                .split("")
+                .map((char) => {
+                    if (char in leetDoc) return tools.randomElementArray(leetDoc[char]);
+                    return char;
+                })
+                .join("");
+        })
+        .join(" ");
+
+    return await message.channel.send(leetOutput);
+}
+
 async function helpCmd(message: Message, prefix: string) {
     let helpMsg = "";
     const helpMsgArray = await mongoClient.db("hifumi").collection("helpMsgs").find().sort({ cmd: 1 }).toArray();
-    if (helpMsgArray.length === 0) return await message.channel.send("Seems there aren't any help messages saved in the database");
+    if (helpMsgArray.length === 0)
+        return await message.channel.send("Seems there aren't any help messages saved in the database");
 
     for (const helpMsgObj of helpMsgArray) {
         helpMsg += `**${prefix}${helpMsgObj.cmd}** - ${helpMsgObj.desc}\n`;
