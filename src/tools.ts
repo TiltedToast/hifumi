@@ -123,12 +123,18 @@ export function errorLog(message: Message, errorObject: Error) {
     if (!message.guild) return message.channel.send(`Unknown guild!`);
     if (!errorObject) return message.channel.send(`Unknown error!`);
 
-    const errorMessageWithoutStack = `An Error occurred on ${currentTime}
-    **Server:** ${message.guild.name} - ${message.guild.id}
-    **Room:** ${(message.channel as TextChannel).name} - ${message.channel.id}
-    **User:** ${message.author.username} - ${message.author.id}
-    **Command used:** ${message.content}
-    **Error:** ${errorObject.message}`;
+    const commandUsed =
+        message.content.substring(0, 500).split(" ").slice(0, -1).join(" ") +
+        (message.content.substring(0, 1000) !== message.content ? "..." : "");
+
+    const errorMessageWithoutStack = [
+        `An Error occurred on ${currentTime}`,
+        `**Server:** ${message.guild.name} - ${message.guild.id}`,
+        `**Room:** ${(message.channel as TextChannel).name} - ${message.channel.id}`,
+        `**User:** ${message.author.username} - ${message.author.id}`,
+        `**Command used:** ${commandUsed}`,
+        `**Error:** ${errorObject.message}`,
+    ].join("\n");
 
     const fullErrorMsg = `${errorMessageWithoutStack}\n\n**${errorObject.stack}**\n\n<@${BOT_OWNER}>`;
     const preCutErrorMessage = fullErrorMsg.substring(0, 1900 - errorMessageWithoutStack.length);
