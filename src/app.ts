@@ -13,7 +13,7 @@ import { ConvertResponse } from "./interfaces/ConvertResponse.js";
 import { StatusDoc } from "./interfaces/StatusDoc.js";
 import { UrbanEntry, UrbanResponse } from "./interfaces/UrbanResponse.js";
 import { startCatFactLoop, startStatusLoop } from "./loops.js";
-import { Client, Intents, Message, MessageEmbed, TextChannel } from "discord.js";
+import { Client, Intents, Message, MessageEmbed, TextChannel, Util } from "discord.js";
 import { BOT_TOKEN, BOT_OWNER, EMBED_COLOUR, MONGO_URI, EXCHANGE_API_KEY } from "./config.js";
 
 const allIntents = new Intents(32767);
@@ -190,8 +190,12 @@ async function leet(message: Message) {
                 .join("");
         })
         .join(" ");
+    
+    const splitOutput = Util.splitMessage(leetOutput, { maxLength: 2000, char: " " });
 
-    return await message.channel.send(leetOutput);
+    for (const msg of splitOutput) {
+        await message.channel.send(msg);
+    }
 }
 
 async function helpCmd(message: Message, prefix: string) {
