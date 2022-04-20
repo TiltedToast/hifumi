@@ -178,7 +178,6 @@ async function leet(message: Message) {
 
     if (leetDoc === null) return message.channel.send("Couldn't find the necessary entries in the database");
 
-
     const leetOutput = inputWords
         .map((word) => {
             return word
