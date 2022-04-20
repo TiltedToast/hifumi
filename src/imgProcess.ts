@@ -149,7 +149,7 @@ export async function imgur(message: Message, prefix: string, url?: string): Pro
     // Checks for valid image size via Content-Length header if possible
     // If present, uploads the image to Imgur and sends the link to the channel if it's within the size limit (10MB)
     // If not, downloads the image and checks for valid size before uploading to Imgur
-    const response = await fetch(source, { headers: { Referer: "https://www.pixiv.net/" } });
+    const response = await fetch(source, { headers: (source.includes("pximg") ? { Referer: "https://www.pixiv.net/" } : {}) });
     const contentLength = response.headers.get("Content-Length");
 
     if (!response.headers.has("Content-Length")) {
