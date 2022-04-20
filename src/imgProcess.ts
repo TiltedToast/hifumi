@@ -10,8 +10,6 @@ import * as qrcode from "qrcode";
 import { IMGUR_CLIENT_ID } from "./config.js";
 
 import canvas from "canvas";
-import axios from "axios";
-
 
 export async function beautiful(message: Message): Promise<Message | undefined> {
     tools.createTemp("temp");
@@ -24,7 +22,6 @@ export async function beautiful(message: Message): Promise<Message | undefined> 
             return await message.channel.send("Invalid ID! Use numbers only please");
         }
     }
-
     const user = content.length === 1 ? message.author : await tools.getUserObjectPingId(message);
 
     if (!user)
@@ -43,12 +40,11 @@ export async function beautiful(message: Message): Promise<Message | undefined> 
     const beautifulCanvas = new canvas.Canvas(640, 674);
     const ctx = beautifulCanvas.getContext("2d");
     const avatar = await canvas.loadImage("./temp/avatar_resized.png");
-    const background = await canvas.loadImage("./src/assets/background.png")
+    const background = await canvas.loadImage("./src/assets/beautiful_background.png");
 
     ctx.drawImage(avatar, 422, 35);
     ctx.drawImage(avatar, 430, 377);
     ctx.drawImage(background, 0, 0);
-    
 
     // Saves the output buffer to a file and sends it to the channel
     const buffer = beautifulCanvas.toBuffer("image/png");
@@ -71,7 +67,6 @@ export async function qrCode(message: Message): Promise<Message> {
     }
     return await message.channel.send({ files: ["./temp/qr.png"] });
 }
-
 
 export async function resizeImg(message: Message, prefix: string): Promise<Message> {
     tools.createTemp("temp");
@@ -116,14 +111,13 @@ export async function resizeImg(message: Message, prefix: string): Promise<Messa
 
 export async function imgur(message: Message, prefix: string, url?: string): Promise<Message | undefined> {
     const content = message.content.split(" ");
-    let source;
-    if (url) {
-        source = url;
-    } else if (content.length !== 2 && message.attachments.size === 0) {
+    let source: string;
+    if (content.length !== 2 && message.attachments.size === 0) {
         return await message.channel.send(`Usage: \`${prefix}imgur <url>\``);
-    } else {
-        source = message.attachments.size > 0 ? (message.attachments.first() as MessageAttachment).url : content[1];
     }
+
+    source = message.attachments.size > 0 ? (message.attachments.first() as MessageAttachment).url : content[1];
+    if (url) source = url;
 
     if (source === undefined) return await message.channel.send("Invalid URL!");
 
@@ -155,8 +149,10 @@ export async function imgur(message: Message, prefix: string, url?: string): Pro
     // Checks for valid image size via Content-Length header if possible
     // If present, uploads the image to Imgur and sends the link to the channel if it's within the size limit (10MB)
     // If not, downloads the image and checks for valid size before uploading to Imgur
-    const response = await axios.get(source, { headers: { Referer: "https://www.pixiv.net/" } });
-    if (!response.headers["content-length"]) {
+    const response = await fetch(source, { headers: { Referer: "https://www.pixiv.net/" } });
+    const contentLength = response.headers.get("Content-Length");
+
+    if (!response.headers.has("Content-Length")) {
         const fetchErrorMsg = await tools.downloadURL(source, `./temp/unknown.${imgType}`);
         if (fetchErrorMsg) return await message.channel.send(fetchErrorMsg);
 
@@ -174,7 +170,7 @@ export async function imgur(message: Message, prefix: string, url?: string): Pro
         const result = await response.json();
         const imageLink = (result as ImgurResponse)["data"]["link"];
         return await message.channel.send(imageLink);
-    } else if (parseInt(response.headers["content-length"]) <= 10240000) {
+    } else if (contentLength !== null && parseInt(contentLength) <= 10240000) {
         formdata.append("image", source);
 
         const response = await fetch("https://api.imgur.com/3/image", requestOptions);
@@ -183,7 +179,6 @@ export async function imgur(message: Message, prefix: string, url?: string): Pro
         const result = await response.json();
         const imageLink = (result as ImgurResponse)["data"]["link"];
         return await message.channel.send(imageLink);
-    } else {
-        return await message.channel.send("File too large for Imgur! (10MB limit)");
     }
+    return await message.channel.send("File too large for Imgur! (10MB limit)");
 }
