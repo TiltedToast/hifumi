@@ -284,7 +284,7 @@ async function avatar(message: Message) {
 
     if (!avatarURL) return await message.channel.send("No avatar found!");
 
-    if (avatarURL.includes("gif")) {
+    if (avatarURL.includes(".gif")) {
         url = `https://cdn.discordapp.com/avatars/${userID}/${avatarHash}.gif?size=4096`;
     } else {
         url = `https://cdn.discordapp.com/avatars/${userID}/${avatarHash}.png?size=4096`;
