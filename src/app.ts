@@ -189,7 +189,7 @@ async function leet(message: Message) {
                 .join("");
         })
         .join(" ");
-    
+
     const splitOutput = Util.splitMessage(leetOutput, { maxLength: 2000, char: " " });
 
     for (const msg of splitOutput) {
@@ -413,13 +413,14 @@ async function bye(message: Message): Promise<Message | void> {
 }
 
 // Graceful Shutdown on Ctrl + C / Docker stop
-process.on("SIGINT", () => {
-    mongoClient.close(() => {
-        console.log("Closed MongoDB connection");
-        client.destroy();
-        console.log("Closed Discord client");
-        process.exit(0);
-    });
+process.on("SIGINT", async () => {
+    await mongoClient.close();
+    console.log("Closed MongoDB connection");
+
+    client.destroy();
+    console.log("Closed Discord client");
+    
+    process.exit(0);
 });
 
 client.login(BOT_TOKEN);
