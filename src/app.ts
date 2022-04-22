@@ -302,9 +302,9 @@ async function listCurrencies(message: Message) {
 
     // Equally divides the currencies into 3 columns
     for (let i = 0; i < currencyKeys.length; i++) {
-        if (i <= 16) {
+        if (i <= 17) {
             columns[0] += `**${currencyKeys[i]}** - ${currencies[currencyKeys[i]]}\n`;
-        } else if (17 <= i && i <= 33) {
+        } else if (18 <= i && i <= 34) {
             columns[1] += `**${currencyKeys[i]}** - ${currencies[currencyKeys[i]]}\n`;
         } else {
             columns[2] += `**${currencyKeys[i]}** - ${currencies[currencyKeys[i]]}\n`;
