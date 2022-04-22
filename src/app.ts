@@ -381,13 +381,8 @@ async function urban(message: Message, prefix: string): Promise<Message> {
 
     const def = tools.randomElementArray(result["list"]) as UrbanEntry;
 
-    const word = def["word"];
-    const definition = def["definition"];
-    const example = def["example"];
-    const author = def["author"];
-    const permalink = def["permalink"];
-    const upvotes = def["thumbs_up"];
-    const downvotes = def["thumbs_down"];
+    const { word, definition, example, author, permalink, thumbs_up, thumbs_down } = def;
+
     const description = `${definition}\n
         **Example:** ${example}\n
         **Author:** ${author}\n
@@ -397,7 +392,7 @@ async function urban(message: Message, prefix: string): Promise<Message> {
         .setColor(EMBED_COLOUR)
         .setTitle(`*${word}*`)
         .setDescription(description)
-        .setFooter({ text: `Upvotes: ${upvotes} Downvotes: ${downvotes}` });
+        .setFooter({ text: `Upvotes: ${thumbs_up} Downvotes: ${thumbs_down}` });
 
     return await message.channel.send({ embeds: [urbanEmbed] });
 }
@@ -419,7 +414,7 @@ process.on("SIGINT", async () => {
 
     client.destroy();
     console.log("Closed Discord client");
-    
+
     process.exit(0);
 });
 
