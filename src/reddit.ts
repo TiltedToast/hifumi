@@ -67,7 +67,7 @@ export async function sub(message: Message, prefix: string): Promise<Message> {
     // Check if the subreddit exists
     const response = await fetch(`https://www.reddit.com/r/${subreddit}/about.json`);
     if (!response.ok) return await message.channel.send(`Reddit's API might be having issues, try again later`);
-    const data = await response.json() as SubredditResponse;
+    const data = (await response.json()) as SubredditResponse;
     if (data["kind"] !== "t5") return await message.channel.send(`Subreddit not found!`);
 
     const db = mongoClient.db("reddit");

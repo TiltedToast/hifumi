@@ -14,7 +14,15 @@ import { StatusDoc } from "./interfaces/StatusDoc.js";
 import { UrbanEntry, UrbanResponse } from "./interfaces/UrbanResponse.js";
 import { startCatFactLoop, startStatusLoop } from "./loops.js";
 import { Client, Intents, Message, MessageEmbed, TextChannel, Util } from "discord.js";
-import { BOT_TOKEN, BOT_OWNER, EMBED_COLOUR, MONGO_URI, EXCHANGE_API_KEY } from "./config.js";
+import {
+    BOT_TOKEN,
+    BOT_OWNER,
+    EMBED_COLOUR,
+    MONGO_URI,
+    EXCHANGE_API_KEY,
+    CAT_FACT_CHANNEL,
+    LOG_CHANNEL,
+} from "./config.js";
 
 const allIntents = new Intents(32767);
 export const client = new Client({ intents: allIntents });
@@ -54,12 +62,12 @@ client.once("ready", async () => {
         prefixDict[prefixDoc.serverId] = prefixDoc.prefix;
     }
 
-    const catFactChannel = client.channels.cache.get("655484859405303809");
+    const catFactChannel = client.channels.cache.get(CAT_FACT_CHANNEL);
     await startCatFactLoop(catFactChannel as TextChannel);
 
     if (isDev()) return;
 
-    const channel = client.channels.cache.get("655484804405657642");
+    const channel = client.channels.cache.get(LOG_CHANNEL);
     await (channel as TextChannel).send(
         `Logged in as:\n${client.user.username}\nTime: ${time}\n--------------------------`
     );
@@ -251,11 +259,11 @@ async function jsEval(message: Message) {
     if (typeof rslt === "object") rslt = `\`\`\`${JSON.stringify(rslt, null, 4)}\`\`\``;
     if (!rslt) return await message.channel.send("Cannot send an empty message!");
 
-    const resultLength = rslt.toString().length;
+    const resultString = rslt.toString();
 
-    if (!rslt.toString() || resultLength > 2000)
+    if (!resultString || resultString.length > 2000)
         return await message.channel.send("Invalid message length for discord!");
-    return await message.channel.send(rslt.toString());
+    return await message.channel.send(resultString);
 }
 
 async function avatar(message: Message) {

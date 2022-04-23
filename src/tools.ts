@@ -9,7 +9,7 @@ import strftime from "strftime";
 import { Document } from "mongodb";
 import { promisify } from "util";
 import { exec } from "child_process";
-import { DEV_MODE, BOT_OWNER, DEV_CHANNELS } from "./config.js";
+import { DEV_MODE, BOT_OWNER, DEV_CHANNELS, LOG_CHANNEL } from "./config.js";
 
 const execPromise = promisify(exec);
 
@@ -166,7 +166,7 @@ export function errorLog(message: Message, errorObject: Error) {
     if (DEV_CHANNELS.includes(message.channel.id)) {
         channel = message.channel;
     } else {
-        channel = client.channels.cache.get("655484804405657642");
+        channel = client.channels.cache.get(LOG_CHANNEL);
     }
 
     (channel as TextChannel).send(errorMessage);
