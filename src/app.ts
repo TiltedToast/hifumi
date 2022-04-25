@@ -140,7 +140,7 @@ client.on("messageCreate", async (message: Message) => {
             else if (command === "profile") await reddit.profile(message, prefix);
             else if (command === "sub") await reddit.sub(message, prefix);
             else if (command === "prefix") await database.updatePrefix(message);
-            else if (command === "con") await console_cmd(message);
+            else if (command === "con") await consoleCmd(message);
             else if (command === "qr") await imgProcess.qrCode(message);
             else if (command === "js") await jsEval(message);
             else if (command === "link") await emoji.linkEmoji(message);
@@ -220,7 +220,7 @@ async function helpCmd(message: Message, prefix: string) {
     return await message.channel.send({ embeds: [helpEmbed] });
 }
 
-async function console_cmd(message: Message) {
+async function consoleCmd(message: Message) {
     if (message.author.id !== BOT_OWNER) return;
     // Creates a new string with the message content without the command
     // And runs it in a new shell process
