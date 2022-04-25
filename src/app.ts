@@ -156,13 +156,14 @@ client.on("messageCreate", async (message: Message) => {
             message.content.startsWith(`$${reactCmd} <@!${botId}>`)
         ) {
             const mikuReactions = await mongoClient.db("hifumi").collection("mikuReactions").find().toArray();
-            const cmdAliases = mikuReactions[0];
-            const reactMsgs = mikuReactions[1];
 
-            if (cmdAliases === null || reactMsgs === null) {
-                await message.channel.send("Couldn't find the necessary entries in the database");
+            if (mikuReactions.length === 0) {
+                await message.channel.send("No Miku reactions found in the database");
                 return;
             }
+
+            const cmdAliases = mikuReactions[0];
+            const reactMsgs = mikuReactions[1];
 
             for (const alias in cmdAliases) {
                 if (Object.values(cmdAliases[alias]).includes(reactCmd)) {
