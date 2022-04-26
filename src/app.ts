@@ -380,18 +380,18 @@ async function urban(message: Message, prefix: string): Promise<Message> {
     const response = await fetch(`https://api.urbandictionary.com/v0/define?term=${query}`);
     if (!response.ok) return await message.channel.send(`Error ${response.status}! Please try again later`);
 
-    const result = (await response.json()) as UrbanResponse;
+    const result = ((await response.json()) as UrbanResponse)["list"];
 
-    if (result["list"].length === 0) return message.channel.send("No results found!");
+    if (result.length === 0) return message.channel.send("No results found!");
 
-    const def = tools.randomElementArray(result["list"]) as UrbanEntry;
+    const resultEntry = tools.randomElementArray(result) as UrbanEntry;
 
-    const { word, definition, example, author, permalink, thumbs_up, thumbs_down } = def;
+    const { word, definition, example, author, permalink, thumbs_up, thumbs_down } = resultEntry;
 
     const description = `${definition}\n
         **Example:** ${example}\n
         **Author:** ${author}\n
-        **Permalink:** [${permalink}](${permalink})`.replace(/\]|\[/g, "");
+        [Permalink](${permalink})`.replace(/\]|\[/g, "");
 
     const urbanEmbed = new MessageEmbed()
         .setColor(EMBED_COLOUR)
