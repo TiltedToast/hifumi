@@ -391,7 +391,7 @@ async function urban(message: Message, prefix: string): Promise<Message> {
     const description = `${definition}\n
         **Example:** ${example}\n
         **Author:** ${author}\n
-        [Permalink](${permalink})`.replace(/\]|\[/g, "");
+        **Permalink:** ${permalink}`.replace(/\]|\[/g, "");
 
     const urbanEmbed = new MessageEmbed()
         .setColor(EMBED_COLOUR)
