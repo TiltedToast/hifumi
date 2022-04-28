@@ -238,12 +238,17 @@ async function consoleCmd(message: Message) {
 
 export async function reloadBot(message: Message) {
     if (message.author.id !== BOT_OWNER) return;
-    // Reloads the bot using the pm2 module
     await mongoClient.close();
-    await message.channel.send("Reload successful!");
-    spawn("npm", ["run", "restart"]);
-}
 
+    // Exec stopped working on windows one day suddenly
+    if (process.platform === "win32") {
+        await message.channel.send("Reload successful!");
+        spawn("npm", ["run", "restart"]);
+    } else {
+        exec("npm run restart");
+        await message.channel.send("Reload successful!");
+    }
+}
 
 async function jsEval(message: Message) {
     if (message.author.id !== BOT_OWNER) return;
