@@ -5,7 +5,7 @@ import * as imgProcess from "./imgProcess.js";
 import * as reddit from "./reddit.js";
 import * as database from "./database.js";
 import fetch from "node-fetch";
-import { exec } from "child_process";
+import { exec, spawn } from "child_process";
 import { isDev } from "./tools.js";
 import strftime from "strftime";
 import { Document, MongoClient } from "mongodb";
@@ -240,9 +240,10 @@ export async function reloadBot(message: Message) {
     if (message.author.id !== BOT_OWNER) return;
     // Reloads the bot using the pm2 module
     await mongoClient.close();
-    exec("npm run restart");
     await message.channel.send("Reload successful!");
+    spawn("npm", ["run", "restart"]);
 }
+
 
 async function jsEval(message: Message) {
     if (message.author.id !== BOT_OWNER) return;
@@ -257,7 +258,7 @@ async function jsEval(message: Message) {
     const command = message.content.split(" ").slice(1).join(" ");
     let rslt = eval(command);
 
-    if (typeof rslt === "object") rslt = `\`\`\`${JSON.stringify(rslt, null, 4)}\`\`\``;
+    if (typeof rslt === "object") rslt = `\`\`\`js\n${JSON.stringify(rslt, null, 4)}\n\`\`\``;
     if (!rslt) return await message.channel.send("Cannot send an empty message!");
 
     const resultString = rslt.toString();
