@@ -1,7 +1,6 @@
 import { mongoClient, prefixDict, statusArr } from "./app.js";
 import { Message, Permissions } from "discord.js";
-import * as tools from "./tools.js";
-import { isDev } from "./tools.js";
+import { isDev, parseDbArgs } from "./tools.js";
 import { BOT_OWNER } from "./config.js";
 
 export async function insert(message: Message) {
@@ -15,7 +14,7 @@ export async function insert(message: Message) {
     const dbName = content[2];
     const collectionName = content[3];
 
-    const document = await tools.parseDbArgs(4, content);
+    const document = await parseDbArgs(4, content);
 
     const collection = mongoClient.db(dbName).collection(collectionName);
     await collection.insertOne(document);
@@ -38,7 +37,7 @@ export async function update(message: Message) {
 
     const filterDoc = { [content[4]]: content[5] };
 
-    const newValues = await tools.parseDbArgs(6, content);
+    const newValues = await parseDbArgs(6, content);
 
     const collection = mongoClient.db(dbName).collection(collectionName);
     const updateDoc = await collection.findOneAndUpdate(filterDoc, { $set: newValues });

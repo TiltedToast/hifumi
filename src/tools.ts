@@ -94,8 +94,8 @@ export async function getUserObjectPingId(message: Message): Promise<User | null
 
 /**
  * Takes an array and returns a random element from it.
- * @param {Array} array
- * @returns a random Element from the array
+ * @param {Array} array The input array
+ * @returns a random element from the array
  */
 export function randomElementArray(array: unknown[]): unknown {
     return array[Math.floor(Math.random() * array.length)];

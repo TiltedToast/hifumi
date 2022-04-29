@@ -1,5 +1,5 @@
-import * as tools from "./tools.js";
 import { Message, MessageAttachment, Permissions, GuildEmoji } from "discord.js";
+import { extractEmoji, createTemp, downloadURL, getImgType, resize, isValidSize } from "./tools.js";
 
 export async function linkEmoji(message: Message) {
     let output = "";
@@ -10,7 +10,7 @@ export async function linkEmoji(message: Message) {
     if (!emojis) return await message.channel.send("You have to specify at least one emoji!");
 
     for (const emoji of emojis) {
-        output += `${tools.extractEmoji(emoji)}\n`;
+        output += `${extractEmoji(emoji)}\n`;
     }
     await message.channel.send(output);
 }
@@ -44,7 +44,7 @@ export async function addEmoji(message: Message, prefix: string): Promise<Messag
     const emojiRegex = new RegExp(/<a?:[a-zA-Z0-9]{1,32}:[0-9]{18}>/gi);
     const emojis = message.content.match(emojiRegex);
 
-    tools.createTemp("temp");
+    createTemp("temp");
 
     if (emojis?.includes(content[2])) {
         let output = "";
@@ -52,12 +52,12 @@ export async function addEmoji(message: Message, prefix: string): Promise<Messag
         let emoji: GuildEmoji | undefined;
 
         for (const emojiStr of emojis) {
-            const url = tools.extractEmoji(emojiStr);
-            const imgType = tools.getImgType(url);
+            const url = extractEmoji(emojiStr);
+            const imgType = getImgType(url);
             const name = emojiStr.split(":")[1];
             const filePath = `temp/${name}.${imgType}`;
 
-            await tools.downloadURL(url, filePath);
+            await downloadURL(url, filePath);
 
             try {
                 emoji = await message.guild?.emojis.create(filePath, name);
@@ -96,25 +96,25 @@ export async function addEmoji(message: Message, prefix: string): Promise<Messag
     if (!isValidURL && !source.startsWith("<") && message.attachments.size === 0) {
         return message.channel.send("Invalid source url!");
     } else if (source.startsWith("<")) {
-        url = tools.extractEmoji(source);
+        url = extractEmoji(source);
     } else if (isValidURL) {
         url = source;
     } else if (message.attachments.size > 0) {
         url = (message.attachments?.first() as MessageAttachment).url;
     }
 
-    tools.createTemp("temp");
-    const imgType = tools.getImgType(url);
+    createTemp("temp");
+    const imgType = getImgType(url);
     if (imgType === "unknown") return await message.channel.send("Invalid image type!");
 
-    const fetchErrorMsg = await tools.downloadURL(url, `./temp/unknown.${imgType}`);
+    const fetchErrorMsg = await downloadURL(url, `./temp/unknown.${imgType}`);
     if (fetchErrorMsg) return await message.channel.send(fetchErrorMsg);
 
     // Resizes image, checks size again and creates emoji
-    if (!tools.isValidSize(`./temp/unknown.${imgType}`, 262144)) {
-        await tools.resize(`./temp/unknown.${imgType}`, 128, `./temp/unknown_resized.${imgType}`);
+    if (!isValidSize(`./temp/unknown.${imgType}`, 262144)) {
+        await resize(`./temp/unknown.${imgType}`, 128, `./temp/unknown_resized.${imgType}`);
 
-        if (!tools.isValidSize(`./temp/unknown_resized.${imgType}`, 262144)) {
+        if (!isValidSize(`./temp/unknown_resized.${imgType}`, 262144)) {
             return message.channel.send("File too large for Discord, even after resizing!");
         }
         if (message.guild === null) return message.channel.send("You can't add emojis to DMs!");
@@ -143,7 +143,7 @@ export async function removeEmoji(message: Message, prefix: string): Promise<Mes
         if (content.length !== 3) return await message.channel.send(`Usage: \`${prefix}emoji remove <emoji>\``);
 
         const emojiString = content[2];
-        const emojiID = tools.extractEmoji(emojiString, true);
+        const emojiID = extractEmoji(emojiString, true);
         const emojis = message.guild?.emojis.cache;
         const emoji = emojis?.find((emoji) => emoji.id === emojiID);
 
@@ -170,7 +170,7 @@ export async function renameEmoji(message: Message, prefix: string): Promise<Mes
 
         const newName = content[2];
         const emojiString = content[3];
-        const emojiId = tools.extractEmoji(emojiString, true);
+        const emojiId = extractEmoji(emojiString, true);
         const emojis = message.guild?.emojis.cache;
         const emoji = emojis?.find((emoji) => emoji.id === emojiId);
 
