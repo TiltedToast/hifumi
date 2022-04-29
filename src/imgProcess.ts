@@ -17,7 +17,7 @@ export async function beautiful(message: Message): Promise<Message | undefined> 
 
     const user = content.length === 1 ? message.author : await tools.getUserObjectPingId(message);
     if (!user) return await message.channel.send("Couldn't find the specified User");
-    
+
     // Downloads User Avatar and resizes it to the size required (180x180)
     const avatarURL = `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=4096`;
 
@@ -140,7 +140,7 @@ export async function imgur(message: Message, prefix: string, url?: string): Pro
     // If present, uploads the image to Imgur and sends the link to the channel if it's within the size limit (10MB)
     // If not, downloads the image and checks for valid size before uploading to Imgur
     const response = await fetch(source, {
-        headers: source.includes("pximg") ? { Referer: "https://www.pixiv.net/" } : {},
+        headers: source.includes("pximg") ? { Referer: "https://www.pixiv.net/" } : undefined,
     });
     const contentLength = response.headers.get("Content-Length");
 
