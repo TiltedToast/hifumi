@@ -277,31 +277,25 @@ async function avatar(message: Message) {
     // Checks for invalid provided User ID
     let url: string;
     const content = message.content.split(" ");
-    if (content.length === 2) {
-        if (isNaN(parseInt(content[1])) && !content[1].startsWith("<@")) {
-            return await message.channel.send("Invalid ID! Use numbers only please");
-        }
-    }
 
     const user = content.length === 1 ? message.author : await tools.getUserObjectPingId(message);
     if (!user) {
-        return await message.channel.send("Couldn't find the specified User!");
+        return await message.channel.send("Couldn't find the specified User");
     }
 
-    const userID = user.id;
-    const userName = user.username;
-    const avatarHash = user.avatar;
+    const { id: userId, username, avatar: avatarHash } = user;
+
     const avatarURL = user.avatarURL({ dynamic: true });
 
     if (!avatarURL) return await message.channel.send("No avatar found!");
 
     if (avatarURL.includes(".gif")) {
-        url = `https://cdn.discordapp.com/avatars/${userID}/${avatarHash}.gif?size=4096`;
+        url = `https://cdn.discordapp.com/avatars/${userId}/${avatarHash}.gif?size=4096`;
     } else {
-        url = `https://cdn.discordapp.com/avatars/${userID}/${avatarHash}.png?size=4096`;
+        url = `https://cdn.discordapp.com/avatars/${userId}/${avatarHash}.png?size=4096`;
     }
 
-    const avatarEmbed = new MessageEmbed().setColor(EMBED_COLOUR).setTitle(`*${userName}'s Avatar*`).setImage(url);
+    const avatarEmbed = new MessageEmbed().setColor(EMBED_COLOUR).setTitle(`*${username}'s Avatar*`).setImage(url);
 
     await message.channel.send({ embeds: [avatarEmbed] });
 }

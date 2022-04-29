@@ -15,19 +15,9 @@ export async function beautiful(message: Message): Promise<Message | undefined> 
     tools.createTemp("temp");
     const content = message.content.split(" ");
 
-    // Checks for invalid User ID
-    if (content.length === 2) {
-        const pingOrIdString = content[1];
-        if (isNaN(parseInt(pingOrIdString)) && !pingOrIdString.startsWith("<@")) {
-            return await message.channel.send("Invalid ID! Use numbers only please");
-        }
-    }
     const user = content.length === 1 ? message.author : await tools.getUserObjectPingId(message);
-
-    if (!user)
-        return await message.channel.send(
-            "Couldn't find the specified User, Discord may be having issues with their API"
-        );
+    if (!user) return await message.channel.send("Couldn't find the specified User");
+    
     // Downloads User Avatar and resizes it to the size required (180x180)
     const avatarURL = `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=4096`;
 
@@ -149,7 +139,9 @@ export async function imgur(message: Message, prefix: string, url?: string): Pro
     // Checks for valid image size via Content-Length header if possible
     // If present, uploads the image to Imgur and sends the link to the channel if it's within the size limit (10MB)
     // If not, downloads the image and checks for valid size before uploading to Imgur
-    const response = await fetch(source, { headers: source.includes("pximg") ? { Referer: "https://www.pixiv.net/" } : {} });
+    const response = await fetch(source, {
+        headers: source.includes("pximg") ? { Referer: "https://www.pixiv.net/" } : {},
+    });
     const contentLength = response.headers.get("Content-Length");
 
     if (!response.headers.has("Content-Length")) {
