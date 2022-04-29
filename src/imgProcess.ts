@@ -84,7 +84,7 @@ export async function resizeImg(message: Message, prefix: string): Promise<Messa
 
     // Downloads the image and resizes it
     // Sends the resized image to the channel if it's within the size limit
-    const imgType = !source.includes("gif") ? getImgType(source) : "gif";
+    const imgType = getImgType(source);
     if (imgType === null) return await message.channel.send("Invalid image type!");
 
     const fetchErrorMsg = await downloadURL(source, `./temp/unknown.${imgType}`);
@@ -118,8 +118,8 @@ export async function imgur(message: Message, prefix: string, url?: string): Pro
     if (!isValidURL) return await message.channel.send("Invalid source url!");
 
     // Imgur API doesn't support webp images
-    if (source.includes("webp")) {
-        source = source.replace("webp", "png");
+    if (source.includes(".webp")) {
+        source = source.replace(".webp", ".png");
     }
 
     createTemp("temp");

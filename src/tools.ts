@@ -13,6 +13,12 @@ import { DEV_MODE, BOT_OWNER, DEV_CHANNELS, LOG_CHANNEL } from "./config.js";
 
 const execPromise = promisify(exec);
 
+/**
+ * Takes the file path of an image/gif and resizes it
+ * @param fileLocation Path of the input image
+ * @param width Your desired output width
+ * @param saveLocation Path where the resized image should be saved
+ */
 export async function resize(fileLocation: string, width: number, saveLocation: string): Promise<void> {
     if (fileLocation.endsWith(".gif")) {
         await execPromise(`gifsicle --resize-width ${width} ${fileLocation} > ${saveLocation}`);
@@ -27,9 +33,9 @@ export async function resize(fileLocation: string, width: number, saveLocation: 
 
 /**
  * Parses key value pairs from discord messages into a JavaScript object that can be used to interact with the Database
- * @param  {number} startIndex The content index after which arguments are expected to be present
- * @param {string[]} content The content of the message after being split by spaces
- * @returns Promise that resolves into the parsed argument document
+ * @param startIndex The content index after which arguments are expected to be present
+ * @param content The content of the message after being split by spaces
+ * @returns Document that contains all the parsed arguments
  */
 export async function parseDbArgs(startIndex: number, content: string[]): Promise<Document> {
     const document: Document = {};
@@ -49,15 +55,14 @@ export async function parseDbArgs(startIndex: number, content: string[]): Promis
 
 /**
  * Checks whether the currently active bot is the dev version or not
- * @returns {boolean} Whether or not the bot is the dev version
  */
 export function isDev(): boolean {
     return DEV_MODE === "true";
 }
 
 /**
- * Simple function to create delays
- * @param {Number} ms The amount of milliseconds to wait
+ * Create a simple delay 
+ * @param ms The amount of milliseconds the delay should last for
  */
 export function sleep(ms: number) {
     return new Promise((resolve) => setTimeout(resolve, ms));
@@ -65,12 +70,12 @@ export function sleep(ms: number) {
 
 /**
  * Takes an object and returns the value of a random key
- * @param  {any} obj Javascript Object to check
- * @returns {any} Returns a random Property of an object
+ * @param object Javascript Object to check
+ * @returns A random Property of an object
  */
-export function randomProperty(obj: Record<string, unknown>): unknown {
-    const keys = Object.keys(obj);
-    return obj[keys[(keys.length * Math.random()) << 0]];
+export function randomProperty(object: Record<string, unknown>): unknown {
+    const keys = Object.keys(object);
+    return object[keys[(keys.length * Math.random()) << 0]];
 }
 
 /**
@@ -111,7 +116,7 @@ export function randomIntFromRange(min: number, max: number): number {
 }
 
 /**
- * Parses an interaction and error and sends it to the channel to avoid Hifumi dying every time an Error occurs
+ * Parses a message and error and sends it to the channel to avoid Hifumi dying every time an error occurs
  * @param {Message} message The Message object passed on each command execution
  * @param {Error} errorObject The error object that is passed to the command through try/catch
  */
@@ -183,7 +188,7 @@ export async function downloadURL(url: string, saveLocation: string) {
     const myHeaders = new Headers();
     myHeaders.append("User-Agent", "hifumi-js:v1.0.0:tiltedtoast27@gmail.com");
 
-    // Pixiv requires a Referrer header, no idea why
+    // Pixiv requires a Referrr header
     if (url.includes("pximg")) myHeaders.append("Referer", "https://www.pixiv.net/");
 
     const requestOptions: Record<string, unknown> = {
@@ -256,10 +261,9 @@ export function createTemp(directory: string): void {
 }
 
 /**
- * Checks whether the size of the file is greater than the max size allowed
+ * Checks whether the size of the file is smaller than the max size allowed or not
  * @param {String} fileLocation The location of the file
- * @param {Number} size The max size allowed
- * @returns {Boolean} Whether or not the file is small enough
+ * @param {Number} size The max size allowed in bytes
  */
 export function isValidSize(fileLocation: string, size: number): boolean {
     return fs.statSync(fileLocation).size <= size;
