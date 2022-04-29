@@ -2,29 +2,29 @@ import * as fsPromise from "fs/promises";
 import * as fs from "fs";
 import { FormData } from "formdata-node";
 import fetch from "node-fetch";
-import * as tools from "./tools.js";
+import * as qrcode from "qrcode";
 import { Message, MessageAttachment } from "discord.js";
 import { Headers } from "node-fetch";
 import { ImgurResponse } from "./interfaces/ImgurResponse.js";
-import * as qrcode from "qrcode";
 import { IMGUR_CLIENT_ID } from "./config.js";
+import { createTemp, getUserObjectPingId, resize, downloadURL, getImgType, isValidSize } from "./tools.js";
 
 import canvas from "canvas";
 
 export async function beautiful(message: Message): Promise<Message | undefined> {
-    tools.createTemp("temp");
+    createTemp("temp");
     const content = message.content.split(" ");
 
-    const user = content.length === 1 ? message.author : await tools.getUserObjectPingId(message);
+    const user = content.length === 1 ? message.author : await getUserObjectPingId(message);
     if (!user) return await message.channel.send("Couldn't find the specified User");
 
     // Downloads User Avatar and resizes it to the size required (180x180)
     const avatarURL = `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=4096`;
 
-    const fetchErrorMsg = await tools.downloadURL(avatarURL, `./temp/avatar.png`);
+    const fetchErrorMsg = await downloadURL(avatarURL, `./temp/avatar.png`);
     if (fetchErrorMsg) return await message.channel.send(fetchErrorMsg);
 
-    await tools.resize("./temp/avatar.png", 180, "./temp/avatar_resized.png");
+    await resize("./temp/avatar.png", 180, "./temp/avatar_resized.png");
 
     // Creates a canvas and adds avatar as well as the background to it
     const beautifulCanvas = new canvas.Canvas(640, 674);
@@ -47,7 +47,7 @@ export async function qrCode(message: Message): Promise<Message> {
     const content = message.content.split(" ");
     if (content.length === 1) return await message.channel.send("Missing argument!");
 
-    tools.createTemp("temp");
+    createTemp("temp");
 
     const qrText = content.slice(1).join(" ");
     try {
@@ -59,7 +59,7 @@ export async function qrCode(message: Message): Promise<Message> {
 }
 
 export async function resizeImg(message: Message, prefix: string): Promise<Message> {
-    tools.createTemp("temp");
+    createTemp("temp");
     const content = message.content.split(" ");
 
     // Checks for invalid User input
@@ -77,22 +77,22 @@ export async function resizeImg(message: Message, prefix: string): Promise<Messa
     const urlPattern = new RegExp(/https?:\/\/.*\.(?:jpg|jpeg|png|webp|avif|gif|svg|tiff)/i);
     const isValidURL = urlPattern.test(source);
 
-    tools.createTemp("temp");
+    createTemp("temp");
 
     // Matches URL against a regex pattern and invalidates gif files (they are not supported yet)
     if (!isValidURL) return await message.channel.send("Invalid source url!");
 
     // Downloads the image and resizes it
     // Sends the resized image to the channel if it's within the size limit
-    const imgType = !source.includes("gif") ? tools.getImgType(source) : "gif";
+    const imgType = !source.includes("gif") ? getImgType(source) : "gif";
     if (imgType === null) return await message.channel.send("Invalid image type!");
 
-    const fetchErrorMsg = await tools.downloadURL(source, `./temp/unknown.${imgType}`);
+    const fetchErrorMsg = await downloadURL(source, `./temp/unknown.${imgType}`);
     if (fetchErrorMsg) return await message.channel.send(fetchErrorMsg);
 
-    await tools.resize(`./temp/unknown.${imgType}`, width, `./temp/unknown_resized.${imgType}`);
+    await resize(`./temp/unknown.${imgType}`, width, `./temp/unknown_resized.${imgType}`);
 
-    if (!tools.isValidSize(`./temp/unknown_resized.${imgType}`, 8192000)) {
+    if (!isValidSize(`./temp/unknown_resized.${imgType}`, 8192000)) {
         return await message.channel.send("File too large for Discord!");
     }
 
@@ -122,8 +122,8 @@ export async function imgur(message: Message, prefix: string, url?: string): Pro
         source = source.replace("webp", "png");
     }
 
-    tools.createTemp("temp");
-    const imgType = tools.getImgType(source);
+    createTemp("temp");
+    const imgType = getImgType(source);
     if (imgType === null) return await message.channel.send("Invalid image type!");
     const myHeaders = new Headers();
     const formdata = new FormData();
@@ -145,10 +145,10 @@ export async function imgur(message: Message, prefix: string, url?: string): Pro
     const contentLength = response.headers.get("Content-Length");
 
     if (!response.headers.has("Content-Length")) {
-        const fetchErrorMsg = await tools.downloadURL(source, `./temp/unknown.${imgType}`);
+        const fetchErrorMsg = await downloadURL(source, `./temp/unknown.${imgType}`);
         if (fetchErrorMsg) return await message.channel.send(fetchErrorMsg);
 
-        if (!tools.isValidSize(`./temp/unknown.${imgType}`, 10240000)) {
+        if (!isValidSize(`./temp/unknown.${imgType}`, 10240000)) {
             return await message.channel.send("File too large for Imgur! (10MB limit)");
         }
 

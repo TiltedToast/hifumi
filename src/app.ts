@@ -1,5 +1,4 @@
 import "dotenv/config";
-import * as tools from "./tools.js";
 import * as emoji from "./emoji.js";
 import * as imgProcess from "./imgProcess.js";
 import * as reddit from "./reddit.js";
@@ -14,6 +13,7 @@ import { StatusDoc } from "./interfaces/StatusDoc.js";
 import { UrbanEntry, UrbanResponse } from "./interfaces/UrbanResponse.js";
 import { startCatFactLoop, startStatusLoop } from "./loops.js";
 import { Client, Intents, Message, MessageEmbed, TextChannel, Util } from "discord.js";
+import { randomElementArray, sleep, errorLog, getUserObjectPingId, advRound } from "./tools.js";
 import {
     BOT_TOKEN,
     BOT_OWNER,
@@ -48,7 +48,7 @@ client.once("ready", async () => {
     // Puts all statuses into an array to avoid reading the database on every status change
     statusArr = await mongoClient.db("hifumi").collection("statuses").find().toArray();
 
-    const randomStatusDoc = tools.randomElementArray(statusArr) as StatusDoc;
+    const randomStatusDoc = randomElementArray(statusArr) as StatusDoc;
     const randomType = randomStatusDoc.type;
     const randomStatus = randomStatusDoc.status;
 
@@ -167,17 +167,17 @@ client.on("messageCreate", async (message: Message) => {
 
             for (const alias in cmdAliases) {
                 if (Object.values(cmdAliases[alias]).includes(reactCmd)) {
-                    const msg = (tools.randomElementArray(reactMsgs[alias]) as string).replace(
+                    const msg = (randomElementArray(reactMsgs[alias]) as string).replace(
                         "{0}",
                         message.author.username
                     );
-                    await tools.sleep(1000);
+                    await sleep(1000);
                     await message.channel.send(msg);
                 }
             }
         }
     } catch (err: unknown) {
-        tools.errorLog(message, err as Error);
+        errorLog(message, err as Error);
     }
 });
 
@@ -192,7 +192,7 @@ async function leet(message: Message) {
             return word
                 .split("")
                 .map((char) => {
-                    if (char in leetDoc) return tools.randomElementArray(leetDoc[char]);
+                    if (char in leetDoc) return randomElementArray(leetDoc[char]);
                     return char;
                 })
                 .join("");
@@ -278,7 +278,7 @@ async function avatar(message: Message) {
     let url: string;
     const content = message.content.split(" ");
 
-    const user = content.length === 1 ? message.author : await tools.getUserObjectPingId(message);
+    const user = content.length === 1 ? message.author : await getUserObjectPingId(message);
     if (!user) {
         return await message.channel.send("Couldn't find the specified User");
     }
@@ -358,7 +358,7 @@ async function convert(message: Message, prefix: string): Promise<Message | unde
     // Calculates the converted amount and sends it via an Embed
     const rate = result["conversion_rates"][to];
     const rslt = Math.round(amount * rate * 100) / 100;
-    const description = `**${tools.advRound(amount)} ${from} ≈ ${tools.advRound(
+    const description = `**${advRound(amount)} ${from} ≈ ${advRound(
         rslt
     )} ${to}**\n\nExchange Rate: 1 ${from} ≈ ${rate} ${to}`;
 
@@ -384,7 +384,7 @@ async function urban(message: Message, prefix: string): Promise<Message> {
 
     if (result.length === 0) return message.channel.send("No results found!");
 
-    const resultEntry = tools.randomElementArray(result) as UrbanEntry;
+    const resultEntry = randomElementArray(result) as UrbanEntry;
 
     const { word, definition, example, author, permalink, thumbs_up, thumbs_down } = resultEntry;
 
