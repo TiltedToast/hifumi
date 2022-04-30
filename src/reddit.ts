@@ -109,12 +109,11 @@ export async function fetchSubmissions(subreddit: string, message: Message, limi
     if (db.collection(`${subreddit}`) === null) await db.createCollection(`${subreddit}`);
 
     const collection = db.collection(`${subreddit}`);
-    const topSubmissions = [];
     const timeSpans: Timespan[] = ["hour", "day", "week", "month", "year", "all"];
 
-    for (const timeSpan of timeSpans) {
-        topSubmissions.push(RedditClient.getSubreddit(subreddit).getTop({ time: timeSpan, limit: limit }));
-    }
+    const topSubmissions = timeSpans.map((timeSpan) =>
+        RedditClient.getSubreddit(subreddit).getTop({ time: timeSpan, limit: limit })
+    );
 
     const submissionsArray = await Promise.all([
         RedditClient.getSubreddit(subreddit).getHot({ limit: limit }),
