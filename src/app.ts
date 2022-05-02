@@ -4,7 +4,7 @@ import * as imgProcess from "./imgProcess.js";
 import * as reddit from "./reddit.js";
 import * as database from "./database.js";
 import fetch from "node-fetch";
-import { exec, spawn } from "child_process";
+import { exec } from "child_process";
 import { isDev } from "./tools.js";
 import strftime from "strftime";
 import { Document, MongoClient } from "mongodb";
@@ -13,7 +13,7 @@ import { StatusDoc } from "./interfaces/StatusDoc.js";
 import { UrbanEntry, UrbanResponse } from "./interfaces/UrbanResponse.js";
 import { startCatFactLoop, startStatusLoop } from "./loops.js";
 import { Client, Intents, Message, MessageEmbed, TextChannel, Util } from "discord.js";
-import { randomElementArray, sleep, errorLog, getUserObjectPingId, advRound } from "./tools.js";
+import { randomElementArray, sleep, errorLog, getUserObjectPingId, advRound, getMissingCredentials } from "./tools.js";
 import {
     BOT_TOKEN,
     BOT_OWNER,
@@ -23,6 +23,8 @@ import {
     CAT_FACT_CHANNEL,
     LOG_CHANNEL,
 } from "./config.js";
+
+if (!BOT_TOKEN) throw new Error("No bot token found! Make sure you have a BOT_TOKEN env variable set");
 
 const allIntents = new Intents(32767);
 export const client = new Client({ intents: allIntents });
@@ -62,13 +64,24 @@ client.once("ready", async () => {
         prefixDict[prefixDoc.serverId] = prefixDoc.prefix;
     }
 
+    const logChannel = client.channels.cache.get(LOG_CHANNEL);
     const catFactChannel = client.channels.cache.get(CAT_FACT_CHANNEL);
     await startCatFactLoop(catFactChannel as TextChannel);
 
+    const credentials = await getMissingCredentials();
+
+    if (credentials.length > 0) {
+        const missingCredentialsEmbed = new MessageEmbed()
+            .setColor(EMBED_COLOUR)
+            .setTitle("Missing credentials")
+            .setDescription(`The following credentials are missing:\n\n- ${credentials.join("\n- ")}`);
+
+        await (logChannel as TextChannel).send({ embeds: [missingCredentialsEmbed] });
+    }
+
     if (isDev()) return;
 
-    const channel = client.channels.cache.get(LOG_CHANNEL);
-    await (channel as TextChannel).send(
+    await (logChannel as TextChannel).send(
         `Logged in as:\n${client.user.username}\nTime: ${time}\n--------------------------`
     );
 });
@@ -240,14 +253,8 @@ export async function reloadBot(message: Message) {
     if (message.author.id !== BOT_OWNER) return;
     await mongoClient.close();
 
-    // Exec stopped working on windows one day suddenly
-    if (process.platform === "win32") {
-        await message.channel.send("Reload successful!");
-        spawn("npm", ["run", "restart"]);
-    } else {
-        exec("npm run restart");
-        await message.channel.send("Reload successful!");
-    }
+    exec("npm run restart");
+    await message.channel.send("Reload successful!");
 }
 
 async function jsEval(message: Message) {
