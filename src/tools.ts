@@ -9,9 +9,31 @@ import strftime from "strftime";
 import { Document } from "mongodb";
 import { promisify } from "util";
 import { exec } from "child_process";
-import { DEV_MODE, BOT_OWNER, DEV_CHANNELS, LOG_CHANNEL } from "./config.js";
+import {
+    BOT_OWNER,
+    EXCHANGE_API_KEY,
+    IMGUR_CLIENT_ID,
+    IMGUR_CLIENT_SECRET,
+    REDDIT_CLIENT_ID,
+    REDDIT_CLIENT_SECRET,
+    REDDIT_REFRESH_TOKEN,
+    DEV_MODE,
+    DEV_CHANNELS,
+    LOG_CHANNEL,
+} from "./config.js";
 
 const execPromise = promisify(exec);
+
+export async function getMissingCredentials() {
+    const missingCredentials = [];
+    if (!EXCHANGE_API_KEY) missingCredentials.push("Exchange API Key");
+    if (!IMGUR_CLIENT_ID) missingCredentials.push("Imgur Client ID");
+    if (!IMGUR_CLIENT_SECRET) missingCredentials.push("Imgur Client Secret");
+    if (!REDDIT_CLIENT_ID) missingCredentials.push("Reddit Client ID");
+    if (!REDDIT_CLIENT_SECRET) missingCredentials.push("Reddit Client Secret");
+    if (!REDDIT_REFRESH_TOKEN) missingCredentials.push("Reddit Refresh Token");
+    return missingCredentials;
+}
 
 /**
  * Takes the file path of an image/gif and resizes it
@@ -61,7 +83,7 @@ export function isDev(): boolean {
 }
 
 /**
- * Create a simple delay 
+ * Create a simple delay
  * @param ms The amount of milliseconds the delay should last for
  */
 export function sleep(ms: number) {
