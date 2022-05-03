@@ -129,7 +129,6 @@ export async function fetchSubmissions(subreddit: string, message: Message, limi
     for (const submissionType of submissionsArray) {
         for (const submission of submissionType) {
             if (
-                (await collection.findOne({ id: submission.id })) === null &&
                 !submission.is_self &&
                 (submission.url.includes("i.redd.it") || submission.url.includes("i.imgur.com"))
             ) {
