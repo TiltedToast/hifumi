@@ -61,6 +61,8 @@ export async function sub(message: Message, prefix: string): Promise<Message> {
     if (isNSFW && !(message.channel as TextChannel).nsfw)
         return await message.channel.send("You have to be in a NSFW channel for this");
 
+    if ((message.channel as TextChannel).nsfw) isNSFW = true;
+
     const subreddit = content[1];
 
     // Check if the subreddit exists
