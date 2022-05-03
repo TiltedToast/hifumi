@@ -5,7 +5,6 @@ import { mongoClient } from "./app.js";
 import strftime from "strftime";
 import { REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET, REDDIT_REFRESH_TOKEN, EMBED_COLOUR } from "./config.js";
 import { Timespan } from "snoowrap/dist/objects/Subreddit";
-import { SubredditResponse } from "./interfaces/SubredditResponse.js";
 
 const RedditClient = new Snoowrap({
     userAgent: "linux:hifumi:v1.0.0 (by /u/tilted_toast)",
@@ -66,9 +65,12 @@ export async function sub(message: Message, prefix: string): Promise<Message> {
 
     // Check if the subreddit exists
     const response = await fetch(`https://www.reddit.com/r/${subreddit}/about.json`);
+    const data = (await response.json()) as Record<string, unknown>;
+
+    if ("reason" in data) return await message.channel.send(`Subreddit not found! Reason: ${data.reason}`);
+
     if (!response.ok) return await message.channel.send(`Reddit's API might be having issues, try again later`);
-    const data = (await response.json()) as SubredditResponse;
-    if (data["kind"] !== "t5") return await message.channel.send(`Subreddit not found!`);
+    if (data["kind"] !== "t5") return await message.channel.send(`Subreddit not found`);
 
     const db = mongoClient.db("reddit");
     const collections = await db.listCollections().toArray();
