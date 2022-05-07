@@ -26,8 +26,15 @@ import {
 
 if (!BOT_TOKEN) throw new Error("No bot token found! Make sure you have a BOT_TOKEN env variable set");
 
-const allIntents = new Intents(32767);
-export const client = new Client({ intents: allIntents });
+const intents = new Intents([
+    "GUILDS",
+    "GUILD_MEMBERS",
+    "GUILD_EMOJIS_AND_STICKERS",
+    "GUILD_MESSAGES",
+    "GUILD_MESSAGE_REACTIONS",
+]);
+
+export const client = new Client({ intents });
 export const mongoClient = new MongoClient(MONGO_URI);
 const startTime = Date.now();
 export const prefixDict: Record<string, string> = {};
