@@ -24,6 +24,9 @@ import {
     LOG_CHANNEL,
 } from "./config.js";
 
+import { promisify } from "util";
+const execPromise = promisify(exec);
+
 if (!BOT_TOKEN) throw new Error("No bot token found! Make sure you have a BOT_TOKEN env variable set");
 
 const intents = new Intents([
@@ -165,6 +168,7 @@ client.on("messageCreate", async (message: Message) => {
             else if (command === "js") await jsEval(message);
             else if (command === "link") await emoji.linkEmoji(message);
             else if (command === "leet") await leet(message);
+            else if (command === "pull") await gitPull(message);
         }
 
         // Reacting to Miku's emote commands
@@ -241,19 +245,28 @@ async function helpCmd(message: Message, prefix: string) {
     return await message.channel.send({ embeds: [helpEmbed] });
 }
 
-async function consoleCmd(message: Message) {
+async function gitPull(message: Message) {
+    if (message.author.id !== BOT_OWNER) return;
+    await consoleCmd(message, "git pull");
+    await reloadBot(message);
+}
+
+async function consoleCmd(message: Message, cmd?: string) {
     if (message.author.id !== BOT_OWNER) return;
     // Creates a new string with the message content without the command
     // And runs it in a new shell process
-    const command = message.content.split(" ").slice(1).join(" ");
-    exec(command, async (_, stdout, stderr) => {
+    const command = cmd ? cmd : message.content.split(" ").slice(1).join(" ");
+    try {
+        const { stdout, stderr } = await execPromise(command);
         if (stderr) await message.channel.send(`\`\`\`${stderr}\`\`\``);
 
         const msg = stdout ? `\`\`\`${stdout}\`\`\`` : "Command executed!";
 
         if (msg.length > 2000) return await message.channel.send("Command output too long!");
         return await message.channel.send(msg);
-    });
+    } catch (error) {
+        return await message.channel.send(`\`\`\`${error}\`\`\``);
+    }
 }
 
 export async function reloadBot(message: Message) {
