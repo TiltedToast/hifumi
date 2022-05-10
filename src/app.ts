@@ -272,7 +272,6 @@ async function consoleCmd(message: Message, cmd?: string) {
 export async function reloadBot(message: Message) {
     if (message.author.id !== BOT_OWNER) return;
     await mongoClient.close();
-
     exec("npm run restart");
     await message.channel.send("Reload successful!");
 }
