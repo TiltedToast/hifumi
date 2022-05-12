@@ -45,11 +45,8 @@ export async function resize(fileLocation: string, width: number, saveLocation: 
     if (fileLocation.endsWith(".gif")) {
         await execPromise(`gifsicle --resize-width ${width} ${fileLocation} > ${saveLocation}`);
     } else {
-        if (process.platform === "win32") {
-            await execPromise(`magick convert -resize ${width} ${fileLocation} ${saveLocation}`);
-        } else {
-            await execPromise(`convert -resize ${width} ${fileLocation} ${saveLocation}`);
-        }
+        const cmdPrefix = process.platform === "win32" ? "magick convert" : "convert";
+        await execPromise(`${cmdPrefix} -resize ${width} ${fileLocation} ${saveLocation}`);
     }
 }
 
