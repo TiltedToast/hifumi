@@ -371,15 +371,14 @@ async function convert(message: Message, prefix: string): Promise<Message | unde
     if (!(from in currencies) || !(to in currencies)) {
         return await message.channel.send(`Invalid currency codes! Check \`${prefix}currencies\` for a list`);
     }
-
-    const response = await fetch(`https://prime.exchangerate-api.com/v5/${EXCHANGE_API_KEY}/latest/${from}`);
-    if (!response.ok) return await message.channel.send("Error! Please try again later");
-    const result = (await response.json()) as ConvertResponse;
-
     // Checks for possible pointless conversions
     if (from === to) return await message.channel.send("Your first currency is the same as your second currency!");
     if (amount < 0) return await message.channel.send("You can't convert a negative amount!");
     if (amount === 0) return await message.channel.send("Zero will obviously stay 0!");
+
+    const response = await fetch(`https://prime.exchangerate-api.com/v5/${EXCHANGE_API_KEY}/latest/${from}`);
+    if (!response.ok) return await message.channel.send("Error! Please try again later");
+    const result = (await response.json()) as ConvertResponse;
 
     // Calculates the converted amount and sends it via an Embed
     const rate = result["conversion_rates"][to];
