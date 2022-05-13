@@ -62,7 +62,7 @@ export async function parseDbArgs(startIndex: number, content: string[]): Promis
     // Loops over the argument pairs and adds them to as key value pairs in the document
     for (let i = startIndex; i < content.length; i += 2) {
         if (i % 2 === evenOrOdd) {
-            document[content[i]] = content[i + 1].includes("_") ? content[i + 1].replace(/_/g, " ") : content[i + 1];
+            document[content[i]] = content[i + 1].replace(/_/g, " ");
         }
     }
     return document;
@@ -258,7 +258,6 @@ export function extractEmoji(emojiString: string, id?: boolean): string {
 
     if (emojiString[1] === "a") return `https://cdn.discordapp.com/emojis/${emojiID}.gif`;
     return `https://cdn.discordapp.com/emojis/${emojiID}.png`;
-    
 }
 
 /**
