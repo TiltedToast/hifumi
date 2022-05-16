@@ -2,16 +2,12 @@ import { Message, MessageAttachment, Permissions, GuildEmoji } from "discord.js"
 import { extractEmoji, createTemp, downloadURL, getImgType, resize, isValidSize } from "./tools.js";
 
 export async function linkEmoji(message: Message) {
-    let output = "";
-
     const emojiRegex = new RegExp(/<a?:[a-zA-Z0-9]{1,32}:[0-9]{18}>/gi);
 
     const emojis = message.content.match(emojiRegex);
     if (!emojis) return await message.channel.send("You have to specify at least one emoji!");
 
-    for (const emoji of emojis) {
-        output += `${extractEmoji(emoji)}\n`;
-    }
+    const output = emojis.map((emoji) => extractEmoji(emoji)).join("\n");
     await message.channel.send(output);
 }
 
@@ -105,7 +101,7 @@ export async function addEmoji(message: Message, prefix: string): Promise<Messag
 
     createTemp("temp");
     const imgType = getImgType(url);
-    if (imgType === "unknown") return await message.channel.send("Invalid image type!");
+    if (!imgType) return await message.channel.send("Invalid image type!");
 
     const fetchErrorMsg = await downloadURL(url, `./temp/unknown.${imgType}`);
     if (fetchErrorMsg) return await message.channel.send(fetchErrorMsg);
