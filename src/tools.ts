@@ -88,7 +88,7 @@ export function sleep(ms: number) {
  * @param object Javascript Object to check
  * @returns A random Property of an object
  */
-export function randomProperty(object: Record<string, unknown>): unknown {
+export function randomProperty(object: Record<string, unknown>) {
     const keys = Object.keys(object);
     return object[keys[(keys.length * Math.random()) << 0]];
 }
@@ -117,7 +117,7 @@ export async function getUserObjectPingId(message: Message): Promise<User | null
  * @param {Array} array The input array
  * @returns a random element from the array
  */
-export function randomElementArray(array: unknown[]): unknown {
+export function randomElementArray<T>(array: T[]) {
     return array[Math.floor(Math.random() * array.length)];
 }
 /**

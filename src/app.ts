@@ -10,7 +10,7 @@ import strftime from "strftime";
 import { Document, MongoClient } from "mongodb";
 import { ConvertResponse } from "./interfaces/ConvertResponse.js";
 import { StatusDoc } from "./interfaces/StatusDoc.js";
-import { UrbanEntry, UrbanResponse } from "./interfaces/UrbanResponse.js";
+import { UrbanResponse } from "./interfaces/UrbanResponse.js";
 import { startCatFactLoop, startStatusLoop } from "./loops.js";
 import { Client, Intents, Message, MessageEmbed, TextChannel, Util } from "discord.js";
 import { randomElementArray, sleep, errorLog, getUserObjectPingId, advRound, getMissingCredentials } from "./tools.js";
@@ -409,7 +409,7 @@ async function urban(message: Message, prefix: string): Promise<Message> {
 
     if (result.length === 0) return message.channel.send("No results found!");
 
-    const resultEntry = randomElementArray(result) as UrbanEntry;
+    const resultEntry = randomElementArray(result);
 
     const { word, definition, example, author, permalink, thumbs_up, thumbs_down } = resultEntry;
 
