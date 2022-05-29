@@ -1,7 +1,7 @@
 import { randomElementArray, randomIntFromRange } from "./tools.js";
-import { CatFactResponse } from "./interfaces/CatFactResponse";
-import { StatusDoc } from "./interfaces/StatusDoc";
-import { TextChannel, Client } from "discord.js";
+import type { CatFactResponse } from "./interfaces/CatFactResponse";
+import type { StatusDoc } from "./interfaces/StatusDoc";
+import type { TextChannel, Client } from "discord.js";
 import { statusArr } from "./app.js";
 import fetch from "node-fetch";
 
@@ -25,5 +25,5 @@ export async function startStatusLoop(client: Client) {
         const randomStatus = randomStatusDoc.status;
 
         client.user.setActivity(randomStatus, { type: randomType });
-    }, randomIntFromRange(300000, 900000));
+    }, randomIntFromRange(300000, 900000)); // 5m-15m
 }

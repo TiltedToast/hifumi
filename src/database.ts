@@ -3,7 +3,7 @@ import { Message, Permissions } from "discord.js";
 import { isDev, parseDbArgs } from "./tools.js";
 import { BOT_OWNER } from "./config.js";
 
-export async function insert(message: Message) {
+export async function insert(message: Message): Promise<void | Message<boolean>> {
     if (message.author.id !== BOT_OWNER) return;
 
     const content = message.content.split(" ");
@@ -23,7 +23,7 @@ export async function insert(message: Message) {
     await message.channel.send(`\`\`\`json\n${JSON.stringify(document, null, 4)}\n\`\`\``);
 }
 
-export async function update(message: Message) {
+export async function update(message: Message): Promise<void | Message<boolean>> {
     if (message.author.id !== BOT_OWNER) return;
 
     const content = message.content.split(" ");
@@ -49,7 +49,7 @@ export async function update(message: Message) {
     await message.channel.send(`\`\`\`json\n${JSON.stringify(updatedDoc, null, 4)}\n\`\`\``);
 }
 
-export async function insertStatus(message: Message) {
+export async function insertStatus(message: Message): Promise<void | Message<boolean>> {
     if (message.author.id !== BOT_OWNER) return;
 
     const content = message.content.split(" ");

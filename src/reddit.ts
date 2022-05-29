@@ -4,7 +4,8 @@ import fetch from "node-fetch";
 import { mongoClient } from "./app.js";
 import strftime from "strftime";
 import { REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET, REDDIT_REFRESH_TOKEN, EMBED_COLOUR } from "./config.js";
-import { Timespan } from "snoowrap/dist/objects/Subreddit";
+import type { Timespan } from "snoowrap/dist/objects/Subreddit";
+import type { Submission } from "snoowrap";
 
 const RedditClient = new Snoowrap({
     userAgent: "linux:hifumi:v1.0.0 (by /u/tilted_toast)",
@@ -24,18 +25,19 @@ export async function profile(message: Message, prefix: string): Promise<Message
     const response = await fetch(`https://www.reddit.com/user/${userName}/about.json`);
     if (!response.ok) return await message.channel.send(`User not found!`);
 
-    const user = RedditClient.getUser(userName);
-    const userCreatedDate = strftime("%d/%m/%Y", new Date(user.created_utc * 1000));
-    const description = `[Link to profile](https://www.reddit.com/user/${user.name})
-                        Post Karma: ${user.link_karma.toString()}
-                        Comment Karma: ${user.comment_karma.toString()}
+    const { created_utc, name, comment_karma, link_karma, icon_img } = RedditClient.getUser(userName);
+
+    const userCreatedDate = strftime("%d/%m/%Y", new Date(created_utc * 1000));
+    const description = `[Link to profile](https://www.reddit.com/user/${name})
+                        Post Karma: ${link_karma.toString()}
+                        Comment Karma: ${comment_karma.toString()}
                         Created on: ${userCreatedDate}`;
 
     const profileEmbed = new MessageEmbed()
         .setColor(EMBED_COLOUR)
-        .setTitle(`${user.name}'s profile`)
+        .setTitle(`${name}'s profile`)
         .setDescription(description)
-        .setThumbnail(user.icon_img);
+        .setThumbnail(icon_img);
 
     return await message.channel.send({ embeds: [profileEmbed] });
 }
@@ -69,7 +71,7 @@ export async function sub(message: Message, prefix: string): Promise<Message> {
     const response = await fetch(`https://www.reddit.com/r/${subreddit}/about.json`);
     const data = (await response.json()) as Record<string, unknown>;
 
-    if ("reason" in data) return await message.channel.send(`Subreddit not found! Reason: ${data.reason}`);
+    if ("reason" in data) return await message.channel.send(`Subreddit not found! Reason: ${data["reason"]}`);
 
     if (!response.ok) return await message.channel.send(`Reddit's API might be having issues, try again later`);
     if (data["kind"] !== "t5") return await message.channel.send(`Subreddit not found`);
@@ -94,25 +96,25 @@ export async function sub(message: Message, prefix: string): Promise<Message> {
 
     if (randomSubmission.length === 0) return await message.channel.send("No images found!");
 
-    const submission = randomSubmission[0];
+    const { title, permalink, url } = randomSubmission[0] as Submission;
 
     const imgEmbed = new MessageEmbed()
         .setColor(EMBED_COLOUR)
-        .setTitle(submission.title)
-        .setURL(`https://reddit.com${submission.permalink}`)
-        .setImage(submission.url);
+        .setTitle(title)
+        .setURL(`https://reddit.com${permalink}`)
+        .setImage(url);
 
     return await message.channel.send({ embeds: [imgEmbed] });
 }
 
 export async function fetchSubmissions(subreddit: string, message: Message, limit = 100) {
-    const posts: Snoowrap.Submission[] = [];
+    const posts: Submission[] = [];
     const db = mongoClient.db("reddit");
 
     // Make sure there's a collection ready for the subreddit
-    if (db.collection(`${subreddit}`) === null) await db.createCollection(`${subreddit}`);
+    if (db.collection(subreddit) === null) await db.createCollection(subreddit);
 
-    const collection = db.collection(`${subreddit}`);
+    const collection = db.collection(subreddit);
     const timeSpans: Timespan[] = ["hour", "day", "week", "month", "year", "all"];
 
     const topSubmissions = timeSpans.map((timeSpan) =>

@@ -3,9 +3,9 @@ import * as fs from "fs";
 import { FormData } from "formdata-node";
 import fetch from "node-fetch";
 import * as qrcode from "qrcode";
-import { Message, MessageAttachment } from "discord.js";
+import type { Message, MessageAttachment } from "discord.js";
 import { Headers } from "node-fetch";
-import { ImgurResponse } from "./interfaces/ImgurResponse.js";
+import type { ImgurResponse } from "./interfaces/ImgurResponse.js";
 import { IMGUR_CLIENT_ID } from "./config.js";
 import { createTemp, getUserObjectPingId, resize, downloadURL, getImgType, isValidSize } from "./tools.js";
 
@@ -123,8 +123,10 @@ export async function imgur(message: Message, prefix: string, url?: string): Pro
     }
 
     createTemp("temp");
+
     const imgType = getImgType(source);
     if (imgType === null) return await message.channel.send("Invalid image type!");
+    
     const myHeaders = new Headers();
     const formdata = new FormData();
     myHeaders.append("Authorization", `Client-ID ${IMGUR_CLIENT_ID}`);

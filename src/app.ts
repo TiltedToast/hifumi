@@ -8,9 +8,9 @@ import { exec } from "child_process";
 import { isDev } from "./tools.js";
 import strftime from "strftime";
 import { Document, MongoClient } from "mongodb";
-import { ConvertResponse } from "./interfaces/ConvertResponse.js";
-import { StatusDoc } from "./interfaces/StatusDoc.js";
-import { UrbanResponse } from "./interfaces/UrbanResponse.js";
+import type { ConvertResponse } from "./interfaces/ConvertResponse.js";
+import type { StatusDoc } from "./interfaces/StatusDoc.js";
+import type { UrbanResponse } from "./interfaces/UrbanResponse.js";
 import { startCatFactLoop, startStatusLoop } from "./loops.js";
 import { Client, Intents, Message, MessageEmbed, TextChannel, Util } from "discord.js";
 import { randomElementArray, sleep, errorLog, getUserObjectPingId, advRound, getMissingCredentials } from "./tools.js";
@@ -71,7 +71,7 @@ client.once("ready", async () => {
     // The database every time a message is received
     const prefixDocs = await mongoClient.db("hifumi").collection("prefixes").find().toArray();
     for (const prefixDoc of prefixDocs) {
-        prefixDict[prefixDoc.serverId] = prefixDoc.prefix;
+        prefixDict[prefixDoc["serverId"]] = prefixDoc["prefix"];
     }
 
     const logChannel = client.channels.cache.get(LOG_CHANNEL);
@@ -181,13 +181,12 @@ client.on("messageCreate", async (message: Message) => {
         ) {
             const mikuReactions = await mongoClient.db("hifumi").collection("mikuReactions").find().toArray();
 
-            if (mikuReactions.length === 0) {
+            if (mikuReactions.length !== 2) {
                 await message.channel.send("No Miku reactions found in the database");
                 return;
             }
 
-            const cmdAliases = mikuReactions[0];
-            const reactMsgs = mikuReactions[1];
+            const [cmdAliases, reactMsgs] = mikuReactions;
 
             for (const alias in cmdAliases) {
                 if (Object.values(cmdAliases[alias]).includes(reactCmd)) {
@@ -205,7 +204,7 @@ client.on("messageCreate", async (message: Message) => {
     }
 });
 
-async function leet(message: Message) {
+async function leet(message: Message): Promise<void | Message<boolean>> {
     const inputWords = message.content.split(" ").slice(1);
     const leetDoc = (await mongoClient.db("hifumi").collection("leet").find().toArray())[0];
 
@@ -235,7 +234,7 @@ async function helpCmd(message: Message, prefix: string) {
     if (helpMsgArray.length === 0)
         return await message.channel.send("Seems there aren't any help messages saved in the database");
 
-    const helpMsg = helpMsgArray.map((helpMsgObj) => `**${prefix}${helpMsgObj.cmd}** - ${helpMsgObj.desc}`).join("\n");
+    const helpMsg = helpMsgArray.map((helpMsgObj) => `**${prefix}${helpMsgObj["cmd"]}** - ${helpMsgObj["desc"]}`).join("\n");
 
     const helpEmbed = new MessageEmbed()
         .setColor(EMBED_COLOUR)
@@ -323,7 +322,7 @@ async function avatar(message: Message) {
 
     const avatarEmbed = new MessageEmbed().setColor(EMBED_COLOUR).setTitle(`*${username}'s Avatar*`).setImage(url);
 
-    await message.channel.send({ embeds: [avatarEmbed] });
+    return await message.channel.send({ embeds: [avatarEmbed] });
 }
 
 async function listCurrencies(message: Message) {
@@ -351,7 +350,7 @@ async function listCurrencies(message: Message) {
         currEmbed.addField("\u200b", column, true);
     }
 
-    await message.channel.send({ embeds: [currEmbed] });
+    return await message.channel.send({ embeds: [currEmbed] });
 }
 
 async function convert(message: Message, prefix: string): Promise<Message | undefined> {
@@ -393,7 +392,7 @@ async function convert(message: Message, prefix: string): Promise<Message | unde
         .setDescription(description)
         .setFooter({ text: `${strftime("%d/%m/%Y %H:%M:%S")}` });
 
-    await message.channel.send({ embeds: [convertEmbed] });
+    return await message.channel.send({ embeds: [convertEmbed] });
 }
 
 async function urban(message: Message, prefix: string): Promise<Message> {

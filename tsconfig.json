@@ -1,12 +1,30 @@
 {
     "compilerOptions": {
-        "module": "ES2020",
+        "module": "es2022",
         "target": "es2022",
         "outDir": "dist",
         "rootDir": "src",
         "strict": true,
         "esModuleInterop": true,
         "moduleResolution": "node",
+        "forceConsistentCasingInFileNames": true,
+        "removeComments": true,
+        "noImplicitThis": true,
+        "noImplicitAny": true,
+        "strictNullChecks": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "noFallthroughCasesInSwitch": true,
+        "noImplicitReturns": true,
+        "preserveConstEnums": true,
+        "skipLibCheck": true,
+        "allowUnreachableCode": false,
+        "allowUnusedLabels": false,
+        "noImplicitOverride": true,
+        "noPropertyAccessFromIndexSignature": true,
+        "checkJs": true,
+        "importsNotUsedAsValues": "error",
+
     },
     "include": [
         "src/**/*.ts"
