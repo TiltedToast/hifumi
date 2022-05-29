@@ -4,9 +4,9 @@ import * as path from "path";
 import fetch from "node-fetch";
 import { Headers } from "node-fetch";
 import { mongoClient, client } from "./app.js";
-import { AnyChannel, Message, TextChannel, User } from "discord.js";
+import type { AnyChannel, Message, TextChannel, User } from "discord.js";
 import strftime from "strftime";
-import { Document } from "mongodb";
+import type { Document } from "mongodb";
 import { promisify } from "util";
 import { exec } from "child_process";
 import {
@@ -135,7 +135,7 @@ export function randomIntFromRange(min: number, max: number): number {
  * @param {Message} message The Message object passed on each command execution
  * @param {Error} errorObject The error object that is passed to the command through try/catch
  */
-export function errorLog(message: Message, errorObject: Error) {
+export function errorLog(message: Message, errorObject: Error): Promise<Message<boolean>> {
     const currentTime = strftime("%d/%m/%Y %H:%M:%S");
     let channel: AnyChannel | undefined;
     let errorMessage: string;
@@ -189,7 +189,7 @@ export function errorLog(message: Message, errorObject: Error) {
         channel = client.channels.cache.get(LOG_CHANNEL);
     }
 
-    (channel as TextChannel).send(errorMessage);
+    return (channel as TextChannel).send(errorMessage);
 }
 
 /**
@@ -217,7 +217,7 @@ export async function downloadURL(url: string, saveLocation: string) {
     if (!response.ok) return `Failed to download <${url}>: ${response.status} ${response.statusText}`;
 
     const buffer = await response.arrayBuffer();
-    await fsPromise.writeFile(absSaveLocation, new Uint8Array(buffer));
+    return await fsPromise.writeFile(absSaveLocation, new Uint8Array(buffer));
 }
 
 /**

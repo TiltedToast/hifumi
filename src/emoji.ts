@@ -1,17 +1,17 @@
 import { Message, MessageAttachment, Permissions, GuildEmoji } from "discord.js";
 import { extractEmoji, createTemp, downloadURL, getImgType, resize, isValidSize } from "./tools.js";
 
-export async function linkEmoji(message: Message) {
+export async function linkEmoji(message: Message): Promise<Message<boolean>> {
     const emojiRegex = new RegExp(/<a?:[a-zA-Z0-9]{1,32}:[0-9]{18}>/gi);
 
     const emojis = message.content.match(emojiRegex);
     if (!emojis) return await message.channel.send("You have to specify at least one emoji!");
 
     const output = emojis.map((emoji) => extractEmoji(emoji)).join("\n");
-    await message.channel.send(output);
+    return await message.channel.send(output);
 }
 
-export async function addEmoji(message: Message, prefix: string): Promise<Message | undefined> {
+export async function addEmoji(message: Message, prefix: string): Promise<void | Message<boolean>> {
     let name = "",
         emoji,
         url = "";
