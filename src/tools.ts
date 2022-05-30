@@ -2,13 +2,14 @@ import * as fsPromise from "fs/promises";
 import * as fs from "fs";
 import * as path from "path";
 import fetch from "node-fetch";
+import strftime from "strftime";
+import { exec } from "child_process";
 import { Headers } from "node-fetch";
 import { mongoClient, client } from "./app.js";
-import type { AnyChannel, Message, TextChannel, User } from "discord.js";
-import strftime from "strftime";
-import type { Document } from "mongodb";
 import { promisify } from "util";
-import { exec } from "child_process";
+import type { Document } from "mongodb";
+import type { RequestInit } from "node-fetch";
+import type { AnyChannel, Message, PermissionResolvable, TextChannel, User } from "discord.js";
 import {
     BOT_OWNER,
     EXCHANGE_API_KEY,
@@ -23,6 +24,12 @@ import {
 } from "./config.js";
 
 const execPromise = promisify(exec);
+
+
+export function hasPermission(permission: PermissionResolvable, message: Message): boolean {
+    if (!message.member) return false;
+    return message.member.permissions.has(permission);
+}
 
 export async function getMissingCredentials() {
     const missingCredentials = [];
@@ -120,10 +127,11 @@ export async function getUserObjectPingId(message: Message): Promise<User | null
 export function randomElementArray<T>(array: T[]) {
     return array[Math.floor(Math.random() * array.length)];
 }
+
 /**
  * Returns a random integer between min (inclusive) and max (inclusive)
- * @param  {Number} min Minimum Integer value to return
- * @param  {Number} max Maximum Integer value to return
+ * @param  {number} min Minimum Integer value to return
+ * @param  {number} max Maximum Integer value to return
  * @returns a random integer between min and max
  */
 export function randomIntFromRange(min: number, max: number): number {
@@ -145,7 +153,7 @@ export function errorLog(message: Message, errorObject: Error): Promise<Message<
 
     const commandUsed =
         message.content.substring(0, 500).split(" ").slice(0, -1).join(" ") +
-        (message.content.substring(0, 1000) !== message.content ? "..." : "");
+        (message.content.substring(0, 1000) !== message.content ? " ..." : "");
 
     const errorMessageWithoutStack = [
         `An Error occurred on ${currentTime}`,
@@ -206,7 +214,7 @@ export async function downloadURL(url: string, saveLocation: string) {
     // Pixiv requires a Referrr header
     if (url.includes("pximg")) myHeaders.append("Referer", "https://www.pixiv.net/");
 
-    const requestOptions: Record<string, unknown> = {
+    const requestOptions: RequestInit = {
         method: "GET",
         headers: myHeaders,
         redirect: "follow",

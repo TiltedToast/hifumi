@@ -2,6 +2,7 @@ import { mongoClient, prefixDict, statusArr } from "./app.js";
 import { Message, Permissions } from "discord.js";
 import { isDev, parseDbArgs } from "./tools.js";
 import { BOT_OWNER } from "./config.js";
+import { StatusType } from "./interfaces/StatusDoc.js";
 
 export async function insert(message: Message): Promise<void | Message<boolean>> {
     if (message.author.id !== BOT_OWNER) return;
@@ -59,17 +60,15 @@ export async function insertStatus(message: Message): Promise<void | Message<boo
     const status = content.slice(2).join(" ");
     const type = content[1].toUpperCase();
 
-    if (!["LISTENING", "STREAMING", "WATCHING", "PLAYING", "COMPETING"].includes(type)) {
-        return await message.channel.send("Invalid type!");
-    }
+    if (!(type in StatusType)) return await message.channel.send("Invalid type!");
 
     if (isDev())
         await message.channel.send("Add your statuses to the cloud db instead <:emiliaSMH:747132102645907587>");
 
     // Uppercases the type to conform to discord's API
     const document = {
-        type: type,
-        status: status,
+        type,
+        status,
     };
 
     const collection = mongoClient.db("hifumi").collection("statuses");
