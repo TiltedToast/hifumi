@@ -25,12 +25,20 @@ import {
 
 const execPromise = promisify(exec);
 
-
+/**
+ * Checks if the user invoking the command has the specified permission(s)
+ * @param permission A valid permission to check, see {@link https://discord.js.org/#/docs/discord.js/stable/typedef/PermissionResolvable accepted Values}
+ * @param message Message object passed through the command
+ */
 export function hasPermission(permission: PermissionResolvable, message: Message): boolean {
     if (!message.member) return false;
     return message.member.permissions.has(permission);
 }
 
+/**
+ * Checks config variables for missing credentials
+ * @returns a list of missing credentials
+ */
 export async function getMissingCredentials() {
     const missingCredentials = [];
     if (!EXCHANGE_API_KEY) missingCredentials.push("Exchange API Key");
@@ -264,8 +272,9 @@ export function extractEmoji(emojiString: string, id?: boolean): string {
 
     if (id) return emojiID;
 
-    if (emojiString[1] === "a") return `https://cdn.discordapp.com/emojis/${emojiID}.gif`;
-    return `https://cdn.discordapp.com/emojis/${emojiID}.png`;
+    const extension = emojiString[1] === "a" ? "gif" : "png";
+
+    return `https://cdn.discordapp.com/emojis/${emojiID}.${extension}`;
 }
 
 /**
