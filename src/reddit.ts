@@ -25,6 +25,12 @@ export async function profile(message: Message, prefix: string): Promise<Message
     const response = await fetch(`https://www.reddit.com/user/${userName}/about.json`);
     if (!response.ok) return await message.channel.send(`User not found!`);
 
+    const profileEmbed = buildProfileEmbed(userName);
+
+    return await message.channel.send({ embeds: [profileEmbed] });
+}
+
+function buildProfileEmbed(userName: string) {
     const { created_utc, name, comment_karma, link_karma, icon_img } = RedditClient.getUser(userName);
 
     const userCreatedDate = strftime("%d/%m/%Y", new Date(created_utc * 1000));
@@ -38,32 +44,18 @@ export async function profile(message: Message, prefix: string): Promise<Message
         .setTitle(`${name}'s profile`)
         .setDescription(description)
         .setThumbnail(icon_img);
-
-    return await message.channel.send({ embeds: [profileEmbed] });
+    return profileEmbed;
 }
 
 export async function sub(message: Message, prefix: string): Promise<Message> {
-    let isNSFW = false,
-        force = false;
-
     const content = message.content.split(" ").map((x) => x.toLowerCase());
     if (content.length === 1) return await message.channel.send(`Usage: \`${prefix}sub <subreddit>\``);
 
-    if (content.length >= 3) {
-        for (let i = 2; i < content.length; i++) {
-            if (content[i] === "nsfw") {
-                isNSFW = true;
-            } else if (content[i] === "force") {
-                force = true;
-            }
-        }
-    }
+    const [isNSFW, force] = parseSubFlags(content, message);
 
     // Check if command has been run in a channel marked as NSFW to avoid potential NSFW posts in non-NSFW channels
     if (isNSFW && !(message.channel as TextChannel).nsfw)
         return await message.channel.send("You have to be in a NSFW channel for this");
-
-    if ((message.channel as TextChannel).nsfw) isNSFW = true;
 
     const subreddit = content[1];
 
@@ -107,6 +99,24 @@ export async function sub(message: Message, prefix: string): Promise<Message> {
     return await message.channel.send({ embeds: [imgEmbed] });
 }
 
+function parseSubFlags(content: string[], message: Message): [boolean, boolean] {
+    let isNSFW = false,
+        force = false;
+
+    if (content.length >= 3) {
+        for (let i = 2; i < content.length; i++) {
+            if (content[i] === "nsfw") {
+                isNSFW = true;
+            } else if (content[i] === "force") {
+                force = true;
+            }
+        }
+    }
+    if ((message.channel as TextChannel).nsfw) isNSFW = true;
+
+    return [isNSFW, force];
+}
+
 export async function fetchSubmissions(subreddit: string, message: Message, limit = 100) {
     const posts: Submission[] = [];
     const db = mongoClient.db("reddit");
@@ -115,18 +125,7 @@ export async function fetchSubmissions(subreddit: string, message: Message, limi
     if (db.collection(subreddit) === null) await db.createCollection(subreddit);
 
     const collection = db.collection(subreddit);
-    const timeSpans: Timespan[] = ["hour", "day", "week", "month", "year", "all"];
-
-    const topSubmissions = timeSpans.map((timeSpan) =>
-        RedditClient.getSubreddit(subreddit).getTop({ time: timeSpan, limit: limit })
-    );
-
-    const submissionsArray = await Promise.all([
-        RedditClient.getSubreddit(subreddit).getHot({ limit: limit }),
-        RedditClient.getSubreddit(subreddit).getNew({ limit: limit }),
-        RedditClient.getSubreddit(subreddit).getRising({ limit: limit }),
-        ...topSubmissions,
-    ]);
+    const submissionsArray = await getSubmissions(subreddit, limit);
 
     for (const submissionType of submissionsArray) {
         for (const submission of submissionType) {
@@ -144,3 +143,19 @@ export async function fetchSubmissions(subreddit: string, message: Message, limi
     await collection.insertMany(posts);
     await message.channel.send(`Fetched ${posts.length} new images for ${subreddit}`);
 }
+
+async function getSubmissions(subreddit: string, limit: number) {
+    const timeSpans: Timespan[] = ["hour", "day", "week", "month", "year", "all"];
+
+    const topSubmissions = timeSpans.map((timeSpan) => RedditClient.getSubreddit(subreddit).getTop({ time: timeSpan, limit: limit })
+    );
+
+    const submissionsArray = await Promise.all([
+        RedditClient.getSubreddit(subreddit).getHot({ limit: limit }),
+        RedditClient.getSubreddit(subreddit).getNew({ limit: limit }),
+        RedditClient.getSubreddit(subreddit).getRising({ limit: limit }),
+        ...topSubmissions,
+    ]);
+    return submissionsArray;
+}
+

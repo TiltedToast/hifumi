@@ -1,9 +1,9 @@
-import { randomElementArray, randomIntFromRange } from "./tools.js";
-import type { CatFactResponse } from "./interfaces/CatFactResponse";
-import type { StatusDoc } from "./interfaces/StatusDoc";
-import type { TextChannel, Client } from "discord.js";
-import { statusArr } from "./app.js";
 import fetch from "node-fetch";
+import { statusArr } from "./app.js";
+import { randomElementArray, randomIntFromRange } from "./tools.js";
+import type { StatusDoc } from "./interfaces/StatusDoc";
+import type { CatFactResponse } from "./interfaces/CatFactResponse";
+import type { TextChannel, Client } from "discord.js";
 
 export async function startCatFactLoop(channel: TextChannel): Promise<void> {
     setInterval(async () => {

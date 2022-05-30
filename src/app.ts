@@ -4,13 +4,13 @@ import * as imgProcess from "./imgProcess.js";
 import * as reddit from "./reddit.js";
 import * as database from "./database.js";
 import fetch from "node-fetch";
+import strftime from "strftime";
 import { exec } from "child_process";
 import { isDev } from "./tools.js";
-import strftime from "strftime";
 import { Document, MongoClient } from "mongodb";
 import type { ConvertResponse } from "./interfaces/ConvertResponse.js";
 import type { StatusDoc } from "./interfaces/StatusDoc.js";
-import type { UrbanResponse } from "./interfaces/UrbanResponse.js";
+import type { UrbanEntry, UrbanResponse } from "./interfaces/UrbanResponse.js";
 import { startCatFactLoop, startStatusLoop } from "./loops.js";
 import { Client, Intents, Message, MessageEmbed, TextChannel, Util } from "discord.js";
 import { randomElementArray, sleep, errorLog, getUserObjectPingId, advRound, getMissingCredentials } from "./tools.js";
@@ -179,30 +179,30 @@ client.on("messageCreate", async (message: Message) => {
             message.content.startsWith(`$${reactCmd} <@${botId}>`) ||
             message.content.startsWith(`$${reactCmd} <@!${botId}>`)
         ) {
-            const mikuReactions = await mongoClient.db("hifumi").collection("mikuReactions").find().toArray();
-
-            if (mikuReactions.length !== 2) {
-                await message.channel.send("No Miku reactions found in the database");
-                return;
-            }
-
-            const [cmdAliases, reactMsgs] = mikuReactions;
-
-            for (const alias in cmdAliases) {
-                if (Object.values(cmdAliases[alias]).includes(reactCmd)) {
-                    const msg = (randomElementArray(reactMsgs[alias]) as string).replace(
-                        "{0}",
-                        message.author.username
-                    );
-                    await sleep(1000);
-                    await message.channel.send(msg);
-                }
-            }
+            await reactToMiku(message, reactCmd);
         }
     } catch (err: unknown) {
         errorLog(message, err as Error);
     }
 });
+
+async function reactToMiku(message: Message, reactCmd: string): Promise<void | Message> {
+    const mikuReactions = await mongoClient.db("hifumi").collection("mikuReactions").find().toArray();
+
+    if (mikuReactions.length !== 2) {
+        return await message.channel.send("No Miku reactions found in the database");
+    }
+
+    const [cmdAliases, reactMsgs] = mikuReactions;
+
+    for (const alias in cmdAliases) {
+        if (Object.values(cmdAliases[alias]).includes(reactCmd)) {
+            const msg = (randomElementArray(reactMsgs[alias]) as string).replace("{0}", message.author.username);
+            await sleep(1000);
+            return await message.channel.send(msg);
+        }
+    }
+}
 
 async function leet(message: Message): Promise<void | Message<boolean>> {
     const inputWords = message.content.split(" ").slice(1);
@@ -234,7 +234,9 @@ async function helpCmd(message: Message, prefix: string) {
     if (helpMsgArray.length === 0)
         return await message.channel.send("Seems there aren't any help messages saved in the database");
 
-    const helpMsg = helpMsgArray.map((helpMsgObj) => `**${prefix}${helpMsgObj["cmd"]}** - ${helpMsgObj["desc"]}`).join("\n");
+    const helpMsg = helpMsgArray
+        .map((helpMsgObj) => `**${prefix}${helpMsgObj["cmd"]}** - ${helpMsgObj["desc"]}`)
+        .join("\n");
 
     const helpEmbed = new MessageEmbed()
         .setColor(EMBED_COLOUR)
@@ -380,6 +382,12 @@ async function convert(message: Message, prefix: string): Promise<Message | unde
     const result = (await response.json()) as ConvertResponse;
 
     // Calculates the converted amount and sends it via an Embed
+    const convertEmbed = buildConvertEmbed(result, to, amount, from);
+
+    return await message.channel.send({ embeds: [convertEmbed] });
+}
+
+function buildConvertEmbed(result: ConvertResponse, to: string, amount: number, from: string) {
     const rate = result["conversion_rates"][to];
     const rslt = Math.round(amount * rate * 100) / 100;
     const description = `**${advRound(amount)} ${from} ≈ ${advRound(
@@ -391,8 +399,7 @@ async function convert(message: Message, prefix: string): Promise<Message | unde
         .setTitle(`Converting ${from} to ${to}`)
         .setDescription(description)
         .setFooter({ text: `${strftime("%d/%m/%Y %H:%M:%S")}` });
-
-    return await message.channel.send({ embeds: [convertEmbed] });
+    return convertEmbed;
 }
 
 async function urban(message: Message, prefix: string): Promise<Message> {
@@ -409,7 +416,12 @@ async function urban(message: Message, prefix: string): Promise<Message> {
     if (result.length === 0) return message.channel.send("No results found!");
 
     const resultEntry = randomElementArray(result);
+    const urbanEmbed = buildUrbanEmbed(resultEntry);
 
+    return await message.channel.send({ embeds: [urbanEmbed] });
+}
+
+function buildUrbanEmbed(resultEntry: UrbanEntry) {
     const { word, definition, example, author, permalink, thumbs_up, thumbs_down } = resultEntry;
 
     const description = `${definition}\n
@@ -422,8 +434,7 @@ async function urban(message: Message, prefix: string): Promise<Message> {
         .setTitle(`*${word}*`)
         .setDescription(description)
         .setFooter({ text: `Upvotes: ${thumbs_up} Downvotes: ${thumbs_down}` });
-
-    return await message.channel.send({ embeds: [urbanEmbed] });
+    return urbanEmbed;
 }
 
 async function bye(message: Message): Promise<Message | void> {
