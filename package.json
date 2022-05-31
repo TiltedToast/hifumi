@@ -3,12 +3,9 @@
     "version": "1.0.0",
     "type": "module",
     "dependencies": {
-        "@discordjs/builders": "^0.11.0",
-        "@discordjs/rest": "^0.2.0-canary.0",
         "@types/snoowrap": "^1.19.0",
         "canvas": "^2.9.1",
         "canvas-constructor": "^5.0.2",
-        "discord-api-types": "^0.26.1",
         "discord.js": "^13.1.0",
         "dotenv": "^16.0.0",
         "formdata-node": "^4.3.2",
@@ -22,8 +19,7 @@
         "simple-get": "^4.0.1",
         "skia-canvas": "^0.9.28",
         "snoowrap": "^1.23.0",
-        "strftime": "^0.10.1",
-        "typescript": "^4.5.5"
+        "strftime": "^0.10.1"
     },
     "devDependencies": {
         "@types/qrcode": "^1.4.2",
@@ -31,7 +27,8 @@
         "@types/strftime": "^0.9.4",
         "@typescript-eslint/eslint-plugin": "^5.14.0",
         "@typescript-eslint/parser": "^5.14.0",
-        "eslint": "^8.7.0"
+        "eslint": "^8.7.0",
+        "typescript": "^4.7.2"
     },
     "scripts": {
         "start": "tsc && pm2 start ./dist/app.js --name hifumi --time",
