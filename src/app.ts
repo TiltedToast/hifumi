@@ -175,10 +175,7 @@ client.on("messageCreate", async (message: Message) => {
         // Grabs a random reply from the db and sents it as a message after a fixed delay
         const botId = isDev() ? "665224627353681921" : "641409330888835083";
 
-        if (
-            message.content.startsWith(`$${reactCmd} <@${botId}>`) ||
-            message.content.startsWith(`$${reactCmd} <@!${botId}>`)
-        ) {
+        if (isMikuTrigger(message, reactCmd, botId)) {
             await reactToMiku(message, reactCmd);
         }
     } catch (err: unknown) {
@@ -202,6 +199,14 @@ async function reactToMiku(message: Message, reactCmd: string): Promise<void | M
             return await message.channel.send(msg);
         }
     }
+}
+
+function isMikuTrigger(message: Message, reactCmd: string, botId: string): boolean {
+    return (
+        message.content.startsWith(`$${reactCmd} <@${botId}>`) ||
+        message.content.startsWith(`$${reactCmd} <@!${botId}>`) ||
+        (message.content.startsWith(`$${reactCmd}`) && message.type === "REPLY")
+    );
 }
 
 async function leet(message: Message): Promise<void | Message<boolean>> {
