@@ -202,10 +202,15 @@ async function reactToMiku(message: Message, reactCmd: string): Promise<void | M
 }
 
 function isMikuTrigger(message: Message, reactCmd: string, botId: string): boolean {
+    if (message.content.startsWith(`$${reactCmd}`) && message.type === "REPLY") {
+        const repliedMsg = message.channel.messages.resolve(message.reference?.messageId ?? "");
+        if (!repliedMsg) return false;
+        if (repliedMsg.author.id === botId) return true;
+    }
+
     return (
         message.content.startsWith(`$${reactCmd} <@${botId}>`) ||
-        message.content.startsWith(`$${reactCmd} <@!${botId}>`) ||
-        (message.content.startsWith(`$${reactCmd}`) && message.type === "REPLY")
+        message.content.startsWith(`$${reactCmd} <@!${botId}>`)
     );
 }
 
