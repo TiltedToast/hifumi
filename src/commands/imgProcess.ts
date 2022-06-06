@@ -4,9 +4,9 @@ import * as qrcode from "qrcode";
 import fetch from "node-fetch";
 import { Headers } from "node-fetch";
 import { FormData } from "formdata-node";
-import { IMGUR_CLIENT_ID } from "./config.js";
+import { IMGUR_CLIENT_ID } from "../config.js";
 import { createTemp, getUserObjectPingId, resize, downloadURL, getImgType, isValidSize } from "./tools.js";
-import type { ImgurResponse } from "./interfaces/ImgurResponse.js";
+import type { ImgurResponse } from "../interfaces/ImgurResponse.js";
 import type { Message, MessageAttachment } from "discord.js";
 
 import canvas from "canvas";

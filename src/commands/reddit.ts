@@ -1,9 +1,9 @@
 import Snoowrap from "snoowrap";
 import { Message, MessageEmbed, TextChannel } from "discord.js";
 import fetch from "node-fetch";
-import { mongoClient } from "./app.js";
+import { mongoClient } from "../app.js";
 import strftime from "strftime";
-import { REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET, REDDIT_REFRESH_TOKEN, EMBED_COLOUR } from "./config.js";
+import { REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET, REDDIT_REFRESH_TOKEN, EMBED_COLOUR } from "../config.js";
 import type { Timespan } from "snoowrap/dist/objects/Subreddit";
 import type { Submission } from "snoowrap";
 

@@ -5,7 +5,7 @@ import fetch from "node-fetch";
 import strftime from "strftime";
 import { exec } from "child_process";
 import { Headers } from "node-fetch";
-import { mongoClient, client } from "./app.js";
+import { mongoClient, client } from "../app.js";
 import { promisify } from "util";
 import type { Document } from "mongodb";
 import type { RequestInit } from "node-fetch";
@@ -21,13 +21,14 @@ import {
     DEV_MODE,
     DEV_CHANNELS,
     LOG_CHANNEL,
-} from "./config.js";
+} from "../config.js";
 
 const execPromise = promisify(exec);
 
 /**
  * Checks if the user invoking the command has the specified permission(s)
- * @param permission A valid permission to check, see {@link https://discord.js.org/#/docs/discord.js/stable/typedef/PermissionResolvable accepted Values}
+ * @param permission A valid permission to check, see
+ * {@link https://discord.js.org/#/docs/discord.js/stable/typedef/PermissionResolvable accepted values}
  * @param message Message object passed through the command
  */
 export function hasPermission(permission: PermissionResolvable, message: Message): boolean {

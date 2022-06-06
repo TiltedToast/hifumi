@@ -1,8 +1,8 @@
 import fetch from "node-fetch";
-import { statusArr } from "./app.js";
+import { statusArr } from "../app.js";
 import { randomElementArray, randomIntFromRange } from "./tools.js";
-import type { StatusDoc } from "./interfaces/StatusDoc";
-import type { CatFactResponse } from "./interfaces/CatFactResponse";
+import type { StatusDoc } from "../interfaces/StatusDoc";
+import type { CatFactResponse } from "../interfaces/CatFactResponse";
 import type { TextChannel, Client } from "discord.js";
 
 export async function startCatFactLoop(channel: TextChannel): Promise<void> {
@@ -18,12 +18,21 @@ export async function startCatFactLoop(channel: TextChannel): Promise<void> {
  * @param {Client} client Discord client which is used to access the API
  */
 export async function startStatusLoop(client: Client) {
+    setRandomStatus(client);
     setInterval(async () => {
-        if (!client.user) return console.log("Could not set status, client user is undefined");
-        const randomStatusDoc = randomElementArray(statusArr) as StatusDoc;
-        const randomType = randomStatusDoc.type;
-        const randomStatus = randomStatusDoc.status;
-
-        client.user.setActivity(randomStatus, { type: randomType });
+        await setRandomStatus(client);
     }, randomIntFromRange(300000, 900000)); // 5m-15m
+}
+
+/**
+ * Grabs a random status from the database and sets it as the status of the bot
+ * @param client Discord client used to access the API
+ */
+async function setRandomStatus(client: Client) {
+    if (!client.user) return console.log("Could not set status, client user is undefined");
+    const randomStatusDoc = randomElementArray(statusArr) as StatusDoc;
+    const randomType = randomStatusDoc.type;
+    const randomStatus = randomStatusDoc.status;
+
+    return client.user.setActivity(randomStatus, { type: randomType });
 }
