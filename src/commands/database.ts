@@ -1,8 +1,8 @@
-import { mongoClient, prefixDict, statusArr } from "./app.js";
+import { mongoClient, prefixDict, statusArr } from "../app.js";
 import { Message, Permissions } from "discord.js";
 import { isDev, parseDbArgs } from "./tools.js";
-import { BOT_OWNER } from "./config.js";
-import { StatusType } from "./interfaces/StatusDoc.js";
+import { BOT_OWNER } from "../config.js";
+import { StatusType } from "../interfaces/StatusDoc.js";
 
 export async function insert(message: Message): Promise<void | Message<boolean>> {
     if (message.author.id !== BOT_OWNER) return;
