@@ -3,9 +3,10 @@ import * as database from "./commands/database.js";
 import * as imgProcess from "./commands/imgProcess.js";
 import * as reddit from "./commands/reddit.js";
 import strftime from "strftime";
+import fetch from "node-fetch";
 import { Message, MessageEmbed, Util } from "discord.js";
 import { client, mongoClient, prefixDict } from "./app.js";
-import { randomElementArray, sleep, errorLog, getUserObjectPingId, advRound, isDev } from "./commands/tools.js";
+import { randomElementArray, sleep, errorLog, getUserObjectPingId, isDev } from "./commands/tools.js";
 import { exec } from "child_process";
 import { EMBED_COLOUR, BOT_OWNER, EXCHANGE_API_KEY } from "./config.js";
 import type { ConvertResponse } from "./interfaces/ConvertResponse.js";
@@ -317,7 +318,7 @@ async function convert(message: Message, prefix: string): Promise<Message | unde
 function buildConvertEmbed(result: ConvertResponse, to: string, amount: number, from: string) {
     const rate = result["conversion_rates"][to];
     const rslt = Math.round(amount * rate * 100) / 100;
-    const description = `**${advRound(amount)} ${from} ≈ ${advRound(
+    const description = `**${Number(amount)} ${from} ≈ ${Number(
         rslt
     )} ${to}**\n\nExchange Rate: 1 ${from} ≈ ${rate} ${to}`;
 
