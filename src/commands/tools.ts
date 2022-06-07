@@ -100,16 +100,6 @@ export function sleep(ms: number) {
 }
 
 /**
- * Takes an object and returns the value of a random key
- * @param object Javascript Object to check
- * @returns A random Property of an object
- */
-export function randomProperty(object: Record<string, unknown>) {
-    const keys = Object.keys(object);
-    return object[keys[(keys.length * Math.random()) << 0]];
-}
-
-/**
  * Returns a user object from either a user id or a ping
  * @param {Message} message Discord message object
  * @returns The user object
@@ -248,18 +238,6 @@ export function getImgType(url: string): string | null {
     else if (url.includes(".gif")) return "gif";
     else if (url.includes(".svg")) return "svg";
     return null;
-}
-
-/**
- * Takes a number and turns rounds it into an Integer or Float
- * @param {Number} x The number you want to round
- * @returns {Number} The rounded number
- */
-export function advRound(x: number): number {
-    if (Math.floor(x) + (x % 1) === parseInt(x.toString())) {
-        return parseInt(x.toString());
-    }
-    return parseFloat(x.toString());
 }
 
 /**
