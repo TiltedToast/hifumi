@@ -28,8 +28,8 @@ export async function handleMessage(message: Message) {
         const content = message.content.split(" ");
 
         // Sub command check for reacting to Miku's emote commands
-        const reactCmd = content.length >= 1 ? content[0].slice(1) : "";
-        const subCmd = content.length >= 2 ? content[1] : "";
+        const reactCmd = content[0].slice(1) ?? "";
+        const subCmd = content[1] ?? "";
 
         const server = message.guild;
         const prefixColl = mongoClient.db("hifumi").collection("prefixes");
@@ -212,9 +212,6 @@ async function jsEval(message: Message) {
 
     if (content.length === 1) return await message.channel.send("You have to type **SOMETHING** at least");
 
-    // Creates a new string with the message content without the command
-    // And evalutes it via the JS engine
-    // Checks for a valid length and sends the result
     const command = message.content.split(" ").slice(1).join(" ");
     let rslt = eval(command);
 
@@ -229,7 +226,6 @@ async function jsEval(message: Message) {
 }
 
 async function avatar(message: Message) {
-    // Checks for invalid provided User ID
     let url: string;
     const content = message.content.split(" ");
 
