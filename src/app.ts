@@ -34,7 +34,7 @@ client.once("ready", async () => {
     console.log("Logged in as:");
     console.log(client.user.username);
     console.log(client.user.id);
-    console.log("------");
+    console.log("------------------");
 
     await mongoClient.connect();
 
@@ -50,9 +50,9 @@ client.once("ready", async () => {
         prefixDict[prefixDoc["serverId"]] = prefixDoc["prefix"];
     }
 
-    const logChannel = client.channels.cache.get(LOG_CHANNEL);
-    const catFactChannel = client.channels.cache.get(CAT_FACT_CHANNEL);
-    await startCatFactLoop(catFactChannel as TextChannel);
+    const logChannel = client.channels.cache.get(LOG_CHANNEL) as TextChannel;
+    const catFactChannel = client.channels.cache.get(CAT_FACT_CHANNEL) as TextChannel;
+    await startCatFactLoop(catFactChannel);
 
     const credentials = await getMissingCredentials();
 
@@ -62,14 +62,12 @@ client.once("ready", async () => {
             .setTitle("Missing credentials")
             .setDescription(`The following credentials are missing:\n\n- ${credentials.join("\n- ")}`);
 
-        await (logChannel as TextChannel).send({ embeds: [missingCredentialsEmbed] });
+        await logChannel.send({ embeds: [missingCredentialsEmbed] });
     }
 
     if (isDev()) return;
 
-    await (logChannel as TextChannel).send(
-        `Logged in as:\n${client.user.username}\nTime: ${time}\n--------------------------`
-    );
+    await logChannel.send(`Logged in as:\n${client.user.username}\nTime: ${time}\n--------------------------`);
 });
 
 client.on("messageCreate", async (message: Message) => {
