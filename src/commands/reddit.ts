@@ -146,16 +146,14 @@ export async function fetchSubmissions(subreddit: string, message: Message, limi
 
 async function getSubmissions(subreddit: string, limit: number) {
     const timeSpans: Timespan[] = ["hour", "day", "week", "month", "year", "all"];
+    const subredditObject = RedditClient.getSubreddit(subreddit);
 
-    const topSubmissions = timeSpans.map((timeSpan) => RedditClient.getSubreddit(subreddit).getTop({ time: timeSpan, limit: limit })
-    );
+    const topSubmissions = timeSpans.map((timeSpan) => subredditObject.getTop({ time: timeSpan, limit: limit }));
 
-    const submissionsArray = await Promise.all([
-        RedditClient.getSubreddit(subreddit).getHot({ limit: limit }),
-        RedditClient.getSubreddit(subreddit).getNew({ limit: limit }),
-        RedditClient.getSubreddit(subreddit).getRising({ limit: limit }),
+    return await Promise.all([
+        subredditObject.getHot({ limit: limit }),
+        subredditObject.getNew({ limit: limit }),
+        subredditObject.getRising({ limit: limit }),
         ...topSubmissions,
     ]);
-    return submissionsArray;
 }
-
