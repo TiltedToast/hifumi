@@ -151,8 +151,7 @@ export function errorLog(message: Message, errorObject: Error): Promise<Message<
     if (!errorObject) return message.channel.send(`Unknown error!`);
 
     const commandUsed =
-        message.content.substring(0, 500).split(" ").slice(0, -1).join(" ") +
-        (message.content.substring(0, 1000) !== message.content ? " ..." : "");
+        message.content.substring(0, 500) + (message.content.substring(0, 500) !== message.content ? " ..." : "");
 
     const errorMessageWithoutStack = [
         `An Error occurred on ${currentTime}`,
