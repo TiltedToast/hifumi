@@ -1,6 +1,6 @@
 import "dotenv/config";
 import strftime from "strftime";
-import { isDev } from "./commands/tools.js";
+import { errorLog, isDev } from "./commands/tools.js";
 import { Document, MongoClient } from "mongodb";
 import { startCatFactLoop, startStatusLoop } from "./commands/loops.js";
 import { Client, Intents, Message, MessageEmbed, TextChannel } from "discord.js";
@@ -83,6 +83,11 @@ process.on("SIGINT", async () => {
     console.log("Closed Discord client");
 
     process.exit(0);
+});
+
+// Mostly for unhandled API Errors
+process.on("unhandledRejection", (error) => {
+    errorLog(null, error as Error);
 });
 
 client.login(BOT_TOKEN);

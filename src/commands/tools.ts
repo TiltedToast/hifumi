@@ -142,10 +142,16 @@ export function randomIntFromRange(min: number, max: number): number {
  * @param {Message} message The Message object passed on each command execution
  * @param {Error} errorObject The error object that is passed to the command through try/catch
  */
-export function errorLog(message: Message, errorObject: Error): Promise<Message<boolean>> {
+export function errorLog(message: Message | null, errorObject: Error): Promise<Message<boolean>> {
     const currentTime = strftime("%d/%m/%Y %H:%M:%S");
     let channel: AnyChannel | undefined;
     let errorMessage: string;
+
+    if (message === null) {
+        channel = client.channels.cache.get(LOG_CHANNEL) as TextChannel;
+        errorMessage = `Unhandled Rejection\n\n ${errorObject}\n\n<@${BOT_OWNER}>`;
+        return channel.send(errorMessage);
+    }
 
     if (!message.guild) return message.channel.send(`Unknown guild!`);
     if (!errorObject) return message.channel.send(`Unknown error!`);
