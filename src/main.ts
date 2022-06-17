@@ -339,7 +339,10 @@ async function urban(message: Message, prefix: string): Promise<Message> {
 
     if (result.length === 0) return message.channel.send("No results found!");
 
-    const resultEntry = randomElementArray(result);
+    const resultEntry = result.reduce((acc, curr) => {
+        if (acc.thumbs_up < curr.thumbs_up) return curr;
+        return acc;
+    });
     const urbanEmbed = buildUrbanEmbed(resultEntry);
 
     return await message.channel.send({ embeds: [urbanEmbed] });
