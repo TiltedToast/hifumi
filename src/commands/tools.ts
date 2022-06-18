@@ -9,7 +9,8 @@ import { mongoClient, client } from "../app.js";
 import { promisify } from "util";
 import type { Document } from "mongodb";
 import type { RequestInit } from "node-fetch";
-import type { AnyChannel, Message, MessageEmbed, PermissionResolvable, TextChannel, User } from "discord.js";
+import type { AnyChannel, Message, PermissionResolvable, TextChannel, User } from "discord.js";
+import type { EmbedMetadata } from "../interfaces/UpdateEmbedOptions.js";
 import {
     BOT_OWNER,
     EXCHANGE_API_KEY,
@@ -22,12 +23,11 @@ import {
     DEV_CHANNELS,
     LOG_CHANNEL,
 } from "../config.js";
-import type { APIEmbed } from "discord-api-types";
 
 const execPromise = promisify(exec);
 
-export function getEmbedIndex(arr: MessageEmbed[], value: MessageEmbed | APIEmbed): number {
-    return arr.findIndex((elem) => elem.description === value.description);
+export function getEmbedIndex(arr: EmbedMetadata[], target: EmbedMetadata): number {
+    return arr.findIndex((elem) => elem.embed.description === target.embed.description);
 }
 
 /**
