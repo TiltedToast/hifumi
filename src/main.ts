@@ -4,15 +4,18 @@ import * as imgProcess from "./commands/imgProcess.js";
 import * as reddit from "./commands/reddit.js";
 import strftime from "strftime";
 import fetch from "node-fetch";
-import { Message, MessageEmbed, Util } from "discord.js";
+import { Interaction, Message, MessageActionRow, MessageButton, MessageEmbed, Util } from "discord.js";
 import { client, mongoClient, prefixDict } from "./app.js";
-import { randomElementArray, sleep, errorLog, getUserObjectPingId, isDev } from "./commands/tools.js";
+import { randomElementArray, sleep, errorLog, getUserObjectPingId, isDev, getEmbedIndex } from "./commands/tools.js";
 import { exec } from "child_process";
 import { EMBED_COLOUR, BOT_OWNER, EXCHANGE_API_KEY } from "./config.js";
 import type { ConvertResponse } from "./interfaces/ConvertResponse.js";
 import type { UrbanResponse, UrbanEntry } from "./interfaces/UrbanResponse";
+import type { UpdateEmbedOptions } from "./interfaces/UpdateEmbedOptions.js";
 import { promisify } from "util";
 const execPromise = promisify(exec);
+
+let urbanEmbeds: MessageEmbed[] = [];
 
 export async function handleMessage(message: Message) {
     if (message.guild?.me === null) return;
@@ -98,6 +101,34 @@ export async function handleMessage(message: Message) {
         }
     } catch (err: unknown) {
         errorLog(message, err as Error);
+    }
+}
+
+export async function handleInteraction(interaction: Interaction) {
+    if (interaction.guild?.me === null) return;
+
+    if (interaction.isButton()) {
+        if (["prevUrban", "nextUrban"].includes(interaction.customId)) {
+            await updateEmbed({
+                interaction,
+                embedArray: urbanEmbeds,
+                prevButtonId: "prevUrban",
+                nextButtonId: "nextUrban",
+            });
+        }
+    }
+}
+
+async function updateEmbed({ interaction, embedArray, prevButtonId, nextButtonId }: UpdateEmbedOptions) {
+    const activeIndex = getEmbedIndex(embedArray, interaction.message.embeds[0]);
+    if (activeIndex === 0 && interaction.customId === prevButtonId) {
+        await interaction.update({ embeds: [embedArray[embedArray.length - 1]] });
+    } else if (activeIndex === embedArray.length - 1 && interaction.customId === nextButtonId) {
+        await interaction.update({ embeds: [embedArray[0]] });
+    } else {
+        await interaction.update({
+            embeds: [embedArray[activeIndex + (interaction.customId === prevButtonId ? -1 : 1)]],
+        });
     }
 }
 
@@ -335,21 +366,29 @@ async function urban(message: Message, prefix: string): Promise<Message> {
     const response = await fetch(`https://api.urbandictionary.com/v0/define?term=${query}`);
     if (!response.ok) return await message.channel.send(`Error ${response.status}! Please try again later`);
 
-    const result = ((await response.json()) as UrbanResponse)["list"];
+    const result = ((await response.json()) as UrbanResponse)["list"].slice(0, 5);
 
     if (result.length === 0) return message.channel.send("No results found!");
 
-    const resultEntry = result.reduce((acc, curr) => {
-        if (acc.thumbs_up < curr.thumbs_up) return curr;
-        return acc;
-    });
-    const urbanEmbed = buildUrbanEmbed(resultEntry);
+    const urbanEmbeds = updateUrbanEmbeds(result);
+    const row = new MessageActionRow().addComponents(
+        new MessageButton().setCustomId("prevUrban").setLabel("PREV").setStyle("PRIMARY"),
+        new MessageButton().setCustomId("nextUrban").setLabel("NEXT").setStyle("PRIMARY")
+    );
 
-    return await message.channel.send({ embeds: [urbanEmbed] });
+    return await message.channel.send({ embeds: [urbanEmbeds[0]], components: [row] });
 }
 
-function buildUrbanEmbed(resultEntry: UrbanEntry) {
+export function updateUrbanEmbeds(result: UrbanEntry[]) {
+    result.sort((a, b) => (b.thumbs_up > a.thumbs_up ? 1 : -1));
+    urbanEmbeds = result.map((item, index, arr) => buildUrbanEmbed(item, index, arr));
+    return urbanEmbeds;
+}
+
+function buildUrbanEmbed(resultEntry: UrbanEntry, index: number, array: UrbanEntry[]) {
     const { word, definition, example, author, permalink, thumbs_up, thumbs_down } = resultEntry;
+
+    const footerPagination = `${index + 1}/${array.length}`;
 
     const description = `${definition}\n
         **Example:** ${example}\n
@@ -360,7 +399,7 @@ function buildUrbanEmbed(resultEntry: UrbanEntry) {
         .setColor(EMBED_COLOUR)
         .setTitle(`*${word}*`)
         .setDescription(description)
-        .setFooter({ text: `Upvotes: ${thumbs_up} Downvotes: ${thumbs_down}` });
+        .setFooter({ text: `Upvotes: ${thumbs_up} Downvotes: ${thumbs_down}\n${footerPagination}` });
     return urbanEmbed;
 }
 

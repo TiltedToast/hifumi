@@ -1,12 +1,12 @@
 import "dotenv/config";
 import strftime from "strftime";
-import { errorLog, isDev } from "./commands/tools.js";
+import { isDev } from "./commands/tools.js";
 import { Document, MongoClient } from "mongodb";
 import { startCatFactLoop, startStatusLoop } from "./commands/loops.js";
-import { Client, Intents, Message, MessageEmbed, TextChannel } from "discord.js";
+import { Client, Intents, Interaction, Message, MessageEmbed, TextChannel } from "discord.js";
 import { getMissingCredentials } from "./commands/tools.js";
 import { BOT_TOKEN, EMBED_COLOUR, MONGO_URI, CAT_FACT_CHANNEL, LOG_CHANNEL } from "./config.js";
-import { handleMessage } from "./main.js";
+import { handleInteraction, handleMessage } from "./main.js";
 
 if (!BOT_TOKEN) throw new Error("No bot token found! Make sure you have a BOT_TOKEN env variable set");
 
@@ -74,6 +74,10 @@ client.on("messageCreate", async (message: Message) => {
     await handleMessage(message);
 });
 
+client.on("interactionCreate", async (interaction: Interaction) => {
+    await handleInteraction(interaction);
+});
+
 // Graceful Shutdown on Ctrl + C / Docker stop
 process.on("SIGINT", async () => {
     await mongoClient.close();
@@ -83,11 +87,6 @@ process.on("SIGINT", async () => {
     console.log("Closed Discord client");
 
     process.exit(0);
-});
-
-// Mostly for unhandled API Errors
-process.on("unhandledRejection", (error) => {
-    errorLog(null, error as Error);
 });
 
 client.login(BOT_TOKEN);
