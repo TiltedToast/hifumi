@@ -9,7 +9,7 @@ import { mongoClient, client } from "../app.js";
 import { promisify } from "util";
 import type { Document } from "mongodb";
 import type { RequestInit } from "node-fetch";
-import type { AnyChannel, Message, PermissionResolvable, TextChannel, User } from "discord.js";
+import type { AnyChannel, Message, MessageEmbed, PermissionResolvable, TextChannel, User } from "discord.js";
 import {
     BOT_OWNER,
     EXCHANGE_API_KEY,
@@ -22,8 +22,13 @@ import {
     DEV_CHANNELS,
     LOG_CHANNEL,
 } from "../config.js";
+import type { APIEmbed } from "discord-api-types";
 
 const execPromise = promisify(exec);
+
+export function getEmbedIndex(arr: MessageEmbed[], value: MessageEmbed | APIEmbed): number {
+    return arr.findIndex((elem) => elem.description === value.description);
+}
 
 /**
  * Checks if the user invoking the command has the specified permission(s)
@@ -149,7 +154,7 @@ export function errorLog(message: Message | null, errorObject: Error): Promise<M
 
     if (message === null) {
         channel = client.channels.cache.get(LOG_CHANNEL) as TextChannel;
-        errorMessage = `Unhandled Rejection\n\n ${errorObject}\n\n<@${BOT_OWNER}>`;
+        errorMessage = `Unhandled Rejection\n\n${errorObject.stack}\n\n<@${BOT_OWNER}>`;
         return channel.send(errorMessage);
     }
 
