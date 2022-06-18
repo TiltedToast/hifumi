@@ -366,7 +366,7 @@ async function urban(message: Message, prefix: string): Promise<Message> {
     const response = await fetch(`https://api.urbandictionary.com/v0/define?term=${query}`);
     if (!response.ok) return await message.channel.send(`Error ${response.status}! Please try again later`);
 
-    const result = ((await response.json()) as UrbanResponse)["list"].slice(0, 5);
+    const result = ((await response.json()) as UrbanResponse)["list"];
 
     if (result.length === 0) return message.channel.send("No results found!");
 
