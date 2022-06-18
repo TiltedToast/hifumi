@@ -4,18 +4,18 @@ import * as imgProcess from "./commands/imgProcess.js";
 import * as reddit from "./commands/reddit.js";
 import strftime from "strftime";
 import fetch from "node-fetch";
-import { Interaction, Message, MessageActionRow, MessageButton, MessageEmbed, Util } from "discord.js";
+import { Interaction, Message, MessageActionRow, MessageButton, MessageEmbed, User, Util } from "discord.js";
 import { client, mongoClient, prefixDict } from "./app.js";
 import { randomElementArray, sleep, errorLog, getUserObjectPingId, isDev, getEmbedIndex } from "./commands/tools.js";
 import { exec } from "child_process";
 import { EMBED_COLOUR, BOT_OWNER, EXCHANGE_API_KEY } from "./config.js";
 import type { ConvertResponse } from "./interfaces/ConvertResponse.js";
 import type { UrbanResponse, UrbanEntry } from "./interfaces/UrbanResponse";
-import type { UpdateEmbedOptions } from "./interfaces/UpdateEmbedOptions.js";
+import type { EmbedMetadata, UpdateEmbedOptions } from "./interfaces/UpdateEmbedOptions.js";
 import { promisify } from "util";
 const execPromise = promisify(exec);
 
-let urbanEmbeds: MessageEmbed[] = [];
+let urbanEmbeds: EmbedMetadata[] = [];
 
 export async function handleMessage(message: Message) {
     if (message.guild?.me === null) return;
@@ -106,7 +106,7 @@ export async function handleMessage(message: Message) {
 
 export async function handleInteraction(interaction: Interaction) {
     if (interaction.guild?.me === null) return;
-
+    
     if (interaction.isButton()) {
         if (["prevUrban", "nextUrban"].includes(interaction.customId)) {
             await updateEmbed({
@@ -114,20 +114,31 @@ export async function handleInteraction(interaction: Interaction) {
                 embedArray: urbanEmbeds,
                 prevButtonId: "prevUrban",
                 nextButtonId: "nextUrban",
+                user: interaction.user,
             });
         }
     }
 }
 
-async function updateEmbed({ interaction, embedArray, prevButtonId, nextButtonId }: UpdateEmbedOptions) {
-    const activeIndex = getEmbedIndex(embedArray, interaction.message.embeds[0]);
+async function updateEmbed({ interaction, embedArray, prevButtonId, nextButtonId, user }: UpdateEmbedOptions) {
+    const activeIndex = getEmbedIndex(embedArray, {
+        embed: interaction.message.embeds[0],
+        user,
+    });
+
+    if (interaction.user !== embedArray[activeIndex].user) {
+        return interaction.reply({
+            content: "Run the command yourself to be able to cycle through the results",
+            ephemeral: true,
+        });
+    }
     if (activeIndex === 0 && interaction.customId === prevButtonId) {
-        await interaction.update({ embeds: [embedArray[embedArray.length - 1]] });
+        await interaction.update({ embeds: [embedArray[embedArray.length - 1].embed] });
     } else if (activeIndex === embedArray.length - 1 && interaction.customId === nextButtonId) {
-        await interaction.update({ embeds: [embedArray[0]] });
+        await interaction.update({ embeds: [embedArray[0].embed] });
     } else {
         await interaction.update({
-            embeds: [embedArray[activeIndex + (interaction.customId === prevButtonId ? -1 : 1)]],
+            embeds: [embedArray[activeIndex + (interaction.customId === prevButtonId ? -1 : 1)].embed],
         });
     }
 }
@@ -336,7 +347,6 @@ async function convert(message: Message, prefix: string): Promise<Message | unde
     if (!response.ok) return await message.channel.send("Error! Please try again later");
     const result = (await response.json()) as ConvertResponse;
 
-    // Calculates the converted amount and sends it via an Embed
     const convertEmbed = buildConvertEmbed(result, to, amount, from);
 
     return await message.channel.send({ embeds: [convertEmbed] });
@@ -349,12 +359,11 @@ function buildConvertEmbed(result: ConvertResponse, to: string, amount: number, 
         rslt
     )} ${to}**\n\nExchange Rate: 1 ${from} ≈ ${rate} ${to}`;
 
-    const convertEmbed = new MessageEmbed()
+    return new MessageEmbed()
         .setColor(EMBED_COLOUR)
         .setTitle(`Converting ${from} to ${to}`)
         .setDescription(description)
         .setFooter({ text: `${strftime("%d/%m/%Y %H:%M:%S")}` });
-    return convertEmbed;
 }
 
 async function urban(message: Message, prefix: string): Promise<Message> {
@@ -370,19 +379,24 @@ async function urban(message: Message, prefix: string): Promise<Message> {
 
     if (result.length === 0) return message.channel.send("No results found!");
 
-    const urbanEmbeds = updateUrbanEmbeds(result);
+    await updateUrbanEmbeds(result, message.author);
     const row = new MessageActionRow().addComponents(
         new MessageButton().setCustomId("prevUrban").setLabel("PREV").setStyle("PRIMARY"),
         new MessageButton().setCustomId("nextUrban").setLabel("NEXT").setStyle("PRIMARY")
     );
 
-    return await message.channel.send({ embeds: [urbanEmbeds[0]], components: [row] });
+    return await message.channel.send({ embeds: [urbanEmbeds[0].embed], components: [row] });
 }
 
-export function updateUrbanEmbeds(result: UrbanEntry[]) {
+async function updateUrbanEmbeds(result: UrbanEntry[], user: User) {
     result.sort((a, b) => (b.thumbs_up > a.thumbs_up ? 1 : -1));
-    urbanEmbeds = result.map((item, index, arr) => buildUrbanEmbed(item, index, arr));
-    return urbanEmbeds;
+    urbanEmbeds = [];
+    for (let i = 0; i < result.length; i++) {
+        urbanEmbeds.push({
+            embed: buildUrbanEmbed(result[i], i, result),
+            user: user,
+        });
+    }
 }
 
 function buildUrbanEmbed(resultEntry: UrbanEntry, index: number, array: UrbanEntry[]) {
@@ -395,12 +409,11 @@ function buildUrbanEmbed(resultEntry: UrbanEntry, index: number, array: UrbanEnt
         **Author:** ${author}\n
         **Permalink:** ${permalink}`.replace(/\]|\[/g, "");
 
-    const urbanEmbed = new MessageEmbed()
+    return new MessageEmbed()
         .setColor(EMBED_COLOUR)
         .setTitle(`*${word}*`)
         .setDescription(description)
         .setFooter({ text: `Upvotes: ${thumbs_up} Downvotes: ${thumbs_down}\n${footerPagination}` });
-    return urbanEmbed;
 }
 
 async function bye(message: Message): Promise<Message | void> {
