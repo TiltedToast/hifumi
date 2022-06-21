@@ -2,10 +2,10 @@ import "dotenv/config";
 import strftime from "strftime";
 import { isDev } from "./commands/tools.js";
 import { Document, MongoClient } from "mongodb";
-import { startCatFactLoop, startStatusLoop } from "./commands/loops.js";
+import { startStatusLoop } from "./commands/loops.js";
 import { Client, Intents, Interaction, Message, MessageEmbed, TextChannel } from "discord.js";
 import { getMissingCredentials } from "./commands/tools.js";
-import { BOT_TOKEN, EMBED_COLOUR, MONGO_URI, CAT_FACT_CHANNEL, LOG_CHANNEL } from "./config.js";
+import { BOT_TOKEN, EMBED_COLOUR, MONGO_URI, LOG_CHANNEL } from "./config.js";
 import { handleInteraction, handleMessage } from "./main.js";
 
 if (!BOT_TOKEN) throw new Error("No bot token found! Make sure you have a BOT_TOKEN env variable set");
@@ -51,8 +51,8 @@ client.once("ready", async () => {
     }
 
     const logChannel = client.channels.cache.get(LOG_CHANNEL) as TextChannel;
-    const catFactChannel = client.channels.cache.get(CAT_FACT_CHANNEL) as TextChannel;
-    await startCatFactLoop(catFactChannel);
+    // const catFactChannel = client.channels.cache.get(CAT_FACT_CHANNEL) as TextChannel;
+    // await startCatFactLoop(catFactChannel);
 
     const credentials = await getMissingCredentials();
 
