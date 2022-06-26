@@ -106,7 +106,7 @@ export async function handleMessage(message: Message) {
 
 export async function handleInteraction(interaction: Interaction) {
     if (interaction.guild?.me === null) return;
-    
+
     if (interaction.isButton()) {
         if (["prevUrban", "nextUrban"].includes(interaction.customId)) {
             await updateEmbed({

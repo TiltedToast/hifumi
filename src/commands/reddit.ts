@@ -39,12 +39,11 @@ function buildProfileEmbed(userName: string) {
                         Comment Karma: ${comment_karma.toString()}
                         Created on: ${userCreatedDate}`;
 
-    const profileEmbed = new MessageEmbed()
+    return new MessageEmbed()
         .setColor(EMBED_COLOUR)
         .setTitle(`${name}'s profile`)
         .setDescription(description)
         .setThumbnail(icon_img);
-    return profileEmbed;
 }
 
 export async function sub(message: Message, prefix: string): Promise<Message> {
