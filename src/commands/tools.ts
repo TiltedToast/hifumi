@@ -164,14 +164,13 @@ export function errorLog(message: Message | null, errorObject: Error): Promise<M
     const commandUsed =
         message.content.substring(0, 500) + (message.content.substring(0, 500) !== message.content ? " ..." : "");
 
-    const errorMessageWithoutStack = [
-        `An Error occurred on ${currentTime}`,
-        `**Server:** ${message.guild.name} - ${message.guild.id}`,
-        `**Room:** ${(message.channel as TextChannel).name} - ${message.channel.id}`,
-        `**User:** ${message.author.username} - ${message.author.id}`,
-        `**Command used:** ${commandUsed}`,
-        `**Error:** ${errorObject.message}`,
-    ].join("\n");
+    const errorMessageWithoutStack =
+        `An Error occurred on ${currentTime}\n` +
+        `**Server:** ${message.guild.name} - ${message.guild.id}\n` +
+        `**Room:** ${(message.channel as TextChannel).name} - ${message.channel.id}\n` +
+        `**User:** ${message.author.username} - ${message.author.id}\n` +
+        `**Command used:** ${commandUsed}\n` +
+        `**Error:** ${errorObject.message}\n`;
 
     const fullErrorMsg = `${errorMessageWithoutStack}\n\n**${errorObject.stack}**\n\n<@${BOT_OWNER}>`;
     const preCutErrorMessage = fullErrorMsg.substring(0, 1900 - errorMessageWithoutStack.length);

@@ -8,6 +8,7 @@ export const REDDIT_REFRESH_TOKEN = process.env.REDDIT_REFRESH_TOKEN ?? "";
 export const MONGO_URI = process.env.MONGO_URI ?? "mongodb://localhost:27017/";
 export const DEV_MODE = process.env.DEV_MODE ?? "false";
 export const BOT_OWNER = "258993932262834188";
+export const BOT_ID = process.env.BOT_ID ?? "641409330888835083";
 export const EMBED_COLOUR = "#ce3a9b";
 export const DEV_CHANNELS = ["655484859405303809", "551588329003548683", "922679249058553857"];
 export const LOG_CHANNEL = "655484804405657642";
