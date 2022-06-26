@@ -10,7 +10,6 @@ declare global {
             REDDIT_REFRESH_TOKEN: string;
             MONGO_URI: string;
             DEV_MODE: "true" | "false";
-            BOT_ID: string;
         }
     }
 }
