@@ -8,8 +8,6 @@ import { getMissingCredentials } from "./commands/tools.js";
 import { BOT_TOKEN, EMBED_COLOUR, MONGO_URI, LOG_CHANNEL } from "./config.js";
 import { handleInteraction, handleMessage } from "./main.js";
 
-if (!BOT_TOKEN) throw new Error("No bot token found! Make sure you have a BOT_TOKEN env variable set");
-
 const intents = new Intents([
     "GUILDS",
     "GUILD_MEMBERS",
