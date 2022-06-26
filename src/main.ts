@@ -8,7 +8,7 @@ import { Interaction, Message, MessageActionRow, MessageButton, MessageEmbed, Us
 import { client, mongoClient, prefixDict } from "./app.js";
 import { randomElementArray, sleep, errorLog, getUserObjectPingId, isDev, getEmbedIndex } from "./commands/tools.js";
 import { exec } from "child_process";
-import { EMBED_COLOUR, BOT_OWNER, EXCHANGE_API_KEY } from "./config.js";
+import { EMBED_COLOUR, BOT_OWNER, EXCHANGE_API_KEY, BOT_ID } from "./config.js";
 import type { ConvertResponse } from "./interfaces/ConvertResponse.js";
 import type { UrbanResponse, UrbanEntry } from "./interfaces/UrbanResponse";
 import type { EmbedMetadata, UpdateEmbedOptions } from "./interfaces/UpdateEmbedOptions.js";
@@ -94,9 +94,7 @@ export async function handleMessage(message: Message) {
 
         // Reacting to Miku's emote commands
         // Grabs a random reply from the db and sents it as a message after a fixed delay
-        const botId = isDev() ? "665224627353681921" : "641409330888835083";
-
-        if (isMikuTrigger(message, reactCmd, botId)) {
+        if (isMikuTrigger(message, reactCmd, BOT_ID)) {
             await reactToMiku(message, reactCmd);
         }
     } catch (err: unknown) {
