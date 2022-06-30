@@ -42,9 +42,10 @@ export async function update(message: Message): Promise<void | Message<boolean>>
 
     const collection = mongoClient.db(dbName).collection(collectionName);
     const updateDoc = await collection.findOneAndUpdate(filterDoc, { $set: newValues });
-    if (!updateDoc["ok"]) return await message.channel.send("Couldn't update document");
+    if (!updateDoc.value) return await message.channel.send("No document found!");
 
-    const updatedDoc = await collection.findOne(newValues);
+    if (!updateDoc.ok) return await message.channel.send("Couldn't update document");
+    const updatedDoc = await collection.findOne(updateDoc.value._id);
 
     await message.channel.send(`Updated document in ${dbName}.${collectionName}`);
     await message.channel.send(`\`\`\`json\n${JSON.stringify(updatedDoc, null, 4)}\n\`\`\``);
@@ -62,14 +63,12 @@ export async function insertStatus(message: Message): Promise<void | Message<boo
 
     if (!(type in StatusType)) return await message.channel.send("Invalid type!");
 
-    if (isDev())
+    if (isDev()) {
         await message.channel.send("Add your statuses to the cloud db instead <:emiliaSMH:747132102645907587>");
+    }
 
     // Uppercases the type to conform to discord's API
-    const document = {
-        type,
-        status,
-    };
+    const document = { type, status };
 
     const collection = mongoClient.db("hifumi").collection("statuses");
     await collection.insertOne(document);
