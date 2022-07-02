@@ -24,7 +24,6 @@
         "@types/qrcode": "^1.4.2",
         "@types/request": "^2.48.8",
         "@types/strftime": "^0.9.4",
-        "@types/snoowrap": "^1.19.0",
         "@typescript-eslint/eslint-plugin": "^5.14.0",
         "@typescript-eslint/parser": "^5.14.0",
         "eslint": "^8.7.0",

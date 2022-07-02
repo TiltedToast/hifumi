@@ -1,18 +1,14 @@
-version: '3'
+version: "3.9"
 
 services:
-  application:
+  hifumi:
     build:
       context: ./
       dockerfile: Dockerfile
-    links:
-      - mongo
 
-  mongo:
+  db:
     image: mongo
     ports:
-      - "27017:27017"
-    volumes:
-      - ./data:/data/mongo
-    command: mongod --quiet --logpath /dev/null 
+      - "27017"
+    command: mongod --quiet --logpath /dev/null --bind_ip_all
 
