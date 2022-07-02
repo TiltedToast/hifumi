@@ -39,7 +39,7 @@ client.once("ready", async () => {
     // Puts all statuses into an array to avoid reading the database on every status change
     statusArr = await mongoClient.db("hifumi").collection("statuses").find().toArray();
 
-    await startStatusLoop(client);
+    if (statusArr.length) await startStatusLoop(client);
 
     // Gets all prefixes from the database and puts them into a dictionary to avoid reading
     // The database every time a message is received

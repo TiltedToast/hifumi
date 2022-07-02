@@ -5,7 +5,10 @@ export const IMGUR_CLIENT_SECRET = process.env.IMGUR_CLIENT_SECRET ?? "";
 export const REDDIT_CLIENT_ID = process.env.REDDIT_CLIENT_ID ?? "";
 export const REDDIT_CLIENT_SECRET = process.env.REDDIT_CLIENT_SECRET ?? "";
 export const REDDIT_REFRESH_TOKEN = process.env.REDDIT_REFRESH_TOKEN ?? "";
-export const MONGO_URI = process.env.MONGO_URI ?? "mongodb://localhost:27017/";
+export const MONGO_URI =
+    process.env["npm_lifecycle_event"] === "docker-build"
+        ? "mongodb://db:27017/"
+        : process.env.MONGO_URI ?? "mongodb://localhost:27017/";
 export const DEV_MODE = process.env.DEV_MODE ?? "false";
 export const BOT_OWNER = "258993932262834188";
 export const EMBED_COLOUR = "#ce3a9b";
