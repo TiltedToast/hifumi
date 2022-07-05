@@ -2,7 +2,7 @@ node_modules
 .devcontainer
 .idea
 .eslintrc
-.prettierrc.json
+.prettierrc
 temp
 dist
 data
