@@ -1,5 +1,5 @@
 import * as emoji from "./commands/emoji.js";
-import * as database from "./commands/database.js";
+import * as db from "./commands/database.js";
 import * as imgProcess from "./commands/imgProcess.js";
 import * as reddit from "./commands/reddit.js";
 import strftime from "strftime";
@@ -8,7 +8,7 @@ import { Interaction, Message, MessageActionRow, MessageButton, MessageEmbed, Us
 import { client, mongoClient, prefixDict } from "./app.js";
 import { randomElementArray, sleep, errorLog, getUserObjectPingId, isDev, getEmbedIndex } from "./commands/tools.js";
 import { exec } from "child_process";
-import { EMBED_COLOUR, BOT_OWNER, EXCHANGE_API_KEY } from "./config.js";
+import { EMBED_COLOUR, BOT_OWNERS, EXCHANGE_API_KEY } from "./config.js";
 import type { ConvertResponse } from "./interfaces/ConvertResponse.js";
 import type { UrbanResponse, UrbanEntry } from "./interfaces/UrbanResponse";
 import type { EmbedMetadata, UpdateEmbedOptions } from "./interfaces/UpdateEmbedOptions.js";
@@ -67,11 +67,13 @@ export async function handleMessage(message: Message) {
                 }
             } else if (command === "db") {
                 if (["insert", "ins", "in"].includes(subCmd)) {
-                    await database.insert(message);
+                    await db.insert(message);
                 } else if (["update", "up", "upd"].includes(subCmd)) {
-                    await database.update(message);
+                    await db.update(message);
+                } else if (["delete", "delet", "del", "remove", "rm"].includes(subCmd)) {
+                    await db.deleteDoc(message);
                 }
-            } else if (["status", "stat"].includes(command)) await database.insertStatus(message);
+            } else if (["status", "stat"].includes(command)) await db.insertStatus(message);
             else if (["commands", "command", "comm", "com", "help"].includes(command)) await helpCmd(message, prefix);
             else if (["convert", "conv", "c"].includes(command)) await convert(message, prefix);
             else if (["avatar", "pfp"].includes(command)) await avatar(message);
@@ -83,7 +85,7 @@ export async function handleMessage(message: Message) {
             else if (command === "imgur") await imgProcess.imgur(message, prefix);
             else if (command === "profile") await reddit.profile(message, prefix);
             else if (command === "sub") await reddit.sub(message, prefix);
-            else if (command === "prefix") await database.updatePrefix(message);
+            else if (command === "prefix") await db.updatePrefix(message);
             else if (command === "con") await consoleCmd(message);
             else if (command === "qr") await imgProcess.qrCode(message);
             else if (command === "js") await jsEval(message);
@@ -216,13 +218,13 @@ async function helpCmd(message: Message, prefix: string) {
 }
 
 async function gitPull(message: Message) {
-    if (message.author.id !== BOT_OWNER) return;
+    if (!BOT_OWNERS.includes(message.author.id)) return;
     await consoleCmd(message, "git pull");
     await reloadBot(message);
 }
 
 async function consoleCmd(message: Message, cmd?: string) {
-    if (message.author.id !== BOT_OWNER) return;
+    if (!BOT_OWNERS.includes(message.author.id)) return;
     // Creates a new string with the message content without the command
     // And runs it in a new shell process
     const command = cmd ? cmd : message.content.split(" ").slice(1).join(" ");
@@ -240,14 +242,14 @@ async function consoleCmd(message: Message, cmd?: string) {
 }
 
 export async function reloadBot(message: Message) {
-    if (message.author.id !== BOT_OWNER) return;
+    if (!BOT_OWNERS.includes(message.author.id)) return;
     await mongoClient.close();
     exec("npm run restart");
     await message.channel.send("Reload successful!");
 }
 
 async function jsEval(message: Message) {
-    if (message.author.id !== BOT_OWNER) return;
+    if (!BOT_OWNERS.includes(message.author.id)) return;
 
     const content = message.content.split(" ");
 
@@ -416,7 +418,7 @@ function buildUrbanEmbed(resultEntry: UrbanEntry, index: number, array: UrbanEnt
 }
 
 async function bye(message: Message): Promise<Message | void> {
-    if (message.author.id !== BOT_OWNER) return;
+    if (!BOT_OWNERS.includes(message.author.id)) return;
 
     // Closes the MongoDB connection and stops the running daemon via pm2
     await message.channel.send("Bai baaaaaaaai!!");

@@ -1,11 +1,11 @@
 import { mongoClient, prefixDict, statusArr } from "../app.js";
 import type { Message } from "discord.js";
 import { isDev, parseDbArgs, hasPermission } from "./tools.js";
-import { BOT_OWNER } from "../config.js";
+import { BOT_OWNERS } from "../config.js";
 import { StatusType } from "../interfaces/StatusDoc.js";
 
 export async function insert(message: Message): Promise<void | Message<boolean>> {
-    if (message.author.id !== BOT_OWNER) return;
+    if (!BOT_OWNERS.includes(message.author.id)) return;
 
     const content = message.content.split(" ");
     if (content.length < 6 || content.length % 2 !== 0) return await message.channel.send("Invalid syntax!");
@@ -15,7 +15,7 @@ export async function insert(message: Message): Promise<void | Message<boolean>>
     const dbName = content[2];
     const collectionName = content[3];
 
-    const document = await parseDbArgs(4, content);
+    const document = parseDbArgs(4, content);
 
     const collection = mongoClient.db(dbName).collection(collectionName);
     await collection.insertOne(document);
@@ -25,7 +25,7 @@ export async function insert(message: Message): Promise<void | Message<boolean>>
 }
 
 export async function update(message: Message): Promise<void | Message<boolean>> {
-    if (message.author.id !== BOT_OWNER) return;
+    if (!BOT_OWNERS.includes(message.author.id)) return;
 
     const content = message.content.split(" ");
 
@@ -38,7 +38,7 @@ export async function update(message: Message): Promise<void | Message<boolean>>
 
     const filterDoc = { [content[4]]: content[5] };
 
-    const newValues = await parseDbArgs(6, content);
+    const newValues = parseDbArgs(6, content);
 
     const collection = mongoClient.db(dbName).collection(collectionName);
     const updateDoc = await collection.findOneAndUpdate(filterDoc, { $set: newValues });
@@ -51,8 +51,24 @@ export async function update(message: Message): Promise<void | Message<boolean>>
     await message.channel.send(`\`\`\`json\n${JSON.stringify(updatedDoc, null, 4)}\n\`\`\``);
 }
 
+export async function deleteDoc(message: Message) {
+    if (!BOT_OWNERS.includes(message.author.id)) return;
+
+    const content = message.content.split(" ");
+
+    const document = parseDbArgs(4, content);
+
+    const collection = mongoClient.db(content[2]).collection(content[3]);
+
+    const deletedDoc = await collection.findOneAndDelete(document);
+    if (!deletedDoc.value) return await message.channel.send("No document found!");
+
+    await message.channel.send(`Successfully deleted document from ${content[2]}.${content[3]}`);
+    return message.channel.send(`\`\`\`json\n${JSON.stringify(deletedDoc.value, null, 4)}\n\`\`\``);
+}
+
 export async function insertStatus(message: Message): Promise<void | Message<boolean>> {
-    if (message.author.id !== BOT_OWNER) return;
+    if (!BOT_OWNERS.includes(message.author.id)) return;
 
     const content = message.content.split(" ");
 
@@ -80,7 +96,7 @@ export async function insertStatus(message: Message): Promise<void | Message<boo
 
 export async function updatePrefix(message: Message) {
     // Permission check for Kick Permissions or being the Bot Owner
-    if (!hasPermission("KICK_MEMBERS", message) && message.author.id !== BOT_OWNER) {
+    if (!hasPermission("KICK_MEMBERS", message) && !BOT_OWNERS.includes(message.author.id)) {
         return message.channel.send("Insufficient permissions!");
     }
 

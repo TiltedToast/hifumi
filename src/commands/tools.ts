@@ -12,7 +12,7 @@ import type { RequestInit } from "node-fetch";
 import type { AnyChannel, Message, PermissionResolvable, TextChannel, User } from "discord.js";
 import type { EmbedMetadata } from "../interfaces/UpdateEmbedOptions.js";
 import {
-    BOT_OWNER,
+    BOT_OWNERS,
     EXCHANGE_API_KEY,
     IMGUR_CLIENT_ID,
     IMGUR_CLIENT_SECRET,
@@ -77,7 +77,7 @@ export async function resize(fileLocation: string, width: number, saveLocation: 
  * @param content The content of the message after being split by spaces
  * @returns Document that contains all the parsed arguments
  */
-export async function parseDbArgs(startIndex: number, content: string[]): Promise<Document> {
+export function parseDbArgs(startIndex: number, content: string[]): Document {
     const document: Document = {};
     const evenOrOdd = startIndex % 2 === 0 ? 0 : 1;
     // Loops over the argument pairs and adds them to as key value pairs in the document
@@ -154,7 +154,7 @@ export function errorLog(message: Message | null, errorObject: Error): Promise<M
 
     if (message === null) {
         channel = client.channels.cache.get(LOG_CHANNEL) as TextChannel;
-        errorMessage = `Unhandled Rejection\n\n${errorObject.stack}\n\n<@${BOT_OWNER}>`;
+        errorMessage = `Unhandled Rejection\n\n${errorObject.stack}\n\n<@${BOT_OWNERS}>`;
         return channel.send(errorMessage);
     }
 
@@ -172,9 +172,9 @@ export function errorLog(message: Message | null, errorObject: Error): Promise<M
         `**Command used:** ${commandUsed}\n` +
         `**Error:** ${errorObject.message}\n`;
 
-    const fullErrorMsg = `${errorMessageWithoutStack}\n\n**${errorObject.stack}**\n\n<@${BOT_OWNER}>`;
+    const fullErrorMsg = `${errorMessageWithoutStack}\n\n**${errorObject.stack}**\n\n<@${BOT_OWNERS}>`;
     const preCutErrorMessage = fullErrorMsg.substring(0, 1900 - errorMessageWithoutStack.length);
-    const postCutErrorMessage = `${preCutErrorMessage.split("\n").slice(0, -2).join("\n")}**\n\n<@${BOT_OWNER}>`;
+    const postCutErrorMessage = `${preCutErrorMessage.split("\n").slice(0, -2).join("\n")}**\n\n<@${BOT_OWNERS}>`;
 
     const collection = mongoClient.db("hifumi").collection("errorLog");
     collection.insertOne({
@@ -192,7 +192,7 @@ export function errorLog(message: Message | null, errorObject: Error): Promise<M
     if (fullErrorMsg.length <= 2000) {
         errorMessage = fullErrorMsg;
     } else if (postCutErrorMessage.length > 2000) {
-        errorMessage = `An Error occurred on ${currentTime}\nCheck console for full error (2000 character limit)\n<@${BOT_OWNER}>`;
+        errorMessage = `An Error occurred on ${currentTime}\nCheck console for full error (2000 character limit)\n<@${BOT_OWNERS}>`;
     } else {
         errorMessage = postCutErrorMessage;
     }
