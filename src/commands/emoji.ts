@@ -3,7 +3,6 @@ import { extractEmoji, createTemp, downloadURL, getImgType, resize, isValidSize,
 
 export async function linkEmoji(message: Message): Promise<Message<boolean>> {
     const emojiRegex = new RegExp(/<a?:[a-zA-Z0-9]{1,32}:[0-9]{18}>/gi);
-
     const emojis = message.content.match(emojiRegex);
     if (!emojis) return await message.channel.send("You have to specify at least one emoji!");
 
