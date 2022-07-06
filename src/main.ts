@@ -64,6 +64,8 @@ export async function handleMessage(message: Message) {
                     await emoji.removeEmoji(message, prefix);
                 } else if (["edit", "e", "rename", "rn"].includes(subCmd)) {
                     await emoji.renameEmoji(message, prefix);
+                } else if (["link"].includes(subCmd)) {
+                    await emoji.linkEmoji(message);
                 }
             } else if (command === "db") {
                 if (["insert", "ins", "in"].includes(subCmd)) {
