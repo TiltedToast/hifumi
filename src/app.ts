@@ -80,7 +80,6 @@ client.on("interactionCreate", async (interaction: Interaction) => {
 ["SIGTERM", "SIGINT"].forEach((signal) => {
     process.on(signal, async () => {
         await mongoClient.close();
-        console.log(`Received ${signal}`);
         console.log("Closed MongoDB connection");
 
         client.destroy();
