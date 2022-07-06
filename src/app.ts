@@ -77,14 +77,17 @@ client.on("interactionCreate", async (interaction: Interaction) => {
 });
 
 // Graceful Shutdown on Ctrl + C / Docker stop
-process.on("SIGINT", async () => {
-    await mongoClient.close();
-    console.log("Closed MongoDB connection");
+["SIGTERM", "SIGINT"].forEach((signal) => {
+    process.on(signal, async () => {
+        await mongoClient.close();
+        console.log(`Received ${signal}`);
+        console.log("Closed MongoDB connection");
 
-    client.destroy();
-    console.log("Closed Discord client");
+        client.destroy();
+        console.log("Closed Discord client");
 
-    process.exit(0);
+        process.exit(0);
+    });
 });
 
 client.login(BOT_TOKEN);
