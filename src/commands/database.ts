@@ -12,9 +12,7 @@ export async function insert(message: Message): Promise<void | Message<boolean>>
 
     if (isDev()) await message.channel.send("Add your stuff to the cloud db instead <:emiliaSMH:747132102645907587>");
 
-    const dbName = content[2];
-    const collectionName = content[3];
-
+    const [dbName, collectionName] = content.slice(2, 4);
     const document = parseDbArgs(4, content);
 
     const collection = mongoClient.db(dbName).collection(collectionName);
@@ -33,10 +31,8 @@ export async function update(message: Message): Promise<void | Message<boolean>>
 
     if (isDev()) await message.channel.send("Update the cloud db instead <:emiliaSMH:747132102645907587>");
 
-    const dbName = content[2];
-    const collectionName = content[3];
-
-    const filterDoc = { [content[4]]: content[5] };
+    const [dbName, collectionName, filterKey, filterValue] = content.slice(2, 6);
+    const filterDoc = { [filterKey]: filterValue };
 
     const newValues = parseDbArgs(6, content);
 
@@ -56,14 +52,15 @@ export async function deleteDoc(message: Message) {
 
     const content = message.content.split(" ");
 
+    const [dbName, collectionName] = content.slice(2, 4);
     const document = parseDbArgs(4, content);
 
-    const collection = mongoClient.db(content[2]).collection(content[3]);
+    const collection = mongoClient.db(dbName).collection(collectionName);
 
     const deletedDoc = await collection.findOneAndDelete(document);
     if (!deletedDoc.value) return await message.channel.send("No document found!");
 
-    await message.channel.send(`Successfully deleted document from ${content[2]}.${content[3]}`);
+    await message.channel.send(`Successfully deleted document from ${dbName}.${collectionName}`);
     return message.channel.send(`\`\`\`json\n${JSON.stringify(deletedDoc.value, null, 4)}\n\`\`\``);
 }
 
@@ -104,8 +101,8 @@ export async function updatePrefix(message: Message) {
     const collection = mongoClient.db("hifumi").collection("prefixes");
 
     // Syntax check as well as avoiding cluttering the database with long impractical prefixes
-    if (content.length !== 2) return await message.channel.send("Invalid syntax!");
-    if (content[1].length > 5) return await message.channel.send("Prefix too long!");
+    if (content.length !== 2) return await message.channel.send("Invalid syntax");
+    if (content[1].length > 5) return await message.channel.send("Your prefix may only be 10 characters long at most");
 
     if (isDev()) await message.channel.send("Wrong database <:emiliaSMH:747132102645907587>");
 
@@ -114,9 +111,8 @@ export async function updatePrefix(message: Message) {
     if (message.guild === null) return await message.channel.send("This command can only be used in a server!");
 
     const serverId = message.guild.id;
-    const filterDoc = { serverId: serverId };
     const updateDoc = { $set: { prefix: content[1] } };
-    await collection.updateOne(filterDoc, updateDoc);
+    await collection.updateOne({ serverId }, updateDoc);
     prefixDict[serverId] = content[1];
     return await message.channel.send(`Updated prefix for this server to \`${content[1]}\`!`);
 }
