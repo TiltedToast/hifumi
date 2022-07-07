@@ -154,7 +154,7 @@ export function errorLog(message: Message | null, errorObject: Error): Promise<M
 
     if (message === null) {
         channel = client.channels.cache.get(LOG_CHANNEL) as TextChannel;
-        errorMessage = `Unhandled Rejection\n\n${errorObject.stack}\n\n<@${BOT_OWNERS}>`;
+        errorMessage = `Unhandled Rejection\n\n${errorObject.stack}\n\n<@${BOT_OWNERS[0]}>`;
         return channel.send(errorMessage);
     }
 
@@ -172,9 +172,9 @@ export function errorLog(message: Message | null, errorObject: Error): Promise<M
         `**Command used:** ${commandUsed}\n` +
         `**Error:** ${errorObject.message}\n`;
 
-    const fullErrorMsg = `${errorMessageWithoutStack}\n\n**${errorObject.stack}**\n\n<@${BOT_OWNERS}>`;
+    const fullErrorMsg = `${errorMessageWithoutStack}\n\n**${errorObject.stack}**\n\n<@${BOT_OWNERS[0]}>`;
     const preCutErrorMessage = fullErrorMsg.substring(0, 1900 - errorMessageWithoutStack.length);
-    const postCutErrorMessage = `${preCutErrorMessage.split("\n").slice(0, -2).join("\n")}**\n\n<@${BOT_OWNERS}>`;
+    const postCutErrorMessage = `${preCutErrorMessage.split("\n").slice(0, -2).join("\n")}**\n\n<@${BOT_OWNERS[0]}>`;
 
     const collection = mongoClient.db("hifumi").collection("errorLog");
     collection.insertOne({
@@ -192,7 +192,7 @@ export function errorLog(message: Message | null, errorObject: Error): Promise<M
     if (fullErrorMsg.length <= 2000) {
         errorMessage = fullErrorMsg;
     } else if (postCutErrorMessage.length > 2000) {
-        errorMessage = `An Error occurred on ${currentTime}\nCheck console for full error (2000 character limit)\n<@${BOT_OWNERS}>`;
+        errorMessage = `An Error occurred on ${currentTime}\nCheck console for full error (2000 character limit)\n<@${BOT_OWNERS[0]}>`;
     } else {
         errorMessage = postCutErrorMessage;
     }
