@@ -24,8 +24,6 @@
         "noPropertyAccessFromIndexSignature": true,
         "checkJs": true,
         "importsNotUsedAsValues": "error",
-
-
     },
     "include": [
         "src/**/*.ts"
