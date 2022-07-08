@@ -1,6 +1,6 @@
 import "dotenv/config";
 import strftime from "strftime";
-import { isDev } from "./commands/tools.js";
+import {  isDev } from "./commands/tools.js";
 import { Document, MongoClient } from "mongodb";
 import { startStatusLoop } from "./commands/loops.js";
 import { Client, Intents, Interaction, Message, MessageEmbed, TextChannel } from "discord.js";

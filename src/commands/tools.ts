@@ -30,6 +30,10 @@ export function getEmbedIndex(arr: EmbedMetadata[], target: EmbedMetadata): numb
     return arr.findIndex((elem) => elem.embed.description === target.embed.description);
 }
 
+export function insideDocker() {
+    return process.env["DOCKER"] === "true";
+}
+
 /**
  * Checks if the user invoking the command has the specified permission(s)
  * @param permission A valid permission to check, see
