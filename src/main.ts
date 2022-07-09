@@ -6,12 +6,20 @@ import strftime from "strftime";
 import fetch from "node-fetch";
 import { Interaction, Message, MessageActionRow, MessageButton, MessageEmbed, User, Util } from "discord.js";
 import { client, mongoClient, prefixDict } from "./app.js";
-import { randomElementArray, sleep, errorLog, getUserObjectPingId, isDev, getEmbedIndex } from "./commands/tools.js";
+import {
+    randomElementArray,
+    sleep,
+    errorLog,
+    getUserObjectPingId,
+    isDev,
+    updateEmbed,
+    isMikuTrigger,
+} from "./commands/tools.js";
 import { exec } from "child_process";
 import { EMBED_COLOUR, BOT_OWNERS, EXCHANGE_API_KEY } from "./config.js";
 import type { ConvertResponse } from "./interfaces/ConvertResponse.js";
 import type { UrbanResponse, UrbanEntry } from "./interfaces/UrbanResponse";
-import type { EmbedMetadata, UpdateEmbedOptions } from "./interfaces/UpdateEmbedOptions.js";
+import type { EmbedMetadata } from "./interfaces/UpdateEmbedOptions.js";
 import { promisify } from "util";
 const execPromise = promisify(exec);
 
@@ -111,7 +119,7 @@ export async function handleInteraction(interaction: Interaction) {
 
     if (interaction.isButton()) {
         if (["prevUrban", "nextUrban"].includes(interaction.customId)) {
-            await updateEmbed({
+            updateEmbed({
                 interaction,
                 embedArray: urbanEmbeds,
                 prevButtonId: "prevUrban",
@@ -119,29 +127,6 @@ export async function handleInteraction(interaction: Interaction) {
                 user: interaction.user,
             });
         }
-    }
-}
-
-async function updateEmbed({ interaction, embedArray, prevButtonId, nextButtonId, user }: UpdateEmbedOptions) {
-    const activeIndex = getEmbedIndex(embedArray, {
-        embed: interaction.message.embeds[0],
-        user,
-    });
-
-    if (interaction.user !== embedArray[activeIndex].user) {
-        return interaction.reply({
-            content: "Run the command yourself to be able to cycle through the results",
-            ephemeral: true,
-        });
-    }
-    if (activeIndex === 0 && interaction.customId === prevButtonId) {
-        await interaction.update({ embeds: [embedArray[embedArray.length - 1].embed] });
-    } else if (activeIndex === embedArray.length - 1 && interaction.customId === nextButtonId) {
-        await interaction.update({ embeds: [embedArray[0].embed] });
-    } else {
-        await interaction.update({
-            embeds: [embedArray[activeIndex + (interaction.customId === prevButtonId ? -1 : 1)].embed],
-        });
     }
 }
 
@@ -161,20 +146,6 @@ async function reactToMiku(message: Message, reactCmd: string): Promise<void | M
             return await message.channel.send(msg);
         }
     }
-}
-
-function isMikuTrigger(message: Message, reactCmd: string): boolean {
-    if (!client.user) return false;
-    if (message.content.startsWith(`$${reactCmd}`) && message.type === "REPLY") {
-        const repliedMsg = message.channel.messages.resolve(message.reference?.messageId ?? "");
-        if (!repliedMsg) return false;
-        if (repliedMsg.author.id === client.user.id) return true;
-    }
-
-    return (
-        message.content.startsWith(`$${reactCmd} <@${client.user.id}>`) ||
-        message.content.startsWith(`$${reactCmd} <@!${client.user.id}>`)
-    );
 }
 
 async function leet(message: Message): Promise<void | Message<boolean>> {
@@ -261,7 +232,7 @@ async function jsEval(message: Message) {
     let rslt = eval(command);
 
     if (typeof rslt === "object") rslt = `\`\`\`js\n${JSON.stringify(rslt, null, 4)}\n\`\`\``;
-    if (!rslt) return await message.channel.send("Cannot send an empty message!");
+    if (rslt == null) return await message.channel.send("Cannot send an empty message!");
 
     const resultString = rslt.toString();
 
