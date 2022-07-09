@@ -223,13 +223,18 @@ export async function reloadBot(message: Message) {
 
 async function jsEval(message: Message) {
     if (!BOT_OWNERS.includes(message.author.id)) return;
+    let rslt: string;
 
     const content = message.content.split(" ");
 
     if (content.length === 1) return await message.channel.send("You have to type **SOMETHING** at least");
 
     const command = message.content.split(" ").slice(1).join(" ");
-    let rslt = eval(command);
+    try {
+        rslt = eval(command);
+    } catch (error) {
+        return await message.channel.send(`\`\`\`${error}\`\`\``);
+    }
 
     if (typeof rslt === "object") rslt = `\`\`\`js\n${JSON.stringify(rslt, null, 4)}\n\`\`\``;
     if (rslt == null) return await message.channel.send("Cannot send an empty message!");
