@@ -10,7 +10,7 @@ import { promisify } from "util";
 import type { Document } from "mongodb";
 import type { RequestInit } from "node-fetch";
 import type { AnyChannel, Message, PermissionResolvable, TextChannel, User } from "discord.js";
-import type { EmbedMetadata } from "../interfaces/UpdateEmbedOptions.js";
+import type { EmbedMetadata, UpdateEmbedOptions } from "../interfaces/UpdateEmbedOptions.js";
 import {
     BOT_OWNERS,
     EXCHANGE_API_KEY,
@@ -26,12 +26,49 @@ import {
 
 const execPromise = promisify(exec);
 
-export function getEmbedIndex(arr: EmbedMetadata[], target: EmbedMetadata): number {
+function getEmbedIndex(arr: EmbedMetadata[], target: EmbedMetadata): number {
     return arr.findIndex((elem) => elem.embed.description === target.embed.description);
 }
 
 export function insideDocker() {
     return process.env["DOCKER"] === "true";
+}
+
+export function isMikuTrigger(message: Message, reactCmd: string): boolean {
+    if (!client.user) return false;
+    if (message.content.startsWith(`$${reactCmd}`) && message.type === "REPLY") {
+        const repliedMsg = message.channel.messages.resolve(message.reference?.messageId ?? "");
+        if (!repliedMsg) return false;
+        if (repliedMsg.author.id === client.user.id) return true;
+    }
+
+    return (
+        message.content.startsWith(`$${reactCmd} <@${client.user.id}>`) ||
+        message.content.startsWith(`$${reactCmd} <@!${client.user.id}>`)
+    );
+}
+
+export async function updateEmbed({ interaction, embedArray, prevButtonId, nextButtonId, user }: UpdateEmbedOptions) {
+    const activeIndex = getEmbedIndex(embedArray, {
+        embed: interaction.message.embeds[0],
+        user,
+    });
+
+    if (interaction.user !== embedArray[activeIndex].user) {
+        return interaction.reply({
+            content: "Run the command yourself to be able to cycle through the results",
+            ephemeral: true,
+        });
+    }
+    if (activeIndex === 0 && interaction.customId === prevButtonId) {
+        await interaction.update({ embeds: [embedArray[embedArray.length - 1].embed] });
+    } else if (activeIndex === embedArray.length - 1 && interaction.customId === nextButtonId) {
+        await interaction.update({ embeds: [embedArray[0].embed] });
+    } else {
+        await interaction.update({
+            embeds: [embedArray[activeIndex + (interaction.customId === prevButtonId ? -1 : 1)].embed],
+        });
+    }
 }
 
 /**
