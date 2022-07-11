@@ -4,7 +4,7 @@ import * as imgProcess from "./commands/imgProcess.js";
 import * as reddit from "./commands/reddit.js";
 import strftime from "strftime";
 import fetch from "node-fetch";
-import { Interaction, Message, MessageActionRow, MessageButton, MessageEmbed, User, Util } from "discord.js";
+import { Interaction, Message, MessageActionRow, MessageButton, MessageEmbed, Util } from "discord.js";
 import { client, mongoClient, prefixDict } from "./app.js";
 import {
     randomElementArray,
@@ -124,7 +124,7 @@ export async function handleInteraction(interaction: Interaction) {
                 embedArray: urbanEmbeds,
                 prevButtonId: "prevUrban",
                 nextButtonId: "nextUrban",
-                user: interaction.user,
+                user: interaction.user.id,
             });
         }
     }
@@ -358,7 +358,7 @@ async function urban(message: Message, prefix: string): Promise<Message> {
 
     if (result.length === 0) return message.channel.send("No results found!");
 
-    await updateUrbanEmbeds(result, message.author);
+    await updateUrbanEmbeds(result, message.author.id);
     const row = new MessageActionRow().addComponents(
         new MessageButton().setCustomId("prevUrban").setLabel("PREV").setStyle("PRIMARY"),
         new MessageButton().setCustomId("nextUrban").setLabel("NEXT").setStyle("PRIMARY")
@@ -367,13 +367,13 @@ async function urban(message: Message, prefix: string): Promise<Message> {
     return await message.channel.send({ embeds: [urbanEmbeds[0].embed], components: [row] });
 }
 
-async function updateUrbanEmbeds(result: UrbanEntry[], user: User) {
+async function updateUrbanEmbeds(result: UrbanEntry[], userId: string) {
     result.sort((a, b) => (b.thumbs_up > a.thumbs_up ? 1 : -1));
     urbanEmbeds = [];
     for (let i = 0; i < result.length; i++) {
         urbanEmbeds.push({
             embed: buildUrbanEmbed(result[i], i, result),
-            user: user,
+            user: userId,
         });
     }
 }
