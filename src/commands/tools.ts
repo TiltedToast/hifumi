@@ -54,7 +54,7 @@ export async function updateEmbed({ interaction, embedArray, prevButtonId, nextB
         user,
     });
 
-    if (interaction.user !== embedArray[activeIndex].user) {
+    if (interaction.user.id !== embedArray[activeIndex].user) {
         return interaction.reply({
             content: "Run the command yourself to be able to cycle through the results",
             ephemeral: true,
