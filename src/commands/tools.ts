@@ -71,7 +71,6 @@ export async function updateEmbed(options: UpdateEmbedOptions) {
         newEmbed = embedArray[activeIndex + (interaction.customId === prevButtonId ? -1 : 1)];
     }
     await interaction.update({ embeds: [newEmbed.embed] });
-    return newEmbed;
 }
 
 /**
