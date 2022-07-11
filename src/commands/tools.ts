@@ -48,7 +48,10 @@ export function isMikuTrigger(message: Message, reactCmd: string): boolean {
     );
 }
 
-export async function updateEmbed({ interaction, embedArray, prevButtonId, nextButtonId, user }: UpdateEmbedOptions) {
+export async function updateEmbed(options: UpdateEmbedOptions) {
+    let newEmbed: EmbedMetadata;
+    const { interaction, embedArray, prevButtonId, nextButtonId, user } = options;
+
     const activeIndex = getEmbedIndex(embedArray, {
         embed: interaction.message.embeds[0],
         user,
@@ -61,14 +64,14 @@ export async function updateEmbed({ interaction, embedArray, prevButtonId, nextB
         });
     }
     if (activeIndex === 0 && interaction.customId === prevButtonId) {
-        await interaction.update({ embeds: [embedArray[embedArray.length - 1].embed] });
+        newEmbed = embedArray[embedArray.length - 1];
     } else if (activeIndex === embedArray.length - 1 && interaction.customId === nextButtonId) {
-        await interaction.update({ embeds: [embedArray[0].embed] });
+        newEmbed = embedArray[0];
     } else {
-        await interaction.update({
-            embeds: [embedArray[activeIndex + (interaction.customId === prevButtonId ? -1 : 1)].embed],
-        });
+        newEmbed = embedArray[activeIndex + (interaction.customId === prevButtonId ? -1 : 1)];
     }
+    await interaction.update({ embeds: [newEmbed.embed] });
+    return newEmbed;
 }
 
 /**
