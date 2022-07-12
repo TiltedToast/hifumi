@@ -7,6 +7,7 @@ export interface ImgurResponse {
 export interface ImgurData {
     id: string;
     title: null | string;
+    error: null | ImgurError;
     description: null | string;
     datetime: number;
     type: string;
@@ -33,4 +34,12 @@ export interface ImgurData {
     deletehash: string;
     name: string;
     link: string;
+}
+
+interface ImgurError {
+    code: number;
+    message: string;
+    type: string;
+    method: string;
+    request: string;
 }
