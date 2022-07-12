@@ -126,7 +126,7 @@ export async function imgur(message: Message, prefix: string, url?: string): Pro
 
     const imgType = getImgType(source);
     if (imgType === null) return await message.channel.send("Invalid image type!");
-    
+
     const myHeaders = new Headers();
     const formdata = new FormData();
     myHeaders.append("Authorization", `Client-ID ${IMGUR_CLIENT_ID}`);
@@ -159,20 +159,20 @@ export async function imgur(message: Message, prefix: string, url?: string): Pro
         formdata.append("image", contents);
 
         const response = await fetch("https://api.imgur.com/3/image", requestOptions);
-        if (!response.ok) return message.channel.send("An unknown error occured while uploading!");
+        const result = (await response.json()) as ImgurResponse;
 
-        const result = await response.json();
-        const imageLink = (result as ImgurResponse)["data"]["link"];
-        return await message.channel.send(imageLink);
+        if (!response.ok) return message.channel.send(`Failed to upload image: ${result.data.error?.message}`);
+
+        return await message.channel.send(result.data.link);
     } else if (contentLength !== null && parseInt(contentLength) <= 10240000) {
         formdata.append("image", source);
 
         const response = await fetch("https://api.imgur.com/3/image", requestOptions);
-        if (!response.ok) return message.channel.send("An unknown error occured while uploading!");
+        const result = (await response.json()) as ImgurResponse;
 
-        const result = await response.json();
-        const imageLink = (result as ImgurResponse)["data"]["link"];
-        return await message.channel.send(imageLink);
+        if (!response.ok) return message.channel.send(`Failed to upload image: ${result.data.error?.message}`);
+
+        return await message.channel.send(result.data.link);
     }
     return await message.channel.send("File too large for Imgur! (10MB limit)");
 }
