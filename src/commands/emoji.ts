@@ -42,7 +42,7 @@ export async function addEmoji(message: Message, prefix: string): Promise<void |
     createTemp("temp");
 
     if (emojis?.includes(content[2])) {
-        return bulkAddEmojis(message, emojis);
+        return message.channel.send(await bulkAddEmojis(message, emojis));
     }
 
     if (!(2 < name.length && name.length < 32))
@@ -128,7 +128,7 @@ async function bulkAddEmojis(message: Message, emojis: RegExpMatchArray) {
 
         output += `${msg}\n`;
     }
-    return await message.channel.send(output);
+    return output;
 }
 
 export async function removeEmoji(message: Message, prefix: string): Promise<Message> {
