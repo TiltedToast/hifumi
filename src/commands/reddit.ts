@@ -1,5 +1,5 @@
 import Snoowrap from "snoowrap";
-import { Message, MessageEmbed, TextChannel } from "discord.js";
+import { EmbedBuilder, Message, TextChannel } from "discord.js";
 import fetch from "node-fetch";
 import { mongoClient } from "../app.js";
 import strftime from "strftime";
@@ -39,7 +39,7 @@ function buildProfileEmbed(userName: string) {
                         Comment Karma: ${comment_karma.toString()}
                         Created on: ${userCreatedDate}`;
 
-    return new MessageEmbed()
+    return new EmbedBuilder()
         .setColor(EMBED_COLOUR)
         .setTitle(`${name}'s profile`)
         .setDescription(description)
@@ -89,7 +89,7 @@ export async function sub(message: Message, prefix: string): Promise<Message> {
 
     const { title, permalink, url } = randomSubmission[0] as Submission;
 
-    const imgEmbed = new MessageEmbed()
+    const imgEmbed = new EmbedBuilder()
         .setColor(EMBED_COLOUR)
         .setTitle(title)
         .setURL(`https://reddit.com${permalink}`)

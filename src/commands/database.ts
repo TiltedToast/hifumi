@@ -1,5 +1,5 @@
 import { mongoClient, prefixDict, statusArr } from "../app.js";
-import type { Message } from "discord.js";
+import { Message, PermissionFlagsBits } from "discord.js";
 import { isDev, parseDbArgs, hasPermission } from "./tools.js";
 import { BOT_OWNERS } from "../config.js";
 import { StatusType } from "../interfaces/StatusDoc.js";
@@ -93,7 +93,7 @@ export async function insertStatus(message: Message): Promise<void | Message<boo
 
 export async function updatePrefix(message: Message) {
     // Permission check for Kick Permissions or being the Bot Owner
-    if (!hasPermission("KICK_MEMBERS", message) && !BOT_OWNERS.includes(message.author.id)) {
+    if (!hasPermission(PermissionFlagsBits.KickMembers, message) && !BOT_OWNERS.includes(message.author.id)) {
         return message.channel.send("Insufficient permissions!");
     }
 

@@ -9,7 +9,7 @@ import { mongoClient, client } from "../app.js";
 import { promisify } from "util";
 import type { Document } from "mongodb";
 import type { RequestInit } from "node-fetch";
-import type { AnyChannel, Message, PermissionResolvable, TextChannel, User } from "discord.js";
+import { Channel, Message, MessageType, PermissionResolvable, TextChannel, User } from "discord.js";
 import type { EmbedMetadata, UpdateEmbedOptions } from "../interfaces/UpdateEmbedOptions.js";
 import {
     BOT_OWNERS,
@@ -27,7 +27,7 @@ import {
 const execPromise = promisify(exec);
 
 function getEmbedIndex(arr: EmbedMetadata[], target: EmbedMetadata): number {
-    return arr.findIndex((elem) => elem.embed.description === target.embed.description);
+    return arr.findIndex((elem) => elem.embed.toJSON().description === target.embed.toJSON().description);
 }
 
 export function insideDocker() {
@@ -36,7 +36,7 @@ export function insideDocker() {
 
 export function isMikuTrigger(message: Message, reactCmd: string): boolean {
     if (!client.user) return false;
-    if (message.content.startsWith(`$${reactCmd}`) && message.type === "REPLY") {
+    if (message.content.startsWith(`$${reactCmd}`) && message.type === MessageType.Reply) {
         const repliedMsg = message.channel.messages.resolve(message.reference?.messageId ?? "");
         if (!repliedMsg) return false;
         if (repliedMsg.author.id === client.user.id) return true;
@@ -70,7 +70,7 @@ export async function updateEmbed(options: UpdateEmbedOptions) {
     } else {
         newEmbed = embedArray[activeIndex + (interaction.customId === prevButtonId ? -1 : 1)];
     }
-    await interaction.update({ embeds: [newEmbed.embed] });
+    return await interaction.update({ embeds: [newEmbed.embed] });
 }
 
 /**
@@ -192,7 +192,7 @@ export function randomIntFromRange(min: number, max: number): number {
  */
 export function errorLog(message: Message | null, errorObject: Error): Promise<Message<boolean>> {
     const currentTime = strftime("%d/%m/%Y %H:%M:%S");
-    let channel: AnyChannel | undefined;
+    let channel: Channel | undefined;
     let errorMessage: string;
 
     if (message === null) {

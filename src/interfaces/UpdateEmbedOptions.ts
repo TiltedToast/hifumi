@@ -1,5 +1,4 @@
-import type { APIEmbed } from "discord-api-types";
-import type { ButtonInteraction, MessageEmbed } from "discord.js";
+import type { ButtonInteraction, Embed, EmbedBuilder } from "discord.js";
 
 export interface UpdateEmbedOptions {
     interaction: ButtonInteraction;
@@ -10,6 +9,6 @@ export interface UpdateEmbedOptions {
 }
 
 export interface EmbedMetadata  {
-    embed: MessageEmbed | APIEmbed;
+    embed: Embed | EmbedBuilder;
     user: string;
 }

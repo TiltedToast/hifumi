@@ -7,7 +7,7 @@ import { FormData } from "formdata-node";
 import { IMGUR_CLIENT_ID } from "../config.js";
 import { createTemp, getUserObjectPingId, resize, downloadURL, getImgType, isValidSize } from "./tools.js";
 import type { ImgurResponse } from "../interfaces/ImgurResponse.js";
-import type { Message, MessageAttachment } from "discord.js";
+import type { Message } from "discord.js";
 
 import canvas from "canvas";
 
@@ -70,7 +70,7 @@ export async function resizeImg(message: Message, prefix: string): Promise<Messa
     }
 
     const width = parseInt(content[1]);
-    const source = message.attachments.size > 0 ? (message.attachments.first() as MessageAttachment).url : content[2];
+    const source = message.attachments.size > 0 ? message.attachments.first()?.url : content[2];
 
     if (!source) return await message.channel.send("Invalid URL!");
 
@@ -101,12 +101,11 @@ export async function resizeImg(message: Message, prefix: string): Promise<Messa
 
 export async function imgur(message: Message, prefix: string, url?: string): Promise<Message | undefined> {
     const content = message.content.split(" ");
-    let source: string;
     if (content.length !== 2 && message.attachments.size === 0) {
         return await message.channel.send(`Usage: \`${prefix}imgur <url>\``);
     }
 
-    source = message.attachments.size > 0 ? (message.attachments.first() as MessageAttachment).url : content[1];
+    let source = message.attachments.size > 0 ? message.attachments.first()?.url : content[1];
     if (url) source = url;
 
     if (source === undefined) return await message.channel.send("Invalid URL!");

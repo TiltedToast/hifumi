@@ -4,7 +4,7 @@ import * as imgProcess from "./commands/imgProcess.js";
 import * as reddit from "./commands/reddit.js";
 import strftime from "strftime";
 import fetch from "node-fetch";
-import { Interaction, Message, MessageActionRow, MessageButton, MessageEmbed, Util } from "discord.js";
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, Interaction, Message, PermissionsBitField } from "discord.js";
 import { client, mongoClient, prefixDict } from "./app.js";
 import {
     randomElementArray,
@@ -26,13 +26,14 @@ const execPromise = promisify(exec);
 let urbanEmbeds: EmbedMetadata[] = [];
 
 export async function handleMessage(message: Message) {
-    if (message.guild?.me === null) return;
+    const guildClient = await message.guild?.members.fetchMe();
+    if (!message.guild) return;
     try {
         // Permission check for the channel which the message was sent in to avoid breaking the bot
         if (
             message.author.bot ||
-            !message.guild?.me.permissionsIn(message.channel.id).has("SEND_MESSAGES") ||
-            !message.guild?.me.permissionsIn(message.channel.id).has("VIEW_CHANNEL")
+            !guildClient?.permissionsIn(message.channel.id).has(PermissionsBitField.Flags.SendMessages) ||
+            !guildClient?.permissionsIn(message.channel.id).has(PermissionsBitField.Flags.ViewChannel)
         )
             return;
 
@@ -115,8 +116,6 @@ export async function handleMessage(message: Message) {
 }
 
 export async function handleInteraction(interaction: Interaction) {
-    if (interaction.guild?.me === null) return;
-
     if (interaction.isButton()) {
         if (["prevUrban", "nextUrban"].includes(interaction.customId)) {
             updateEmbed({
@@ -166,11 +165,8 @@ async function leet(message: Message): Promise<void | Message<boolean>> {
         })
         .join(" ");
 
-    const splitOutput = Util.splitMessage(leetOutput, { maxLength: 2000, char: " " });
 
-    for (const msg of splitOutput) {
-        await message.channel.send(msg);
-    }
+    await message.channel.send(leetOutput.substring(0, 2000 ));
 }
 
 async function helpCmd(message: Message, prefix: string) {
@@ -182,7 +178,7 @@ async function helpCmd(message: Message, prefix: string) {
         .map((helpMsgObj) => `**${prefix}${helpMsgObj["cmd"]}** - ${helpMsgObj["desc"]}`)
         .join("\n");
 
-    const helpEmbed = new MessageEmbed()
+    const helpEmbed = new EmbedBuilder()
         .setColor(EMBED_COLOUR)
         .setTitle("**Hifumi's commands**")
         .setDescription(helpMsg);
@@ -257,7 +253,7 @@ async function avatar(message: Message) {
 
     const { id: userId, username, avatar: avatarHash } = user;
 
-    const avatarURL = user.avatarURL({ dynamic: true });
+    const avatarURL = user.displayAvatarURL({ forceStatic: false });
 
     if (!avatarURL) return await message.channel.send("No avatar found!");
 
@@ -267,7 +263,7 @@ async function avatar(message: Message) {
         url = `https://cdn.discordapp.com/avatars/${userId}/${avatarHash}.png?size=4096`;
     }
 
-    const avatarEmbed = new MessageEmbed().setColor(EMBED_COLOUR).setTitle(`*${username}'s Avatar*`).setImage(url);
+    const avatarEmbed = new EmbedBuilder().setColor(EMBED_COLOUR).setTitle(`*${username}'s Avatar*`).setImage(url);
 
     return await message.channel.send({ embeds: [avatarEmbed] });
 }
@@ -292,10 +288,8 @@ async function listCurrencies(message: Message) {
         }
     }
 
-    const currEmbed = new MessageEmbed().setColor(EMBED_COLOUR).setTitle(title);
-    for (const column of columns) {
-        currEmbed.addField("\u200b", column, true);
-    }
+    const currEmbed = new EmbedBuilder().setColor(EMBED_COLOUR).setTitle(title);
+    currEmbed.addFields(columns.map((column) => ({ name: "\u200b", value: column, inline: true })));
 
     return await message.channel.send({ embeds: [currEmbed] });
 }
@@ -338,7 +332,7 @@ function buildConvertEmbed(result: ConvertResponse, to: string, amount: number, 
         rslt
     )} ${to}**\n\nExchange Rate: 1 ${from} ≈ ${rate} ${to}`;
 
-    return new MessageEmbed()
+    return new EmbedBuilder()
         .setColor(EMBED_COLOUR)
         .setTitle(`Converting ${from} to ${to}`)
         .setDescription(description)
@@ -359,9 +353,9 @@ async function urban(message: Message, prefix: string): Promise<Message> {
     if (result.length === 0) return message.channel.send("No results found!");
 
     await updateUrbanEmbeds(result, message.author.id);
-    const row = new MessageActionRow().addComponents(
-        new MessageButton().setCustomId("prevUrban").setLabel("PREV").setStyle("PRIMARY"),
-        new MessageButton().setCustomId("nextUrban").setLabel("NEXT").setStyle("PRIMARY")
+    const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+        new ButtonBuilder().setCustomId("prevUrban").setLabel("PREV").setStyle(ButtonStyle.Primary),
+        new ButtonBuilder().setCustomId("nextUrban").setLabel("NEXT").setStyle(ButtonStyle.Primary)
     );
 
     return await message.channel.send({ embeds: [urbanEmbeds[0].embed], components: [row] });
@@ -388,7 +382,7 @@ function buildUrbanEmbed(resultEntry: UrbanEntry, index: number, array: UrbanEnt
         **Author:** ${author}\n
         **Permalink:** ${permalink}`.replace(/\]|\[/g, "");
 
-    return new MessageEmbed()
+    return new EmbedBuilder()
         .setColor(EMBED_COLOUR)
         .setTitle(`*${word}*`)
         .setDescription(description)

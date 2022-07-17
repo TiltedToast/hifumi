@@ -1,5 +1,6 @@
-import type { Message, MessageAttachment, GuildEmoji } from "discord.js";
+import { Message, GuildEmoji, PermissionFlagsBits, Attachment } from "discord.js";
 import { extractEmoji, createTemp, downloadURL, getImgType, resize, isValidSize, hasPermission } from "./tools.js";
+import * as fs from "fs";
 
 export async function linkEmoji(message: Message): Promise<Message<boolean>> {
     const emojiRegex = new RegExp(/<a?:[a-zA-Z0-9]{1,32}:[0-9]{18}>/gi);
@@ -15,7 +16,7 @@ export async function addEmoji(message: Message, prefix: string): Promise<void |
         emoji,
         url = "";
 
-    if (!hasPermission("MANAGE_EMOJIS_AND_STICKERS", message)) {
+    if (!hasPermission(PermissionFlagsBits.ManageEmojisAndStickers, message)) {
         return await message.channel.send('You need the "Manage Emojis" permission to add emojis!');
     }
     const content = message.content.split(" ");
@@ -62,7 +63,7 @@ export async function addEmoji(message: Message, prefix: string): Promise<void |
     } else if (isValidURL) {
         url = source;
     } else if (message.attachments.size > 0) {
-        url = (message.attachments?.first() as MessageAttachment).url;
+        url = (message.attachments?.first() as Attachment).url;
     }
 
     createTemp("temp");
@@ -80,10 +81,18 @@ export async function addEmoji(message: Message, prefix: string): Promise<void |
             return message.channel.send("File too large for Discord, even after resizing!");
         }
         if (message.guild === null) return message.channel.send("You can't add emojis to DMs!");
-        emoji = await message.guild.emojis.create(`./temp/unknown_resized.${imgType}`, name);
+        const base64 = fs.readFileSync(`./temp/unknown_resized.${imgType}`, { encoding: "base64" });
+        emoji = await message.guild.emojis.create({
+            attachment: `data:image/${imgType};base64,${base64}`,
+            name,
+        });
     } else {
         if (message.guild === null) return message.channel.send("You can't add emojis to DMs!");
-        emoji = await message.guild.emojis.create(`./temp/unknown.${imgType}`, name);
+        const base64 = fs.readFileSync(`./temp/unknown.${imgType}`, { encoding: "base64" });
+        emoji = await message.guild.emojis.create({
+            attachment: `data:image/${imgType};base64,${base64}`,
+            name,
+        });
     }
 
     // Sends newly created emoji to the channel
@@ -108,7 +117,11 @@ async function bulkAddEmojis(message: Message, emojis: RegExpMatchArray) {
         await downloadURL(url, filePath);
 
         try {
-            emoji = await message.guild?.emojis.create(filePath, name);
+            const base64 = fs.readFileSync(filePath, { encoding: "base64" });
+            emoji = await message.guild?.emojis.create({
+                attachment: `data:image/${imgType};base64,${base64}`,
+                name,
+            });
         } catch (error) {
             await message.channel.send(`Could not add ${name}, you've hit the limit!`);
             continue;
@@ -132,7 +145,7 @@ async function bulkAddEmojis(message: Message, emojis: RegExpMatchArray) {
 }
 
 export async function removeEmoji(message: Message, prefix: string): Promise<Message> {
-    if (!hasPermission("MANAGE_EMOJIS_AND_STICKERS", message)) {
+    if (!hasPermission(PermissionFlagsBits.ManageEmojisAndStickers, message)) {
         return message.channel.send('You need the "Manage Emojis" permission to remove emojis!');
     }
 
@@ -156,7 +169,7 @@ export async function removeEmoji(message: Message, prefix: string): Promise<Mes
 }
 
 export async function renameEmoji(message: Message, prefix: string): Promise<Message> {
-    if (!hasPermission("MANAGE_EMOJIS_AND_STICKERS", message)) {
+    if (!hasPermission(PermissionFlagsBits.ManageEmojisAndStickers, message)) {
         return message.channel.send('You need the "Manage Emojis" permission to rename emojis!');
     }
 
