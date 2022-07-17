@@ -3,18 +3,19 @@ import strftime from "strftime";
 import {  isDev } from "./commands/tools.js";
 import { Document, MongoClient } from "mongodb";
 import { startStatusLoop } from "./commands/loops.js";
-import { Client, Intents, Interaction, Message, MessageEmbed, TextChannel } from "discord.js";
+import { Client, GatewayIntentBits, Interaction, Message, TextChannel, EmbedBuilder } from "discord.js";
 import { getMissingCredentials } from "./commands/tools.js";
 import { BOT_TOKEN, EMBED_COLOUR, MONGO_URI, LOG_CHANNEL } from "./config.js";
 import { handleInteraction, handleMessage } from "./main.js";
 
-const intents = new Intents([
-    "GUILDS",
-    "GUILD_MEMBERS",
-    "GUILD_EMOJIS_AND_STICKERS",
-    "GUILD_MESSAGES",
-    "GUILD_MESSAGE_REACTIONS",
-]);
+const intents = [
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMembers,
+    GatewayIntentBits.GuildEmojisAndStickers,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.GuildMessageReactions,
+    GatewayIntentBits.MessageContent,
+];
 
 export const client = new Client({ intents });
 export const mongoClient = new MongoClient(MONGO_URI);
@@ -55,7 +56,7 @@ client.once("ready", async () => {
     const credentials = await getMissingCredentials();
 
     if (credentials.length > 0) {
-        const missingCredentialsEmbed = new MessageEmbed()
+        const missingCredentialsEmbed = new EmbedBuilder()
             .setColor(EMBED_COLOUR)
             .setTitle("Missing credentials")
             .setDescription(`The following credentials are missing:\n\n- ${credentials.join("\n- ")}`);
