@@ -1,5 +1,4 @@
 import * as fsPromise from "fs/promises";
-import * as fs from "fs";
 import * as qrcode from "qrcode";
 import fetch from "node-fetch";
 import { Headers } from "node-fetch";
@@ -38,7 +37,7 @@ export async function beautiful(message: Message): Promise<Message | undefined> 
 
     // Saves the output buffer to a file and sends it to the channel
     const buffer = beautifulCanvas.toBuffer("image/png");
-    fs.writeFileSync("./temp/beautiful.png", buffer);
+    await fsPromise.writeFile("./temp/beautiful.png", buffer);
 
     return await message.channel.send({ files: ["./temp/beautiful.png"] });
 }
