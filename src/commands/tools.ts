@@ -3,10 +3,9 @@ import * as fs from "fs";
 import * as path from "path";
 import fetch from "node-fetch";
 import strftime from "strftime";
-import { exec } from "child_process";
 import { Headers } from "node-fetch";
 import { mongoClient, client } from "../app.js";
-import { promisify } from "util";
+import { execPromise } from "../main.js";
 import type { Document } from "mongodb";
 import type { RequestInit } from "node-fetch";
 import { Channel, Message, MessageType, PermissionResolvable, TextChannel, User } from "discord.js";
@@ -24,14 +23,16 @@ import {
     LOG_CHANNEL,
 } from "../config.js";
 
-const execPromise = promisify(exec);
-
 function getEmbedIndex(arr: EmbedMetadata[], target: EmbedMetadata): number {
     return arr.findIndex((elem) => elem.embed.toJSON().description === target.embed.toJSON().description);
 }
 
 export function insideDocker() {
     return process.env["DOCKER"] === "true";
+}
+
+export function isBotOwner(user: User) {
+    return BOT_OWNERS.includes(user.id);
 }
 
 export function isMikuTrigger(message: Message, reactCmd: string): boolean {
