@@ -31,9 +31,9 @@
     },
     "scripts": {
         "start": "tsc && pm2 start ./dist/app.js --name hifumi --time",
-        "delete": "pm2 delete hifumi",
+        "stop": "pm2 delete hifumi",
         "restart": "tsc && pm2 reload hifumi",
         "docker-build": "tsc && node ./dist/app.js",
-        "lint": "eslint ./src"
+        "lint": "eslint ./src"    
     }
 }
