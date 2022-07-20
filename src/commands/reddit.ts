@@ -35,8 +35,8 @@ function buildProfileEmbed(userName: string) {
 
     const userCreatedDate = strftime("%d/%m/%Y", new Date(created_utc * 1000));
     const description = `[Link to profile](https://www.reddit.com/user/${name})
-                        Post Karma: ${link_karma.toString()}
-                        Comment Karma: ${comment_karma.toString()}
+                        Post Karma: ${link_karma}
+                        Comment Karma: ${comment_karma}
                         Created on: ${userCreatedDate}`;
 
     return new EmbedBuilder()
@@ -83,11 +83,13 @@ export async function sub(message: Message, prefix: string): Promise<Message> {
 
     // Get a random post that's stored in the database and send it via an Embed
     const collection = db.collection(subreddit);
-    const randomSubmission = await collection.aggregate([{ $match: query }, { $sample: { size: 1 } }]).toArray();
+    const randomSubmission = (await collection
+        .aggregate([{ $match: query }, { $sample: { size: 1 } }])
+        .toArray()) as Submission[];
 
     if (randomSubmission.length === 0) return await message.channel.send("No images found!");
 
-    const { title, permalink, url } = randomSubmission[0] as Submission;
+    const [{ title, permalink, url }] = randomSubmission;
 
     const imgEmbed = new EmbedBuilder()
         .setColor(EMBED_COLOUR)

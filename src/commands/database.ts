@@ -1,11 +1,11 @@
 import { mongoClient, prefixDict, statusArr } from "../app.js";
 import { Message, PermissionFlagsBits } from "discord.js";
-import { isDev, parseDbArgs, hasPermission } from "./tools.js";
+import { isDev, parseDbArgs, hasPermission, isBotOwner } from "./tools.js";
 import { BOT_OWNERS } from "../config.js";
 import { StatusType } from "../interfaces/StatusDoc.js";
 
 export async function insert(message: Message): Promise<void | Message<boolean>> {
-    if (!BOT_OWNERS.includes(message.author.id)) return;
+    if (!isBotOwner(message.author)) return;
 
     const content = message.content.split(" ");
     if (content.length < 6 || content.length % 2 !== 0) return await message.channel.send("Invalid syntax!");
@@ -23,7 +23,7 @@ export async function insert(message: Message): Promise<void | Message<boolean>>
 }
 
 export async function update(message: Message): Promise<void | Message<boolean>> {
-    if (!BOT_OWNERS.includes(message.author.id)) return;
+    if (!isBotOwner(message.author)) return;
 
     const content = message.content.split(" ");
 
@@ -48,7 +48,7 @@ export async function update(message: Message): Promise<void | Message<boolean>>
 }
 
 export async function deleteDoc(message: Message) {
-    if (!BOT_OWNERS.includes(message.author.id)) return;
+    if (!isBotOwner(message.author)) return;
 
     const content = message.content.split(" ");
 
@@ -65,7 +65,7 @@ export async function deleteDoc(message: Message) {
 }
 
 export async function insertStatus(message: Message): Promise<void | Message<boolean>> {
-    if (!BOT_OWNERS.includes(message.author.id)) return;
+    if (!isBotOwner(message.author)) return;
 
     const content = message.content.split(" ");
 

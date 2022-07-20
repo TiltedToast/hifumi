@@ -4,7 +4,15 @@ import * as imgProcess from "./commands/imgProcess.js";
 import * as reddit from "./commands/reddit.js";
 import strftime from "strftime";
 import fetch from "node-fetch";
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, Interaction, Message, PermissionsBitField } from "discord.js";
+import {
+    ActionRowBuilder,
+    ButtonBuilder,
+    ButtonStyle,
+    EmbedBuilder,
+    Interaction,
+    Message,
+    PermissionsBitField,
+} from "discord.js";
 import { client, mongoClient, prefixDict } from "./app.js";
 import {
     randomElementArray,
@@ -14,15 +22,16 @@ import {
     isDev,
     updateEmbed,
     isMikuTrigger,
+    isBotOwner,
 } from "./commands/tools.js";
 import { exec } from "child_process";
-import { EMBED_COLOUR, BOT_OWNERS, EXCHANGE_API_KEY } from "./config.js";
+import { EMBED_COLOUR, EXCHANGE_API_KEY } from "./config.js";
 import type { ConvertResponse } from "./interfaces/ConvertResponse.js";
 import type { UrbanResponse, UrbanEntry } from "./interfaces/UrbanResponse";
 import type { EmbedMetadata } from "./interfaces/UpdateEmbedOptions.js";
 import { promisify } from "util";
-const execPromise = promisify(exec);
 
+export const execPromise = promisify(exec);
 let urbanEmbeds: EmbedMetadata[] = [];
 
 export async function handleMessage(message: Message) {
@@ -43,19 +52,18 @@ export async function handleMessage(message: Message) {
         const reactCmd = content[0].slice(1) ?? "";
         const subCmd = content[1] ?? "";
 
-        const server = message.guild;
         const prefixColl = mongoClient.db("hifumi").collection("prefixes");
 
         // Adds a default prefix to the db if it doesn't exist
-        if (!(server.id in prefixDict) && !isDev()) {
-            await prefixColl.insertOne({ serverId: server.id, prefix: "h!" });
-            prefixDict[server.id] = "h!";
+        if (!(message.guild.id in prefixDict) && !isDev()) {
+            await prefixColl.insertOne({ serverId: message.guild.id, prefix: "h!" });
+            prefixDict[message.guild.id] = "h!";
             await message.channel.send("I have set the prefix to `h!`");
         }
 
         // Gets the prefix from the db and compares to the message's beginning
         // This way the prefix can be case insensitive
-        let prefix = prefixDict[server.id] ?? "h!";
+        let prefix = prefixDict[message.guild.id] ?? "h!";
 
         if (isDev()) prefix = "h?";
 
@@ -165,8 +173,7 @@ async function leet(message: Message): Promise<void | Message<boolean>> {
         })
         .join(" ");
 
-
-    await message.channel.send(leetOutput.substring(0, 2000 ));
+    await message.channel.send(leetOutput.substring(0, 2000));
 }
 
 async function helpCmd(message: Message, prefix: string) {
@@ -187,13 +194,13 @@ async function helpCmd(message: Message, prefix: string) {
 }
 
 async function gitPull(message: Message) {
-    if (!BOT_OWNERS.includes(message.author.id)) return;
+    if (!isBotOwner(message.author)) return;
     await consoleCmd(message, "git pull");
     await reloadBot(message);
 }
 
 async function consoleCmd(message: Message, cmd?: string) {
-    if (!BOT_OWNERS.includes(message.author.id)) return;
+    if (!isBotOwner(message.author)) return;
     // Creates a new string with the message content without the command
     // And runs it in a new shell process
     const command = cmd ? cmd : message.content.split(" ").slice(1).join(" ");
@@ -211,14 +218,14 @@ async function consoleCmd(message: Message, cmd?: string) {
 }
 
 export async function reloadBot(message: Message) {
-    if (!BOT_OWNERS.includes(message.author.id)) return;
+    if (!isBotOwner(message.author)) return;
     await mongoClient.close();
     exec("npm run restart");
     await message.channel.send("Reload successful!");
 }
 
 async function jsEval(message: Message) {
-    if (!BOT_OWNERS.includes(message.author.id)) return;
+    if (!isBotOwner(message.author)) return;
     let rslt: string;
 
     const content = message.content.split(" ");
@@ -390,7 +397,7 @@ function buildUrbanEmbed(resultEntry: UrbanEntry, index: number, array: UrbanEnt
 }
 
 async function bye(message: Message): Promise<Message | void> {
-    if (!BOT_OWNERS.includes(message.author.id)) return;
+    if (!isBotOwner(message.author)) return;
 
     // Closes the MongoDB connection and stops the running daemon via pm2
     await message.channel.send("Bai baaaaaaaai!!");
