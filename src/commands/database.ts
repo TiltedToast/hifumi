@@ -22,7 +22,7 @@ export async function insert(message: Message): Promise<void | Message<boolean>>
     await message.channel.send(`\`\`\`json\n${JSON.stringify(document, null, 4)}\n\`\`\``);
 }
 
-export async function update(message: Message): Promise<void | Message<boolean>> {
+export async function update(message: Message): Promise<void | Message> {
     if (!isBotOwner(message.author)) return;
 
     const content = message.content.split(" ");
@@ -42,6 +42,8 @@ export async function update(message: Message): Promise<void | Message<boolean>>
 
     if (!updateDoc.ok) return await message.channel.send("Couldn't update document");
     const updatedDoc = await collection.findOne(updateDoc.value._id);
+
+    if (updatedDoc === null) return await message.channel.send("Couldn't find updated document");
 
     await message.channel.send(`Updated document in ${dbName}.${collectionName}`);
     await message.channel.send(`\`\`\`json\n${JSON.stringify(updatedDoc, null, 4)}\n\`\`\``);
@@ -64,9 +66,12 @@ export async function deleteDoc(message: Message) {
     return message.channel.send(`\`\`\`json\n${JSON.stringify(deletedDoc.value, null, 4)}\n\`\`\``);
 }
 
-export async function insertStatus(message: Message): Promise<void | Message<boolean>> {
+export async function insertStatus(message: Message): Promise<void | Message> {
     if (!isBotOwner(message.author)) return;
 
+
+
+    
     const content = message.content.split(" ");
 
     if (content.length < 3) return await message.channel.send("Invalid syntax!");
