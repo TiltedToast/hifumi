@@ -18,7 +18,7 @@ export async function startCatFactLoop(channel: TextChannel): Promise<void> {
  * @param {Client} client Discord client which is used to access the API
  */
 export async function startStatusLoop(client: Client) {
-    setRandomStatus(client);
+    await setRandomStatus(client);
     setInterval(async () => {
         await setRandomStatus(client);
     }, randomIntFromRange(300000, 900000)); // 5m-15m

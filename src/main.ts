@@ -48,7 +48,7 @@ export async function handleMessage(message: Message) {
 
         const content = message.content.split(" ");
 
-        // Sub command check for reacting to Miku's emote commands
+        // React Command check for reacting to Miku's emote commands
         const reactCmd = content[0].slice(1) ?? "";
         const subCmd = content[1] ?? "";
 
@@ -114,19 +114,19 @@ export async function handleMessage(message: Message) {
         }
 
         // Reacting to Miku's emote commands
-        // Grabs a random reply from the db and sents it as a message after a fixed delay
+        // Grabs a random reply from the db and sends it as a message after a fixed delay
         if (isMikuTrigger(message, reactCmd)) {
             await reactToMiku(message, reactCmd);
         }
     } catch (err: unknown) {
-        errorLog(message, err as Error);
+        await errorLog(message, err as Error);
     }
 }
 
 export async function handleInteraction(interaction: Interaction) {
     if (interaction.isButton()) {
         if (["prevUrban", "nextUrban"].includes(interaction.customId)) {
-            updateEmbed({
+            await updateEmbed({
                 interaction,
                 embedArray: urbanEmbeds,
                 prevButtonId: "prevUrban",
@@ -155,7 +155,7 @@ async function reactToMiku(message: Message, reactCmd: string): Promise<void | M
     }
 }
 
-async function leet(message: Message): Promise<void | Message<boolean>> {
+async function leet(message: Message): Promise<void | Message> {
     const inputWords = message.content.split(" ").slice(1);
     const leetDoc = (await mongoClient.db("hifumi").collection("leet").find().toArray())[0];
 
