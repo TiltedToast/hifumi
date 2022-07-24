@@ -8,7 +8,7 @@ export interface UpdateEmbedOptions {
     user: string;
 }
 
-export interface EmbedMetadata  {
+export interface EmbedMetadata {
     embed: Embed | EmbedBuilder;
     user: string;
 }

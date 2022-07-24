@@ -41,8 +41,12 @@ export async function handleMessage(message: Message) {
         // Permission check for the channel which the message was sent in to avoid breaking the bot
         if (
             message.author.bot ||
-            !guildClient?.permissionsIn(message.channel.id).has(PermissionsBitField.Flags.SendMessages) ||
-            !guildClient?.permissionsIn(message.channel.id).has(PermissionsBitField.Flags.ViewChannel)
+            !guildClient
+                ?.permissionsIn(message.channel.id)
+                .has(PermissionsBitField.Flags.SendMessages) ||
+            !guildClient
+                ?.permissionsIn(message.channel.id)
+                .has(PermissionsBitField.Flags.ViewChannel)
         )
             return;
 
@@ -93,7 +97,8 @@ export async function handleMessage(message: Message) {
                     await db.deleteDoc(message);
                 }
             } else if (["status", "stat"].includes(command)) await db.insertStatus(message);
-            else if (["commands", "command", "comm", "com", "help"].includes(command)) await helpCmd(message, prefix);
+            else if (["commands", "command", "comm", "com", "help"].includes(command))
+                await helpCmd(message, prefix);
             else if (["convert", "conv", "c"].includes(command)) await convert(message, prefix);
             else if (["avatar", "pfp"].includes(command)) await avatar(message);
             else if (command === "currencies") await listCurrencies(message);
@@ -138,7 +143,11 @@ export async function handleInteraction(interaction: Interaction) {
 }
 
 async function reactToMiku(message: Message, reactCmd: string): Promise<void | Message> {
-    const mikuReactions = await mongoClient.db("hifumi").collection("mikuReactions").find().toArray();
+    const mikuReactions = await mongoClient
+        .db("hifumi")
+        .collection("mikuReactions")
+        .find()
+        .toArray();
 
     if (mikuReactions.length !== 2) {
         return await message.channel.send("No Miku reactions found in the database");
@@ -148,7 +157,10 @@ async function reactToMiku(message: Message, reactCmd: string): Promise<void | M
 
     for (const alias in cmdAliases) {
         if (Object.values(cmdAliases[alias]).includes(reactCmd)) {
-            const msg = (randomElementArray(reactMsgs[alias]) as string).replace("{0}", message.author.username);
+            const msg = (randomElementArray(reactMsgs[alias]) as string).replace(
+                "{0}",
+                message.author.username
+            );
             await sleep(1000);
             return await message.channel.send(msg);
         }
@@ -159,7 +171,8 @@ async function leet(message: Message): Promise<void | Message> {
     const inputWords = message.content.split(" ").slice(1);
     const leetDoc = (await mongoClient.db("hifumi").collection("leet").find().toArray())[0];
 
-    if (leetDoc === null) return message.channel.send("Couldn't find the necessary entries in the database");
+    if (leetDoc === null)
+        return message.channel.send("Couldn't find the necessary entries in the database");
 
     const leetOutput = inputWords
         .map((word) => {
@@ -177,9 +190,16 @@ async function leet(message: Message): Promise<void | Message> {
 }
 
 async function helpCmd(message: Message, prefix: string) {
-    const helpMsgArray = await mongoClient.db("hifumi").collection("helpMsgs").find().sort({ cmd: 1 }).toArray();
+    const helpMsgArray = await mongoClient
+        .db("hifumi")
+        .collection("helpMsgs")
+        .find()
+        .sort({ cmd: 1 })
+        .toArray();
     if (helpMsgArray.length === 0)
-        return await message.channel.send("Seems there aren't any help messages saved in the database");
+        return await message.channel.send(
+            "Seems there aren't any help messages saved in the database"
+        );
 
     const helpMsg = helpMsgArray
         .map((helpMsgObj) => `**${prefix}${helpMsgObj["cmd"]}** - ${helpMsgObj["desc"]}`)
@@ -230,7 +250,8 @@ async function jsEval(message: Message) {
 
     const content = message.content.split(" ");
 
-    if (content.length === 1) return await message.channel.send("You have to type **SOMETHING** at least");
+    if (content.length === 1)
+        return await message.channel.send("You have to type **SOMETHING** at least");
 
     const command = message.content.split(" ").slice(1).join(" ");
     try {
@@ -270,15 +291,21 @@ async function avatar(message: Message) {
         url = `https://cdn.discordapp.com/avatars/${userId}/${avatarHash}.png?size=4096`;
     }
 
-    const avatarEmbed = new EmbedBuilder().setColor(EMBED_COLOUR).setTitle(`*${username}'s Avatar*`).setImage(url);
+    const avatarEmbed = new EmbedBuilder()
+        .setColor(EMBED_COLOUR)
+        .setTitle(`*${username}'s Avatar*`)
+        .setImage(url);
 
     return await message.channel.send({ embeds: [avatarEmbed] });
 }
 
 async function listCurrencies(message: Message) {
-    const currencies = (await mongoClient.db("hifumi").collection("currencies").find().toArray())[0];
+    const currencies = (
+        await mongoClient.db("hifumi").collection("currencies").find().toArray()
+    )[0];
 
-    if (currencies === null) return await message.channel.send("Couldn't find any currencies in the database");
+    if (currencies === null)
+        return await message.channel.send("Couldn't find any currencies in the database");
 
     const title = "List of currencies available for conversion";
     const columns = ["", "", ""];
@@ -305,25 +332,37 @@ async function convert(message: Message, prefix: string): Promise<Message | unde
     const content = message.content.split(" ");
 
     if (content.length !== 4)
-        return await message.channel.send(`Usage: \`${prefix}convert <amount of money> <cur1> <cur2>\``);
+        return await message.channel.send(
+            `Usage: \`${prefix}convert <amount of money> <cur1> <cur2>\``
+        );
 
-    const currencies = (await mongoClient.db("hifumi").collection("currencies").find().toArray())[0];
+    const currencies = (
+        await mongoClient.db("hifumi").collection("currencies").find().toArray()
+    )[0];
 
-    if (currencies === null) return await message.channel.send("Couldn't find any currencies in the database");
+    if (currencies === null)
+        return await message.channel.send("Couldn't find any currencies in the database");
 
     const amount = parseFloat(content[1]);
     const from = content[2].toUpperCase();
     const to = content[3].toUpperCase();
 
     if (!(from in currencies) || !(to in currencies)) {
-        return await message.channel.send(`Invalid currency codes! Check \`${prefix}currencies\` for a list`);
+        return await message.channel.send(
+            `Invalid currency codes! Check \`${prefix}currencies\` for a list`
+        );
     }
     // Checks for possible pointless conversions
-    if (from === to) return await message.channel.send("Your first currency is the same as your second currency!");
+    if (from === to)
+        return await message.channel.send(
+            "Your first currency is the same as your second currency!"
+        );
     if (amount < 0) return await message.channel.send("You can't convert a negative amount!");
     if (amount === 0) return await message.channel.send("Zero will obviously stay 0!");
 
-    const response = await fetch(`https://prime.exchangerate-api.com/v5/${EXCHANGE_API_KEY}/latest/${from}`);
+    const response = await fetch(
+        `https://prime.exchangerate-api.com/v5/${EXCHANGE_API_KEY}/latest/${from}`
+    );
     if (!response.ok) return await message.channel.send("Error! Please try again later");
     const result = (await response.json()) as ConvertResponse;
 
@@ -353,7 +392,8 @@ async function urban(message: Message, prefix: string): Promise<Message> {
 
     const query = content[1];
     const response = await fetch(`https://api.urbandictionary.com/v0/define?term=${query}`);
-    if (!response.ok) return await message.channel.send(`Error ${response.status}! Please try again later`);
+    if (!response.ok)
+        return await message.channel.send(`Error ${response.status}! Please try again later`);
 
     const result = ((await response.json()) as UrbanResponse)["list"];
 
@@ -365,7 +405,10 @@ async function urban(message: Message, prefix: string): Promise<Message> {
         new ButtonBuilder().setCustomId("nextUrban").setLabel("NEXT").setStyle(ButtonStyle.Primary)
     );
 
-    return await message.channel.send({ embeds: [urbanEmbeds[0].embed], components: [row] });
+    return await message.channel.send({
+        embeds: [urbanEmbeds[0].embed],
+        components: [row],
+    });
 }
 
 async function updateUrbanEmbeds(result: UrbanEntry[], userId: string) {
@@ -393,7 +436,9 @@ function buildUrbanEmbed(resultEntry: UrbanEntry, index: number, array: UrbanEnt
         .setColor(EMBED_COLOUR)
         .setTitle(`*${word}*`)
         .setDescription(description)
-        .setFooter({ text: `Upvotes: ${thumbs_up} Downvotes: ${thumbs_down}\n${footerPagination}` });
+        .setFooter({
+            text: `Upvotes: ${thumbs_up} Downvotes: ${thumbs_down}\n${footerPagination}`,
+        });
 }
 
 async function bye(message: Message): Promise<Message | void> {
