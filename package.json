@@ -22,6 +22,7 @@
         "@typescript-eslint/parser": "^5.14.0",
         "eslint": "^8.7.0",
         "npm-cli": "^0.1.0",
+        "pre-commit": "^1.2.2",
         "prettier": "^2.7.1",
         "ts-node": "^10.8.2",
         "typescript": "^4.7.2"
@@ -31,6 +32,11 @@
         "stop": "pm2 delete hifumi",
         "restart": "tsc && pm2 reload hifumi",
         "docker-build": "tsc && node ./dist/app.js",
-        "lint": "eslint ./src"
-    }
+        "lint": "eslint ./src",
+        "prettier": "prettier --config .prettierrc --write ./src/"
+    },
+    "pre-commit": [
+        "prettier",
+        "lint"
+    ]
 }
