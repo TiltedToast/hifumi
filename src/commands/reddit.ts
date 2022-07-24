@@ -3,7 +3,12 @@ import { EmbedBuilder, Message, TextChannel } from "discord.js";
 import fetch from "node-fetch";
 import { mongoClient } from "../app.js";
 import strftime from "strftime";
-import { REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET, REDDIT_REFRESH_TOKEN, EMBED_COLOUR } from "../config.js";
+import {
+    REDDIT_CLIENT_ID,
+    REDDIT_CLIENT_SECRET,
+    REDDIT_REFRESH_TOKEN,
+    EMBED_COLOUR,
+} from "../config.js";
 import type { Timespan } from "snoowrap/dist/objects/Subreddit";
 import type { Submission } from "snoowrap";
 
@@ -31,7 +36,8 @@ export async function profile(message: Message, prefix: string): Promise<Message
 }
 
 function buildProfileEmbed(userName: string) {
-    const { created_utc, name, comment_karma, link_karma, icon_img } = RedditClient.getUser(userName);
+    const { created_utc, name, comment_karma, link_karma, icon_img } =
+        RedditClient.getUser(userName);
 
     const userCreatedDate = strftime("%d/%m/%Y", new Date(created_utc * 1000));
     const description = `[Link to profile](https://www.reddit.com/user/${name})
@@ -48,7 +54,8 @@ function buildProfileEmbed(userName: string) {
 
 export async function sub(message: Message, prefix: string): Promise<Message> {
     const content = message.content.split(" ").map((x) => x.toLowerCase());
-    if (content.length === 1) return await message.channel.send(`Usage: \`${prefix}sub <subreddit>\``);
+    if (content.length === 1)
+        return await message.channel.send(`Usage: \`${prefix}sub <subreddit>\``);
 
     const [isNSFW, force] = parseSubFlags(content, message);
 
@@ -62,9 +69,11 @@ export async function sub(message: Message, prefix: string): Promise<Message> {
     const response = await fetch(`https://www.reddit.com/r/${subreddit}/about.json`);
     const data = (await response.json()) as Record<string, unknown>;
 
-    if ("reason" in data) return await message.channel.send(`Subreddit not found! Reason: ${data["reason"]}`);
+    if ("reason" in data)
+        return await message.channel.send(`Subreddit not found! Reason: ${data["reason"]}`);
 
-    if (!response.ok) return await message.channel.send(`Reddit's API might be having issues, try again later`);
+    if (!response.ok)
+        return await message.channel.send(`Reddit's API might be having issues, try again later`);
     if (data["kind"] !== "t5") return await message.channel.send(`Subreddit not found`);
 
     const db = mongoClient.db("reddit");
@@ -75,7 +84,9 @@ export async function sub(message: Message, prefix: string): Promise<Message> {
         await message.channel.send("Force fetching images, this might take a while...");
         await fetchSubmissions(subreddit, message);
     } else if (!collectionNames.includes(subreddit)) {
-        await message.channel.send("Fetching images for the first time, this might take a while...");
+        await message.channel.send(
+            "Fetching images for the first time, this might take a while..."
+        );
         await fetchSubmissions(subreddit, message);
     }
 

@@ -1,5 +1,13 @@
 import { Message, GuildEmoji, PermissionFlagsBits, Attachment } from "discord.js";
-import { extractEmoji, createTemp, downloadURL, getImgType, resize, isValidSize, hasPermission } from "./tools.js";
+import {
+    extractEmoji,
+    createTemp,
+    downloadURL,
+    getImgType,
+    resize,
+    isValidSize,
+    hasPermission,
+} from "./tools.js";
 import * as fs from "fs";
 
 export async function linkEmoji(message: Message): Promise<Message<boolean>> {
@@ -81,14 +89,18 @@ export async function addEmoji(message: Message, prefix: string): Promise<void |
             return message.channel.send("File too large for Discord, even after resizing!");
         }
         if (message.guild === null) return message.channel.send("You can't add emojis to DMs!");
-        const base64 = fs.readFileSync(`./temp/unknown_resized.${imgType}`, { encoding: "base64" });
+        const base64 = fs.readFileSync(`./temp/unknown_resized.${imgType}`, {
+            encoding: "base64",
+        });
         emoji = await message.guild.emojis.create({
             attachment: `data:image/${imgType};base64,${base64}`,
             name,
         });
     } else {
         if (message.guild === null) return message.channel.send("You can't add emojis to DMs!");
-        const base64 = fs.readFileSync(`./temp/unknown.${imgType}`, { encoding: "base64" });
+        const base64 = fs.readFileSync(`./temp/unknown.${imgType}`, {
+            encoding: "base64",
+        });
         emoji = await message.guild.emojis.create({
             attachment: `data:image/${imgType};base64,${base64}`,
             name,
@@ -127,7 +139,9 @@ async function bulkAddEmojis(message: Message, emojis: RegExpMatchArray) {
             continue;
         }
         if (emoji === undefined) {
-            await message.channel.send("Couldn't create emoji, Discord might be having issues with their API!");
+            await message.channel.send(
+                "Couldn't create emoji, Discord might be having issues with their API!"
+            );
             continue;
         }
 
@@ -152,7 +166,8 @@ export async function removeEmoji(message: Message, prefix: string): Promise<Mes
     const content = message.content.split(" ");
 
     try {
-        if (content.length !== 3) return await message.channel.send(`Usage: \`${prefix}emoji remove <emoji>\``);
+        if (content.length !== 3)
+            return await message.channel.send(`Usage: \`${prefix}emoji remove <emoji>\``);
 
         const emojiString = content[2];
         const emojiID = extractEmoji(emojiString, true);
@@ -176,7 +191,9 @@ export async function renameEmoji(message: Message, prefix: string): Promise<Mes
     try {
         const content = message.content.split(" ");
         if (content.length !== 4)
-            return await message.channel.send(`Usage: \`${prefix}emoji rename <new name> <emoji>\``);
+            return await message.channel.send(
+                `Usage: \`${prefix}emoji rename <new name> <emoji>\``
+            );
 
         const newName = content[2];
         const emojiString = content[3];
@@ -188,7 +205,9 @@ export async function renameEmoji(message: Message, prefix: string): Promise<Mes
 
         const oldName = Object.assign({}, emoji).name;
         emoji.edit({ name: newName });
-        return message.channel.send(`Emoji successfully renamed from \`${oldName}\` to \`${newName}\`!`);
+        return message.channel.send(
+            `Emoji successfully renamed from \`${oldName}\` to \`${newName}\`!`
+        );
     } catch (err) {
         return await message.channel.send(`Usage: \`${prefix}emoji rename <new name> <emoji>\``);
     }

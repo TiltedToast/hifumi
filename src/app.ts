@@ -1,9 +1,16 @@
 import "dotenv/config";
 import strftime from "strftime";
-import {  isDev } from "./commands/tools.js";
+import { isDev } from "./commands/tools.js";
 import { Document, MongoClient } from "mongodb";
 import { startStatusLoop } from "./commands/loops.js";
-import { Client, GatewayIntentBits, Interaction, Message, TextChannel, EmbedBuilder } from "discord.js";
+import {
+    Client,
+    GatewayIntentBits,
+    Interaction,
+    Message,
+    TextChannel,
+    EmbedBuilder,
+} from "discord.js";
 import { getMissingCredentials } from "./commands/tools.js";
 import { BOT_TOKEN, EMBED_COLOUR, MONGO_URI, LOG_CHANNEL } from "./config.js";
 import { handleInteraction, handleMessage } from "./main.js";
@@ -59,14 +66,18 @@ client.once("ready", async () => {
         const missingCredentialsEmbed = new EmbedBuilder()
             .setColor(EMBED_COLOUR)
             .setTitle("Missing credentials")
-            .setDescription(`The following credentials are missing:\n\n- ${credentials.join("\n- ")}`);
+            .setDescription(
+                `The following credentials are missing:\n\n- ${credentials.join("\n- ")}`
+            );
 
         await logChannel.send({ embeds: [missingCredentialsEmbed] });
     }
 
     if (isDev()) return;
 
-    await logChannel.send(`Logged in as:\n${client.user.username}\nTime: ${time}\n--------------------------`);
+    await logChannel.send(
+        `Logged in as:\n${client.user.username}\nTime: ${time}\n--------------------------`
+    );
 });
 
 client.on("messageCreate", async (message: Message) => {

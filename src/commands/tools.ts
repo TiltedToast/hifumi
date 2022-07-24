@@ -22,9 +22,12 @@ import {
     DEV_CHANNELS,
     LOG_CHANNEL,
 } from "../config.js";
+import type { ResizeOptions } from "../interfaces/ResizeOptions.js";
 
 function getEmbedIndex(arr: EmbedMetadata[], target: EmbedMetadata): number {
-    return arr.findIndex((elem) => elem.embed.toJSON().description === target.embed.toJSON().description);
+    return arr.findIndex(
+        (elem) => elem.embed.toJSON().description === target.embed.toJSON().description
+    );
 }
 
 export function insideDocker() {
@@ -102,11 +105,10 @@ export async function getMissingCredentials() {
 
 /**
  * Takes the file path of an image/gif and resizes it
- * @param fileLocation Path of the input image
- * @param width Your desired output width
- * @param saveLocation Path where the resized image should be saved
+ * @param options An object containing the file location, width, and save location
  */
-export async function resize(fileLocation: string, width: number, saveLocation: string): Promise<void> {
+export async function resize(options: ResizeOptions): Promise<void> {
+    const { fileLocation, width, saveLocation } = options;
     if (fileLocation.endsWith(".gif")) {
         await execPromise(`gifsicle --resize-width ${width} ${fileLocation} > ${saveLocation}`);
     } else {
@@ -116,7 +118,8 @@ export async function resize(fileLocation: string, width: number, saveLocation: 
 }
 
 /**
- * Parses key value pairs from discord messages into a JavaScript object that can be used to interact with the Database
+ * Parses key value pairs from discord messages into a JavaScript object
+ * that can be used to interact with the Database
  * @param startIndex The content index after which arguments are expected to be present
  * @param content The content of the message after being split by spaces
  * @returns Document that contains all the parsed arguments
@@ -187,7 +190,8 @@ export function randomIntFromRange(min: number, max: number): number {
 }
 
 /**
- * Parses a message and error and sends it to the channel to avoid Hifumi dying every time an error occurs
+ * Parses a message and error and sends it to the channel to avoid
+ * Hifumi dying every time an error occurs
  * @param {Message} message The Message object passed on each command execution
  * @param {Error} errorObject The error object that is passed to the command through try/catch
  */
@@ -206,7 +210,8 @@ export function errorLog(message: Message | null, errorObject: Error): Promise<M
     if (!errorObject) return message.channel.send(`Unknown error!`);
 
     const commandUsed =
-        message.content.substring(0, 500) + (message.content.substring(0, 500) !== message.content ? " ..." : "");
+        message.content.substring(0, 500) +
+        (message.content.substring(0, 500) !== message.content ? " ..." : "");
 
     const errorMessageWithoutStack =
         `An Error occurred on ${currentTime}\n` +
@@ -218,7 +223,9 @@ export function errorLog(message: Message | null, errorObject: Error): Promise<M
 
     const fullErrorMsg = `${errorMessageWithoutStack}\n\n**${errorObject.stack}**\n\n<@${BOT_OWNERS[0]}>`;
     const preCutErrorMessage = fullErrorMsg.substring(0, 1900 - errorMessageWithoutStack.length);
-    const postCutErrorMessage = `${preCutErrorMessage.split("\n").slice(0, -2).join("\n")}**\n\n<@${BOT_OWNERS[0]}>`;
+    const postCutErrorMessage = `${preCutErrorMessage.split("\n").slice(0, -2).join("\n")}**\n\n<@${
+        BOT_OWNERS[0]
+    }>`;
 
     const collection = mongoClient.db("hifumi").collection("errorLog");
     collection.insertOne({
@@ -274,7 +281,8 @@ export async function downloadURL(url: string, saveLocation: string) {
 
     // Fetches the file from the URL and saves it to the file path
     const response = await fetch(url, requestOptions);
-    if (!response.ok) return `Failed to download <${url}>: ${response.status} ${response.statusText}`;
+    if (!response.ok)
+        return `Failed to download <${url}>: ${response.status} ${response.statusText}`;
 
     const buffer = await response.arrayBuffer();
     return await fsPromise.writeFile(absSaveLocation, new Uint8Array(buffer));
@@ -310,7 +318,8 @@ export function extractEmoji(emojiString: string, id?: boolean): string {
 }
 
 /**
- * Takes a directory, checks whether it exists. If it does, it deletes it and recreates it. If it doesn't, it creates it
+ * Takes a directory, checks whether it exists. If it does, it deletes it and recreates it.
+ *  If it doesn't, it creates it
  * @param {String} directory Path to the temporary directory you want to create
  */
 export function createTemp(directory: string): void {

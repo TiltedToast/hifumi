@@ -8,9 +8,13 @@ export async function insert(message: Message): Promise<void | Message<boolean>>
     if (!isBotOwner(message.author)) return;
 
     const content = message.content.split(" ");
-    if (content.length < 6 || content.length % 2 !== 0) return await message.channel.send("Invalid syntax!");
+    if (content.length < 6 || content.length % 2 !== 0)
+        return await message.channel.send("Invalid syntax!");
 
-    if (isDev()) await message.channel.send("Add your stuff to the cloud db instead <:emiliaSMH:747132102645907587>");
+    if (isDev())
+        await message.channel.send(
+            "Add your stuff to the cloud db instead <:emiliaSMH:747132102645907587>"
+        );
 
     const [dbName, collectionName] = content.slice(2, 4);
     const document = parseDbArgs(4, content);
@@ -27,9 +31,11 @@ export async function update(message: Message): Promise<void | Message> {
 
     const content = message.content.split(" ");
 
-    if (content.length < 8 || content.length % 2 !== 0) return await message.channel.send("Invalid syntax!");
+    if (content.length < 8 || content.length % 2 !== 0)
+        return await message.channel.send("Invalid syntax!");
 
-    if (isDev()) await message.channel.send("Update the cloud db instead <:emiliaSMH:747132102645907587>");
+    if (isDev())
+        await message.channel.send("Update the cloud db instead <:emiliaSMH:747132102645907587>");
 
     const [dbName, collectionName, filterKey, filterValue] = content.slice(2, 6);
     const filterDoc = { [filterKey]: filterValue };
@@ -69,9 +75,6 @@ export async function deleteDoc(message: Message) {
 export async function insertStatus(message: Message): Promise<void | Message> {
     if (!isBotOwner(message.author)) return;
 
-
-
-    
     const content = message.content.split(" ");
 
     if (content.length < 3) return await message.channel.send("Invalid syntax!");
@@ -82,7 +85,9 @@ export async function insertStatus(message: Message): Promise<void | Message> {
     if (!(type in StatusType)) return await message.channel.send("Invalid type!");
 
     if (isDev()) {
-        await message.channel.send("Add your statuses to the cloud db instead <:emiliaSMH:747132102645907587>");
+        await message.channel.send(
+            "Add your statuses to the cloud db instead <:emiliaSMH:747132102645907587>"
+        );
     }
 
     // Uppercases the type to conform to discord's API
@@ -98,7 +103,10 @@ export async function insertStatus(message: Message): Promise<void | Message> {
 
 export async function updatePrefix(message: Message) {
     // Permission check for Kick Permissions or being the Bot Owner
-    if (!hasPermission(PermissionFlagsBits.KickMembers, message) && !BOT_OWNERS.includes(message.author.id)) {
+    if (
+        !hasPermission(PermissionFlagsBits.KickMembers, message) &&
+        !BOT_OWNERS.includes(message.author.id)
+    ) {
         return message.channel.send("Insufficient permissions!");
     }
 
@@ -107,13 +115,15 @@ export async function updatePrefix(message: Message) {
 
     // Syntax check as well as avoiding cluttering the database with long impractical prefixes
     if (content.length !== 2) return await message.channel.send("Invalid syntax");
-    if (content[1].length > 5) return await message.channel.send("Your prefix may only be 10 characters long at most");
+    if (content[1].length > 5)
+        return await message.channel.send("Your prefix may only be 10 characters long at most");
 
     if (isDev()) await message.channel.send("Wrong database <:emiliaSMH:747132102645907587>");
 
     // Finds the guild's document in the database
     // Updates said document with the new prefix
-    if (message.guild === null) return await message.channel.send("This command can only be used in a server!");
+    if (message.guild === null)
+        return await message.channel.send("This command can only be used in a server!");
 
     const serverId = message.guild.id;
     const updateDoc = { $set: { prefix: content[1] } };
