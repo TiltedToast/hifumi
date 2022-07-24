@@ -83,7 +83,11 @@ export async function addEmoji(message: Message, prefix: string): Promise<void |
 
     // Resizes image, checks size again and creates emoji
     if (!isValidSize(`./temp/unknown.${imgType}`, 262144)) {
-        await resize(`./temp/unknown.${imgType}`, 128, `./temp/unknown_resized.${imgType}`);
+        await resize({
+            fileLocation: `./temp/unknown.${imgType}`,
+            width: 128,
+            saveLocation: `./temp/unknown_resized.${imgType}`,
+        });
 
         if (!isValidSize(`./temp/unknown_resized.${imgType}`, 262144)) {
             return message.channel.send("File too large for Discord, even after resizing!");

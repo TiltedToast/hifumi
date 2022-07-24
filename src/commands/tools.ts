@@ -8,7 +8,16 @@ import { mongoClient, client } from "../app.js";
 import { execPromise } from "../main.js";
 import type { Document } from "mongodb";
 import type { RequestInit } from "node-fetch";
-import { Channel, Message, MessageType, PermissionResolvable, TextChannel, User } from "discord.js";
+import {
+    Channel,
+    GuildMember,
+    Message,
+    MessageType,
+    PermissionResolvable,
+    PermissionsBitField,
+    TextChannel,
+    User,
+} from "discord.js";
 import type { EmbedMetadata, UpdateEmbedOptions } from "../interfaces/UpdateEmbedOptions.js";
 import {
     BOT_OWNERS,
@@ -27,6 +36,16 @@ import type { ResizeOptions } from "../interfaces/ResizeOptions.js";
 function getEmbedIndex(arr: EmbedMetadata[], target: EmbedMetadata): number {
     return arr.findIndex(
         (elem) => elem.embed.toJSON().description === target.embed.toJSON().description
+    );
+}
+
+export function clientNoPermissions(message: Message, guildClient: GuildMember): boolean {
+    return (
+        message.author.bot ||
+        !guildClient
+            ?.permissionsIn(message.channel.id)
+            .has(PermissionsBitField.Flags.SendMessages) ||
+        !guildClient?.permissionsIn(message.channel.id).has(PermissionsBitField.Flags.ViewChannel)
     );
 }
 
