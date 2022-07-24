@@ -11,7 +11,6 @@ import {
     EmbedBuilder,
     Interaction,
     Message,
-    PermissionsBitField,
 } from "discord.js";
 import { client, mongoClient, prefixDict } from "./app.js";
 import {
@@ -23,6 +22,7 @@ import {
     updateEmbed,
     isMikuTrigger,
     isBotOwner,
+    clientNoPermissions,
 } from "./commands/tools.js";
 import { exec } from "child_process";
 import { EMBED_COLOUR, EXCHANGE_API_KEY } from "./config.js";
@@ -35,20 +35,12 @@ export const execPromise = promisify(exec);
 let urbanEmbeds: EmbedMetadata[] = [];
 
 export async function handleMessage(message: Message) {
-    const guildClient = await message.guild?.members.fetchMe();
     if (!message.guild) return;
+    const guildClient = await message.guild.members.fetchMe();
+    if (!guildClient) return;
     try {
         // Permission check for the channel which the message was sent in to avoid breaking the bot
-        if (
-            message.author.bot ||
-            !guildClient
-                ?.permissionsIn(message.channel.id)
-                .has(PermissionsBitField.Flags.SendMessages) ||
-            !guildClient
-                ?.permissionsIn(message.channel.id)
-                .has(PermissionsBitField.Flags.ViewChannel)
-        )
-            return;
+        if (clientNoPermissions(message, guildClient)) return;
 
         const content = message.content.split(" ");
 
