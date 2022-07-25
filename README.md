@@ -1,4 +1,5 @@
 # Deploying her yourself
+
 The main thing you will have to add is a `.env` file in the root directory that looks as follows:
 
 ```.env
