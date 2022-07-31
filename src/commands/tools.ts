@@ -41,7 +41,6 @@ function getEmbedIndex(arr: EmbedMetadata[], target: EmbedMetadata): number {
 
 export function clientNoPermissions(message: Message, guildClient: GuildMember): boolean {
     return (
-        message.author.bot ||
         !guildClient
             ?.permissionsIn(message.channel.id)
             .has(PermissionsBitField.Flags.SendMessages) ||
