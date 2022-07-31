@@ -40,7 +40,7 @@ export async function handleMessage(message: Message) {
     if (!guildClient) return;
     try {
         // Permission check for the channel which the message was sent in to avoid breaking the bot
-        if (clientNoPermissions(message, guildClient)) return;
+        if (message.author.bot || clientNoPermissions(message, guildClient)) return;
 
         const content = message.content.split(" ");
 
