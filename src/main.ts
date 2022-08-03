@@ -355,8 +355,12 @@ async function convert(message: Message, prefix: string): Promise<Message | unde
     const response = await fetch(
         `https://prime.exchangerate-api.com/v5/${EXCHANGE_API_KEY}/latest/${from}`
     );
-    if (!response.ok) return await message.channel.send("Error! Please try again later");
+
     const result = (await response.json()) as ConvertResponse;
+
+    if (result.result === "error")
+        return await message.channel.send(`Error: ${result["error-type"]}`);
+    if (!response.ok) return await message.channel.send("Error! Please try again later");
 
     const convertEmbed = buildConvertEmbed(result, to, amount, from);
 
@@ -364,7 +368,7 @@ async function convert(message: Message, prefix: string): Promise<Message | unde
 }
 
 function buildConvertEmbed(result: ConvertResponse, to: string, amount: number, from: string) {
-    const rate = result["conversion_rates"][to];
+    const rate = result["conversion_rates"] ? result["conversion_rates"][to] : 0;
     const rslt = Math.round(amount * rate * 100) / 100;
     const description = `**${Number(amount)} ${from} ≈ ${Number(
         rslt
