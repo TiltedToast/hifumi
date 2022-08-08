@@ -31,8 +31,7 @@ export async function startStatusLoop(client: Client) {
 async function setRandomStatus(client: Client) {
     if (!client.user) return console.log("Could not set status, client user is undefined");
     const randomStatusDoc = randomElementArray(statusArr) as StatusDoc;
-    const randomType = randomStatusDoc.type;
-    const randomStatus = randomStatusDoc.status;
+    const { type, status } = randomStatusDoc;
 
-    return client.user.setActivity(randomStatus, { type: StatusType[randomType] });
+    return client.user.setActivity(status, { type: StatusType[type] });
 }
