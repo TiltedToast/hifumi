@@ -45,8 +45,8 @@ export async function handleMessage(message: Message) {
         const content = message.content.split(" ");
 
         // React-Command check for reacting to Miku's emote commands
-        const reactCmd = content[0].slice(1) ?? "";
-        const subCmd = content[1] ?? "";
+        const reactCmd = content[0].slice(1);
+        const subCmd = content[1];
 
         const prefixColl = mongoClient.db("hifumi").collection("prefixes");
 
