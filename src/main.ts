@@ -98,7 +98,7 @@ export async function handleMessage(message: Message) {
             else if (command === "urban") await urban(message, prefix);
             else if (command === "beautiful") await imgProcess.beautiful(message);
             else if (command === "resize") await imgProcess.resizeImg(message, prefix);
-            else if (command === "imgur") await imgProcess.imgur(message, prefix);
+            else if (command === "imgur") await imgProcess.imgur({ message, prefix });
             else if (command === "profile") await reddit.profile(message, prefix);
             else if (command === "sub") await reddit.sub(message, prefix);
             else if (command === "prefix") await db.updatePrefix(message);
@@ -116,7 +116,7 @@ export async function handleMessage(message: Message) {
             await reactToMiku(message, reactCmd);
         }
     } catch (err: unknown) {
-        await errorLog(message, err as Error);
+        await errorLog({ message, errorObject: err as Error });
     }
 }
 
@@ -320,7 +320,7 @@ async function listCurrencies(message: Message) {
     return await message.channel.send({ embeds: [currEmbed] });
 }
 
-async function convert(message: Message, prefix: string): Promise<Message | undefined> {
+async function convert(message: Message, prefix: string) {
     const content = message.content.split(" ");
 
     if (content.length !== 4)
@@ -381,7 +381,7 @@ function buildConvertEmbed(result: ConvertResponse, to: string, amount: number, 
         .setFooter({ text: `${strftime("%d/%m/%Y %H:%M:%S")}` });
 }
 
-async function urban(message: Message, prefix: string): Promise<Message> {
+async function urban(message: Message, prefix: string) {
     const content = message.content.split(" ");
 
     if (content.length !== 2) return await message.channel.send(`Usage: \`${prefix}urban <word>\``);
@@ -437,7 +437,7 @@ function buildUrbanEmbed(resultEntry: UrbanEntry, index: number, array: UrbanEnt
         });
 }
 
-async function bye(message: Message): Promise<Message | void> {
+async function bye(message: Message) {
     if (!isBotOwner(message.author)) return;
 
     // Closes the MongoDB connection and stops the running daemon via pm2

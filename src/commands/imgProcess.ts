@@ -13,7 +13,7 @@ import {
     getImgType,
     isValidSize,
 } from "./tools.js";
-import type { ImgurResponse } from "../interfaces/ImgurResponse.js";
+import type { ImgurParams, ImgurResponse } from "../interfaces/Imgur.js";
 import type { Message } from "discord.js";
 
 export async function beautiful(message: Message): Promise<Message | undefined> {
@@ -112,11 +112,7 @@ export async function resizeImg(message: Message, prefix: string): Promise<Messa
     return await message.channel.send({ files: [`./temp/unknown_resized.${imgType}`] });
 }
 
-export async function imgur(
-    message: Message,
-    prefix: string,
-    url?: string
-): Promise<Message | undefined> {
+export async function imgur({ message, prefix, url }: ImgurParams){
     const content = message.content.split(" ");
     if (content.length !== 2 && message.attachments.size === 0) {
         return await message.channel.send(`Usage: \`${prefix}imgur <url>\``);

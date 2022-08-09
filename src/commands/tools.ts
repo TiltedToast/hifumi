@@ -32,6 +32,7 @@ import {
     LOG_CHANNEL,
 } from "../config.js";
 import type { ResizeOptions } from "../interfaces/ResizeOptions.js";
+import type { ErrorLogOptions } from "../interfaces/ErrorLogOptions.js";
 
 function getEmbedIndex(arr: EmbedMetadata[], target: EmbedMetadata): number {
     return arr.findIndex(
@@ -207,13 +208,15 @@ export function randomIntFromRange(min: number, max: number): number {
     return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
+
+
 /**
  * Parses a message and error and sends it to the channel to avoid
  * Hifumi dying every time an error occurs
  * @param {Message} message The Message object passed on each command execution
  * @param {Error} errorObject The error object that is passed to the command through try/catch
  */
-export function errorLog(message: Message | null, errorObject: Error): Promise<Message<boolean>> {
+export function errorLog({ message, errorObject }: ErrorLogOptions): Promise<Message<boolean>> {
     const currentTime = strftime("%d/%m/%Y %H:%M:%S");
     let channel: Channel | undefined;
     let errorMessage: string;
