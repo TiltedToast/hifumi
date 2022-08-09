@@ -1,3 +1,5 @@
+import type { Message } from "discord.js";
+
 export interface ImgurResponse {
     data: ImgurData;
     success: boolean;
@@ -42,4 +44,10 @@ interface ImgurError {
     type: string;
     method: string;
     request: string;
+}
+
+export interface ImgurParams {
+    message: Message;
+    prefix: string;
+    url?: string;
 }
