@@ -208,8 +208,6 @@ export function randomIntFromRange(min: number, max: number): number {
     return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
-
-
 /**
  * Parses a message and error and sends it to the channel to avoid
  * Hifumi dying every time an error occurs

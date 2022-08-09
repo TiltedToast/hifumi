@@ -112,7 +112,7 @@ export async function resizeImg(message: Message, prefix: string): Promise<Messa
     return await message.channel.send({ files: [`./temp/unknown_resized.${imgType}`] });
 }
 
-export async function imgur({ message, prefix, url }: ImgurParams){
+export async function imgur({ message, prefix, url }: ImgurParams) {
     const content = message.content.split(" ");
     if (content.length !== 2 && message.attachments.size === 0) {
         return await message.channel.send(`Usage: \`${prefix}imgur <url>\``);
