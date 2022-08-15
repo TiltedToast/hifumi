@@ -240,6 +240,11 @@ async function jsEval(message: Message) {
     if (!isBotOwner(message.author)) return;
     let rslt: string;
 
+    // This is to be able to use all the functions inside the below eval function
+    // Sleep call mostly to shut up typescript and eslint
+    const tools = await import("./commands/tools.js");
+    await tools.sleep(1);
+
     const content = message.content.split(" ");
 
     if (content.length === 1)
