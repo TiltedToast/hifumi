@@ -7,7 +7,7 @@ import {
     resize,
     isValidSize,
     hasPermission,
-} from "./tools.js";
+} from "../tools.js";
 import * as fs from "fs";
 
 export async function linkEmoji(message: Message): Promise<Message<boolean>> {

@@ -12,7 +12,7 @@ import {
     downloadURL,
     getImgType,
     isValidSize,
-} from "./tools.js";
+} from "../tools.js";
 import type { ImgurParams, ImgurResponse } from "../interfaces/Imgur.js";
 import type { Message } from "discord.js";
 

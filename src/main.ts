@@ -7,6 +7,7 @@ import fetch from "node-fetch";
 import {
     ActionRowBuilder,
     ButtonBuilder,
+    ButtonInteraction,
     ButtonStyle,
     EmbedBuilder,
     Interaction,
@@ -23,7 +24,7 @@ import {
     isMikuTrigger,
     isBotOwner,
     clientNoPermissions,
-} from "./commands/tools.js";
+} from "./tools.js";
 import { exec } from "child_process";
 import { EMBED_COLOUR, EXCHANGE_API_KEY } from "./config.js";
 import type { ConvertResponse } from "./interfaces/ConvertResponse.js";
@@ -121,16 +122,18 @@ export async function handleMessage(message: Message) {
 }
 
 export async function handleInteraction(interaction: Interaction) {
-    if (interaction.isButton()) {
-        if (["prevUrban", "nextUrban"].includes(interaction.customId)) {
-            await updateEmbed({
-                interaction,
-                embedArray: urbanEmbeds,
-                prevButtonId: "prevUrban",
-                nextButtonId: "nextUrban",
-                user: interaction.user.id,
-            });
-        }
+    if (interaction.isButton()) await handleButtonInteraction(interaction);
+}
+
+async function handleButtonInteraction(interaction: ButtonInteraction) {
+    if (["prevUrban", "nextUrban"].includes(interaction.customId)) {
+        await updateEmbed({
+            interaction,
+            embedArray: urbanEmbeds,
+            prevButtonId: "prevUrban",
+            nextButtonId: "nextUrban",
+            user: interaction.user.id,
+        });
     }
 }
 
@@ -242,7 +245,7 @@ async function jsEval(message: Message) {
 
     // This is to be able to use all the functions inside the below eval function
     // Sleep call mostly to shut up typescript and eslint
-    const tools = await import("./commands/tools.js");
+    const tools = await import("./tools.js");
     await tools.sleep(1);
 
     const content = message.content.split(" ");
