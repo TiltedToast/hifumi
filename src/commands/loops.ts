@@ -1,6 +1,6 @@
 import fetch from "node-fetch";
 import { statusArr } from "../app.js";
-import { randomElementArray, randomIntFromRange } from "./tools.js";
+import { randomElementArray, randomIntFromRange } from "../tools.js";
 import { StatusDoc, StatusType } from "../interfaces/StatusDoc.js";
 import type { CatFactResponse } from "../interfaces/CatFactResponse.js";
 import type { TextChannel, Client } from "discord.js";

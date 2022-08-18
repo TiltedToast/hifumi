@@ -1,6 +1,6 @@
 import "dotenv/config";
 import strftime from "strftime";
-import { isDev } from "./commands/tools.js";
+import { isDev } from "./tools.js";
 import { Document, MongoClient } from "mongodb";
 import { startStatusLoop } from "./commands/loops.js";
 import {
@@ -11,7 +11,7 @@ import {
     TextChannel,
     EmbedBuilder,
 } from "discord.js";
-import { getMissingCredentials } from "./commands/tools.js";
+import { getMissingCredentials } from "./tools.js";
 import { BOT_TOKEN, EMBED_COLOUR, MONGO_URI, LOG_CHANNEL } from "./config.js";
 import { handleInteraction, handleMessage } from "./main.js";
 
