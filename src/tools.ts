@@ -5,7 +5,7 @@ import fetch from "node-fetch";
 import strftime from "strftime";
 import { Headers } from "node-fetch";
 import { mongoClient, client } from "./app.js";
-import { execPromise } from "./main.js";
+import { execPromise } from "./commands/miscellaneous.js";
 import type { Document } from "mongodb";
 import type { RequestInit } from "node-fetch";
 import {

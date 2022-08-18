@@ -1,143 +1,19 @@
-import * as emoji from "./commands/emoji.js";
-import * as db from "./commands/database.js";
-import * as imgProcess from "./commands/imgProcess.js";
-import * as reddit from "./commands/reddit.js";
 import strftime from "strftime";
 import fetch from "node-fetch";
-import {
-    ActionRowBuilder,
-    ButtonBuilder,
-    ButtonInteraction,
-    ButtonStyle,
-    EmbedBuilder,
-    Interaction,
-    Message,
-} from "discord.js";
-import { client, mongoClient, prefixDict } from "./app.js";
-import {
-    randomElementArray,
-    sleep,
-    errorLog,
-    getUserObjectPingId,
-    isDev,
-    updateEmbed,
-    isMikuTrigger,
-    isBotOwner,
-    clientNoPermissions,
-} from "./tools.js";
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, Message } from "discord.js";
+import { client, mongoClient } from "../app.js";
+import { randomElementArray, sleep, getUserObjectPingId, isBotOwner } from "../tools.js";
 import { exec } from "child_process";
-import { EMBED_COLOUR, EXCHANGE_API_KEY } from "./config.js";
-import type { ConvertResponse } from "./interfaces/ConvertResponse.js";
-import type { UrbanResponse, UrbanEntry } from "./interfaces/UrbanResponse";
-import type { EmbedMetadata } from "./interfaces/UpdateEmbedOptions.js";
+import { EMBED_COLOUR, EXCHANGE_API_KEY } from "../config.js";
+import type { ConvertResponse } from "../interfaces/ConvertResponse.js";
+import type { UrbanResponse, UrbanEntry } from "../interfaces/UrbanResponse";
+import type { EmbedMetadata } from "../interfaces/UpdateEmbedOptions.js";
 import { promisify } from "util";
 
 export const execPromise = promisify(exec);
-let urbanEmbeds: EmbedMetadata[] = [];
+export let urbanEmbeds: EmbedMetadata[] = [];
 
-export async function handleMessage(message: Message) {
-    if (!message.guild) return;
-    const guildClient = await message.guild.members.fetchMe();
-    if (!guildClient) return;
-    try {
-        // Permission check for the channel which the message was sent in to avoid breaking the bot
-        if (message.author.bot || clientNoPermissions(message, guildClient)) return;
-
-        const content = message.content.split(" ");
-
-        // React-Command check for reacting to Miku's emote commands
-        const reactCmd = content[0].slice(1);
-        const subCmd = content[1];
-
-        const prefixColl = mongoClient.db("hifumi").collection("prefixes");
-
-        // Adds a default prefix to the db if it doesn't exist
-        if (!(message.guild.id in prefixDict) && !isDev()) {
-            await prefixColl.insertOne({ serverId: message.guild.id, prefix: "h!" });
-            prefixDict[message.guild.id] = "h!";
-            await message.channel.send("I have set the prefix to `h!`");
-        }
-
-        // Gets the prefix from the db and compares to the message's beginning
-        // This way the prefix can be case insensitive
-        let prefix = prefixDict[message.guild.id] ?? "h!";
-
-        if (isDev()) prefix = "h?";
-
-        const command = content[0].slice(prefix.length).toLowerCase();
-        const lowerCasePrefix = content[0].substring(0, prefix.length).toLowerCase();
-
-        if (message.content.toLowerCase() === "hr~~~" && !isDev()) await reloadBot(message);
-        if (message.content.toLowerCase() === "hr~" && isDev()) await reloadBot(message);
-
-        if (lowerCasePrefix === prefix.toLowerCase()) {
-            if (command === "emoji") {
-                if (["add", "ad", "create"].includes(subCmd)) {
-                    await emoji.addEmoji(message, prefix);
-                } else if (["delete", "delet", "del", "remove", "rm"].includes(subCmd)) {
-                    await emoji.removeEmoji(message, prefix);
-                } else if (["edit", "e", "rename", "rn"].includes(subCmd)) {
-                    await emoji.renameEmoji(message, prefix);
-                } else if (["link"].includes(subCmd)) {
-                    await emoji.linkEmoji(message);
-                }
-            } else if (command === "db") {
-                if (["insert", "ins", "in"].includes(subCmd)) {
-                    await db.insert(message);
-                } else if (["update", "up", "upd"].includes(subCmd)) {
-                    await db.update(message);
-                } else if (["delete", "delet", "del", "remove", "rm"].includes(subCmd)) {
-                    await db.deleteDoc(message);
-                }
-            } else if (["status", "stat"].includes(command)) await db.insertStatus(message);
-            else if (["commands", "command", "comm", "com", "help"].includes(command))
-                await helpCmd(message, prefix);
-            else if (["convert", "conv", "c"].includes(command)) await convert(message, prefix);
-            else if (["avatar", "pfp"].includes(command)) await avatar(message);
-            else if (command === "currencies") await listCurrencies(message);
-            else if (command === "bye") await bye(message);
-            else if (command === "urban") await urban(message, prefix);
-            else if (command === "beautiful") await imgProcess.beautiful(message);
-            else if (command === "resize") await imgProcess.resizeImg(message, prefix);
-            else if (command === "imgur") await imgProcess.imgur({ message, prefix });
-            else if (command === "profile") await reddit.profile(message, prefix);
-            else if (command === "sub") await reddit.sub(message, prefix);
-            else if (command === "prefix") await db.updatePrefix(message);
-            else if (command === "con") await consoleCmd(message);
-            else if (command === "qr") await imgProcess.qrCode(message);
-            else if (command === "js") await jsEval(message);
-            else if (command === "link") await emoji.linkEmoji(message);
-            else if (command === "leet") await leet(message);
-            else if (command === "pull") await gitPull(message);
-        }
-
-        // Reacting to Miku's emote commands
-        // Grabs a random reply from the db and sends it as a message after a fixed delay
-        if (isMikuTrigger(message, reactCmd)) {
-            await reactToMiku(message, reactCmd);
-        }
-    } catch (err: unknown) {
-        await errorLog({ message, errorObject: err as Error });
-    }
-}
-
-export async function handleInteraction(interaction: Interaction) {
-    if (interaction.isButton()) await handleButtonInteraction(interaction);
-}
-
-async function handleButtonInteraction(interaction: ButtonInteraction) {
-    if (["prevUrban", "nextUrban"].includes(interaction.customId)) {
-        await updateEmbed({
-            interaction,
-            embedArray: urbanEmbeds,
-            prevButtonId: "prevUrban",
-            nextButtonId: "nextUrban",
-            user: interaction.user.id,
-        });
-    }
-}
-
-async function reactToMiku(message: Message, reactCmd: string): Promise<void | Message> {
+export async function reactToMiku(message: Message, reactCmd: string): Promise<void | Message> {
     const mikuReactions = await mongoClient
         .db("hifumi")
         .collection("mikuReactions")
@@ -162,7 +38,7 @@ async function reactToMiku(message: Message, reactCmd: string): Promise<void | M
     }
 }
 
-async function leet(message: Message): Promise<void | Message> {
+export async function leet(message: Message): Promise<void | Message> {
     const inputWords = message.content.split(" ").slice(1);
     const leetDoc = (await mongoClient.db("hifumi").collection("leet").find().toArray())[0];
 
@@ -184,7 +60,7 @@ async function leet(message: Message): Promise<void | Message> {
     await message.channel.send(leetOutput.substring(0, 2000));
 }
 
-async function helpCmd(message: Message, prefix: string) {
+export async function helpCmd(message: Message, prefix: string) {
     const helpMsgArray = await mongoClient
         .db("hifumi")
         .collection("helpMsgs")
@@ -208,13 +84,13 @@ async function helpCmd(message: Message, prefix: string) {
     return await message.channel.send({ embeds: [helpEmbed] });
 }
 
-async function gitPull(message: Message) {
+export async function gitPull(message: Message) {
     if (!isBotOwner(message.author)) return;
     await consoleCmd(message, "git pull");
     await reloadBot(message);
 }
 
-async function consoleCmd(message: Message, cmd?: string) {
+export async function consoleCmd(message: Message, cmd?: string) {
     if (!isBotOwner(message.author)) return;
     // Creates a new string with the message content without the command
     // And runs it in a new shell process
@@ -239,13 +115,13 @@ export async function reloadBot(message: Message) {
     await message.channel.send("Reload successful!");
 }
 
-async function jsEval(message: Message) {
+export async function jsEval(message: Message) {
     if (!isBotOwner(message.author)) return;
     let rslt: string;
 
     // This is to be able to use all the functions inside the below eval function
     // Sleep call mostly to shut up typescript and eslint
-    const tools = await import("./tools.js");
+    const tools = await import("../tools.js");
     await tools.sleep(1);
 
     const content = message.content.split(" ");
@@ -270,7 +146,7 @@ async function jsEval(message: Message) {
     return await message.channel.send(resultString);
 }
 
-async function avatar(message: Message) {
+export async function avatar(message: Message) {
     let url: string;
     const content = message.content.split(" ");
 
@@ -299,7 +175,7 @@ async function avatar(message: Message) {
     return await message.channel.send({ embeds: [avatarEmbed] });
 }
 
-async function listCurrencies(message: Message) {
+export async function listCurrencies(message: Message) {
     const currencies = (
         await mongoClient.db("hifumi").collection("currencies").find().toArray()
     )[0];
@@ -328,7 +204,7 @@ async function listCurrencies(message: Message) {
     return await message.channel.send({ embeds: [currEmbed] });
 }
 
-async function convert(message: Message, prefix: string) {
+export async function convert(message: Message, prefix: string) {
     const content = message.content.split(" ");
 
     if (content.length !== 4)
@@ -389,7 +265,7 @@ function buildConvertEmbed(result: ConvertResponse, to: string, amount: number, 
         .setFooter({ text: `${strftime("%d/%m/%Y %H:%M:%S")}` });
 }
 
-async function urban(message: Message, prefix: string) {
+export async function urban(message: Message, prefix: string) {
     const content = message.content.split(" ");
 
     if (content.length !== 2) return await message.channel.send(`Usage: \`${prefix}urban <word>\``);
@@ -415,7 +291,7 @@ async function urban(message: Message, prefix: string) {
     });
 }
 
-async function updateUrbanEmbeds(result: UrbanEntry[], userId: string) {
+export async function updateUrbanEmbeds(result: UrbanEntry[], userId: string) {
     result.sort((a, b) => (b.thumbs_up > a.thumbs_up ? 1 : -1));
     urbanEmbeds = [];
     for (let i = 0; i < result.length; i++) {
@@ -445,7 +321,7 @@ function buildUrbanEmbed(resultEntry: UrbanEntry, index: number, array: UrbanEnt
         });
 }
 
-async function bye(message: Message) {
+export async function bye(message: Message) {
     if (!isBotOwner(message.author)) return;
 
     // Closes the MongoDB connection and stops the running daemon via pm2
