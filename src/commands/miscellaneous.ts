@@ -116,7 +116,7 @@ export async function reloadBot(message: Message) {
     await message.channel.send("Reload successful!");
 }
 
-export async function jsEval(message: Message, mode?: "math" ) {
+export async function jsEval(message: Message, mode?: "math") {
     if (!isBotOwner(message.author)) return;
     let rslt: string;
 
