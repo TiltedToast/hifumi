@@ -9,6 +9,7 @@ import type { ConvertResponse } from "../interfaces/ConvertResponse.js";
 import type { UrbanResponse, UrbanEntry } from "../interfaces/UrbanResponse";
 import type { EmbedMetadata } from "../interfaces/UpdateEmbedOptions.js";
 import { promisify } from "util";
+import { evaluate } from "mathjs";
 
 export const execPromise = promisify(exec);
 export let urbanEmbeds: EmbedMetadata[] = [];
@@ -115,7 +116,7 @@ export async function reloadBot(message: Message) {
     await message.channel.send("Reload successful!");
 }
 
-export async function jsEval(message: Message) {
+export async function jsEval(message: Message, mode?: "math" ) {
     if (!isBotOwner(message.author)) return;
     let rslt: string;
 
@@ -131,7 +132,8 @@ export async function jsEval(message: Message) {
 
     const command = message.content.split(" ").slice(1).join(" ");
     try {
-        rslt = eval(command);
+        if (mode === "math") rslt = evaluate(command);
+        else rslt = eval(command);
     } catch (error) {
         return await message.channel.send(`\`\`\`${error}\`\`\``);
     }
