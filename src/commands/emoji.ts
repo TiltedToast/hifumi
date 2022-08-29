@@ -1,4 +1,4 @@
-import { Message, GuildEmoji, PermissionFlagsBits, Attachment } from "discord.js";
+import { Message, GuildEmoji, PermissionFlagsBits, Attachment, MessageType } from "discord.js";
 import {
     extractEmoji,
     createTemp,
@@ -12,7 +12,17 @@ import * as fs from "fs";
 
 export async function linkEmoji(message: Message): Promise<Message<boolean>> {
     const emojiRegex = new RegExp(/<a?:[a-zA-Z0-9]{1,32}:[0-9]{18}>/gi);
-    const emojis = message.content.match(emojiRegex);
+
+    let msgContent = message.content;
+
+    if (message.type === MessageType.Reply) {
+        const repliedMsg = message.channel.messages.resolve(message.reference?.messageId ?? "");
+        if (!repliedMsg)
+            return await message.channel.send("Could not find message to grab emojis from!");
+        msgContent = repliedMsg.content;
+    }
+
+    const emojis = msgContent.match(emojiRegex);
     if (!emojis) return await message.channel.send("You have to specify at least one emoji!");
 
     const output = emojis.map((emoji) => extractEmoji(emoji)).join("\n");
