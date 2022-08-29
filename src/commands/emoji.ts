@@ -25,7 +25,9 @@ export async function addEmoji(message: Message, prefix: string): Promise<void |
         url = "";
 
     if (!hasPermission(PermissionFlagsBits.ManageEmojisAndStickers, message)) {
-        return await message.channel.send('You need the "Manage Emojis" permission to add emojis!');
+        return await message.channel.send(
+            'You need the "Manage Emoji and Stickers" permission to add emojis!'
+        );
     }
     const content = message.content.split(" ");
 
@@ -164,7 +166,9 @@ async function bulkAddEmojis(message: Message, emojis: RegExpMatchArray) {
 
 export async function removeEmoji(message: Message, prefix: string): Promise<Message> {
     if (!hasPermission(PermissionFlagsBits.ManageEmojisAndStickers, message)) {
-        return message.channel.send('You need the "Manage Emojis" permission to remove emojis!');
+        return message.channel.send(
+            'You need the "Manage Emoji and Stickers" permission to remove emojis!'
+        );
     }
 
     const content = message.content.split(" ");
@@ -189,7 +193,9 @@ export async function removeEmoji(message: Message, prefix: string): Promise<Mes
 
 export async function renameEmoji(message: Message, prefix: string): Promise<Message> {
     if (!hasPermission(PermissionFlagsBits.ManageEmojisAndStickers, message)) {
-        return message.channel.send('You need the "Manage Emojis" permission to rename emojis!');
+        return message.channel.send(
+            'You need the "Manage Emoji and Stickers" permission to rename emojis!'
+        );
     }
 
     try {
