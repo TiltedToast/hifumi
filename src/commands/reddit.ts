@@ -54,7 +54,7 @@ function buildProfileEmbed(userName: string) {
 
 export async function sub(message: Message, prefix: string): Promise<Message> {
     const content = message.content.split(" ").map((x) => x.toLowerCase());
-    if (content.length === 1)
+    if (content.length <= 2)
         return await message.channel.send(`Usage: \`${prefix}sub <subreddit>\``);
 
     const [isNSFW, force] = parseSubFlags(message);
@@ -117,13 +117,11 @@ function parseSubFlags(message: Message): [boolean, boolean] {
 
     const content = message.content.split(" ");
 
-    if (content.length >= 3) {
-        for (let i = 2; i < content.length; i++) {
-            if (content[i] === "nsfw") {
-                isNSFW = true;
-            } else if (content[i] === "force") {
-                force = true;
-            }
+    for (let i = 2; i < content.length; i++) {
+        if (content[i] === "nsfw") {
+            isNSFW = true;
+        } else if (content[i] === "force") {
+            force = true;
         }
     }
     if ((message.channel as TextChannel).nsfw) isNSFW = true;

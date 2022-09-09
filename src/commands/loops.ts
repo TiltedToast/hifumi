@@ -5,7 +5,7 @@ import { StatusDoc, StatusType } from "../interfaces/StatusDoc.js";
 import type { CatFactResponse } from "../interfaces/CatFactResponse.js";
 import type { TextChannel, Client } from "discord.js";
 
-export async function startCatFactLoop(channel: TextChannel): Promise<void> {
+export async function startCatFactLoop(channel: TextChannel) {
     setInterval(async () => {
         const response = await fetch("https://catfact.ninja/fact");
         const json = (await response.json()) as CatFactResponse;
