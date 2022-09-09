@@ -40,7 +40,8 @@ function getEmbedIndex(arr: EmbedMetadata[], target: EmbedMetadata): number {
     );
 }
 
-export function clientNoPermissions(message: Message, guildClient: GuildMember): boolean {
+export function clientNoPermissions(message: Message, guildClient?: GuildMember): boolean {
+    if (!guildClient) return false;
     return (
         !guildClient
             ?.permissionsIn(message.channel.id)

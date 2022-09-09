@@ -60,7 +60,7 @@ export async function sub(message: Message, prefix: string): Promise<Message> {
     const [isNSFW, force] = parseSubFlags(message);
 
     // Check if command has been run in a channel marked as NSFW to avoid potential NSFW posts in non-NSFW channels
-    if (isNSFW && !(message.channel as TextChannel).nsfw)
+    if (isNSFW && (message.channel as TextChannel).nsfw === false)
         return await message.channel.send("You have to be in a NSFW channel for this");
 
     const subreddit = content[1];
