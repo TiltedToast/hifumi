@@ -35,10 +35,5 @@
         "docker-build": "tsc && node ./dist/app.js",
         "lint": "eslint ./src",
         "prettier": "prettier --config .prettierrc --write ."
-    },
-    "husky": {
-        "hooks": {
-            "pre-commit": "npm run prettier && npm run lint"
-        }
     }
 }
