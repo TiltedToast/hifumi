@@ -34,7 +34,7 @@
         "restart": "tsc && pm2 reload hifumi",
         "docker-build": "tsc && node ./dist/app.js",
         "lint": "eslint ./src",
-        "prettier": "prettier --config .prettierrc --write ./src/"
+        "prettier": "prettier --config .prettierrc --write ."
     },
     "pre-commit": [
         "prettier",
