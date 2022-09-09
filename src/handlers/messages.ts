@@ -28,7 +28,7 @@ export default async function handleMessage(message: Message) {
             await prefixColl.insertOne({ serverId: message.guild.id, prefix: "h!" });
             prefixDict[message.guild.id] = "h!";
             await message.channel.send(
-                "I have set the prefix to `h!` You can change it with `h!prefix`"
+                "I have set the prefix to `h!`. You can change it with `h!prefix`"
             );
         }
 
