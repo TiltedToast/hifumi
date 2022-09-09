@@ -10,9 +10,7 @@ import { clientNoPermissions, isDev, isMikuTrigger, errorLog } from "../tools.js
 import type MessageCommandData from "../interfaces/MessageCommandData.js";
 
 export default async function handleMessage(message: Message) {
-    if (!message.guild) return;
-    const guildClient = await message.guild.members.fetchMe();
-    if (!guildClient) return;
+    const guildClient = await message.guild?.members.fetchMe();
     try {
         // Permission check for the channel which the message was sent in to avoid breaking the bot
         if (message.author.bot || clientNoPermissions(message, guildClient)) return;
@@ -26,15 +24,15 @@ export default async function handleMessage(message: Message) {
         const prefixColl = mongoClient.db("hifumi").collection("prefixes");
 
         // Adds a default prefix to the db if it doesn't exist
-        if (!(message.guild.id in prefixDict) && !isDev()) {
+        if (message.guild && !(message.guild.id in prefixDict) && !isDev()) {
             await prefixColl.insertOne({ serverId: message.guild.id, prefix: "h!" });
             prefixDict[message.guild.id] = "h!";
-            await message.channel.send("I have set the prefix to `h!`");
+            await message.channel.send("I have set the prefix to `h!` You can change it with `h!prefix`");
         }
 
-        // Gets the prefix from the db and compares to the message's beginning
+        // Gets the prefix from the map and compares to the message's beginning
         // This way the prefix can be case insensitive
-        let prefix = prefixDict[message.guild.id] ?? "h!";
+        let prefix = message.guild ? prefixDict[message.guild.id] : "h!";
 
         if (isDev()) prefix = "h?";
 
