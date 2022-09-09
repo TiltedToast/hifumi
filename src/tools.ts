@@ -100,7 +100,7 @@ export async function updateEmbed(options: UpdateEmbedOptions) {
 /**
  * Checks if the user invoking the command has the specified permission(s)
  * @param permission A valid permission to check, see
- * {@link https://discord.js.org/#/docs/discord.js/stable/typedef/PermissionResolvable accepted values}
+ * {@link https://discord.js.org/#/docs/discord.js/main/typedef/PermissionResolvable accepted values}
  * @param message Message object passed through the command
  */
 export function hasPermission(permission: PermissionResolvable, message: Message): boolean {

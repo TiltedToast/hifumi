@@ -9,7 +9,7 @@ import type { ConvertResponse } from "../interfaces/ConvertResponse.js";
 import type { UrbanResponse, UrbanEntry } from "../interfaces/UrbanResponse";
 import type { EmbedMetadata } from "../interfaces/UpdateEmbedOptions.js";
 import { promisify } from "util";
-import { evaluate } from "mathjs";
+import { evaluate as mathEvaluate } from "mathjs";
 
 export const execPromise = promisify(exec);
 export let urbanEmbeds: EmbedMetadata[] = [];
@@ -132,7 +132,7 @@ export async function jsEval(message: Message, mode?: "math") {
 
     const command = message.content.split(" ").slice(1).join(" ");
     try {
-        if (mode === "math") rslt = evaluate(command);
+        if (mode === "math") rslt = mathEvaluate(command);
         else rslt = eval(command);
     } catch (error) {
         return await message.channel.send(`\`\`\`${error}\`\`\``);

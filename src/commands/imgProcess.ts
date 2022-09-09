@@ -16,7 +16,7 @@ import {
 import type { ImgurParams, ImgurResponse } from "../interfaces/Imgur.js";
 import type { Message } from "discord.js";
 
-export async function beautiful(message: Message): Promise<Message | undefined> {
+export async function beautiful(message: Message) {
     createTemp("temp");
     const content = message.content.split(" ");
 
@@ -52,7 +52,7 @@ export async function beautiful(message: Message): Promise<Message | undefined> 
     return await message.channel.send({ files: ["./temp/beautiful.png"] });
 }
 
-export async function qrCode(message: Message): Promise<Message> {
+export async function qrCode(message: Message) {
     const content = message.content.split(" ");
     if (content.length === 1) return await message.channel.send("Missing argument!");
 
@@ -67,7 +67,7 @@ export async function qrCode(message: Message): Promise<Message> {
     return await message.channel.send({ files: ["./temp/qr.png"] });
 }
 
-export async function resizeImg(message: Message, prefix: string): Promise<Message> {
+export async function resizeImg(message: Message, prefix: string) {
     createTemp("temp");
     const content = message.content.split(" ");
 
@@ -112,7 +112,8 @@ export async function resizeImg(message: Message, prefix: string): Promise<Messa
     return await message.channel.send({ files: [`./temp/unknown_resized.${imgType}`] });
 }
 
-export async function imgur({ message, prefix, url }: ImgurParams) {
+export async function imgur(args: ImgurParams) {
+    const { message, prefix, url } = args;
     const content = message.content.split(" ");
     if (content.length !== 2 && message.attachments.size === 0) {
         return await message.channel.send(`Usage: \`${prefix}imgur <url>\``);
