@@ -302,7 +302,7 @@ export async function downloadURL(url: string, saveLocation: string) {
     // Fetches the file from the URL and saves it to the file path
     const response = await fetch(url, requestOptions);
     if (!response.ok)
-        return `Failed to download <${url}>: ${response.status} ${response.statusText}`;
+        return `Failed to download <${url}>\n${response.status} ${response.statusText}`;
 
     const buffer = await response.arrayBuffer();
     return await fsPromise.writeFile(absSaveLocation, new Uint8Array(buffer));
