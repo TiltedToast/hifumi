@@ -133,7 +133,7 @@ export async function jsEval(message: Message, mode?: "math") {
     const command = message.content.split(" ").slice(1).join(" ");
     try {
         if (mode === "math") rslt = mathEvaluate(command);
-        else rslt = eval(command);
+        else rslt = await eval(command);
     } catch (error) {
         return await message.channel.send(`\`\`\`${error}\`\`\``);
     }
