@@ -2,7 +2,13 @@ import strftime from "strftime";
 import fetch from "node-fetch";
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, Message } from "discord.js";
 import { client, mongoClient } from "../app.js";
-import { randomElementArray, sleep, getUserObjectPingId, isBotOwner } from "../helpers/tools.js";
+import {
+    randomElementArray,
+    sleep,
+    getUserObjectPingId,
+    isBotOwner,
+    writeUpdateFile,
+} from "../helpers/tools.js";
 import { exec } from "child_process";
 import { EMBED_COLOUR, EXCHANGE_API_KEY } from "../config.js";
 import type {
@@ -115,6 +121,7 @@ export async function consoleCmd(message: Message, cmd?: string) {
 export async function reloadBot(message: Message) {
     if (!isBotOwner(message.author)) return;
     await mongoClient.close();
+    writeUpdateFile();
     exec("npm run restart");
     await message.channel.send("Reload successful!");
 }

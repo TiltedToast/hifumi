@@ -38,6 +38,13 @@ import type {
     UpdateEmbedOptions,
 } from "./types.js";
 
+export function writeUpdateFile() {
+    if (!fs.existsSync("./temp")) {
+        fs.mkdirSync("./temp");
+    }
+    fs.writeFileSync("./temp/update.txt", Date.now().toString());
+}
+
 function getEmbedIndex(arr: EmbedMetadata[], target: EmbedMetadata): number {
     return arr.findIndex(
         (elem) => elem.embed.toJSON().description === target.embed.toJSON().description
