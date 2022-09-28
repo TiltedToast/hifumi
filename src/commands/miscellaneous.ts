@@ -2,12 +2,15 @@ import strftime from "strftime";
 import fetch from "node-fetch";
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, Message } from "discord.js";
 import { client, mongoClient } from "../app.js";
-import { randomElementArray, sleep, getUserObjectPingId, isBotOwner } from "../tools.js";
+import { randomElementArray, sleep, getUserObjectPingId, isBotOwner } from "../helpers/tools.js";
 import { exec } from "child_process";
 import { EMBED_COLOUR, EXCHANGE_API_KEY } from "../config.js";
-import type { ConvertResponse } from "../interfaces/ConvertResponse.js";
-import type { UrbanResponse, UrbanEntry } from "../interfaces/UrbanResponse";
-import type { EmbedMetadata } from "../interfaces/UpdateEmbedOptions.js";
+import type {
+    ConvertResponse,
+    UrbanResponse,
+    UrbanEntry,
+    EmbedMetadata,
+} from "../helpers/types.js";
 import { promisify } from "util";
 import { evaluate as mathEvaluate } from "mathjs";
 
@@ -122,7 +125,7 @@ export async function jsEval(message: Message, mode?: "math") {
 
     // This is to be able to use all the functions inside the below eval function
     // Sleep call mostly to shut up typescript and eslint
-    const tools = await import("../tools.js");
+    const tools = await import("../helpers/tools.js");
     await tools.sleep(1);
 
     const content = message.content.split(" ");
