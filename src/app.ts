@@ -1,4 +1,5 @@
 import "dotenv/config";
+import { existsSync, rmSync } from "fs";
 import strftime from "strftime";
 import { isDev } from "./helpers/tools.js";
 import { Document, MongoClient } from "mongodb";
@@ -79,6 +80,7 @@ client.once("ready", async () => {
     }
 
     if (isDev()) return;
+    if (existsSync("./temp/update.txt")) return rmSync("./temp/update.txt");
 
     await logChannel.send(
         `Logged in as:\n${client.user.username}\nTime: ${time}\n--------------------------`
