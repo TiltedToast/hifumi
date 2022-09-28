@@ -130,7 +130,7 @@ export async function getMissingCredentials() {
 export async function resize(options: ResizeOptions): Promise<void> {
     const { fileLocation, width, saveLocation } = options;
     if (fileLocation.endsWith(".gif")) {
-        await execPromise(`gifsicle --resize-width ${width} ${fileLocation} > ${saveLocation}`);
+        await execPromise(`gifsicle --resize-width ${width} ${fileLocation} -o ${saveLocation}`);
     } else {
         const cmdPrefix = process.platform === "win32" ? "magick convert" : "convert";
         await execPromise(`${cmdPrefix} -resize ${width} ${fileLocation} ${saveLocation}`);
