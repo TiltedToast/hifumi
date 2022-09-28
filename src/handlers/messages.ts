@@ -6,8 +6,8 @@ import * as misc from "../commands/miscellaneous.js";
 import type { Message } from "discord.js";
 import { mongoClient, prefixDict } from "../app.js";
 
-import { clientNoPermissions, isDev, isMikuTrigger, errorLog } from "../tools.js";
-import type MessageCommandData from "../interfaces/MessageCommandData.js";
+import { clientNoPermissions, isDev, isMikuTrigger, errorLog } from "../helpers/tools.js";
+import type { MessageCommandData } from "../helpers/types.js";
 
 export default async function handleMessage(message: Message) {
     const guildClient = await message.guild?.members.fetchMe();

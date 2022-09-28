@@ -1,8 +1,7 @@
 import fetch from "node-fetch";
 import { statusArr } from "../app.js";
-import { randomElementArray, randomIntFromRange } from "../tools.js";
-import { StatusDoc, StatusType } from "../interfaces/StatusDoc.js";
-import type { CatFactResponse } from "../interfaces/CatFactResponse.js";
+import { randomElementArray, randomIntFromRange } from "../helpers/tools.js";
+import { StatusDoc, StatusType, CatFactResponse } from "../helpers/types.js";
 import type { TextChannel, Client } from "discord.js";
 
 export async function startCatFactLoop(channel: TextChannel) {

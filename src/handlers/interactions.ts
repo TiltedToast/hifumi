@@ -1,5 +1,5 @@
 import type { Interaction, ButtonInteraction } from "discord.js";
-import { updateEmbed } from "../tools.js";
+import { updateEmbed } from "../helpers/tools.js";
 import { urbanEmbeds } from "../commands/miscellaneous.js";
 
 export default async function handleInteraction(interaction: Interaction) {

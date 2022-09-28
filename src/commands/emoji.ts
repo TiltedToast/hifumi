@@ -7,8 +7,9 @@ import {
     resize,
     isValidSize,
     hasPermission,
-} from "../tools.js";
+} from "../helpers/tools.js";
 import * as fs from "fs";
+import { FileSizeLimit } from "../helpers/types.js";
 
 export async function linkEmoji(message: Message): Promise<Message<boolean>> {
     const emojiRegex = new RegExp(/<a?:[a-zA-Z0-9]{1,32}:[0-9]{18}>/gi);
@@ -94,14 +95,14 @@ export async function addEmoji(message: Message, prefix: string): Promise<void |
     if (fetchErrorMsg) return await message.channel.send(fetchErrorMsg);
 
     // Resizes image, checks size again and creates emoji
-    if (!isValidSize(`./temp/unknown.${imgType}`, 262144)) {
+    if (!isValidSize(`./temp/unknown.${imgType}`, FileSizeLimit.DiscordEmoji)) {
         await resize({
             fileLocation: `./temp/unknown.${imgType}`,
             width: 128,
             saveLocation: `./temp/unknown_resized.${imgType}`,
         });
 
-        if (!isValidSize(`./temp/unknown_resized.${imgType}`, 262144)) {
+        if (!isValidSize(`./temp/unknown_resized.${imgType}`, FileSizeLimit.DiscordEmoji)) {
             return message.channel.send("File too large for Discord, even after resizing!");
         }
         if (message.guild === null) return message.channel.send("You can't add emojis to DMs!");
