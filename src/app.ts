@@ -17,6 +17,8 @@ import { BOT_TOKEN, EMBED_COLOUR, MONGO_URI, LOG_CHANNEL } from "./config.js";
 import handleInteraction from "./handlers/interactions.js";
 import handleMessage from "./handlers/messages.js";
 
+const startTime = Date.now();
+
 export const client = new DiscordClient({
     intents: [
         GatewayIntentBits.Guilds,
@@ -30,7 +32,6 @@ export const client = new DiscordClient({
     partials: [Partials.Channel],
 });
 export const mongoClient = new MongoClient(MONGO_URI);
-const startTime = Date.now();
 export const prefixDict: Record<string, string> = {};
 export let statusArr: Document[] = [];
 
