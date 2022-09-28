@@ -1,6 +1,7 @@
 import "dotenv/config";
+import { existsSync, rmSync } from "fs";
 import strftime from "strftime";
-import { isDev } from "./tools.js";
+import { isDev } from "./helpers/tools.js";
 import { Document, MongoClient } from "mongodb";
 import { startStatusLoop } from "./commands/loops.js";
 import {
@@ -12,7 +13,7 @@ import {
     EmbedBuilder,
     Partials,
 } from "discord.js";
-import { getMissingCredentials } from "./tools.js";
+import { getMissingCredentials } from "./helpers/tools.js";
 import { BOT_TOKEN, EMBED_COLOUR, MONGO_URI, LOG_CHANNEL } from "./config.js";
 import handleInteraction from "./handlers/interactions.js";
 import handleMessage from "./handlers/messages.js";
@@ -79,6 +80,7 @@ client.once("ready", async () => {
     }
 
     if (isDev()) return;
+    if (existsSync("./temp/update.txt")) return rmSync("./temp/update.txt");
 
     await logChannel.send(
         `Logged in as:\n${client.user.username}\nTime: ${time}\n--------------------------`

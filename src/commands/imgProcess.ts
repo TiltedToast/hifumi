@@ -12,8 +12,8 @@ import {
     downloadURL,
     getImgType,
     isValidSize,
-} from "../tools.js";
-import type { ImgurParams, ImgurResponse } from "../interfaces/Imgur.js";
+} from "../helpers/tools.js";
+import { ImgurParams, ImgurResponse, FileSizeLimit } from "../helpers/types.js";
 import type { Message } from "discord.js";
 
 export async function beautiful(message: Message) {
@@ -105,7 +105,7 @@ export async function resizeImg(message: Message, prefix: string) {
         saveLocation: `./temp/unknown_resized.${imgType}`,
     });
 
-    if (!isValidSize(`./temp/unknown_resized.${imgType}`, 8192000)) {
+    if (!isValidSize(`./temp/unknown_resized.${imgType}`, FileSizeLimit.DiscordFile)) {
         return await message.channel.send("File too large for Discord!");
     }
 
@@ -163,7 +163,7 @@ export async function imgur(args: ImgurParams) {
         const fetchErrorMsg = await downloadURL(source, `./temp/unknown.${imgType}`);
         if (fetchErrorMsg) return await message.channel.send(fetchErrorMsg);
 
-        if (!isValidSize(`./temp/unknown.${imgType}`, 10240000)) {
+        if (!isValidSize(`./temp/unknown.${imgType}`, FileSizeLimit.ImgurFile)) {
             return await message.channel.send("File too large for Imgur! (10MB limit)");
         }
 
@@ -178,7 +178,7 @@ export async function imgur(args: ImgurParams) {
             return message.channel.send(`Failed to upload image: ${result.data.error?.message}`);
 
         return await message.channel.send(result.data.link);
-    } else if (contentLength !== null && parseInt(contentLength) <= 10240000) {
+    } else if (contentLength !== null && parseInt(contentLength) <= FileSizeLimit.ImgurFile) {
         formdata.append("image", source);
 
         const response = await fetch("https://api.imgur.com/3/image", requestOptions);
