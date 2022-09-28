@@ -4,8 +4,8 @@ import * as path from "path";
 import fetch from "node-fetch";
 import strftime from "strftime";
 import { Headers } from "node-fetch";
-import { mongoClient, client } from "./app.js";
-import { execPromise } from "./commands/miscellaneous.js";
+import { mongoClient, client } from "../app.js";
+import { execPromise } from "../commands/miscellaneous.js";
 import type { Document } from "mongodb";
 import type { RequestInit } from "node-fetch";
 import {
@@ -18,7 +18,6 @@ import {
     TextChannel,
     User,
 } from "discord.js";
-import type { EmbedMetadata, UpdateEmbedOptions } from "./interfaces/UpdateEmbedOptions.js";
 import {
     BOT_OWNERS,
     EXCHANGE_API_KEY,
@@ -30,9 +29,21 @@ import {
     DEV_MODE,
     DEV_CHANNELS,
     LOG_CHANNEL,
-} from "./config.js";
-import type { ResizeOptions } from "./interfaces/ResizeOptions.js";
-import type { ErrorLogOptions } from "./interfaces/ErrorLogOptions.js";
+} from "../config.js";
+import type {
+    ResizeOptions,
+    ErrorLogOptions,
+    FileSizeLimit,
+    EmbedMetadata,
+    UpdateEmbedOptions,
+} from "./types.js";
+
+export function writeUpdateFile() {
+    if (!fs.existsSync("./temp")) {
+        fs.mkdirSync("./temp");
+    }
+    fs.writeFileSync("./temp/update.txt", Date.now().toString());
+}
 
 function getEmbedIndex(arr: EmbedMetadata[], target: EmbedMetadata): number {
     return arr.findIndex(
@@ -130,7 +141,7 @@ export async function getMissingCredentials() {
 export async function resize(options: ResizeOptions): Promise<void> {
     const { fileLocation, width, saveLocation } = options;
     if (fileLocation.endsWith(".gif")) {
-        await execPromise(`gifsicle --resize-width ${width} ${fileLocation} > ${saveLocation}`);
+        await execPromise(`gifsicle --resize-width ${width} ${fileLocation} -o ${saveLocation}`);
     } else {
         const cmdPrefix = process.platform === "win32" ? "magick convert" : "convert";
         await execPromise(`${cmdPrefix} -resize ${width} ${fileLocation} ${saveLocation}`);
@@ -173,7 +184,7 @@ export function sleep(ms: number) {
 
 /**
  * Returns a user object from either a user id or a ping
- * @param {Message} message Discord message object
+ * @param message Discord message object
  * @returns The user object
  */
 export async function getUserObjectPingId(message: Message): Promise<User | null> {
@@ -192,7 +203,7 @@ export async function getUserObjectPingId(message: Message): Promise<User | null
 
 /**
  * Takes an array and returns a random element from it.
- * @param {Array} array The input array
+ * @param array The input array
  * @returns a random element from the array
  */
 export function randomElementArray<T>(array: T[]) {
@@ -201,8 +212,8 @@ export function randomElementArray<T>(array: T[]) {
 
 /**
  * Returns a random integer between min (inclusive) and max (inclusive)
- * @param  {number} min Minimum Integer value to return
- * @param  {number} max Maximum Integer value to return
+ * @param min Minimum Integer value to return
+ * @param max Maximum Integer value to return
  * @returns a random integer between min and max
  */
 export function randomIntFromRange(min: number, max: number): number {
@@ -212,8 +223,8 @@ export function randomIntFromRange(min: number, max: number): number {
 /**
  * Parses a message and error and sends it to the channel to avoid
  * Hifumi dying every time an error occurs
- * @param {Message} message The Message object passed on each command execution
- * @param {Error} errorObject The error object that is passed to the command through try/catch
+ * @param message The Message object passed on each command execution
+ * @param errorObject The error object that is passed to the command through try/catch
  */
 export function errorLog({ message, errorObject }: ErrorLogOptions): Promise<Message<boolean>> {
     const currentTime = strftime("%d/%m/%Y %H:%M:%S");
@@ -281,8 +292,8 @@ export function errorLog({ message, errorObject }: ErrorLogOptions): Promise<Mes
 
 /**
  * Takes a URL as well as a file path and downloads the file to the file path
- * @param {String} url URL of the file you want to download
- * @param {String} saveLocation Path to save the file to
+ * @param url URL of the file you want to download
+ * @param saveLocation Path to save the file to
  */
 export async function downloadURL(url: string, saveLocation: string) {
     const absSaveLocation = path.resolve(saveLocation);
@@ -310,8 +321,8 @@ export async function downloadURL(url: string, saveLocation: string) {
 
 /**
  * Takes an image URL and returns the file extension
- * @param {String} url The URL to whatever image you want to get the extension of
- * @returns {String} The file extension of the image
+ * @param url The URL to whatever image you want to get the extension of
+ * @returns The file extension of the image
  */
 export function getImgType(url: string): string | null {
     if (url.includes(".png") || url.includes(".webp")) return "png";
@@ -323,9 +334,9 @@ export function getImgType(url: string): string | null {
 
 /**
  * Takes the raw string of a discord Emoji and either returns the ID or the url
- * @param {String} emojiString The emoji string
- * @param {Boolean} id Whether or not you only want the ID or the URL
- * @returns {String} The ID or URL of the emoji
+ * @param emojiString The emoji string
+ * @param id Whether or not you only want the ID or the URL
+ * @returns The ID or URL of the emoji
  */
 export function extractEmoji(emojiString: string, id?: boolean): string {
     const emojiID = emojiString.split(":")[2].slice(0, -1);
@@ -340,7 +351,7 @@ export function extractEmoji(emojiString: string, id?: boolean): string {
 /**
  * Takes a directory, checks whether it exists. If it does, it deletes it and recreates it.
  *  If it doesn't, it creates it
- * @param {String} directory Path to the temporary directory you want to create
+ * @param directory Path to the temporary directory you want to create
  */
 export function createTemp(directory: string): void {
     const absPath = path.resolve(directory);
@@ -355,9 +366,9 @@ export function createTemp(directory: string): void {
 
 /**
  * Checks whether the size of the file is smaller than the max size allowed or not
- * @param {String} fileLocation The location of the file
- * @param {Number} size The max size allowed in bytes
+ * @param fileLocation The location of the file
+ * @param size The max size allowed in bytes or one of the presets from {@link FileSizeLimit}
  */
-export function isValidSize(fileLocation: string, size: number): boolean {
+export function isValidSize(fileLocation: string, size: number | FileSizeLimit): boolean {
     return fs.statSync(fileLocation).size <= size;
 }
