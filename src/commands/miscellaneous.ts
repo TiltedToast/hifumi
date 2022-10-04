@@ -278,11 +278,16 @@ function buildConvertEmbed(result: ConvertResponse, to: string, amount: number, 
 }
 
 export async function urban(message: Message, prefix: string) {
-    const content = message.content.split(" ");
+    const content = message.content.split(" ").slice(1);
 
-    if (content.length !== 2) return await message.channel.send(`Usage: \`${prefix}urban <word>\``);
+    if (!content.length) return await message.channel.send(`Usage: \`${prefix}urban <word>\``);
 
-    const query = content[1];
+    let query = "";
+
+    content.forEach((word) => {
+        query += `${word} `;
+    });
+
     const response = await fetch(`https://api.urbandictionary.com/v0/define?term=${query}`);
     if (!response.ok)
         return await message.channel.send(`Error ${response.status}! Please try again later`);
