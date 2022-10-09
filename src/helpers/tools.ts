@@ -88,7 +88,7 @@ export async function updateEmbedArr<T>(args: UpdateEmbedArrParams<T>) {
     const { result, userID, sortKey, embedArray, buildEmbedFunc } = args;
 
     if (sortKey) {
-        result.sort((a, b) => (b[sortKey as keyof T] > a[sortKey as keyof T] ? 1 : -1));
+        result.sort((a, b) => (b[sortKey] > a[sortKey] ? 1 : -1));
     }
 
     embedArray.length = 0;
