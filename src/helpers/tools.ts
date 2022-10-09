@@ -36,6 +36,7 @@ import type {
     FileSizeLimit,
     EmbedMetadata,
     UpdateEmbedOptions,
+    UpdateEmbedArrParams,
 } from "./types.js";
 
 export function writeUpdateFile() {
@@ -81,6 +82,22 @@ export function isMikuTrigger(message: Message, reactCmd: string): boolean {
         message.content.startsWith(`$${reactCmd} <@${client.user.id}>`) ||
         message.content.startsWith(`$${reactCmd} <@!${client.user.id}>`)
     );
+}
+
+export async function updateEmbedArr<T>(args: UpdateEmbedArrParams<T>) {
+    const { result, userID, sortKey, embedArray, buildEmbedFunc } = args;
+
+    if (sortKey) {
+        result.sort((a, b) => (b[sortKey as keyof T] > a[sortKey as keyof T] ? 1 : -1));
+    }
+
+    embedArray.length = 0;
+    for (let i = 0; i < result.length; i++) {
+        embedArray.push({
+            embed: buildEmbedFunc(result[i], i, result),
+            user: userID,
+        });
+    }
 }
 
 export async function updateEmbed(options: UpdateEmbedOptions) {

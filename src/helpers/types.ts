@@ -1,5 +1,13 @@
 import { ActivityType, ButtonInteraction, Embed, EmbedBuilder, Message } from "discord.js";
 
+export interface UpdateEmbedArrParams<T> {
+    result: T[];
+    userID: string;
+    sortKey?: keyof T & string;
+    embedArray: EmbedMetadata[];
+    buildEmbedFunc: (entry: T, idx: number, arr: T[]) => EmbedBuilder;
+}
+
 export interface UrbanResponse {
     list: UrbanEntry[];
 }
