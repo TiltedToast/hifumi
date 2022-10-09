@@ -8,6 +8,7 @@ import {
     getUserObjectPingId,
     isBotOwner,
     writeUpdateFile,
+    updateEmbedArr,
 } from "../helpers/tools.js";
 import { exec } from "child_process";
 import { EMBED_COLOUR, EXCHANGE_API_KEY } from "../config.js";
@@ -21,7 +22,7 @@ import { promisify } from "util";
 import { evaluate as mathEvaluate } from "mathjs";
 
 export const execPromise = promisify(exec);
-export let urbanEmbeds: EmbedMetadata[] = [];
+export const urbanEmbeds: EmbedMetadata[] = [];
 
 export async function reactToMiku(message: Message, reactCmd: string): Promise<void | Message> {
     const mikuReactions = await mongoClient
@@ -296,7 +297,14 @@ export async function urban(message: Message, prefix: string) {
 
     if (result.length === 0) return message.channel.send("No results found!");
 
-    await updateUrbanEmbeds(result, message.author.id);
+    await updateEmbedArr({
+        result,
+        userID: message.author.id,
+        sortKey: "thumbs_up",
+        embedArray: urbanEmbeds,
+        buildEmbedFunc: buildUrbanEmbed,
+    });
+
     const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
         new ButtonBuilder().setCustomId("prevUrban").setLabel("PREV").setStyle(ButtonStyle.Primary),
         new ButtonBuilder().setCustomId("nextUrban").setLabel("NEXT").setStyle(ButtonStyle.Primary)
@@ -306,17 +314,6 @@ export async function urban(message: Message, prefix: string) {
         embeds: [urbanEmbeds[0].embed],
         components: [row],
     });
-}
-
-export async function updateUrbanEmbeds(result: UrbanEntry[], userId: string) {
-    result.sort((a, b) => (b.thumbs_up > a.thumbs_up ? 1 : -1));
-    urbanEmbeds = [];
-    for (let i = 0; i < result.length; i++) {
-        urbanEmbeds.push({
-            embed: buildUrbanEmbed(result[i], i, result),
-            user: userId,
-        });
-    }
 }
 
 function buildUrbanEmbed(resultEntry: UrbanEntry, index: number, array: UrbanEntry[]) {
