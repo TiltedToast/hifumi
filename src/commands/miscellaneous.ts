@@ -8,7 +8,7 @@ import {
     getUserObjectPingId,
     isBotOwner,
     writeUpdateFile,
-    updateEmbedArr,
+    setEmbedArr,
 } from "../helpers/tools.js";
 import { exec } from "child_process";
 import { EMBED_COLOUR, EXCHANGE_API_KEY } from "../config.js";
@@ -297,7 +297,7 @@ export async function urban(message: Message, prefix: string) {
 
     if (result.length === 0) return message.channel.send("No results found!");
 
-    await updateEmbedArr({
+    await setEmbedArr({
         result,
         userID: message.author.id,
         sortKey: "thumbs_up",

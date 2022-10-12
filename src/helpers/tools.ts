@@ -84,7 +84,7 @@ export function isMikuTrigger(message: Message, reactCmd: string): boolean {
     );
 }
 
-export async function updateEmbedArr<T>(args: UpdateEmbedArrParams<T>) {
+export async function setEmbedArr<T>(args: UpdateEmbedArrParams<T>) {
     const { result, userID, sortKey, embedArray, buildEmbedFunc } = args;
 
     if (sortKey) {

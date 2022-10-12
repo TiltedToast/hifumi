@@ -5,7 +5,7 @@ export interface UpdateEmbedArrParams<T> {
     userID: string;
     sortKey?: keyof T & string;
     embedArray: EmbedMetadata[];
-    buildEmbedFunc: (entry: T, idx: number, arr: T[]) => EmbedBuilder;
+    buildEmbedFunc: (item: T, idx: number, arr: T[]) => EmbedBuilder;
 }
 
 export interface UrbanResponse {
