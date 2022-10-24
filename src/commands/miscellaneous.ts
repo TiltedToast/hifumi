@@ -1,25 +1,25 @@
-import strftime from "strftime";
-import fetch from "node-fetch";
+import { exec } from "child_process";
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, Message } from "discord.js";
+import { evaluate as mathEvaluate } from "mathjs";
+import fetch from "node-fetch";
+import strftime from "strftime";
+import { promisify } from "util";
 import { client, mongoClient } from "../app.js";
+import { EMBED_COLOUR, EXCHANGE_API_KEY } from "../config.js";
 import {
-    randomElementArray,
-    sleep,
     getUserObjectPingId,
     isBotOwner,
-    writeUpdateFile,
+    randomElementFromArray,
     setEmbedArr,
+    sleep,
+    writeUpdateFile,
 } from "../helpers/tools.js";
-import { exec } from "child_process";
-import { EMBED_COLOUR, EXCHANGE_API_KEY } from "../config.js";
 import type {
     ConvertResponse,
-    UrbanResponse,
-    UrbanEntry,
     EmbedMetadata,
+    UrbanEntry,
+    UrbanResponse,
 } from "../helpers/types.js";
-import { promisify } from "util";
-import { evaluate as mathEvaluate } from "mathjs";
 
 export const execPromise = promisify(exec);
 export const urbanEmbeds: EmbedMetadata[] = [];
@@ -39,7 +39,7 @@ export async function reactToMiku(message: Message, reactCmd: string): Promise<v
 
     for (const alias in cmdAliases) {
         if (Object.values(cmdAliases[alias]).includes(reactCmd)) {
-            const msg = (randomElementArray(reactMsgs[alias]) as string).replace(
+            const msg = (randomElementFromArray(reactMsgs[alias]) as string).replace(
                 "{0}",
                 message.author.username
             );
@@ -61,7 +61,7 @@ export async function leet(message: Message): Promise<void | Message> {
             return word
                 .split("")
                 .map((char) => {
-                    if (char in leetDoc) return randomElementArray(leetDoc[char]);
+                    if (char in leetDoc) return randomElementFromArray(leetDoc[char]);
                     return char;
                 })
                 .join("");
@@ -164,9 +164,8 @@ export async function avatar(message: Message) {
     const content = message.content.split(" ");
 
     const user = content.length === 1 ? message.author : await getUserObjectPingId(message);
-    if (!user) {
-        return await message.channel.send("Couldn't find the specified User");
-    }
+
+    if (!user) return await message.channel.send("Couldn't find the specified User");
 
     const { id: userId, username, avatar: avatarHash } = user;
 
@@ -212,7 +211,13 @@ export async function listCurrencies(message: Message) {
     }
 
     const currEmbed = new EmbedBuilder().setColor(EMBED_COLOUR).setTitle(title);
-    currEmbed.addFields(columns.map((column) => ({ name: "\u200b", value: column, inline: true })));
+    currEmbed.addFields(
+        columns.map((column) => ({
+            name: "\u200b",
+            value: column,
+            inline: true,
+        }))
+    );
 
     return await message.channel.send({ embeds: [currEmbed] });
 }

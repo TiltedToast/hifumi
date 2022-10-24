@@ -41,8 +41,11 @@ export async function beautiful(message: Message) {
     const avatar = await canvas.loadImage("./temp/avatar_resized.png");
     const background = await canvas.loadImage("./src/assets/beautiful_background.png");
 
+    // Top pfp
     ctx.drawImage(avatar, 422, 35);
+    // Bottom pfp
     ctx.drawImage(avatar, 430, 377);
+    // Background
     ctx.drawImage(background, 0, 0);
 
     // Saves the output buffer to a file and sends it to the channel
@@ -72,7 +75,7 @@ export async function resizeImg(message: Message, prefix: string) {
     const content = message.content.split(" ");
 
     // Checks for invalid User input
-    if (!(content.length === 3) && message.attachments.size === 0) {
+    if (content.length !== 3 && message.attachments.size === 0) {
         return await message.channel.send(`Usage: \`${prefix}resize <width> <url>\``);
     } else if (content.length === 1 && message.attachments.size > 0) {
         return await message.channel.send("You have to provide the width!");
