@@ -42,7 +42,7 @@ export async function addEmoji(message: Message, prefix: string): Promise<void |
     }
     const content = message.content.split(" ");
 
-    // Check if the user provided a name and an image
+    // Check if the user provided a name and an image n
     if (content.length === 2 && message.attachments.size === 0) {
         return await message.channel.send(`Usage: \`${prefix}emoji add <name> <url/emoji>\``);
     } else if (content.length === 2 && message.attachments.size > 0) {
@@ -67,7 +67,7 @@ export async function addEmoji(message: Message, prefix: string): Promise<void |
         return message.channel.send(await bulkAddEmojis(message, emojis));
     }
 
-    if (!(2 < name.length && name.length < 32))
+    if (2 > name.length || name.length > 32)
         return message.channel.send("The name must be between 2 and 32 characters long.");
 
     const source = content.length >= 4 ? content[3] : content[2];
@@ -84,7 +84,7 @@ export async function addEmoji(message: Message, prefix: string): Promise<void |
     } else if (isValidURL) {
         url = source;
     } else if (message.attachments.size > 0) {
-        url = (message.attachments?.first() as Attachment).url;
+        url = (message.attachments.first() as Attachment).url;
     }
 
     createTemp("temp");
@@ -162,12 +162,12 @@ async function bulkAddEmojis(message: Message, emojis: RegExpMatchArray) {
             continue;
         }
 
-        if (imgType === "gif") {
-            msg = `<a:${emoji.name}:${emoji.id}>`;
-        } else if (imgType !== "gif") {
-            msg = `<:${emoji.name}:${emoji.id}>`;
-        } else {
+        if (imgType === null) {
             msg = emojiStr;
+        } else if (imgType === "gif") {
+            msg = `<a:${emoji.name}:${emoji.id}>`;
+        } else {
+            msg = `<:${emoji.name}:${emoji.id}>`;
         }
 
         output += `${msg}\n`;

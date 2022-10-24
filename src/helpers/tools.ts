@@ -1,13 +1,3 @@
-import * as fsPromise from "fs/promises";
-import * as fs from "fs";
-import * as path from "path";
-import fetch from "node-fetch";
-import strftime from "strftime";
-import { Headers } from "node-fetch";
-import { mongoClient, client } from "../app.js";
-import { execPromise } from "../commands/miscellaneous.js";
-import type { Document } from "mongodb";
-import type { RequestInit } from "node-fetch";
 import {
     Channel,
     GuildMember,
@@ -18,25 +8,34 @@ import {
     TextChannel,
     User,
 } from "discord.js";
+import * as fs from "fs";
+import * as fsPromise from "fs/promises";
+import type { Document } from "mongodb";
+import type { RequestInit } from "node-fetch";
+import fetch, { Headers } from "node-fetch";
+import * as path from "path";
+import strftime from "strftime";
+import { client, mongoClient } from "../app.js";
+import { execPromise } from "../commands/miscellaneous.js";
 import {
     BOT_OWNERS,
+    DEV_CHANNELS,
+    DEV_MODE,
     EXCHANGE_API_KEY,
     IMGUR_CLIENT_ID,
     IMGUR_CLIENT_SECRET,
+    LOG_CHANNEL,
     REDDIT_CLIENT_ID,
     REDDIT_CLIENT_SECRET,
     REDDIT_REFRESH_TOKEN,
-    DEV_MODE,
-    DEV_CHANNELS,
-    LOG_CHANNEL,
 } from "../config.js";
 import type {
-    ResizeOptions,
+    EmbedMetadata,
     ErrorLogOptions,
     FileSizeLimit,
-    EmbedMetadata,
-    UpdateEmbedOptions,
+    ResizeOptions,
     UpdateEmbedArrParams,
+    UpdateEmbedOptions,
 } from "./types.js";
 
 export function writeUpdateFile() {
@@ -87,9 +86,7 @@ export function isMikuTrigger(message: Message, reactCmd: string): boolean {
 export async function setEmbedArr<T>(args: UpdateEmbedArrParams<T>) {
     const { result, userID, sortKey, embedArray, buildEmbedFunc } = args;
 
-    if (sortKey) {
-        result.sort((a, b) => (b[sortKey] > a[sortKey] ? 1 : -1));
-    }
+    if (sortKey) result.sort((a, b) => (b[sortKey] > a[sortKey] ? 1 : -1));
 
     embedArray.length = 0;
     for (let i = 0; i < result.length; i++) {
@@ -155,13 +152,15 @@ export async function getMissingCredentials() {
  * Takes the file path of an image/gif and resizes it
  * @param options An object containing the file location, width, and save location
  */
-export async function resize(options: ResizeOptions): Promise<void> {
+export async function resize(options: ResizeOptions) {
     const { fileLocation, width, saveLocation } = options;
     if (fileLocation.endsWith(".gif")) {
-        await execPromise(`gifsicle --resize-width ${width} ${fileLocation} -o ${saveLocation}`);
+        return await execPromise(
+            `gifsicle --resize-width ${width} ${fileLocation} -o ${saveLocation}`
+        );
     } else {
         const cmdPrefix = process.platform === "win32" ? "magick convert" : "convert";
-        await execPromise(`${cmdPrefix} -resize ${width} ${fileLocation} ${saveLocation}`);
+        return await execPromise(`${cmdPrefix} -resize ${width} ${fileLocation} ${saveLocation}`);
     }
 }
 
@@ -223,7 +222,7 @@ export async function getUserObjectPingId(message: Message): Promise<User | null
  * @param array The input array
  * @returns a random element from the array
  */
-export function randomElementArray<T>(array: T[]) {
+export function randomElementFromArray<T>(array: T[]) {
     return array[Math.floor(Math.random() * array.length)];
 }
 
@@ -329,8 +328,9 @@ export async function downloadURL(url: string, saveLocation: string) {
 
     // Fetches the file from the URL and saves it to the file path
     const response = await fetch(url, requestOptions);
-    if (!response.ok)
+    if (!response.ok) {
         return `Failed to download <${url}>\n${response.status} ${response.statusText}`;
+    }
 
     const buffer = await response.arrayBuffer();
     return await fsPromise.writeFile(absSaveLocation, new Uint8Array(buffer));
@@ -341,7 +341,7 @@ export async function downloadURL(url: string, saveLocation: string) {
  * @param url The URL to whatever image you want to get the extension of
  * @returns The file extension of the image
  */
-export function getImgType(url: string): string | null {
+export function getImgType(url: string) {
     if (url.includes(".png") || url.includes(".webp")) return "png";
     else if (url.includes(".jpeg") || url.includes(".jpg")) return "jpeg";
     else if (url.includes(".gif")) return "gif";

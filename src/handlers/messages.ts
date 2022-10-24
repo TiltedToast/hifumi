@@ -25,7 +25,10 @@ export default async function handleMessage(message: Message) {
 
         // Adds a default prefix to the db if it doesn't exist
         if (message.guild && !(message.guild.id in prefixDict) && !isDev()) {
-            await prefixColl.insertOne({ serverId: message.guild.id, prefix: "h!" });
+            await prefixColl.insertOne({
+                serverId: message.guild.id,
+                prefix: "h!",
+            });
             prefixDict[message.guild.id] = "h!";
             await message.channel.send(
                 "I have set the prefix to `h!`. You can change it with `h!prefix`"
