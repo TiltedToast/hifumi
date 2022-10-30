@@ -12,5 +12,8 @@
     },
     "parserOptions": {
         "ecmaVersion": 2022
+    },
+    "rules": {
+        "no-constant-condition": "off"
     }
 }
