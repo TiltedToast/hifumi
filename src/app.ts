@@ -53,7 +53,7 @@ client.once("ready", async () => {
     // Puts all statuses into an array to avoid reading the database on every status change
     statusArr = await mongoClient.db("hifumi").collection("statuses").find().toArray();
 
-    if (statusArr.length) await startStatusLoop(client);
+    if (statusArr.length) startStatusLoop(client);
 
     // Gets all prefixes from the database and puts them into a dictionary to avoid reading
     // The database every time a message is received
@@ -64,7 +64,7 @@ client.once("ready", async () => {
 
     const logChannel = client.channels.cache.get(LOG_CHANNEL) as TextChannel;
     // const catFactChannel = client.channels.cache.get(CAT_FACT_CHANNEL) as TextChannel;
-    // await startCatFactLoop(catFactChannel);
+    // startCatFactLoop(catFactChannel);
 
     const credentials = await getMissingCredentials();
 

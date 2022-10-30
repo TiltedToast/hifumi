@@ -1,15 +1,16 @@
 import type { Client, TextChannel } from "discord.js";
 import fetch from "node-fetch";
 import { statusArr } from "../app.js";
-import { randomElementFromArray, randomIntFromRange } from "../helpers/tools.js";
+import { randomElementFromArray, randomIntFromRange, sleep } from "../helpers/tools.js";
 import { CatFactResponse, StatusDoc, StatusType } from "../helpers/types.js";
 
 export async function startCatFactLoop(channel: TextChannel) {
-    setInterval(async () => {
+    while (true) {
         const response = await fetch("https://catfact.ninja/fact");
         const json = (await response.json()) as CatFactResponse;
         await channel.send(json.fact);
-    }, randomIntFromRange(54000000, 86400000)); // 15h-24h
+        await sleep(randomIntFromRange(54000000, 86400000)); // 15h-24h
+    }
 }
 
 /**
@@ -17,10 +18,10 @@ export async function startCatFactLoop(channel: TextChannel) {
  * @param {Client} client Discord client which is used to access the API
  */
 export async function startStatusLoop(client: Client) {
-    await setRandomStatus(client);
-    setInterval(async () => {
+    while (true) {
         await setRandomStatus(client);
-    }, randomIntFromRange(300000, 900000)); // 5m-15m
+        await sleep(randomIntFromRange(1000, 5000)); // 5m-15m
+    }
 }
 
 /**
