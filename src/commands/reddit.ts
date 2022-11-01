@@ -54,7 +54,7 @@ function buildProfileEmbed(userName: string) {
 
 export async function sub(message: Message, prefix: string): Promise<Message> {
     const content = message.content.split(" ").map((x) => x.toLowerCase());
-    if (content.length <= 2)
+    if (content.length === 1)
         return await message.channel.send(`Usage: \`${prefix}sub <subreddit>\``);
 
     const [isNSFW, force] = parseSubFlags(message);
