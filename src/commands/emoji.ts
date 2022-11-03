@@ -35,12 +35,25 @@ export async function addEmoji(message: Message, prefix: string): Promise<void |
         emoji,
         url = "";
 
+    const emojiRegex = new RegExp(/<a?:[a-zA-Z0-9]+:[0-9]+>/gi);
+
     if (!hasPermission(PermissionFlagsBits.ManageEmojisAndStickers, message)) {
         return await message.channel.send(
             'You need the "Manage Emoji and Stickers" permission to add emojis!'
         );
     }
     const content = message.content.split(" ");
+
+    if (message.type === MessageType.Reply) {
+        const repliedMsg = message.channel.messages.resolve(message.reference?.messageId ?? "");
+        if (!repliedMsg)
+            return await message.channel.send("Could not find message to grab emojis from!");
+
+        const emojis = repliedMsg.content.match(emojiRegex);
+        if (!emojis)
+            return await message.channel.send("The message must contain at least one emoji!");
+        return message.channel.send(await bulkAddEmojis(message, emojis));
+    }
 
     // Check if the user provided a name and an image n
     if (content.length === 2 && message.attachments.size === 0) {
@@ -58,7 +71,6 @@ export async function addEmoji(message: Message, prefix: string): Promise<void |
         name = content[2];
     }
 
-    const emojiRegex = new RegExp(/<a?:[a-zA-Z0-9]{1,32}:[0-9]{18}>/gi);
     const emojis = message.content.match(emojiRegex);
 
     createTemp("temp");
