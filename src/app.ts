@@ -36,6 +36,7 @@ export const client = new DiscordClient({
 export const mongoClient = new MongoClient(MONGO_URI);
 export const prefixDict: Record<Snowflake, string> = {};
 export let statusArr: StatusDoc[] = [];
+export let botIsLoading = true;
 
 client.once("ready", async () => {
     const time = strftime("%d/%m/%Y %H:%M:%S");
@@ -66,6 +67,7 @@ client.once("ready", async () => {
     for (const prefixDoc of prefixDocs) {
         prefixDict[prefixDoc["serverId"]] = prefixDoc["prefix"];
     }
+    botIsLoading = false;
 
     const logChannel = client.channels.cache.get(LOG_CHANNEL) as TextChannel;
     // const catFactChannel = client.channels.cache.get(CAT_FACT_CHANNEL) as TextChannel;
