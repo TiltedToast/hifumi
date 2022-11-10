@@ -1,9 +1,10 @@
-import type { ButtonInteraction, Interaction } from "discord.js";
+import type { ButtonInteraction, CommandInteraction, Interaction } from "discord.js";
 import { urbanEmbeds } from "../commands/miscellaneous.js";
 import { updateEmbed } from "../helpers/utils.js";
 
 export default async function handleInteraction(interaction: Interaction) {
     if (interaction.isButton()) await handleButtonInteraction(interaction);
+    if (interaction.isCommand()) await handleCommandInteraction(interaction);
 }
 
 async function handleButtonInteraction(interaction: ButtonInteraction) {
@@ -15,5 +16,11 @@ async function handleButtonInteraction(interaction: ButtonInteraction) {
             nextButtonId: "nextUrban",
             user: interaction.user.id,
         });
+    }
+}
+
+async function handleCommandInteraction(interaction: CommandInteraction) {
+    if (interaction.commandName === "pat") {
+        await interaction.reply(`$pat ${interaction.options.getUser("user")}`);
     }
 }

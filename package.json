@@ -40,7 +40,8 @@
         "docker-build": "tsc && node ./dist/app.js",
         "lint": "eslint ./src",
         "prettier": "prettier --config .prettierrc --write .",
-        "prepare": "husky install"
+        "prepare": "husky install",
+        "deploy": "tsc && node ./dist/deploy-commands.js"
     },
     "lint-staged": {
         "*.{js,ts}": "eslint --cache",
