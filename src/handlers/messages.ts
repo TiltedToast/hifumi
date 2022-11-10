@@ -1,5 +1,5 @@
 import type { Message } from "discord.js";
-import { mongoClient, prefixDict } from "../app.js";
+import { botIsLoading, mongoClient, prefixDict } from "../app.js";
 import * as db from "../commands/database.js";
 import * as emoji from "../commands/emoji.js";
 import * as imgProcess from "../commands/imgProcess.js";
@@ -13,7 +13,7 @@ export default async function handleMessage(message: Message) {
     const guildClient = await message.guild?.members.fetchMe();
     try {
         // Permission check for the channel which the message was sent in to avoid breaking the bot
-        if (message.author.bot || clientNoPermissions(message, guildClient)) return;
+        if (message.author.bot || clientNoPermissions(message, guildClient) || botIsLoading) return;
 
         const content = message.content.split(" ");
 
