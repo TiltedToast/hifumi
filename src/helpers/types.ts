@@ -1,4 +1,13 @@
 import { ActivityType, ButtonInteraction, Embed, EmbedBuilder, Message } from "discord.js";
+import type { Document, WithId } from "mongodb";
+
+export interface MikuEmoteAliases {
+    [key: string]: string[];
+}
+
+export interface MikuEmoteReactionMessages {
+    [key: string]: string[];
+}
 
 export interface UpdateEmbedArrParams<T> {
     result: T[];
@@ -134,7 +143,7 @@ export interface ResizeOptions {
     saveLocation: string;
 }
 
-export interface StatusDoc {
+export interface StatusDoc extends WithId<Document> {
     type: "LISTENING" | "WATCHING" | "PLAYING" | "STREAMING" | "COMPETING";
     status: string;
 }

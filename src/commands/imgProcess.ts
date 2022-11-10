@@ -1,20 +1,19 @@
-import * as fsPromise from "fs/promises";
-import * as qrcode from "qrcode";
-import fetch from "node-fetch";
 import canvas from "canvas";
-import { Headers } from "node-fetch";
+import type { Message } from "discord.js";
 import { FormData } from "formdata-node";
+import * as fsPromise from "fs/promises";
+import fetch, { Headers } from "node-fetch";
+import * as qrcode from "qrcode";
 import { IMGUR_CLIENT_ID } from "../config.js";
+import { FileSizeLimit, ImgurParams, ImgurResponse } from "../helpers/types.js";
 import {
     createTemp,
-    getUserObjectPingId,
-    resize,
     downloadURL,
     getImgType,
+    getUserObjectPingId,
     isValidSize,
-} from "../helpers/tools.js";
-import { ImgurParams, ImgurResponse, FileSizeLimit } from "../helpers/types.js";
-import type { Message } from "discord.js";
+    resize,
+} from "../helpers/utils.js";
 
 export async function beautiful(message: Message) {
     createTemp("temp");

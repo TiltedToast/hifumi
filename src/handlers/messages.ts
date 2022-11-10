@@ -1,13 +1,13 @@
-import * as emoji from "../commands/emoji.js";
-import * as db from "../commands/database.js";
-import * as imgProcess from "../commands/imgProcess.js";
-import * as reddit from "../commands/reddit.js";
-import * as misc from "../commands/miscellaneous.js";
 import type { Message } from "discord.js";
 import { mongoClient, prefixDict } from "../app.js";
+import * as db from "../commands/database.js";
+import * as emoji from "../commands/emoji.js";
+import * as imgProcess from "../commands/imgProcess.js";
+import * as misc from "../commands/miscellaneous.js";
+import * as reddit from "../commands/reddit.js";
 
-import { clientNoPermissions, isDev, isMikuTrigger, errorLog } from "../helpers/tools.js";
 import type { MessageCommandData } from "../helpers/types.js";
+import { clientNoPermissions, errorLog, isDev, isMikuTrigger } from "../helpers/utils.js";
 
 export default async function handleMessage(message: Message) {
     const guildClient = await message.guild?.members.fetchMe();
