@@ -30,7 +30,8 @@ jobs:
               id: dotenv
               shell: bash
               uses: falti/dotenv-action@v1.0.1
-              # if : ${{steps.dotenv.outputs.BOT_TOKEN_PROD}}
+
+            - name: Set up environment variables
               run: |
                   if [BOT_TOKEN_PROD != ""]; then
                     echo "BOT_TOKEN=$BOT_TOKEN_PROD" >> $GITHUB_ENV
