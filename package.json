@@ -39,9 +39,11 @@
         "restart": "tsc && pm2 reload hifumi",
         "docker-build": "tsc && node ./dist/app.js",
         "lint": "eslint ./src",
-        "prettier": "prettier --config .prettierrc --write .",
+        "prettier": "prettier --config .prettierrc --check ./src",
         "prepare": "husky install",
-        "deploy": "tsc && node ./dist/deploy-commands.js"
+        "deploy": "tsc && node ./dist/deploy-commands.js",
+        "build": "tsc",
+        "test": "npm run lint && npm run prettier"
     },
     "lint-staged": {
         "*.{js,ts}": "eslint --cache",

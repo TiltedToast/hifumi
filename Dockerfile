@@ -1,4 +1,4 @@
-FROM node:16.14.0
+FROM node:18.12.0
 WORKDIR /hifumi
 ENV DOCKER=true
 COPY package*.json ./

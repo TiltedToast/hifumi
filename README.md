@@ -4,6 +4,7 @@ The main thing you will have to add is a `.env` file in the root directory that 
 
 ```.env
 BOT_TOKEN="YOUR DISCORD BOT TOKEN"
+BOT_ID="DISCORD BOT ID"
 EXCHANGE_API_KEY="API KEY FOR https://www.exchangerate-api.com/"
 IMGUR_CLIENT_ID="IMGUR APP CLIENT ID"
 IMGUR_CLIENT_SECRET="IMGUR APP CLIENT SECRET"
