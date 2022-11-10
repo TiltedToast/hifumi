@@ -9,9 +9,6 @@ on:
     pull_request:
         branches: ["main"]
 
-env:
-    BOT_ID: "641409330888835083"
-
 jobs:
     deploy:
         runs-on: ubuntu-latest
@@ -29,6 +26,18 @@ jobs:
                   node-version: ${{ matrix.node-version }}
                   cache: "npm"
 
+            - name: Load environment variables
+              id: dotenv
+              shell: bash
+              uses: falti/dotenv-action@v1.0.1
+              # if : ${{steps.dotenv.outputs.BOT_TOKEN_PROD}}
+              run: |
+                  if [BOT_TOKEN_PROD != ""]; then
+                    echo "BOT_TOKEN=$BOT_TOKEN_PROD" >> $GITHUB_ENV
+                  fi
+                  if [BOT_ID != ""]; then
+                    echo "BOT_ID=$BOT_ID" >> $GITHUB_ENV
+                  fi
             - name: Install Dependencies
               run: npm ci
             - name: Deploy
