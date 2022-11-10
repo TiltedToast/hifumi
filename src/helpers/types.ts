@@ -9,6 +9,7 @@ export interface MikuEmoteReactionMessages {
     [key: string]: string[];
 }
 
+export type MikuEmoteReactionItems = [MikuEmoteAliases, MikuEmoteReactionMessages];
 export interface UpdateEmbedArrParams<T> {
     result: T[];
     userID: string;

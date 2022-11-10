@@ -9,8 +9,7 @@ import { EMBED_COLOUR, EXCHANGE_API_KEY } from "../config.js";
 import type {
     ConvertResponse,
     EmbedMetadata,
-    MikuEmoteAliases,
-    MikuEmoteReactionMessages,
+    MikuEmoteReactionItems,
     UrbanEntry,
     UrbanResponse,
 } from "../helpers/types.js";
@@ -31,7 +30,7 @@ export async function reactToMiku(message: Message, reactCmd: string): Promise<v
         .db("hifumi")
         .collection("mikuReactions")
         .find()
-        .toArray()) as unknown as [MikuEmoteAliases, MikuEmoteReactionMessages];
+        .toArray()) as unknown as MikuEmoteReactionItems;
 
     if (mikuReactions.length !== 2) {
         return await message.channel.send("No Miku reactions found in the database");
