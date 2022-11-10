@@ -1,8 +1,8 @@
 import type { Client, TextChannel } from "discord.js";
 import fetch from "node-fetch";
 import { statusArr } from "../app.js";
-import { randomElementFromArray, randomIntFromRange, sleep } from "../helpers/tools.js";
 import { CatFactResponse, StatusDoc, StatusType } from "../helpers/types.js";
+import { randomElementFromArray, randomIntFromRange, sleep } from "../helpers/utils.js";
 
 export async function startCatFactLoop(channel: TextChannel) {
     while (true) {

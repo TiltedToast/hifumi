@@ -1,8 +1,8 @@
-import { mongoClient, prefixDict, statusArr } from "../app.js";
 import { Message, PermissionFlagsBits } from "discord.js";
-import { isDev, parseDbArgs, hasPermission, isBotOwner } from "../helpers/tools.js";
+import { mongoClient, prefixDict, statusArr } from "../app.js";
 import { BOT_OWNERS } from "../config.js";
-import { StatusType } from "../helpers/types.js";
+import { StatusDoc, StatusType } from "../helpers/types.js";
+import { hasPermission, isBotOwner, isDev, parseDbArgs } from "../helpers/utils.js";
 
 export async function insert(message: Message): Promise<void | Message<boolean>> {
     if (!isBotOwner(message.author)) return;
@@ -91,7 +91,7 @@ export async function insertStatus(message: Message): Promise<void | Message> {
     }
 
     // Uppercases the type to conform to discord's API
-    const document = { type, status };
+    const document = { type, status } as StatusDoc;
 
     const collection = mongoClient.db("hifumi").collection("statuses");
     await collection.insertOne(document);

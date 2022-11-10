@@ -6,6 +6,14 @@ import strftime from "strftime";
 import { promisify } from "util";
 import { client, mongoClient } from "../app.js";
 import { EMBED_COLOUR, EXCHANGE_API_KEY } from "../config.js";
+import type {
+    ConvertResponse,
+    EmbedMetadata,
+    MikuEmoteAliases,
+    MikuEmoteReactionMessages,
+    UrbanEntry,
+    UrbanResponse,
+} from "../helpers/types.js";
 import {
     getUserObjectPingId,
     isBotOwner,
@@ -13,23 +21,17 @@ import {
     setEmbedArr,
     sleep,
     writeUpdateFile,
-} from "../helpers/tools.js";
-import type {
-    ConvertResponse,
-    EmbedMetadata,
-    UrbanEntry,
-    UrbanResponse,
-} from "../helpers/types.js";
+} from "../helpers/utils.js";
 
 export const execPromise = promisify(exec);
 export const urbanEmbeds: EmbedMetadata[] = [];
 
 export async function reactToMiku(message: Message, reactCmd: string): Promise<void | Message> {
-    const mikuReactions = await mongoClient
+    const mikuReactions = (await mongoClient
         .db("hifumi")
         .collection("mikuReactions")
         .find()
-        .toArray();
+        .toArray()) as unknown as [MikuEmoteAliases, MikuEmoteReactionMessages];
 
     if (mikuReactions.length !== 2) {
         return await message.channel.send("No Miku reactions found in the database");
@@ -39,7 +41,7 @@ export async function reactToMiku(message: Message, reactCmd: string): Promise<v
 
     for (const alias in cmdAliases) {
         if (Object.values(cmdAliases[alias]).includes(reactCmd)) {
-            const msg = (randomElementFromArray(reactMsgs[alias]) as string).replace(
+            const msg = randomElementFromArray(reactMsgs[alias]).replace(
                 "{0}",
                 message.author.username
             );
@@ -133,7 +135,7 @@ export async function jsEval(message: Message, mode?: "math") {
 
     // This is to be able to use all the functions inside the below eval function
     // Sleep call mostly to shut up typescript and eslint
-    const tools = await import("../helpers/tools.js");
+    const tools = await import("../helpers/utils.js");
     await tools.sleep(1);
 
     const content = message.content.split(" ");

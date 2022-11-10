@@ -1,22 +1,23 @@
-import "dotenv/config";
-import { existsSync, rmSync } from "fs";
-import strftime from "strftime";
-import { isDev } from "./helpers/tools.js";
-import { Document, MongoClient } from "mongodb";
-import { startStatusLoop } from "./commands/loops.js";
 import {
     Client as DiscordClient,
+    EmbedBuilder,
     GatewayIntentBits,
     Interaction,
     Message,
-    TextChannel,
-    EmbedBuilder,
     Partials,
+    Snowflake,
+    TextChannel,
 } from "discord.js";
-import { getMissingCredentials } from "./helpers/tools.js";
-import { BOT_TOKEN, EMBED_COLOUR, MONGO_URI, LOG_CHANNEL } from "./config.js";
+import "dotenv/config";
+import { existsSync, rmSync } from "fs";
+import { MongoClient } from "mongodb";
+import strftime from "strftime";
+import { startStatusLoop } from "./commands/loops.js";
+import { BOT_TOKEN, EMBED_COLOUR, LOG_CHANNEL, MONGO_URI } from "./config.js";
 import handleInteraction from "./handlers/interactions.js";
 import handleMessage from "./handlers/messages.js";
+import type { StatusDoc } from "./helpers/types.js";
+import { getMissingCredentials, isDev } from "./helpers/utils.js";
 
 const startTime = Date.now();
 
@@ -33,8 +34,8 @@ export const client = new DiscordClient({
     partials: [Partials.Channel],
 });
 export const mongoClient = new MongoClient(MONGO_URI);
-export const prefixDict: Record<string, string> = {};
-export let statusArr: Document[] = [];
+export const prefixDict: Record<Snowflake, string> = {};
+export let statusArr: StatusDoc[] = [];
 
 client.once("ready", async () => {
     const time = strftime("%d/%m/%Y %H:%M:%S");
@@ -51,7 +52,11 @@ client.once("ready", async () => {
     await mongoClient.connect();
 
     // Puts all statuses into an array to avoid reading the database on every status change
-    statusArr = await mongoClient.db("hifumi").collection("statuses").find().toArray();
+    statusArr = (await mongoClient
+        .db("hifumi")
+        .collection("statuses")
+        .find()
+        .toArray()) as StatusDoc[];
 
     if (statusArr.length) startStatusLoop(client);
 

@@ -1,6 +1,6 @@
-import type { Interaction, ButtonInteraction } from "discord.js";
-import { updateEmbed } from "../helpers/tools.js";
+import type { ButtonInteraction, Interaction } from "discord.js";
 import { urbanEmbeds } from "../commands/miscellaneous.js";
+import { updateEmbed } from "../helpers/utils.js";
 
 export default async function handleInteraction(interaction: Interaction) {
     if (interaction.isButton()) await handleButtonInteraction(interaction);

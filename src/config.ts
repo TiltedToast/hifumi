@@ -1,4 +1,4 @@
-import { insideDocker } from "./helpers/tools.js";
+import { insideDocker } from "./helpers/utils.js";
 
 export const BOT_TOKEN = process.env["BOT_TOKEN"];
 export const EXCHANGE_API_KEY = process.env["EXCHANGE_API_KEY"];
