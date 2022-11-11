@@ -26,18 +26,10 @@ jobs:
                   node-version: ${{ matrix.node-version }}
                   cache: "npm"
 
-            - id: dotenv
-              name: Load environment variables
-              uses: falti/dotenv-action@v1.0.1
-
-            - name: Set up environment variables
-              run: |
-                  if [BOT_TOKEN_PROD != ""]; then
-                    echo "BOT_TOKEN=$BOT_TOKEN_PROD" >> $GITHUB_ENV
-                  fi
-                  if [BOT_ID != ""]; then
-                    echo "BOT_ID=$BOT_ID" >> $GITHUB_ENV
-                  fi
+            - name: Load Secrets
+              env:
+                  BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+                  BOT_ID: ${{ secrets.BOT_ID }}
             - name: Install Dependencies
               run: npm ci
             - name: Deploy
