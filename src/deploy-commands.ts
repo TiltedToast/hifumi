@@ -3,6 +3,18 @@ import { REST } from "@discordjs/rest";
 import { Routes } from "discord-api-types/v9";
 import "dotenv/config";
 
+let guildId;
+let clear = false;
+
+if (process.argv.includes("--guild")) {
+    const idx = process.argv.indexOf("--guild");
+    if (idx !== -1 && idx < process.argv.length - 1) {
+        guildId = process.argv[idx + 1];
+    }
+}
+
+if (process.argv.includes("--clear")) clear = true;
+
 const commands = [
     new SlashCommandBuilder()
         .setName("pat")
@@ -14,10 +26,24 @@ const commands = [
 
 const rest = new REST({ version: "10" }).setToken(process.env["BOT_TOKEN"] ?? "");
 
-rest.put(Routes.applicationCommands(process.env["BOT_ID"] ?? ""), {
-    body: commands,
-})
-    .then(() => console.log("Successfully registered application commands."))
-    .catch(console.error);
-
-export { commands, rest };
+try {
+    if (guildId) {
+        await rest.put(Routes.applicationGuildCommands(process.env["BOT_ID"] ?? "", guildId), {
+            body: clear ? [] : commands,
+        });
+        const msg = clear
+            ? "Successfully cleared all commands in your test guild."
+            : "Successfully registered all commands in your test guild.";
+        console.log(msg);
+    } else {
+        await rest.put(Routes.applicationCommands(process.env["BOT_ID"] ?? ""), {
+            body: clear ? [] : commands,
+        });
+        const msg = clear
+            ? "Successfully cleared all commands globally."
+            : "Successfully registered all commands globally.";
+        console.log(msg);
+    }
+} catch (error) {
+    console.error(error);
+}
