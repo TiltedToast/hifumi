@@ -103,7 +103,7 @@ client.on("interactionCreate", async (interaction: Interaction) => {
 });
 
 // Graceful Shutdown on Ctrl + C / Docker stop
-["SIGTERM", "SIGINT"].forEach((signal) => {
+["SIGTERM", "SIGINT", "SIGKILL"].forEach((signal) => {
     process.on(signal, async () => {
         await mongoClient.close();
         console.log("Closed MongoDB connection");
