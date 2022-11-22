@@ -183,7 +183,7 @@ async function bulkAddEmojis(message: Message, emojis: RegExpMatchArray) {
                         errorMessage = `Could not add \`${name}\`, you've hit the limit!`;
                         break;
                     default:
-                        errorMessage = `Could not add \`${name}\`, unknown error!`;
+                        errorMessage = `Could not add \`${name}\`, unknown error! Error code: ${error.code}`;
                         break;
                 }
                 await message.channel.send(errorMessage);
