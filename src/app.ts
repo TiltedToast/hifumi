@@ -102,8 +102,16 @@ client.on("interactionCreate", async (interaction: Interaction) => {
     await handleInteraction(interaction);
 });
 
+// Linux doesn't allow you to listen to SIGKILL
+// This is only useful for development anyway
+// Which happens on Windows
+const stopSignals = ["SIGTERM", "SIGINT"];
+if (process.platform === "win32") {
+    stopSignals.push("SIGKILL");
+}
+
 // Graceful Shutdown on Ctrl + C / Docker stop
-["SIGTERM", "SIGINT", "SIGKILL"].forEach((signal) => {
+stopSignals.forEach((signal) => {
     process.on(signal, async () => {
         await mongoClient.close();
         console.log("Closed MongoDB connection");
