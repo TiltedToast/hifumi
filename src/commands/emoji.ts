@@ -1,4 +1,11 @@
-import { Attachment, GuildEmoji, Message, MessageType, PermissionFlagsBits } from "discord.js";
+import {
+    Attachment,
+    DiscordAPIError,
+    GuildEmoji,
+    Message,
+    MessageType,
+    PermissionFlagsBits,
+} from "discord.js";
 import * as fs from "fs";
 import { FileSizeLimit } from "../helpers/types.js";
 import {
@@ -76,7 +83,9 @@ export async function addEmoji(message: Message, prefix: string): Promise<void |
     createTemp("temp");
 
     if (emojis?.includes(content[2])) {
-        return message.channel.send(await bulkAddEmojis(message, emojis));
+        const emojiStringOutput = await bulkAddEmojis(message, emojis);
+        if (!emojiStringOutput) return;
+        return message.channel.send(emojiStringOutput);
     }
 
     if (2 > name.length || name.length > 32)
@@ -164,8 +173,22 @@ async function bulkAddEmojis(message: Message, emojis: RegExpMatchArray) {
                 name,
             });
         } catch (error) {
-            await message.channel.send(`Could not add ${name}, you've hit the limit!`);
-            continue;
+            let errorMessage: string;
+            if (error instanceof DiscordAPIError) {
+                switch (error.code) {
+                    case 50138:
+                        errorMessage = `The emoji \`${name}\` does not fit under the size limit!`;
+                        break;
+                    case 30008:
+                        errorMessage = `Could not add \`${name}\`, you've hit the limit!`;
+                        break;
+                    default:
+                        errorMessage = `Could not add \`${name}\`, unknown error!`;
+                        break;
+                }
+                await message.channel.send(errorMessage);
+                continue;
+            }
         }
         if (emoji === undefined) {
             await message.channel.send(
