@@ -352,13 +352,13 @@ export function getImgType(url: string) {
 /**
  * Takes the raw string of a discord Emoji and either returns the ID or the url
  * @param emojiString The emoji string
- * @param id Whether or not you only want the ID or the URL
+ * @param IdOnly Whether or not you only want the ID or the URL
  * @returns The ID or URL of the emoji
  */
-export function extractEmoji(emojiString: string, id?: boolean): string {
+export function extractEmoji(emojiString: string, IdOnly = false): string {
     const emojiID = emojiString.split(":")[2].slice(0, -1);
 
-    if (id) return emojiID;
+    if (IdOnly) return emojiID;
 
     const extension = emojiString[1] === "a" ? "gif" : "png";
 

@@ -2,8 +2,6 @@ import {
     Client as DiscordClient,
     EmbedBuilder,
     GatewayIntentBits,
-    Interaction,
-    Message,
     Partials,
     Snowflake,
     TextChannel,
@@ -94,13 +92,8 @@ client.once("ready", async () => {
     );
 });
 
-client.on("messageCreate", async (message: Message) => {
-    await handleMessage(message);
-});
-
-client.on("interactionCreate", async (interaction: Interaction) => {
-    await handleInteraction(interaction);
-});
+client.on("messageCreate", handleMessage);
+client.on("interactionCreate", handleInteraction);
 
 // Linux doesn't allow you to listen to SIGKILL
 // This is only useful for development anyway
