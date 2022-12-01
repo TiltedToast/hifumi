@@ -6,11 +6,9 @@ import "dotenv/config";
 let guildId;
 const clear = process.argv.includes("--clear");
 
-if (process.argv.includes("--guild")) {
-    const idx = process.argv.indexOf("--guild");
-    if (idx !== -1 && idx < process.argv.length - 1) {
-        guildId = process.argv[idx + 1];
-    }
+const idx = process.argv.indexOf("--guild");
+if (idx !== -1 && idx < process.argv.length - 1) {
+    guildId = process.argv[idx + 1];
 }
 
 const commands = [
