@@ -4,7 +4,7 @@ import { Routes } from "discord-api-types/v9";
 import "dotenv/config";
 
 let guildId;
-let clear = false;
+const clear = process.argv.includes("--clear");
 
 if (process.argv.includes("--guild")) {
     const idx = process.argv.indexOf("--guild");
@@ -12,8 +12,6 @@ if (process.argv.includes("--guild")) {
         guildId = process.argv[idx + 1];
     }
 }
-
-if (process.argv.includes("--clear")) clear = true;
 
 const commands = [
     new SlashCommandBuilder()

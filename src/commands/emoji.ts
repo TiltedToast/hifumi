@@ -153,6 +153,13 @@ export async function addEmoji(message: Message, prefix: string): Promise<void |
     }
 }
 
+/**
+ * Adds a list of emojis to the server
+ * @param message The message to check
+ * @param emojis The list of emojis to add, previously matched with a regex
+ * @returns A string containing the newly added emojis
+ *
+ */
 async function bulkAddEmojis(message: Message, emojis: RegExpMatchArray) {
     let output = "";
     let msg: string;

@@ -112,8 +112,10 @@ export async function sub(message: Message, prefix: string): Promise<Message> {
 }
 
 /**
- * Parse the
- * @param message
+ * Helper function that parses flag required for the sub command
+ * @param message The message that triggered the command
+ * @returns An array containing a boolean that indicated whether
+ * to fetch NSFW posts or not and a boolean that indicates whether to force fetch posts or not
  */
 function parseSubFlags(message: Message): [boolean, boolean] {
     let isNSFW = false,
@@ -133,6 +135,12 @@ function parseSubFlags(message: Message): [boolean, boolean] {
     return [isNSFW, force];
 }
 
+/**
+ * Fetches submissions from every category within the specified subreddit and stores them in the database
+ * @param subreddit The subreddit to fetch submissions from
+ * @param message The message that triggered the command
+ * @param limit The amount of submissions to fetch per category
+ */
 export async function fetchSubmissions(subreddit: string, message: Message, limit = 100) {
     const posts: Submission[] = [];
     const db = mongoClient.db("reddit");
