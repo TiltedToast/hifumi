@@ -102,11 +102,14 @@ export async function gitPull(message: Message) {
     await reloadBot(message);
 }
 
-export async function consoleCmd(message: Message, cmd?: string) {
+export async function consoleCmd(message: Message, cmd?: string, python = false) {
     if (!isBotOwner(message.author)) return;
     // Creates a new string with the message content without the command
     // And runs it in a new shell process
-    const command = cmd ? cmd : message.content.split(" ").slice(1).join(" ");
+
+    const input = message.content.split(" ").slice(1).join(" ");
+    const pythonCmd = process.platform === "win32" ? "python" : "python3";
+    const command = cmd ? cmd : python ? `${pythonCmd} -c "print(${input})"` : input;
     try {
         const { stdout, stderr } = await execPromise(command);
         if (stderr) await message.channel.send(`\`\`\`${stderr}\`\`\``);
