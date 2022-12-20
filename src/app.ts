@@ -32,7 +32,7 @@ export const client = new DiscordClient({
     partials: [Partials.Channel],
 });
 export const mongoClient = new MongoClient(MONGO_URI);
-export const prefixDict: Record<Snowflake, string> = {};
+export const prefixes = new Map<Snowflake, string>();
 export let statusArr: StatusDoc[] = [];
 export let botIsLoading = true;
 
@@ -63,7 +63,7 @@ client.once("ready", async () => {
     // The database every time a message is received
     const prefixDocs = await mongoClient.db("hifumi").collection("prefixes").find().toArray();
     for (const prefixDoc of prefixDocs) {
-        prefixDict[prefixDoc["serverId"]] = prefixDoc["prefix"];
+        prefixes.set(prefixDoc["serverId"], prefixDoc["prefix"]);
     }
     botIsLoading = false;
 
