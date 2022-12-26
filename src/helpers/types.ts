@@ -2,15 +2,13 @@ import { ActivityType, ButtonInteraction, Embed, EmbedBuilder, Message } from "d
 import type { Document, WithId } from "mongodb";
 import { z } from "zod";
 
-export interface MikuEmoteAliases {
-    [key: string]: string[];
-}
+export const MikuEmoteReactionItemsSchema = z.tuple([
+    z.record(z.string(), z.array(z.string())),
+    z.record(z.string(), z.array(z.string())),
+]);
 
-export interface MikuEmoteReactionMessages {
-    [key: string]: string[];
-}
+export type MikuEmoteReactionItems = z.infer<typeof MikuEmoteReactionItemsSchema>;
 
-export type MikuEmoteReactionItems = [MikuEmoteAliases, MikuEmoteReactionMessages];
 export interface UpdateEmbedArrParams<T> {
     result: T[];
     userID: string;
