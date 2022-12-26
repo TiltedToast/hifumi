@@ -11,6 +11,7 @@ import {
     ConvertResponseSchema,
     EmbedMetadata,
     MikuEmoteReactionItems,
+    MikuEmoteReactionItemsSchema,
     UrbanEntry,
     UrbanResponse,
     UrbanResponseSchema,
@@ -31,11 +32,12 @@ export async function reactToMiku(message: Message, reactCmd: string): Promise<v
     const mikuReactions = (await mongoClient
         .db("hifumi")
         .collection("mikuReactions")
-        .find()
+        .find({}, { projection: { _id: 0 } })
         .toArray()) as unknown as MikuEmoteReactionItems;
 
-    if (mikuReactions.length !== 2) {
-        return await message.channel.send("No Miku reactions found in the database");
+    if (!MikuEmoteReactionItemsSchema.safeParse(mikuReactions).success) {
+        console.log("Couldn't parse reactions for miku's emotes from db");
+        return;
     }
 
     const [cmdAliases, reactMsgs] = mikuReactions;
