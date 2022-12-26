@@ -21,7 +21,7 @@ export interface UpdateEmbedArrParams<T> {
 
 const UrbanEntrySchema = z.object({
     definition: z.string(),
-    permalink: z.string(),
+    permalink: z.string().url(),
     thumbs_up: z.number(),
     author: z.string(),
     word: z.string(),
@@ -59,12 +59,6 @@ export interface EmbedMetadata {
 
 export const ConvertResponseSchema = z.object({
     result: z.union([z.literal("success"), z.literal("error")]),
-    documentation: z.string().optional(),
-    terms_of_use: z.string().optional(),
-    time_zone: z.string().optional(),
-    time_last_update: z.number().optional(),
-    time_next_update: z.number().optional(),
-    base: z.string().optional(),
     "error-type": z.string().optional(),
     conversion_rates: z.record(z.number()),
 });
@@ -82,51 +76,24 @@ export enum FileSizeLimit {
     ImgurFile = 10485760,
 }
 
-export interface ImgurResponse {
-    data: ImgurData;
-    success: boolean;
-    status: number;
-}
+const ImgurErrorSchema = z.object({
+    code: z.number(),
+    message: z.string(),
+    type: z.string(),
+    method: z.string(),
+    request: z.string(),
+});
 
-export interface ImgurData {
-    id: string;
-    title: null | string;
-    error: null | ImgurError;
-    description: null | string;
-    datetime: number;
-    type: string;
-    animated: boolean;
-    width: number;
-    height: number;
-    size: number;
-    views: number;
-    bandwidth: number;
-    vote: null | string;
-    favorite: boolean;
-    nsfw: null | boolean;
-    section: null | string;
-    account_url: null | string;
-    account_id: number;
-    is_ad: boolean;
-    in_most_viral: boolean;
-    has_sound: boolean;
-    tags: null | string[];
-    ad_type: number;
-    ad_url: string;
-    edited: string;
-    in_gallery: boolean;
-    deletehash: string;
-    name: string;
-    link: string;
-}
+export const ImgurResponseSchema = z.object({
+    data: z.object({
+        link: z.string().url(),
+        error: ImgurErrorSchema.optional(),
+    }),
+    success: z.boolean(),
+    status: z.number(),
+});
 
-interface ImgurError {
-    code: number;
-    message: string;
-    type: string;
-    method: string;
-    request: string;
-}
+export type ImgurResponse = z.infer<typeof ImgurResponseSchema>;
 
 export interface ImgurParams {
     message: Message;

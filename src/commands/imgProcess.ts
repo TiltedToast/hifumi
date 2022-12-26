@@ -5,7 +5,12 @@ import * as fsPromise from "fs/promises";
 import fetch, { Headers } from "node-fetch";
 import * as qrcode from "qrcode";
 import { IMGUR_CLIENT_ID } from "../config.js";
-import { FileSizeLimit, ImgurParams, ImgurResponse } from "../helpers/types.js";
+import {
+    FileSizeLimit,
+    ImgurParams,
+    ImgurResponse,
+    ImgurResponseSchema,
+} from "../helpers/types.js";
 import {
     createTemp,
     downloadURL,
@@ -179,6 +184,12 @@ export async function imgur(args: ImgurParams) {
         if (!response.ok)
             return message.channel.send(`Failed to upload image: ${result.data.error?.message}`);
 
+        if (!ImgurResponseSchema.safeParse(result).success) {
+            return await message.channel.send(
+                "Something went wrong with the API, maybe try again later"
+            );
+        }
+
         return await message.channel.send(result.data.link);
     } else if (contentLength !== null && parseInt(contentLength) <= FileSizeLimit.ImgurFile) {
         formdata.append("image", source);
@@ -188,6 +199,12 @@ export async function imgur(args: ImgurParams) {
 
         if (!response.ok)
             return message.channel.send(`Failed to upload image: ${result.data.error?.message}`);
+
+        if (!ImgurResponseSchema.safeParse(result).success) {
+            return await message.channel.send(
+                "Something went wrong with the API, maybe try again later"
+            );
+        }
 
         return await message.channel.send(result.data.link);
     }
