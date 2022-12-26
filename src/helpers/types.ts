@@ -1,5 +1,6 @@
 import { ActivityType, ButtonInteraction, Embed, EmbedBuilder, Message } from "discord.js";
 import type { Document, WithId } from "mongodb";
+import { z } from "zod";
 
 export interface MikuEmoteAliases {
     [key: string]: string[];
@@ -18,28 +19,30 @@ export interface UpdateEmbedArrParams<T> {
     buildEmbedFunc: (item: T, idx: number, arr: T[]) => EmbedBuilder;
 }
 
-export interface UrbanResponse {
-    list: UrbanEntry[];
-}
+const UrbanEntrySchema = z.object({
+    definition: z.string(),
+    permalink: z.string(),
+    thumbs_up: z.number(),
+    author: z.string(),
+    word: z.string(),
+    example: z.string(),
+    thumbs_down: z.number(),
+});
 
-export interface UrbanEntry {
-    definition: string;
-    permalink: string;
-    thumbs_up: number;
-    sound_urls: string[];
-    author: string;
-    word: string;
-    defid: number;
-    current_vote: string;
-    written_on: string;
-    example: string;
-    thumbs_down: number;
-}
+export const UrbanResponseSchema = z.object({
+    list: z.array(UrbanEntrySchema),
+});
 
-export interface CatFactResponse {
-    fact: string;
-    length: number;
-}
+export type UrbanResponse = z.infer<typeof UrbanResponseSchema>;
+
+export type UrbanEntry = z.infer<typeof UrbanEntrySchema>;
+
+export const CatFactResponseSchema = z.object({
+    fact: z.string(),
+    length: z.number(),
+});
+
+export type CatFactResponse = z.infer<typeof CatFactResponseSchema>;
 
 export interface UpdateEmbedOptions {
     interaction: ButtonInteraction;
@@ -54,19 +57,19 @@ export interface EmbedMetadata {
     user: string;
 }
 
-export interface ConvertResponse {
-    result: "success" | "error";
-    documentation?: string;
-    terms_of_use?: string;
-    time_zone?: string;
-    time_last_update?: number;
-    time_next_update?: number;
-    base?: string;
-    "error-type"?: string;
-    conversion_rates?: {
-        [currency: string]: number;
-    };
-}
+export const ConvertResponseSchema = z.object({
+    result: z.union([z.literal("success"), z.literal("error")]),
+    documentation: z.string().optional(),
+    terms_of_use: z.string().optional(),
+    time_zone: z.string().optional(),
+    time_last_update: z.number().optional(),
+    time_next_update: z.number().optional(),
+    base: z.string().optional(),
+    "error-type": z.string().optional(),
+    conversion_rates: z.record(z.number()),
+});
+
+export type ConvertResponse = z.infer<typeof ConvertResponseSchema>;
 
 export interface ErrorLogOptions {
     message: Message | null;

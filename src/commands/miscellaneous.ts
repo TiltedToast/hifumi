@@ -6,12 +6,14 @@ import strftime from "strftime";
 import { promisify } from "util";
 import { client, mongoClient } from "../app.js";
 import { EMBED_COLOUR, EXCHANGE_API_KEY } from "../config.js";
-import type {
+import {
     ConvertResponse,
+    ConvertResponseSchema,
     EmbedMetadata,
     MikuEmoteReactionItems,
     UrbanEntry,
     UrbanResponse,
+    UrbanResponseSchema,
 } from "../helpers/types.js";
 import {
     getUserObjectPingId,
@@ -264,6 +266,12 @@ export async function convert(message: Message, prefix: string) {
 
     const result = (await response.json()) as ConvertResponse;
 
+    if (!ConvertResponseSchema.safeParse(result).success) {
+        return await message.channel.send(
+            "Something went wrong with the API, maybe try again later"
+        );
+    }
+
     if (result.result === "error")
         return await message.channel.send(`Error: ${result["error-type"]}`);
     if (!response.ok) return await message.channel.send("Error! Please try again later");
@@ -292,22 +300,24 @@ export async function urban(message: Message, prefix: string) {
 
     if (!content.length) return await message.channel.send(`Usage: \`${prefix}urban <word>\``);
 
-    let query = "";
-
-    content.forEach((word) => {
-        query += `${word} `;
-    });
+    const query = content.join("");
 
     const response = await fetch(`https://api.urbandictionary.com/v0/define?term=${query}`);
     if (!response.ok)
         return await message.channel.send(`Error ${response.status}! Please try again later`);
 
-    const result = ((await response.json()) as UrbanResponse)["list"];
+    const result = (await response.json()) as UrbanResponse;
 
-    if (result.length === 0) return message.channel.send("No results found!");
+    if (!UrbanResponseSchema.safeParse(result).success) {
+        return await message.channel.send(
+            "Something went wrong with the API, maybe try again later"
+        );
+    }
+
+    if (result.list.length === 0) return message.channel.send("No results found!");
 
     await setEmbedArr({
-        result,
+        result: result.list,
         userID: message.author.id,
         sortKey: "thumbs_up",
         embedArray: urbanEmbeds,
@@ -330,10 +340,9 @@ function buildUrbanEmbed(resultEntry: UrbanEntry, index: number, array: UrbanEnt
 
     const footerPagination = `${index + 1}/${array.length}`;
 
-    const description = `${definition}\n
-        **Example:** ${example}\n
-        **Author:** ${author}\n
-        **Permalink:** ${permalink}`.replace(/\]|\[/g, "");
+    const description =
+        `${definition}\n\n**Example:** ${example}\n\n**Author:** ${author}\n\n**Permalink:** ${permalink}
+    `.replace(/\]|\[/g, "");
 
     return new EmbedBuilder()
         .setColor(EMBED_COLOUR)

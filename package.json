@@ -17,7 +17,8 @@
         "snoowrap": "^1.23.0",
         "strftime": "^0.10.1",
         "utf-8-validate": "^5.0.10",
-        "zlib-sync": "^0.1.7"
+        "zlib-sync": "^0.1.7",
+        "zod": "^3.20.2"
     },
     "devDependencies": {
         "@types/qrcode": "^1.5.0",
