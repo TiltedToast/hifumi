@@ -1,13 +1,19 @@
 import type { Client, TextChannel } from "discord.js";
 import fetch from "node-fetch";
 import { statusArr } from "../app.js";
-import { CatFactResponse, StatusDoc, StatusType } from "../helpers/types.js";
+import { CatFactResponse, CatFactResponseSchema, StatusDoc, StatusType } from "../helpers/types.js";
 import { randomElementFromArray, randomIntFromRange, sleep } from "../helpers/utils.js";
 
 export async function startCatFactLoop(channel: TextChannel) {
     while (true) {
         const response = await fetch("https://catfact.ninja/fact");
         const json = (await response.json()) as CatFactResponse;
+
+        if (!CatFactResponseSchema.safeParse(json).success) {
+            console.log("Error parsing cat fact response");
+            continue;
+        }
+
         await channel.send(json.fact);
         await sleep(randomIntFromRange(54000000, 86400000)); // 15h-24h
     }
