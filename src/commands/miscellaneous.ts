@@ -131,7 +131,7 @@ export async function reloadBot(message: Message) {
     if (!isBotOwner(message.author)) return;
     await mongoClient.close();
     writeUpdateFile();
-    exec("npm run restart");
+    exec("pnpm run restart");
     await message.channel.send("Reload successful!");
 }
 
