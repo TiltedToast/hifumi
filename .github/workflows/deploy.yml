@@ -15,7 +15,7 @@ env:
 
 jobs:
     deploy:
-        runs-on: ubuntu-latest
+        runs-on: ubuntu-20.04
 
         strategy:
             matrix:
@@ -24,13 +24,16 @@ jobs:
 
         steps:
             - uses: actions/checkout@v3
+            - uses: pnpm/action-setup@v2
+              with:
+                  version: 7
             - name: Use Node.js ${{ matrix.node-version }}
               uses: actions/setup-node@v3
               with:
                   node-version: ${{ matrix.node-version }}
-                  cache: "npm"
+                  cache: "pnpm"
 
             - name: Install Dependencies
-              run: npm ci
+              run: pnpm install
             - name: Deploy
-              run: npm run deploy
+              run: pnpm run deploy
