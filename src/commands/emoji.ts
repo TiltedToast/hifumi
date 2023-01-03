@@ -18,9 +18,9 @@ import {
     resize,
 } from "../helpers/utils.js";
 
-export async function linkEmoji(message: Message): Promise<Message<boolean>> {
-    const emojiRegex = new RegExp(/<a?:[a-zA-Z0-9]{1,32}:[0-9]{18}>/gi);
+const emojiRegex = new RegExp(/<a?:\w+:\d+>/gi);
 
+export async function linkEmoji(message: Message): Promise<Message<boolean>> {
     let msgContent = message.content;
 
     if (message.type === MessageType.Reply) {
@@ -41,8 +41,6 @@ export async function addEmoji(message: Message, prefix: string): Promise<void |
     let name = "",
         emoji,
         url = "";
-
-    const emojiRegex = new RegExp(/<a?:[a-zA-Z0-9]+:[0-9]+>/gi);
 
     if (!hasPermission(PermissionFlagsBits.ManageEmojisAndStickers, message)) {
         return await message.channel.send(
