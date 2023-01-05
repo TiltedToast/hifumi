@@ -121,7 +121,7 @@ function parseSubFlags(message: Message): [boolean, boolean] {
     let isNSFW = false,
         force = false;
 
-    const content = message.content.split(" ");
+    const content = message.content.toLowerCase().split(" ");
 
     for (let i = 2; i < content.length; i++) {
         if (content[i] === "nsfw") {
