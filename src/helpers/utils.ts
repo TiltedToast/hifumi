@@ -47,7 +47,9 @@ export function writeUpdateFile() {
 
 function getEmbedIndex(arr: EmbedMetadata[], target: EmbedMetadata): number {
     return arr.findIndex(
-        (elem) => elem.embed.toJSON().description === target.embed.toJSON().description
+        (elem) =>
+            elem.embed.toJSON().description?.replaceAll(/[\n\r\s]+/gi, "") ===
+            target.embed.toJSON().description?.replaceAll(/[\n\r\s]+/gi, "")
     );
 }
 

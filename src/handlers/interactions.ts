@@ -3,8 +3,12 @@ import { urbanEmbeds } from "../commands/miscellaneous.js";
 import { updateEmbed } from "../helpers/utils.js";
 
 export default async function handleInteraction(interaction: Interaction) {
-    if (interaction.isButton()) await handleButtonInteraction(interaction);
-    if (interaction.isCommand()) await handleCommandInteraction(interaction);
+    try {
+        if (interaction.isButton()) await handleButtonInteraction(interaction);
+        if (interaction.isCommand()) await handleCommandInteraction(interaction);
+    } catch (error) {
+        console.error(error);
+    }
 }
 
 async function handleButtonInteraction(interaction: ButtonInteraction) {
