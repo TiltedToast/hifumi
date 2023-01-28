@@ -9,13 +9,13 @@ export const MikuEmoteReactionItemsSchema = z.tuple([
 
 export type MikuEmoteReactionItems = z.infer<typeof MikuEmoteReactionItemsSchema>;
 
-export interface UpdateEmbedArrParams<T> {
+export type UpdateEmbedArrParams<T> = {
     result: T[];
     userID: string;
     sortKey?: keyof T & string;
     embedArray: EmbedMetadata[];
     buildEmbedFunc: (item: T, idx: number, arr: T[]) => EmbedBuilder;
-}
+};
 
 const UrbanEntrySchema = z.object({
     definition: z.string(),
@@ -42,18 +42,18 @@ export const CatFactResponseSchema = z.object({
 
 export type CatFactResponse = z.infer<typeof CatFactResponseSchema>;
 
-export interface UpdateEmbedOptions {
+export type UpdateEmbedOptions = {
     interaction: ButtonInteraction;
     embedArray: EmbedMetadata[];
     prevButtonId: string;
     nextButtonId: string;
     user: string;
-}
+};
 
-export interface EmbedMetadata {
+export type EmbedMetadata = {
     embed: Embed | EmbedBuilder;
     user: string;
-}
+};
 
 export const ConvertResponseSchema = z.object({
     result: z.union([z.literal("success"), z.literal("error")]),
@@ -63,10 +63,10 @@ export const ConvertResponseSchema = z.object({
 
 export type ConvertResponse = z.infer<typeof ConvertResponseSchema>;
 
-export interface ErrorLogOptions {
+export type ErrorLogOptions = {
     message: Message | null;
     errorObject: Error;
-}
+};
 
 export enum FileSizeLimit {
     DiscordFile = 8388608,
@@ -93,29 +93,29 @@ export const ImgurResponseSchema = z.object({
 
 export type ImgurResponse = z.infer<typeof ImgurResponseSchema>;
 
-export interface ImgurParams {
+export type ImgurParams = {
     message: Message;
     prefix: string;
     url?: string;
-}
+};
 
-export interface MessageCommandData {
+export type MessageCommandData = {
     command: string;
     subCmd: string;
     message: Message;
     prefix: string;
-}
+};
 
-export interface ResizeOptions {
+export type ResizeOptions = {
     fileLocation: string;
     width: number;
     saveLocation: string;
-}
+};
 
-export interface StatusDoc extends WithId<Document> {
+export type StatusDoc = {
     type: "LISTENING" | "WATCHING" | "PLAYING" | "STREAMING" | "COMPETING";
     status: string;
-}
+} & WithId<Document>;
 
 export const StatusType = {
     LISTENING: ActivityType.Listening as ActivityType.Listening,
