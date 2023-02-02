@@ -68,11 +68,11 @@ export type ErrorLogOptions = {
     errorObject: Error;
 };
 
-export enum FileSizeLimit {
-    DiscordFile = 8388608,
-    DiscordEmoji = 262144,
-    ImgurFile = 10485760,
-}
+export const FileSizeLimit = {
+    DiscordFile: 8388608,
+    DiscordEmoji: 262144,
+    ImgurFile: 10485760,
+} as const;
 
 const ImgurErrorSchema = z.object({
     code: z.number(),
