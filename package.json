@@ -13,7 +13,7 @@
         "erlpack": "github:discord/erlpack",
         "formdata-node": "^4.4.1",
         "mathjs": "^11.5.1",
-        "mongodb": "^4.13.0",
+        "mongodb": "^5.0.0",
         "node-fetch": "^3.3.0",
         "path": "^0.12.7",
         "qrcode": "^1.5.1",
