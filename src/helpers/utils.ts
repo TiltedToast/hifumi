@@ -388,6 +388,6 @@ export function createTemp(directory: string): void {
  * @param fileLocation The location of the file
  * @param size The max size allowed in bytes or one of the presets from {@link FileSizeLimit}
  */
-export function isValidSize(fileLocation: string, size: number | FileSizeLimit): boolean {
+export function isValidSize(fileLocation: string, size: number | typeof FileSizeLimit): boolean {
     return fs.statSync(fileLocation).size <= size;
 }
