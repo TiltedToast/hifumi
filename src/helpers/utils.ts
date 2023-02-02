@@ -63,11 +63,11 @@ export function clientNoPermissions(message: Message, guildClient?: GuildMember)
     );
 }
 
-export function insideDocker() {
+export function insideDocker(): boolean {
     return process.env["DOCKER"] === "true";
 }
 
-export function isBotOwner(user: User) {
+export function isBotOwner(user: User): boolean {
     return BOT_OWNERS.includes(user.id);
 }
 
@@ -85,7 +85,7 @@ export function isMikuTrigger(message: Message, reactCmd: string): boolean {
     );
 }
 
-export async function setEmbedArr<T>(args: UpdateEmbedArrParams<T>) {
+export async function setEmbedArr<T>(args: UpdateEmbedArrParams<T>): Promise<void> {
     const { result, userID, sortKey, embedArray, buildEmbedFunc } = args;
 
     if (sortKey) result.sort((a, b) => (b[sortKey] > a[sortKey] ? 1 : -1));
@@ -139,7 +139,7 @@ export function hasPermission(permission: PermissionResolvable, message: Message
  * Checks config variables for missing credentials
  * @returns a list of missing credentials
  */
-export async function getMissingCredentials() {
+export async function getMissingCredentials(): Promise<string[]> {
     const missingCredentials = [];
     if (!EXCHANGE_API_KEY) missingCredentials.push("Exchange API Key");
     if (!IMGUR_CLIENT_ID) missingCredentials.push("Imgur Client ID");
@@ -205,7 +205,7 @@ export function sleep(ms: number) {
  * @param message Discord message object
  * @returns The user object
  */
-export async function getUserObjectPingId(message: Message): Promise<User | null> {
+export async function getUserObjectPingId(message: Message): Promise<User | undefined> {
     let user: User | undefined;
     const content = message.content.split(" ");
     const pingOrIdString = content[1];
@@ -213,9 +213,9 @@ export async function getUserObjectPingId(message: Message): Promise<User | null
     try {
         if (!isNaN(parseInt(pingOrIdString))) user = await client.users.fetch(pingOrIdString);
         if (!user && pingOrIdString.startsWith("<")) user = message.mentions.users.first();
-        return user ? user : null;
+        return user ? user : undefined;
     } catch (err) {
-        return null;
+        return undefined;
     }
 }
 
@@ -224,7 +224,7 @@ export async function getUserObjectPingId(message: Message): Promise<User | null
  * @param array The input array
  * @returns a random element from the array
  */
-export function randomElementFromArray<T>(array: T[]) {
+export function randomElementFromArray<T>(array: T[]): T {
     return array[Math.floor(Math.random() * array.length)];
 }
 
@@ -249,7 +249,7 @@ export function errorLog({ message, errorObject }: ErrorLogOptions): Promise<Mes
     let channel: Channel | undefined;
     let errorMessage: string;
 
-    if (message === null) {
+    if (message === undefined) {
         channel = client.channels.cache.get(LOG_CHANNEL) as TextChannel;
         errorMessage = `Unhandled Rejection\n\n${errorObject.stack}\n\n<@${BOT_OWNERS[0]}>`;
         return channel.send(errorMessage);
@@ -348,7 +348,7 @@ export function getImgType(url: string) {
     else if (url.includes(".jpeg") || url.includes(".jpg")) return "jpeg";
     else if (url.includes(".gif")) return "gif";
     else if (url.includes(".svg")) return "svg";
-    return null;
+    return undefined;
 }
 
 /**
