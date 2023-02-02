@@ -101,7 +101,7 @@ export async function resizeImg(message: Message, prefix: string) {
     // Downloads the image and resizes it
     // Sends the resized image to the channel if it's within the size limit
     const imgType = getImgType(source);
-    if (imgType === null) return await message.channel.send("Invalid image type!");
+    if (!imgType) return await message.channel.send("Invalid image type!");
 
     const fetchErrorMsg = await downloadURL(source, `./temp/unknown.${imgType}`);
     if (fetchErrorMsg) return await message.channel.send(fetchErrorMsg);

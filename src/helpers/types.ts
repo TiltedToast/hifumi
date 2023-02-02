@@ -64,7 +64,7 @@ export const ConvertResponseSchema = z.object({
 export type ConvertResponse = z.infer<typeof ConvertResponseSchema>;
 
 export type ErrorLogOptions = {
-    message: Message | null;
+    message?: Message;
     errorObject: Error;
 };
 
