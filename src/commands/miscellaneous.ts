@@ -50,7 +50,7 @@ export async function pingRandomUser(message: Message) {
 
     // > 1 because the @everyone role is always present
     const randomMember = members
-        .filter((member) => !member.user.bot && member.roles.cache.size > 1)
+        .filter((member) => !member.user.bot && member.roles.cache.size >= 2)
         .random();
 
     if (randomMember === undefined) {
