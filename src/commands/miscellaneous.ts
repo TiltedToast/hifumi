@@ -1,5 +1,12 @@
 import { exec } from "child_process";
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, Message } from "discord.js";
+import {
+    ActionRowBuilder,
+    ButtonBuilder,
+    ButtonStyle,
+    EmbedBuilder,
+    Message,
+    PermissionFlagsBits,
+} from "discord.js";
 import { evaluate as mathEvaluate } from "mathjs";
 import fetch from "node-fetch";
 import strftime from "strftime";
@@ -18,6 +25,7 @@ import {
 } from "../helpers/types.js";
 import {
     getUserObjectPingId,
+    hasPermission,
     isBotOwner,
     randomElementFromArray,
     setEmbedArr,
@@ -27,6 +35,29 @@ import {
 
 export const execPromise = promisify(exec);
 export const urbanEmbeds: EmbedMetadata[] = [];
+
+export async function pingRandomUser(message: Message) {
+    if (message.guild === null) return;
+
+    if (
+        !isBotOwner(message.author) &&
+        !hasPermission(PermissionFlagsBits.MentionEveryone, message)
+    ) {
+        return;
+    }
+
+    const members = await message.guild.members.fetch();
+
+    const randomMember = members
+        .filter((member) => !member.user.bot && member.roles.cache.size > 0)
+        .random();
+
+    if (randomMember === undefined) {
+        return await message.channel.send("Couldn't find a user to ping");
+    }
+
+    return await message.channel.send(randomMember.toString());
+}
 
 export async function reactToMiku(message: Message, reactCmd: string): Promise<void | Message> {
     const mikuReactions = (await mongoClient
