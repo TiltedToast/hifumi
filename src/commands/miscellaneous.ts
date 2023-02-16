@@ -60,7 +60,12 @@ export async function pingRandomMembers(message: Message) {
         return await message.channel.send("Couldn't find a user to ping");
     }
 
-    const outputString = randomMembers.map((member) => member.toString()).join(" ");
+    let outputString = randomMembers.map((member) => member.toString()).join(" ");
+
+    if (outputString.length > 2000) {
+        outputString = outputString.substring(0, 2000).split(" ").slice(0, -1).join(" ");
+    }
+
     return await message.channel.send(outputString);
 }
 
