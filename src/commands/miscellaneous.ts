@@ -36,7 +36,7 @@ import {
 export const execPromise = promisify(exec);
 export const urbanEmbeds: EmbedMetadata[] = [];
 
-export async function pingRandomUser(message: Message) {
+export async function pingRandomMembers(message: Message) {
     if (message.guild === null) return;
 
     if (
@@ -46,18 +46,26 @@ export async function pingRandomUser(message: Message) {
         return;
     }
 
+    const amountInput = +message.content.split(" ")[1];
+    let amount = 1;
+
+    if (!isNaN(amountInput)) {
+        amount = amountInput;
+    }
+
     const members = await message.guild.members.fetch();
 
     // > 1 because the @everyone role is always present
-    const randomMember = members
+    const randomMembers = members
         .filter((member) => !member.user.bot && member.roles.cache.size >= 2)
-        .random();
+        .random(amount);
 
-    if (randomMember === undefined) {
+    if (randomMembers.length === 0) {
         return await message.channel.send("Couldn't find a user to ping");
     }
 
-    return await message.channel.send(randomMember.toString());
+    const outputString = randomMembers.map((member) => member.toString()).join(" ");
+    return await message.channel.send(outputString);
 }
 
 export async function reactToMiku(message: Message, reactCmd: string): Promise<void | Message> {

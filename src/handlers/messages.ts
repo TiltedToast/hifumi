@@ -103,5 +103,5 @@ async function handleCommand({ command, subCmd, message, prefix }: MessageComman
     else if (command === "pull") await misc.gitPull(message);
     else if (command === "calc") await misc.jsEval(message, "math");
     else if (command === "py") await misc.consoleCmd(message, undefined, true);
-    else if (command === "someone") await misc.pingRandomUser(message);
+    else if (command === "someone") await misc.pingRandomMembers(message);
 }
