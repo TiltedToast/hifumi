@@ -51,7 +51,7 @@ export async function pingRandomMembers(message: Message) {
 
     const members = await message.guild.members.fetch();
 
-    // > 1 because the @everyone role is always present
+    // >= 2 because the @everyone role is always present
     const randomMembers = members
         .filter((member) => !member.user.bot && member.roles.cache.size >= 2)
         .random(amount);
