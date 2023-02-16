@@ -47,11 +47,7 @@ export async function pingRandomMembers(message: Message) {
     }
 
     const amountInput = +message.content.split(" ")[1];
-    let amount = 1;
-
-    if (!isNaN(amountInput)) {
-        amount = amountInput;
-    }
+    const amount = !isNaN(amountInput) ? amountInput : 1;
 
     const members = await message.guild.members.fetch();
 
