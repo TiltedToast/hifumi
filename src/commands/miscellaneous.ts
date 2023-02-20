@@ -77,8 +77,7 @@ export async function reactToMiku(message: Message, reactCmd: string): Promise<v
         .toArray()) as unknown as MikuEmoteReactionItems;
 
     if (!MikuEmoteReactionItemsSchema.safeParse(mikuReactions).success) {
-        console.log("Couldn't parse reactions for miku's emotes from db");
-        return;
+        return console.error("Couldn't parse reactions for miku's emotes from db");
     }
 
     const [cmdAliases, reactMsgs] = mikuReactions;

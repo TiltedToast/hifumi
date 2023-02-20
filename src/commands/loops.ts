@@ -10,7 +10,7 @@ export async function startCatFactLoop(channel: TextChannel) {
         const json = (await response.json()) as CatFactResponse;
 
         if (!CatFactResponseSchema.safeParse(json).success) {
-            console.log("Error parsing cat fact response");
+            console.error("Error parsing cat fact response");
             continue;
         }
 
@@ -35,7 +35,7 @@ export async function startStatusLoop(client: Client) {
  * @param client Discord client used to access the API
  */
 async function setRandomStatus(client: Client) {
-    if (!client.user) return console.log("Could not set status, client user is undefined");
+    if (!client.user) return console.error("Could not set status, client user is undefined");
     const randomStatusDoc = randomElementFromArray(statusArr) as StatusDoc;
     const { type, status } = randomStatusDoc;
 
