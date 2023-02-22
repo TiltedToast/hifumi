@@ -80,7 +80,7 @@ export async function addEmoji(message: Message, prefix: string): Promise<void |
 
     createTemp("temp");
 
-    if (emojis?.includes(content[2])) {
+    if (emojis?.length) {
         const emojiStringOutput = await bulkAddEmojis(message, emojis);
         if (!emojiStringOutput) return;
         return message.channel.send(emojiStringOutput);
@@ -145,9 +145,9 @@ export async function addEmoji(message: Message, prefix: string): Promise<void |
 
     // Sends newly created emoji to the channel
     if (emoji && emoji.animated) {
-        return await message.channel.send(`Emoji added! <a:${emoji.name}:${emoji.id}>`);
+        return await message.channel.send(`<a:${emoji.name}:${emoji.id}>`);
     } else if (emoji && !emoji.animated) {
-        return await message.channel.send(`Emoji added! <:${emoji.name}:${emoji.id}>`);
+        return await message.channel.send(`<:${emoji.name}:${emoji.id}>`);
     }
 }
 
