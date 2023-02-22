@@ -6,6 +6,7 @@ import {
     EmbedBuilder,
     Message,
     PermissionFlagsBits,
+    ThreadAutoArchiveDuration,
 } from "discord.js";
 import { evaluate as mathEvaluate } from "mathjs";
 import fetch from "node-fetch";
@@ -35,6 +36,27 @@ import {
 
 export const execPromise = promisify(exec);
 export const urbanEmbeds: EmbedMetadata[] = [];
+
+export async function checkForImgAndCreateThread(message: Message) {
+    if (!["1059119862741471253", "1059120608593584258"].includes(message.channel.id)) {
+        return;
+    }
+
+    if (
+        !hasPermission(PermissionFlagsBits.ManageMessages, message) &&
+        message.attachments.size === 0
+    ) {
+        return await message.delete();
+    }
+
+    if (message.attachments.size === 0) return;
+
+    return await message.startThread({
+        name: message.author.username,
+        autoArchiveDuration: ThreadAutoArchiveDuration.OneWeek,
+        reason: "Image thread",
+    });
+}
 
 export async function pingRandomMembers(message: Message) {
     if (message.guild === null) return;

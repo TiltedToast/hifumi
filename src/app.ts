@@ -94,6 +94,8 @@ client.once("ready", async () => {
 
 client.on("messageCreate", handleMessage);
 client.on("interactionCreate", handleInteraction);
+process.on("unhandledRejection", console.error);
+process.on("uncaughtException", console.error);
 
 // Linux doesn't allow you to listen to SIGKILL
 // This is only useful for development anyway
