@@ -57,6 +57,7 @@ export default async function handleMessage(message: Message) {
         if (isMikuTrigger(message, reactCmd)) {
             await misc.reactToMiku(message, reactCmd);
         }
+        misc.checkForImgAndCreateThread(message);
     } catch (err: unknown) {
         await errorLog({ message, errorObject: err as Error });
     }
