@@ -230,29 +230,20 @@ export async function jsEval(message: Message, mode?: "math") {
 }
 
 export async function avatar(message: Message) {
-    let url: string;
     const content = message.content.split(" ");
 
     const user = content.length === 1 ? message.author : await getUserObjectPingId(message);
 
     if (!user) return await message.channel.send("Couldn't find the specified User");
 
-    const { id: userId, username, avatar: avatarHash } = user;
-
-    const avatarURL = user.displayAvatarURL({ forceStatic: false });
+    const avatarURL = user.displayAvatarURL({ forceStatic: false, size: 4096 });
 
     if (!avatarURL) return await message.channel.send("No avatar found!");
 
-    if (avatarURL.includes(".gif")) {
-        url = `https://cdn.discordapp.com/avatars/${userId}/${avatarHash}.gif?size=4096`;
-    } else {
-        url = `https://cdn.discordapp.com/avatars/${userId}/${avatarHash}.png?size=4096`;
-    }
-
     const avatarEmbed = new EmbedBuilder()
         .setColor(EMBED_COLOUR)
-        .setTitle(`*${username}'s Avatar*`)
-        .setImage(url);
+        .setTitle(`*${user.username}'s Avatar*`)
+        .setImage(avatarURL);
 
     return await message.channel.send({ embeds: [avatarEmbed] });
 }
