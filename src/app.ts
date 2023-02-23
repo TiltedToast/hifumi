@@ -1,6 +1,5 @@
 import {
     Client as DiscordClient,
-    EmbedBuilder,
     GatewayIntentBits,
     Partials,
     Snowflake,
@@ -11,7 +10,7 @@ import { existsSync, rmSync } from "fs";
 import { MongoClient } from "mongodb";
 import strftime from "strftime";
 import { startStatusLoop } from "./commands/loops.js";
-import { BOT_TOKEN, EMBED_COLOUR, LOG_CHANNEL, MONGO_URI } from "./config.js";
+import { BOT_TOKEN, LOG_CHANNEL, MONGO_URI } from "./config.js";
 import handleInteraction from "./handlers/interactions.js";
 import handleMessage from "./handlers/messages.js";
 import type { StatusDoc } from "./helpers/types.js";
@@ -74,14 +73,9 @@ client.once("ready", async () => {
     const credentials = await getMissingCredentials();
 
     if (credentials.length > 0) {
-        const missingCredentialsEmbed = new EmbedBuilder()
-            .setColor(EMBED_COLOUR)
-            .setTitle("Missing credentials")
-            .setDescription(
-                `The following credentials are missing:\n\n- ${credentials.join("\n- ")}`
-            );
-
-        await logChannel.send({ embeds: [missingCredentialsEmbed] });
+        console.error(`Missing credentials: ${credentials.join(", ")}`);
+        console.error("Exiting...");
+        process.exit(1);
     }
 
     if (isDev()) return;
