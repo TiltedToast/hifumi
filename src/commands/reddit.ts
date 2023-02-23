@@ -57,7 +57,7 @@ export async function sub(message: Message, prefix: string): Promise<Message> {
     if (content.length === 1)
         return await message.channel.send(`Usage: \`${prefix}sub <subreddit>\``);
 
-    const [isNSFW, force] = parseSubFlags(message);
+    const [isSFW, isNSFW, force] = parseSubFlags(message);
 
     // Check if command has been run in a channel marked as NSFW to avoid potential NSFW posts in non-NSFW channels
     if (isNSFW && !(message.channel as TextChannel).nsfw)
@@ -90,7 +90,7 @@ export async function sub(message: Message, prefix: string): Promise<Message> {
         await fetchSubmissions(subreddit, message);
     }
 
-    const query = { over_18: isNSFW };
+    const query = isNSFW && !isSFW ? { over_18: isNSFW } : { over_18: { $exists: true } };
 
     // Get a random post that's stored in the database and send it via an Embed
     const collection = db.collection(subreddit);
@@ -117,8 +117,9 @@ export async function sub(message: Message, prefix: string): Promise<Message> {
  * @returns An array containing a boolean that indicated whether
  * to fetch NSFW posts or not and a boolean that indicates whether to force fetch posts or not
  */
-function parseSubFlags(message: Message): [boolean, boolean] {
-    let isNSFW = false,
+function parseSubFlags(message: Message): [boolean, boolean, boolean] {
+    let isSFW = true,
+        isNSFW = false,
         force = false;
 
     const content = message.content.toLowerCase().split(" ");
@@ -126,13 +127,14 @@ function parseSubFlags(message: Message): [boolean, boolean] {
     for (let i = 2; i < content.length; i++) {
         if (content[i] === "nsfw") {
             isNSFW = true;
+            isSFW = false;
         } else if (content[i] === "force") {
             force = true;
         }
     }
     if ((message.channel as TextChannel).nsfw) isNSFW = true;
 
-    return [isNSFW, force];
+    return [isSFW, isNSFW, force];
 }
 
 /**
