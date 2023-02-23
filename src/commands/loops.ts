@@ -25,7 +25,8 @@ export async function startCatFactLoop(channel: TextChannel) {
  */
 export async function startStatusLoop(client: Client) {
     while (true) {
-        await setRandomStatus(client);
+        const status = await setRandomStatus(client);
+        if (!status) break;
         await sleep(randomIntFromRange(300000, 900000)); // 5m-15m
     }
 }
