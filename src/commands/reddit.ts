@@ -1,16 +1,16 @@
-import Snoowrap from "snoowrap";
 import { EmbedBuilder, Message, TextChannel } from "discord.js";
 import fetch from "node-fetch";
-import { mongoClient } from "../app.js";
+import type { Submission } from "snoowrap";
+import Snoowrap from "snoowrap";
+import type { Timespan } from "snoowrap/dist/objects/Subreddit";
 import strftime from "strftime";
+import { mongoClient } from "../app.js";
 import {
+    EMBED_COLOUR,
     REDDIT_CLIENT_ID,
     REDDIT_CLIENT_SECRET,
     REDDIT_REFRESH_TOKEN,
-    EMBED_COLOUR,
 } from "../config.js";
-import type { Timespan } from "snoowrap/dist/objects/Subreddit";
-import type { Submission } from "snoowrap";
 
 const RedditClient = new Snoowrap({
     userAgent: "linux:hifumi:v1.0.0 (by /u/tilted_toast)",
@@ -164,8 +164,12 @@ export async function fetchSubmissions(subreddit: string, message: Message, limi
         }
     }
 
+    if (posts.length === 0) {
+        return await message.channel.send("Couldn't find any new images");
+    }
+
     await collection.insertMany(posts);
-    await message.channel.send(`Fetched ${posts.length} new images for ${subreddit}`);
+    return await message.channel.send(`Fetched ${posts.length} new images for ${subreddit}`);
 }
 
 async function getSubmissions(subreddit: string, limit: number) {
