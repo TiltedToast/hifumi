@@ -75,6 +75,8 @@ client.once("ready", async () => {
     if (credentials.length > 0) {
         console.error(`Missing credentials: ${credentials.join(", ")}`);
         console.error("Exiting...");
+        await mongoClient.close();
+        client.destroy();
         process.exit(1);
     }
 
