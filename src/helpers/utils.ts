@@ -319,7 +319,7 @@ export async function downloadURL(url: string, saveLocation: string) {
     const myHeaders = new Headers();
     myHeaders.append("User-Agent", "hifumi-js:v1.0.0:tiltedtoast27@gmail.com");
 
-    // Pixiv requires a Referrr header
+    // Pixiv requires a Referer header
     if (url.includes("pximg")) myHeaders.append("Referer", "https://www.pixiv.net/");
 
     const requestOptions: RequestInit = {
