@@ -90,7 +90,7 @@ export async function addEmoji(message: Message, prefix: string): Promise<void |
         return message.channel.send("The name must be between 2 and 32 characters long.");
 
     const source = content.length >= 4 ? content[3] : content[2];
-    if (source === null) return message.channel.send("You have to provide an image!");
+    if (!source) return message.channel.send("You have to provide an image!");
 
     const urlPattern = new RegExp(/https?:\/\/.*\.(?:png|jpg|jpeg|webp|gif)/i);
     const isValidURL = urlPattern.test(source);

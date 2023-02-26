@@ -129,7 +129,7 @@ export async function imgur(args: ImgurParams) {
     let source = message.attachments.size > 0 ? message.attachments.first()?.url : content[1];
     if (url) source = url;
 
-    if (source === undefined) return await message.channel.send("Invalid URL!");
+    if (!source) return await message.channel.send("Invalid URL!");
 
     const urlPattern = new RegExp(/https?:\/\/.*\.(?:png|jpg|jpeg|webp|gif)/i);
     const isValidURL = urlPattern.test(source);
