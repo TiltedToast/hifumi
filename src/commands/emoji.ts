@@ -114,33 +114,54 @@ export async function addEmoji(message: Message, prefix: string): Promise<void |
     if (fetchErrorMsg) return await message.channel.send(fetchErrorMsg);
 
     // Resizes image, checks size again and creates emoji
-    if (!isValidSize(`./temp/unknown.${imgType}`, FileSizeLimit.DiscordEmoji)) {
-        await resize({
-            fileLocation: `./temp/unknown.${imgType}`,
-            width: 128,
-            saveLocation: `./temp/unknown_resized.${imgType}`,
-        });
+    try {
+        if (!isValidSize(`./temp/unknown.${imgType}`, FileSizeLimit.DiscordEmoji)) {
+            await resize({
+                fileLocation: `./temp/unknown.${imgType}`,
+                width: 128,
+                saveLocation: `./temp/unknown_resized.${imgType}`,
+            });
 
-        if (!isValidSize(`./temp/unknown_resized.${imgType}`, FileSizeLimit.DiscordEmoji)) {
-            return message.channel.send("File too large for Discord, even after resizing!");
+            if (!isValidSize(`./temp/unknown_resized.${imgType}`, FileSizeLimit.DiscordEmoji)) {
+                return message.channel.send("File too large for Discord, even after resizing!");
+            }
+            if (message.guild === null) return message.channel.send("You can't add emojis to DMs!");
+            const base64 = fs.readFileSync(`./temp/unknown_resized.${imgType}`, {
+                encoding: "base64",
+            });
+            emoji = await message.guild.emojis.create({
+                attachment: `data:image/${imgType};base64,${base64}`,
+                name,
+            });
+        } else {
+            if (message.guild === null) return message.channel.send("You can't add emojis to DMs!");
+            const base64 = fs.readFileSync(`./temp/unknown.${imgType}`, {
+                encoding: "base64",
+            });
+            emoji = await message.guild.emojis.create({
+                attachment: `data:image/${imgType};base64,${base64}`,
+                name,
+            });
         }
-        if (message.guild === null) return message.channel.send("You can't add emojis to DMs!");
-        const base64 = fs.readFileSync(`./temp/unknown_resized.${imgType}`, {
-            encoding: "base64",
-        });
-        emoji = await message.guild.emojis.create({
-            attachment: `data:image/${imgType};base64,${base64}`,
-            name,
-        });
-    } else {
-        if (message.guild === null) return message.channel.send("You can't add emojis to DMs!");
-        const base64 = fs.readFileSync(`./temp/unknown.${imgType}`, {
-            encoding: "base64",
-        });
-        emoji = await message.guild.emojis.create({
-            attachment: `data:image/${imgType};base64,${base64}`,
-            name,
-        });
+    } catch (error) {
+        let errorMessage: string;
+        if (error instanceof DiscordAPIError) {
+            switch (+error.code) {
+                case 50138:
+                    errorMessage = `The emoji \`${name}\` does not fit under the size limit!`;
+                    break;
+                case 30008:
+                    errorMessage = `Could not add \`${name}\`, you've hit the limit!`;
+                    break;
+                case 50035:
+                    errorMessage = `Could not add \`${name}\`, the name is invalid!`;
+                    break;
+                default:
+                    errorMessage = `Could not add \`${name}\`, unknown error! Error message: ${error.message}`;
+                    break;
+            }
+            return await message.channel.send(errorMessage);
+        }
     }
 
     // Sends newly created emoji to the channel
@@ -180,7 +201,7 @@ async function bulkAddEmojis(message: Message, emojis: RegExpMatchArray) {
         } catch (error) {
             let errorMessage: string;
             if (error instanceof DiscordAPIError) {
-                switch (error.code) {
+                switch (+error.code) {
                     case 50138:
                         errorMessage = `The emoji \`${name}\` does not fit under the size limit!`;
                         break;
@@ -188,7 +209,7 @@ async function bulkAddEmojis(message: Message, emojis: RegExpMatchArray) {
                         errorMessage = `Could not add \`${name}\`, you've hit the limit!`;
                         break;
                     default:
-                        errorMessage = `Could not add \`${name}\`, unknown error! Error code: ${error.code}`;
+                        errorMessage = `Could not add \`${name}\`, unknown error! Error message: ${error.message}`;
                         break;
                 }
                 await message.channel.send(errorMessage);
