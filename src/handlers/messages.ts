@@ -73,6 +73,8 @@ async function handleCommand({ command, subCmd, message, prefix }: MessageComman
             await emoji.renameEmoji(message, prefix);
         } else if (["link"].includes(subCmd)) {
             await emoji.linkEmoji(message);
+        } else if (["search", "s"].includes(subCmd)) {
+            await emoji.searchEmojis(message);
         }
     } else if (command === "db") {
         if (["insert", "ins", "in"].includes(subCmd)) {

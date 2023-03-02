@@ -308,3 +308,22 @@ export async function renameEmoji(message: Message, prefix: string): Promise<Mes
         return await message.channel.send(`Usage: \`${prefix}emoji rename <new name> <emoji>\``);
     }
 }
+
+export async function searchEmojis(message: Message) {
+    const content = message.content.split(" ");
+    if (content.length === 2) {
+        return await message.channel.send("Please provide a search term!");
+    }
+
+    const searchTerm = content[2].toLowerCase();
+
+    const matchedEmojis = message.guild?.emojis.cache
+        .filter((emoji) => emoji.name?.toLowerCase().includes(searchTerm))
+        .map((x) => x.toString());
+
+    if (!matchedEmojis || matchedEmojis.length === 0) {
+        return await message.channel.send("No emojis found!");
+    }
+
+    return await message.channel.send(matchedEmojis.join(" ").substring(0, 2000));
+}
