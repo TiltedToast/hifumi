@@ -38,6 +38,20 @@ import type {
     UpdateEmbedOptions,
 } from "./types.js";
 
+export function splitMessage(content: string, maxLength = 2000, delim = " "): string[] {
+    const chunks = [];
+    let currentChunk = "";
+    for (const word of content.split(delim)) {
+        if (currentChunk.length + word.length + delim.length > maxLength) {
+            chunks.push(currentChunk);
+            currentChunk = "";
+        }
+        currentChunk += word + delim;
+    }
+    if (currentChunk.length > 0) chunks.push(currentChunk);
+    return chunks;
+}
+
 export function writeUpdateFile() {
     if (!fs.existsSync("./temp")) {
         fs.mkdirSync("./temp");
