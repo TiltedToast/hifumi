@@ -16,6 +16,7 @@ import {
     hasPermission,
     isValidSize,
     resize,
+    splitMessage,
 } from "../helpers/utils.js";
 
 const emojiRegex = new RegExp(/<a?:\w+:\d+>/gi);
@@ -311,7 +312,7 @@ export async function renameEmoji(message: Message, prefix: string): Promise<Mes
 
 export async function searchEmojis(message: Message) {
     const content = message.content.split(" ");
-    if (content.length === 2) {
+    if (content.length <= 2) {
         return await message.channel.send("Please provide a search term!");
     }
 
@@ -325,5 +326,10 @@ export async function searchEmojis(message: Message) {
         return await message.channel.send("No emojis found!");
     }
 
-    return await message.channel.send(matchedEmojis.join(" ").substring(0, 2000));
+    const outputString = matchedEmojis.join(" ");
+
+    for (const chunk of splitMessage(outputString)) {
+        await message.channel.send(chunk);
+    }
+    return;
 }
