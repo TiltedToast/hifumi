@@ -310,10 +310,11 @@ export async function renameEmoji(message: Message, prefix: string): Promise<Mes
     }
 }
 
-export async function searchEmojis(message: Message) {
+export async function searchEmojis(message: Message): Promise<void> {
     const content = message.content.split(" ");
     if (content.length <= 2) {
-        return await message.channel.send("Please provide a search term!");
+        await message.channel.send("Please provide a search term!");
+        return;
     }
 
     const searchTerm = content[2].toLowerCase();
@@ -323,7 +324,8 @@ export async function searchEmojis(message: Message) {
         .map((x) => x.toString());
 
     if (!matchedEmojis || matchedEmojis.length === 0) {
-        return await message.channel.send("No emojis found!");
+        await message.channel.send("No emojis found!");
+        return;
     }
 
     const outputString = matchedEmojis.join(" ");
@@ -331,5 +333,4 @@ export async function searchEmojis(message: Message) {
     for (const chunk of splitMessage(outputString)) {
         await message.channel.send(chunk);
     }
-    return;
 }
