@@ -236,30 +236,44 @@ async function bulkAddEmojis(message: Message, emojis: RegExpMatchArray) {
     return output;
 }
 
-export async function removeEmoji(message: Message, prefix: string): Promise<Message> {
+export async function removeEmoji(message: Message): Promise<void> {
     if (!hasPermission(PermissionFlagsBits.ManageEmojisAndStickers, message)) {
-        return message.channel.send(
-            'You need the "Manage Emoji and Stickers" permission to remove emojis!'
+        await message.channel.send(
+            'You need the "Manage Emoji and Stickers" permission to remove emojis'
         );
+        return;
     }
 
-    const content = message.content.split(" ");
+    const emojiStrings = message.content.match(emojiRegex);
+    if (!emojiStrings || emojiStrings.length === 0) {
+        await message.channel.send(`You need to provide at least one emoji to remove`);
+        return;
+    }
 
-    try {
-        if (content.length !== 3)
-            return await message.channel.send(`Usage: \`${prefix}emoji remove <emoji>\``);
+    const emojiIds = emojiStrings.map((emoji) => extractEmoji(emoji, true));
 
-        const emojiString = content[2];
-        const emojiID = extractEmoji(emojiString, true);
-        const guildEmojis = message.guild?.emojis.cache;
-        const emoji = guildEmojis?.find((emoji) => emoji.id === emojiID);
-
-        if (!emoji) return message.channel.send(`Emoji not found!`);
-
-        emoji.delete();
-        return message.channel.send(`Emoji successfully deleted!`);
-    } catch (error) {
-        return await message.channel.send(`Usage: \`${prefix}emoji remove <emoji>\``);
+    for (const id of emojiIds) {
+        const emojiStr = emojiStrings[emojiIds.indexOf(id)];
+        try {
+            const emoji = await message.guild?.emojis.fetch(id);
+            if (!emoji) continue;
+            const deletedEmoji = await emoji.delete();
+            await message.channel.send(`Successfully deleted \`${deletedEmoji.name}\``);
+        } catch (error) {
+            if (error instanceof DiscordAPIError) {
+                let errorMessage: string;
+                switch (+error.code) {
+                    case 10014:
+                        errorMessage = `\`${emojiStr}\` does not exist in this server`;
+                        break;
+                    default:
+                        errorMessage = `Failed to delete \`${emojiStr}\`, unknown error! Error message: ${error.message}`;
+                        break;
+                }
+                await message.channel.send(errorMessage);
+                continue;
+            }
+        }
     }
 }
 

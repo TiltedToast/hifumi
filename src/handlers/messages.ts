@@ -68,7 +68,7 @@ async function handleCommand({ command, subCmd, message, prefix }: MessageComman
         if (["add", "ad", "create"].includes(subCmd)) {
             await emoji.addEmoji(message, prefix);
         } else if (["delete", "delet", "del", "remove", "rm"].includes(subCmd)) {
-            await emoji.removeEmoji(message, prefix);
+            await emoji.removeEmoji(message);
         } else if (["edit", "e", "rename", "rn"].includes(subCmd)) {
             await emoji.renameEmoji(message, prefix);
         } else if (["link"].includes(subCmd)) {
