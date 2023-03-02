@@ -318,13 +318,19 @@ export async function searchEmojis(message: Message): Promise<void> {
     }
 
     const searchTerm = content[2].toLowerCase();
+    const emojis = await message.guild?.emojis.fetch();
 
-    const matchedEmojis = message.guild?.emojis.cache
+    if (!emojis) {
+        await message.channel.send("No emojis found!");
+        return;
+    }
+
+    const matchedEmojis = emojis
         .filter((emoji) => emoji.name?.toLowerCase().includes(searchTerm))
         .map((x) => x.toString());
 
-    if (!matchedEmojis || matchedEmojis.length === 0) {
-        await message.channel.send("No emojis found!");
+    if (matchedEmojis.length === 0) {
+        await message.channel.send("No matching emojis found!");
         return;
     }
 
