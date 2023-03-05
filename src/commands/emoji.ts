@@ -7,6 +7,7 @@ import {
     PermissionFlagsBits,
 } from "discord.js";
 import * as fs from "fs";
+import Fuse from "fuse.js";
 import { FileSizeLimit } from "../helpers/types.js";
 import {
     createTemp,
@@ -321,13 +322,18 @@ export async function searchEmojis(message: Message): Promise<void> {
     const emojis = await message.guild?.emojis.fetch();
 
     if (!emojis) {
-        await message.channel.send("No emojis found!");
+        await message.channel.send("You need to be in a server to use this command!");
         return;
     }
 
-    const matchedEmojis = emojis
-        .filter((emoji) => emoji.name?.toLowerCase().includes(searchTerm))
-        .map((x) => x.toString());
+    const emojiStrings = Array.from(emojis.map((x) => x.toString()));
+
+    const fuse = new Fuse(emojiStrings, {
+        shouldSort: true,
+        threshold: 0.42069,
+    });
+
+    const matchedEmojis = fuse.search(searchTerm).map((x) => x.item);
 
     if (matchedEmojis.length === 0) {
         await message.channel.send("No matching emojis found!");
