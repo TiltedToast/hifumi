@@ -12,6 +12,7 @@
         "dotenv": "^16.0.3",
         "erlpack": "github:discord/erlpack",
         "formdata-node": "^4.4.1",
+        "fuse.js": "^6.6.2",
         "mathjs": "^11.5.1",
         "mongodb": "^5.0.0",
         "node-fetch": "^3.3.0",
