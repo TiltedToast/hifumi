@@ -15,14 +15,12 @@
         "noUnusedLocals": true,
         "noUnusedParameters": true,
         "noFallthroughCasesInSwitch": true,
-        "noImplicitReturns": true,
-        "preserveConstEnums": true,
         "allowUnreachableCode": false,
         "allowUnusedLabels": false,
         "noImplicitOverride": true,
         "noPropertyAccessFromIndexSignature": true,
-        "importsNotUsedAsValues": "error",
-        "skipLibCheck": true
+        "skipLibCheck": true,
+        "alwaysStrict": true
     },
     "include": ["src/**/*.ts"]
 }
