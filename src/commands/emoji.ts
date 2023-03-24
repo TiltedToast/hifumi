@@ -254,7 +254,7 @@ export async function removeEmoji(message: Message): Promise<void> {
 
     const emojiIds = emojiStrings.map((emoji) => extractEmoji(emoji, true));
 
-    for (const id of emojiIds) {
+    for (const id of new Set(emojiIds)) {
         const emojiStr = emojiStrings[emojiIds.indexOf(id)];
         try {
             const emoji = await message.guild?.emojis.fetch(id);
