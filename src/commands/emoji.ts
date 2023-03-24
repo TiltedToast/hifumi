@@ -186,7 +186,7 @@ async function bulkAddEmojis(message: Message, emojis: RegExpMatchArray) {
     let msg: string;
     let emoji: GuildEmoji | undefined;
 
-    for (const emojiStr of emojis) {
+    for (const emojiStr of new Set(emojis)) {
         const url = extractEmoji(emojiStr);
         const imgType = getImgType(url);
         const name = emojiStr.split(":")[1];
