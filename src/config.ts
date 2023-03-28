@@ -10,6 +10,7 @@ export const REDDIT_REFRESH_TOKEN = process.env["REDDIT_REFRESH_TOKEN"];
 export const MONGO_URI = insideDocker()
     ? "mongodb://db:27017/"
     : process.env["MONGO_URI"] ?? "mongodb://localhost:27017/";
+export const MYSQL_URL = process.env["MYSQL_URL"] ?? "mysql://localhost:3306/hifumi";
 export const DEV_MODE = process.env["DEV_MODE"] ?? "false";
 export const BOT_OWNERS = ["258993932262834188", "207505077013839883"];
 export const EMBED_COLOUR = "#ce3a9b";
