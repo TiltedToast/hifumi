@@ -7,6 +7,7 @@ import {
     mikuReactionAliases,
     mikuReactions,
     prefixes,
+    redditPosts,
     statuses,
 } from "../db/schema.js";
 
@@ -19,3 +20,5 @@ export type MikuReaction = InferModel<typeof mikuReactions>;
 export type Prefix = InferModel<typeof prefixes>;
 export type Status = InferModel<typeof statuses>;
 export type NewStatus = InferModel<typeof statuses, "insert">;
+export type RedditPost = InferModel<typeof redditPosts>;
+export type NewRedditPost = InferModel<typeof redditPosts, "insert">;
