@@ -96,12 +96,12 @@ export async function insertStatus(message: Message): Promise<void | Message> {
 
     const [header] = await db.insert(statuses).values(document).execute();
 
+    document.id = header.insertId;
+
     statusArr.push(document);
 
     await message.channel.send("Status added!");
-    await message.channel.send(
-        `\`\`\`json\n${JSON.stringify({ ...document, id: header.insertId }, null, 4)}\n\`\`\``
-    );
+    await message.channel.send(`\`\`\`json\n${JSON.stringify(document, null, 4)}\n\`\`\``);
 }
 
 export async function updatePrefix(message: Message) {
