@@ -13,10 +13,10 @@ import { createPool } from "mysql2/promise";
 import strftime from "strftime";
 import { startStatusLoop } from "./commands/loops.js";
 import { BOT_TOKEN, LOG_CHANNEL, MONGO_URI, MYSQL_URL } from "./config.js";
-import { statuses } from "./db/schema.js";
+import { prefixes, statuses } from "./db/schema.js";
+import type { Status } from "./db/types.js";
 import handleInteraction from "./handlers/interactions.js";
 import handleMessage from "./handlers/messages.js";
-import type { Status } from "./db/types.js";
 import { getMissingCredentials, isDev } from "./helpers/utils.js";
 
 const startTime = Date.now();
@@ -34,7 +34,7 @@ export const client = new DiscordClient({
     partials: [Partials.Channel],
 });
 export const mongoClient = new MongoClient(MONGO_URI);
-export const prefixes = new Map<Snowflake, string>();
+export const prefixMap = new Map<Snowflake, string>();
 export let statusArr: Status[] = [];
 export let botIsLoading = true;
 
@@ -56,15 +56,12 @@ client.once("ready", async () => {
     await mongoClient.connect();
 
     // Puts all statuses into an array to avoid reading the database on every status change
-    statusArr = await db.select().from(statuses);
+    statusArr = await db.select().from(statuses).execute();
 
     if (statusArr.length) startStatusLoop(client);
 
-    // Gets all prefixes from the database and puts them into a dictionary to avoid reading
-    // The database every time a message is received
-    const prefixDocs = await mongoClient.db("hifumi").collection("prefixes").find().toArray();
-    for (const prefixDoc of prefixDocs) {
-        prefixes.set(prefixDoc["serverId"], prefixDoc["prefix"]);
+    for (const prefixDoc of await db.select().from(prefixes).execute()) {
+        prefixMap.set(prefixDoc.serverId, prefixDoc.prefix);
     }
     botIsLoading = false;
 

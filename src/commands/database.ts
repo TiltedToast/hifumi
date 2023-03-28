@@ -1,5 +1,5 @@
 import { Message, PermissionFlagsBits } from "discord.js";
-import { db, mongoClient, prefixes, statusArr } from "../app.js";
+import { db, mongoClient, prefixMap, statusArr } from "../app.js";
 import { BOT_OWNERS } from "../config.js";
 import { statuses } from "../db/schema.js";
 import { Status } from "../db/types.js";
@@ -131,6 +131,6 @@ export async function updatePrefix(message: Message) {
     const serverId = message.guild.id;
     const updateDoc = { $set: { prefix: content[1] } };
     await collection.updateOne({ serverId }, updateDoc);
-    prefixes.set(serverId, content[1]);
+    prefixMap.set(serverId, content[1]);
     return await message.channel.send(`Updated prefix for this server to \`${content[1]}\`!`);
 }
