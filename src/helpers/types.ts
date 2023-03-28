@@ -1,6 +1,6 @@
 import { ActivityType, ButtonInteraction, Embed, EmbedBuilder, Message } from "discord.js";
-import type { Document, WithId } from "mongodb";
 import { InferModel } from "drizzle-orm";
+import type { Document, WithId } from "mongodb";
 import { z } from "zod";
 import {
     currencies,
@@ -28,6 +28,7 @@ export type MikuReactionAlias = InferModel<typeof mikuReactionAliases>;
 export type MikuReaction = InferModel<typeof mikuReactions>;
 export type Prefix = InferModel<typeof prefixes>;
 export type Status = InferModel<typeof statuses>;
+export type NewStatus = InferModel<typeof statuses, "insert">;
 
 export type UpdateEmbedArrParams<T> = {
     result: T[];

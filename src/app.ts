@@ -14,9 +14,10 @@ import { startStatusLoop } from "./commands/loops.js";
 import { BOT_TOKEN, LOG_CHANNEL, MONGO_URI, MYSQL_URL } from "./config.js";
 import handleInteraction from "./handlers/interactions.js";
 import handleMessage from "./handlers/messages.js";
-import type { StatusDoc } from "./helpers/types.js";
+import type { Status } from "./helpers/types.js";
 import { getMissingCredentials, isDev } from "./helpers/utils.js";
 import { drizzle } from "drizzle-orm/mysql2/driver.js";
+import { statuses } from "./db/schema.js";
 
 const startTime = Date.now();
 
@@ -34,7 +35,7 @@ export const client = new DiscordClient({
 });
 export const mongoClient = new MongoClient(MONGO_URI);
 export const prefixes = new Map<Snowflake, string>();
-export let statusArr: StatusDoc[] = [];
+export let statusArr: Status[] = [];
 export let botIsLoading = true;
 
 export const pool = createPool(MYSQL_URL);
@@ -55,11 +56,7 @@ client.once("ready", async () => {
     await mongoClient.connect();
 
     // Puts all statuses into an array to avoid reading the database on every status change
-    statusArr = (await mongoClient
-        .db("hifumi")
-        .collection("statuses")
-        .find()
-        .toArray()) as StatusDoc[];
+    statusArr = await db.select().from(statuses);
 
     if (statusArr.length) startStatusLoop(client);
 
