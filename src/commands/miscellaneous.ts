@@ -1,4 +1,9 @@
-import { mikuReactions, mikuReactionAliases, leet as leetTable } from "./../db/schema.js";
+import {
+    mikuReactions,
+    mikuReactionAliases,
+    leet as leetTable,
+    currencies as currenciesTable,
+} from "./../db/schema.js";
 import { exec } from "child_process";
 import {
     ActionRowBuilder,
@@ -242,16 +247,17 @@ export async function avatar(message: Message) {
 }
 
 export async function listCurrencies(message: Message) {
-    const currencies = (
-        await mongoClient.db("hifumi").collection("currencies").find().toArray()
-    )[0];
+    const table = await db.select().from(currenciesTable).execute();
 
-    if (currencies === null)
-        return await message.channel.send("Couldn't find any currencies in the database");
+    const currencies = {} as Record<string, string>;
+
+    for (const row of table) {
+        currencies[row.code] = row.longName;
+    }
 
     const title = "List of currencies available for conversion";
     const columns = ["", "", ""];
-    const currencyKeys = Object.keys(currencies).sort().slice(0, -1);
+    const currencyKeys = Object.keys(currencies).sort();
 
     // Equally divides the currencies into 3 columns
     for (let i = 0; i < currencyKeys.length; i++) {
