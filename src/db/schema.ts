@@ -1,4 +1,5 @@
 import {
+    boolean,
     char,
     index,
     int,
@@ -80,6 +81,23 @@ export const statuses = mysqlTable(
         return {
             id: index("id").on(table.id),
             statusesTypeStatus: primaryKey(table.type, table.status),
+        };
+    }
+);
+
+export const redditPosts = mysqlTable(
+    "reddit_posts",
+    {
+        id: int("id").autoincrement().primaryKey().notNull(),
+        subreddit: varchar("subreddit", { length: 255 }).notNull(),
+        title: text("title").notNull(),
+        url: text("url").notNull(),
+        over_18: boolean("over_18").notNull(),
+        permalink: text("permalink").notNull(),
+    },
+    (table) => {
+        return {
+            subreddit: index("subreddit").on(table.subreddit),
         };
     }
 );
