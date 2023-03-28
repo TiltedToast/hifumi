@@ -1,4 +1,4 @@
-import { mikuReactions, mikuReactionAliases } from "./../db/schema.js";
+import { mikuReactions, mikuReactionAliases, leet as leetTable } from "./../db/schema.js";
 import { exec } from "child_process";
 import {
     ActionRowBuilder,
@@ -107,17 +107,21 @@ export async function reactToMiku(message: Message, reactCmd: string): Promise<v
 
 export async function leet(message: Message): Promise<void | Message> {
     const inputWords = message.content.split(" ").slice(1);
-    const leetDoc = (await mongoClient.db("hifumi").collection("leet").find().toArray())[0];
+    const leetDoc = await db.select().from(leetTable).execute();
 
-    if (leetDoc === null)
-        return message.channel.send("Couldn't find the necessary entries in the database");
+    const document = {} as Record<string, string[]>;
+
+    for (const char of leetDoc) {
+        if (!(char.source in document)) document[char.source] = [];
+        document[char.source].push(char.translated);
+    }
 
     const leetOutput = inputWords
         .map((word) => {
             return word
                 .split("")
                 .map((char) => {
-                    if (char in leetDoc) return randomElementFromArray(leetDoc[char]);
+                    if (char in document) return randomElementFromArray(document[char]);
                     return char;
                 })
                 .join("");
