@@ -118,7 +118,7 @@ export async function updatePrefix(message: Message) {
 
     // Syntax check as well as avoiding cluttering the database with long impractical prefixes
     if (content.length !== 2) return await message.channel.send("Invalid syntax");
-    if (content[1].length > 5)
+    if (content[1].length > 10)
         return await message.channel.send("Your prefix may only be 10 characters long at most");
 
     if (isDev()) await message.channel.send("Wrong database <:emiliaSMH:747132102645907587>");
