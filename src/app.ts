@@ -6,18 +6,18 @@ import {
     TextChannel,
 } from "discord.js";
 import "dotenv/config";
+import { drizzle } from "drizzle-orm/mysql2/driver.js";
 import { existsSync, rmSync } from "fs";
 import { MongoClient } from "mongodb";
 import { createPool } from "mysql2/promise";
 import strftime from "strftime";
 import { startStatusLoop } from "./commands/loops.js";
 import { BOT_TOKEN, LOG_CHANNEL, MONGO_URI, MYSQL_URL } from "./config.js";
+import { statuses } from "./db/schema.js";
 import handleInteraction from "./handlers/interactions.js";
 import handleMessage from "./handlers/messages.js";
-import type { Status } from "./helpers/types.js";
+import type { Status } from "./db/types.js";
 import { getMissingCredentials, isDev } from "./helpers/utils.js";
-import { drizzle } from "drizzle-orm/mysql2/driver.js";
-import { statuses } from "./db/schema.js";
 
 const startTime = Date.now();
 
