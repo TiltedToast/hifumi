@@ -73,6 +73,7 @@ client.once("ready", async () => {
         console.error(`Missing credentials: ${credentials.join(", ")}`);
         console.error("Exiting...");
         client.destroy();
+        await pool.end();
         process.exit(1);
     }
 
@@ -100,9 +101,10 @@ if (process.platform === "win32") {
 // Graceful Shutdown on Ctrl + C / Docker stop
 stopSignals.forEach((signal) => {
     process.on(signal, async () => {
+        await pool.end();
+        console.log("Closed MySQL connection");
         client.destroy();
         console.log("Closed Discord client");
-
         process.exit(0);
     });
 });
