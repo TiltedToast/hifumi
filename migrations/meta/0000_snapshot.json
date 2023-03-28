@@ -1,7 +1,7 @@
 {
     "version": "5",
     "dialect": "mysql",
-    "id": "42db4231-fc27-426d-85e2-32b1480eca23",
+    "id": "cdbb8183-8279-48aa-8281-f2a0063c1ca1",
     "prevId": "00000000-0000-0000-0000-000000000000",
     "tables": {
         "currencies": {
