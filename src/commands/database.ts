@@ -1,8 +1,9 @@
 import { Message, PermissionFlagsBits } from "discord.js";
-import { mongoClient, prefixes, statusArr } from "../app.js";
+import { db, mongoClient, prefixes, statusArr } from "../app.js";
 import { BOT_OWNERS } from "../config.js";
-import { StatusDoc, StatusType } from "../helpers/types.js";
+import { Status, StatusType } from "../helpers/types.js";
 import { hasPermission, isBotOwner, isDev, parseDbArgs } from "../helpers/utils.js";
+import { statuses } from "../db/schema.js";
 
 export async function insert(message: Message): Promise<void | Message<boolean>> {
     if (!isBotOwner(message.author)) return;
@@ -90,15 +91,16 @@ export async function insertStatus(message: Message): Promise<void | Message> {
         );
     }
 
-    // Uppercases the type to conform to discord's API
-    const document = { type, status } as StatusDoc;
+    const document = { type, status } as Status;
 
-    const collection = mongoClient.db("hifumi").collection("statuses");
-    await collection.insertOne(document);
+    const [header] = await db.insert(statuses).values(document).execute();
+
     statusArr.push(document);
 
     await message.channel.send("Status added!");
-    await message.channel.send(`\`\`\`json\n${JSON.stringify(document, null, 4)}\n\`\`\``);
+    await message.channel.send(
+        `\`\`\`json\n${JSON.stringify({ ...document, id: header.insertId }, null, 4)}\n\`\`\``
+    );
 }
 
 export async function updatePrefix(message: Message) {
