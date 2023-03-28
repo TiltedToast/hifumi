@@ -1,5 +1,5 @@
 import type { Message } from "discord.js";
-import { botIsLoading, mongoClient, prefixes } from "../app.js";
+import { botIsLoading, mongoClient, prefixMap } from "../app.js";
 import * as db from "../commands/database.js";
 import * as emoji from "../commands/emoji.js";
 import * as imgProcess from "../commands/imgProcess.js";
@@ -24,12 +24,12 @@ export default async function handleMessage(message: Message) {
         const prefixColl = mongoClient.db("hifumi").collection("prefixes");
 
         // Adds a default prefix to the db if it doesn't exist
-        if (message.guild && !prefixes.has(message.guild.id) && !isDev()) {
+        if (message.guild && !prefixMap.has(message.guild.id) && !isDev()) {
             await prefixColl.insertOne({
                 serverId: message.guild.id,
                 prefix: "h!",
             });
-            prefixes.set(message.guild.id, "h!");
+            prefixMap.set(message.guild.id, "h!");
             await message.channel.send(
                 "I have set the prefix to `h!`. You can change it with `h!prefix`"
             );
@@ -38,7 +38,7 @@ export default async function handleMessage(message: Message) {
         // Gets the prefix from the map and compares to the message's beginning
         // This way the prefix can be case insensitive
         let prefix = "h!";
-        if (message.guild) prefix = prefixes.get(message.guild.id) ?? "h!";
+        if (message.guild) prefix = prefixMap.get(message.guild.id) ?? "h!";
 
         if (isDev()) prefix = "h?";
 
