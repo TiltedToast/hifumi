@@ -1,3 +1,4 @@
+import { mikuReactions, mikuReactionAliases } from "./../db/schema.js";
 import { exec } from "child_process";
 import {
     ActionRowBuilder,
@@ -12,14 +13,12 @@ import { evaluate as mathEvaluate } from "mathjs";
 import fetch from "node-fetch";
 import strftime from "strftime";
 import { promisify } from "util";
-import { client, mongoClient } from "../app.js";
+import { client, db, mongoClient } from "../app.js";
 import { EMBED_COLOUR, EXCHANGE_API_KEY } from "../config.js";
 import {
     ConvertResponse,
     ConvertResponseSchema,
     EmbedMetadata,
-    MikuEmoteReactionItems,
-    MikuEmoteReactionItemsSchema,
     UrbanEntry,
     UrbanResponse,
     UrbanResponseSchema,
@@ -92,24 +91,14 @@ export async function pingRandomMembers(message: Message) {
 }
 
 export async function reactToMiku(message: Message, reactCmd: string): Promise<void | Message> {
-    const mikuReactions = (await mongoClient
-        .db("hifumi")
-        .collection("mikuReactions")
-        .find({}, { projection: { _id: 0 } })
-        .toArray()) as unknown as MikuEmoteReactionItems;
+    const reactMsgs = await db.select().from(mikuReactions).execute();
+    const cmdAliases = await db.select().from(mikuReactionAliases).execute();
 
-    if (!MikuEmoteReactionItemsSchema.safeParse(mikuReactions).success) {
-        return console.error("Couldn't parse reactions for miku's emotes from db");
-    }
-
-    const [cmdAliases, reactMsgs] = mikuReactions;
-
-    for (const alias in cmdAliases) {
-        if (Object.values(cmdAliases[alias]).includes(reactCmd)) {
-            const msg = randomElementFromArray(reactMsgs[alias]).replace(
-                "{0}",
-                message.author.username
-            );
+    for (const alias of cmdAliases) {
+        if (alias.alias === reactCmd) {
+            const msg = randomElementFromArray(
+                reactMsgs.filter((x) => x.command === alias.command).map((x) => x.reaction)
+            ).replace("{0}", message.author.username);
             await sleep(1000);
             return await message.channel.send(msg);
         }

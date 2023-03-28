@@ -76,14 +76,6 @@ async function handleCommand({ command, subCmd, message, prefix }: MessageComman
         } else if (["search", "s"].includes(subCmd)) {
             await emoji.searchEmojis(message);
         }
-    } else if (command === "db") {
-        if (["insert", "ins", "in"].includes(subCmd)) {
-            await db.insert(message);
-        } else if (["update", "up", "upd"].includes(subCmd)) {
-            await db.update(message);
-        } else if (["delete", "delet", "del", "remove", "rm"].includes(subCmd)) {
-            await db.deleteDoc(message);
-        }
     } else if (["status", "stat"].includes(command)) await db.insertStatus(message);
     else if (["commands", "command", "comm", "com", "help"].includes(command))
         await misc.helpCmd(message, prefix);

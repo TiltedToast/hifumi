@@ -53,8 +53,6 @@ client.once("ready", async () => {
     console.log(client.user.id);
     console.log("------------------");
 
-    await mongoClient.connect();
-
     // Puts all statuses into an array to avoid reading the database on every status change
     statusArr = await db.select().from(statuses).execute();
 
@@ -74,7 +72,6 @@ client.once("ready", async () => {
     if (credentials.length > 0) {
         console.error(`Missing credentials: ${credentials.join(", ")}`);
         console.error("Exiting...");
-        await mongoClient.close();
         client.destroy();
         process.exit(1);
     }
@@ -103,9 +100,6 @@ if (process.platform === "win32") {
 // Graceful Shutdown on Ctrl + C / Docker stop
 stopSignals.forEach((signal) => {
     process.on(signal, async () => {
-        await mongoClient.close();
-        console.log("Closed MongoDB connection");
-
         client.destroy();
         console.log("Closed Discord client");
 
