@@ -1,9 +1,10 @@
 import { Message, PermissionFlagsBits } from "discord.js";
 import { db, mongoClient, prefixes, statusArr } from "../app.js";
 import { BOT_OWNERS } from "../config.js";
-import { Status, StatusType } from "../helpers/types.js";
-import { hasPermission, isBotOwner, isDev, parseDbArgs } from "../helpers/utils.js";
 import { statuses } from "../db/schema.js";
+import { Status } from "../db/types.js";
+import { StatusType } from "../helpers/types.js";
+import { hasPermission, isBotOwner, isDev, parseDbArgs } from "../helpers/utils.js";
 
 export async function insert(message: Message): Promise<void | Message<boolean>> {
     if (!isBotOwner(message.author)) return;
