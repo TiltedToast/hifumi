@@ -1,13 +1,13 @@
 import {
-    mysqlTable,
-    int,
     char,
-    varchar,
+    index,
+    int,
+    mysqlTable,
+    primaryKey,
     text,
     timestamp,
     uniqueIndex,
-    index,
-    primaryKey,
+    varchar,
 } from "drizzle-orm/mysql-core/index.js";
 
 export const currencies = mysqlTable("currencies", {
@@ -70,7 +70,10 @@ export const statuses = mysqlTable(
     "statuses",
     {
         id: int("id").autoincrement().notNull(),
-        type: varchar("type", { length: 20 }).notNull(),
+        type: varchar("type", {
+            length: 20,
+            enum: ["PLAYING", "WATCHING", "STREAMING", "LISTENING", "COMPETING"],
+        }).notNull(),
         status: varchar("status", { length: 255 }).notNull(),
     },
     (table) => {
