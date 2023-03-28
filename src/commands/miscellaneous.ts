@@ -3,6 +3,7 @@ import {
     mikuReactionAliases,
     leet as leetTable,
     currencies as currenciesTable,
+    helpMessages,
 } from "./../db/schema.js";
 import { exec } from "child_process";
 import {
@@ -18,7 +19,7 @@ import { evaluate as mathEvaluate } from "mathjs";
 import fetch from "node-fetch";
 import strftime from "strftime";
 import { promisify } from "util";
-import { client, db, mongoClient } from "../app.js";
+import { client, db } from "../app.js";
 import { EMBED_COLOUR, EXCHANGE_API_KEY } from "../config.js";
 import {
     ConvertResponse,
@@ -137,19 +138,14 @@ export async function leet(message: Message): Promise<void | Message> {
 }
 
 export async function helpCmd(message: Message, prefix: string) {
-    const helpMsgArray = await mongoClient
-        .db("hifumi")
-        .collection("helpMsgs")
-        .find()
-        .sort({ cmd: 1 })
-        .toArray();
+    const helpMsgArray = await db.select().from(helpMessages).execute();
     if (helpMsgArray.length === 0)
         return await message.channel.send(
             "Seems there aren't any help messages saved in the database"
         );
 
     const helpMsg = helpMsgArray
-        .map((helpMsgObj) => `**${prefix}${helpMsgObj["cmd"]}** - ${helpMsgObj["desc"]}`)
+        .map((helpMsgObj) => `**${prefix}${helpMsgObj.cmd}** - ${helpMsgObj.desc}`)
         .join("\n");
 
     const helpEmbed = new EmbedBuilder()
@@ -189,7 +185,6 @@ export async function consoleCmd(message: Message, cmd?: string, python = false)
 
 export async function reloadBot(message: Message) {
     if (!isBotOwner(message.author)) return;
-    await mongoClient.close();
     writeUpdateFile();
     exec("pnpm run restart");
     await message.channel.send("Reload successful!");
@@ -289,12 +284,12 @@ export async function convert(message: Message, prefix: string) {
             `Usage: \`${prefix}convert <amount of money> <cur1> <cur2>\``
         );
 
-    const currencies = (
-        await mongoClient.db("hifumi").collection("currencies").find().toArray()
-    )[0];
+    const table = await db.select().from(currenciesTable).execute();
 
-    if (currencies === null)
-        return await message.channel.send("Couldn't find any currencies in the database");
+    const currencies = table.reduce((acc, curr) => {
+        acc[curr.code] = curr.longName;
+        return acc;
+    }, {} as Record<string, string>);
 
     const amount = parseFloat(content[1]);
     const from = content[2].toUpperCase();
@@ -411,7 +406,6 @@ export async function bye(message: Message) {
 
     // Closes the MongoDB connection and stops the running daemon via pm2
     await message.channel.send("Bai baaaaaaaai!!");
-    await mongoClient.close();
     client.destroy();
     exec("pm2 delete hifumi");
 }
