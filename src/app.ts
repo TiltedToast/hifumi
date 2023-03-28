@@ -8,13 +8,15 @@ import {
 import "dotenv/config";
 import { existsSync, rmSync } from "fs";
 import { MongoClient } from "mongodb";
+import { createPool } from "mysql2/promise";
 import strftime from "strftime";
 import { startStatusLoop } from "./commands/loops.js";
-import { BOT_TOKEN, LOG_CHANNEL, MONGO_URI } from "./config.js";
+import { BOT_TOKEN, LOG_CHANNEL, MONGO_URI, MYSQL_URL } from "./config.js";
 import handleInteraction from "./handlers/interactions.js";
 import handleMessage from "./handlers/messages.js";
 import type { StatusDoc } from "./helpers/types.js";
 import { getMissingCredentials, isDev } from "./helpers/utils.js";
+import { drizzle } from "drizzle-orm/mysql2/driver.js";
 
 const startTime = Date.now();
 
@@ -34,6 +36,9 @@ export const mongoClient = new MongoClient(MONGO_URI);
 export const prefixes = new Map<Snowflake, string>();
 export let statusArr: StatusDoc[] = [];
 export let botIsLoading = true;
+
+export const pool = createPool(MYSQL_URL);
+export const db = drizzle(pool);
 
 client.once("ready", async () => {
     const time = strftime("%d/%m/%Y %H:%M:%S");
