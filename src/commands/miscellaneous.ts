@@ -249,11 +249,10 @@ export async function avatar(message: Message) {
 export async function listCurrencies(message: Message) {
     const table = await db.select().from(currenciesTable).execute();
 
-    const currencies = {} as Record<string, string>;
-
-    for (const row of table) {
-        currencies[row.code] = row.longName;
-    }
+    const currencies = table.reduce((acc, curr) => {
+        acc[curr.code] = curr.longName;
+        return acc;
+    }, {} as Record<string, string>);
 
     const title = "List of currencies available for conversion";
     const columns = ["", "", ""];
