@@ -21,7 +21,7 @@ export async function insertStatus(message: Message): Promise<void | Message> {
 
     if (isDev()) {
         await message.channel.send(
-            "Add your statuses to the cloud db instead <:emiliaSMH:747132102645907587>"
+            "Add your statuses to the main db instead <:emiliaSMH:747132102645907587>"
         );
     }
 
