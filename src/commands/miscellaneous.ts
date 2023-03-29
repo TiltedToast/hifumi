@@ -1,10 +1,3 @@
-import {
-    mikuReactions,
-    mikuReactionAliases,
-    leet as leetTable,
-    currencies as currenciesTable,
-    helpMessages,
-} from "./../db/schema.js";
 import { exec } from "child_process";
 import {
     ActionRowBuilder,
@@ -19,7 +12,7 @@ import { evaluate as mathEvaluate } from "mathjs";
 import fetch from "node-fetch";
 import strftime from "strftime";
 import { promisify } from "util";
-import { client, db, pool } from "../app.js";
+import { client, db } from "../app.js";
 import { EMBED_COLOUR, EXCHANGE_API_KEY } from "../config.js";
 import {
     ConvertResponse,
@@ -38,6 +31,13 @@ import {
     sleep,
     writeUpdateFile,
 } from "../helpers/utils.js";
+import {
+    currencies as currenciesTable,
+    helpMessages,
+    leet as leetTable,
+    mikuReactionAliases,
+    mikuReactions,
+} from "./../db/schema.js";
 
 export const execPromise = promisify(exec);
 export const urbanEmbeds: EmbedMetadata[] = [];
@@ -406,7 +406,6 @@ export async function bye(message: Message) {
 
     // Closes the MongoDB connection and stops the running daemon via pm2
     await message.channel.send("Bai baaaaaaaai!!");
-    await pool.end();
     client.destroy();
     exec("pm2 delete hifumi");
 }

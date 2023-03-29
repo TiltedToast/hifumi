@@ -3,6 +3,7 @@ lockfileVersion: 5.4
 specifiers:
   '@discordjs/builders': ^1.5.0
   '@discordjs/rest': ^1.6.0
+  '@planetscale/database': ^1.6.0
   '@types/qrcode': ^1.5.0
   '@types/request': ^2.48.8
   '@types/strftime': ^0.9.4
@@ -40,12 +41,13 @@ specifiers:
 dependencies:
   '@discordjs/builders': 1.5.0
   '@discordjs/rest': 1.6.0
+  '@planetscale/database': 1.6.0
   bufferutil: 4.0.7
   canvas: 2.11.0
   discord-api-types: 0.37.36
   discord.js: 14.8.0_3cxu5zja4e2r5wmvge7mdcljwq
   dotenv: 16.0.3
-  drizzle-orm: 0.23.2_mysql2@3.2.0
+  drizzle-orm: 0.23.2_7wrgmb4pybenke4ozfnne7qf3u
   erlpack: github.com/discord/erlpack/cbe76be04c2210fc9cb6ff95910f0937c1011d04
   formdata-node: 4.4.1
   fuse.js: 6.6.2
@@ -265,6 +267,11 @@ packages:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.15.0
     dev: true
+
+  /@planetscale/database/1.6.0:
+    resolution: {integrity: sha512-eb02567S706Xme/nVwx+EN/wyoHhHBXl1a7+67R/Xm91myEpLn0vZNl58TvLZztBxje4gga16lc8dLt0elNrJA==}
+    engines: {node: '>=16'}
+    dev: false
 
   /@sapphire/async-queue/1.5.0:
     resolution: {integrity: sha512-JkLdIsP8fPAdh9ZZjrbHWR/+mZj0wvKS5ICibcLrRI1j84UmLMshx5n9QmL8b95d4onJ2xxiyugTgSAX7AalmA==}
@@ -1030,7 +1037,7 @@ packages:
       - supports-color
     dev: true
 
-  /drizzle-orm/0.23.2_mysql2@3.2.0:
+  /drizzle-orm/0.23.2_7wrgmb4pybenke4ozfnne7qf3u:
     resolution: {integrity: sha512-GSOhOc+gGSMsf3eyBzL1Yb0g0M3pOurWmFI1lVhOrmMQCVuA/smJgYSy4UeTzBV521+J+emiFaSKSomEmc+fog==}
     peerDependencies:
       '@aws-sdk/client-rds-data': '>=3'
@@ -1083,6 +1090,7 @@ packages:
       sqlite3:
         optional: true
     dependencies:
+      '@planetscale/database': 1.6.0
       mysql2: 3.2.0
     dev: false
 

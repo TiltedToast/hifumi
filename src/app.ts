@@ -1,3 +1,4 @@
+import { connect } from "@planetscale/database";
 import {
     Client as DiscordClient,
     GatewayIntentBits,
@@ -6,12 +7,11 @@ import {
     TextChannel,
 } from "discord.js";
 import "dotenv/config";
-import { drizzle } from "drizzle-orm/mysql2/driver.js";
+import { drizzle } from "drizzle-orm/planetscale-serverless/driver.js";
 import { existsSync, rmSync } from "fs";
-import { createPool } from "mysql2/promise";
 import strftime from "strftime";
 import { startStatusLoop } from "./commands/loops.js";
-import { BOT_TOKEN, LOG_CHANNEL, MYSQL_URL } from "./config.js";
+import { BOT_TOKEN, LOG_CHANNEL, PLANETSCALE_URL } from "./config.js";
 import { prefixes, statuses } from "./db/schema.js";
 import type { Status } from "./db/types.js";
 import handleInteraction from "./handlers/interactions.js";
@@ -36,8 +36,8 @@ export const prefixMap = new Map<Snowflake, string>();
 export let statusArr: Status[] = [];
 export let botIsLoading = true;
 
-export const pool = createPool(MYSQL_URL);
-export const db = drizzle(pool);
+export const PSConnection = connect({ url: PLANETSCALE_URL });
+export const db = drizzle(PSConnection);
 
 client.once("ready", async () => {
     const time = strftime("%d/%m/%Y %H:%M:%S");
@@ -71,7 +71,6 @@ client.once("ready", async () => {
         console.error(`Missing credentials: ${credentials.join(", ")}`);
         console.error("Exiting...");
         client.destroy();
-        await pool.end();
         process.exit(1);
     }
 
@@ -99,7 +98,6 @@ if (process.platform === "win32") {
 // Graceful Shutdown on Ctrl + C / Docker stop
 stopSignals.forEach((signal) => {
     process.on(signal, async () => {
-        await pool.end();
         console.log("Closed MySQL connection");
         client.destroy();
         console.log("Closed Discord client");
