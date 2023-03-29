@@ -12,14 +12,12 @@ import { evaluate as mathEvaluate } from "mathjs";
 import fetch from "node-fetch";
 import strftime from "strftime";
 import { promisify } from "util";
-import { client, mongoClient } from "../app.js";
+import { client, db } from "../app.js";
 import { EMBED_COLOUR, EXCHANGE_API_KEY } from "../config.js";
 import {
     ConvertResponse,
     ConvertResponseSchema,
     EmbedMetadata,
-    MikuEmoteReactionItems,
-    MikuEmoteReactionItemsSchema,
     UrbanEntry,
     UrbanResponse,
     UrbanResponseSchema,
@@ -33,6 +31,13 @@ import {
     sleep,
     writeUpdateFile,
 } from "../helpers/utils.js";
+import {
+    currencies as currenciesTable,
+    helpMessages,
+    leet as leetTable,
+    mikuReactionAliases,
+    mikuReactions,
+} from "./../db/schema.js";
 
 export const execPromise = promisify(exec);
 export const urbanEmbeds: EmbedMetadata[] = [];
@@ -92,24 +97,14 @@ export async function pingRandomMembers(message: Message) {
 }
 
 export async function reactToMiku(message: Message, reactCmd: string): Promise<void | Message> {
-    const mikuReactions = (await mongoClient
-        .db("hifumi")
-        .collection("mikuReactions")
-        .find({}, { projection: { _id: 0 } })
-        .toArray()) as unknown as MikuEmoteReactionItems;
+    const reactMsgs = await db.select().from(mikuReactions).execute();
+    const cmdAliases = await db.select().from(mikuReactionAliases).execute();
 
-    if (!MikuEmoteReactionItemsSchema.safeParse(mikuReactions).success) {
-        return console.error("Couldn't parse reactions for miku's emotes from db");
-    }
-
-    const [cmdAliases, reactMsgs] = mikuReactions;
-
-    for (const alias in cmdAliases) {
-        if (Object.values(cmdAliases[alias]).includes(reactCmd)) {
-            const msg = randomElementFromArray(reactMsgs[alias]).replace(
-                "{0}",
-                message.author.username
-            );
+    for (const alias of cmdAliases) {
+        if (alias.alias === reactCmd) {
+            const msg = randomElementFromArray(
+                reactMsgs.filter((x) => x.command === alias.command).map((x) => x.reaction)
+            ).replace("{0}", message.author.username);
             await sleep(1000);
             return await message.channel.send(msg);
         }
@@ -118,17 +113,21 @@ export async function reactToMiku(message: Message, reactCmd: string): Promise<v
 
 export async function leet(message: Message): Promise<void | Message> {
     const inputWords = message.content.split(" ").slice(1);
-    const leetDoc = (await mongoClient.db("hifumi").collection("leet").find().toArray())[0];
+    const leetDoc = await db.select().from(leetTable).execute();
 
-    if (leetDoc === null)
-        return message.channel.send("Couldn't find the necessary entries in the database");
+    const document = {} as Record<string, string[]>;
+
+    for (const char of leetDoc) {
+        if (!(char.source in document)) document[char.source] = [];
+        document[char.source].push(char.translated);
+    }
 
     const leetOutput = inputWords
         .map((word) => {
             return word
                 .split("")
                 .map((char) => {
-                    if (char in leetDoc) return randomElementFromArray(leetDoc[char]);
+                    if (char in document) return randomElementFromArray(document[char]);
                     return char;
                 })
                 .join("");
@@ -139,19 +138,14 @@ export async function leet(message: Message): Promise<void | Message> {
 }
 
 export async function helpCmd(message: Message, prefix: string) {
-    const helpMsgArray = await mongoClient
-        .db("hifumi")
-        .collection("helpMsgs")
-        .find()
-        .sort({ cmd: 1 })
-        .toArray();
+    const helpMsgArray = await db.select().from(helpMessages).execute();
     if (helpMsgArray.length === 0)
         return await message.channel.send(
             "Seems there aren't any help messages saved in the database"
         );
 
     const helpMsg = helpMsgArray
-        .map((helpMsgObj) => `**${prefix}${helpMsgObj["cmd"]}** - ${helpMsgObj["desc"]}`)
+        .map((helpMsgObj) => `**${prefix}${helpMsgObj.cmd}** - ${helpMsgObj.desc}`)
         .join("\n");
 
     const helpEmbed = new EmbedBuilder()
@@ -191,7 +185,6 @@ export async function consoleCmd(message: Message, cmd?: string, python = false)
 
 export async function reloadBot(message: Message) {
     if (!isBotOwner(message.author)) return;
-    await mongoClient.close();
     writeUpdateFile();
     exec("pnpm run restart");
     await message.channel.send("Reload successful!");
@@ -249,16 +242,16 @@ export async function avatar(message: Message) {
 }
 
 export async function listCurrencies(message: Message) {
-    const currencies = (
-        await mongoClient.db("hifumi").collection("currencies").find().toArray()
-    )[0];
+    const table = await db.select().from(currenciesTable).execute();
 
-    if (currencies === null)
-        return await message.channel.send("Couldn't find any currencies in the database");
+    const currencies = table.reduce((acc, curr) => {
+        acc[curr.code] = curr.longName;
+        return acc;
+    }, {} as Record<string, string>);
 
     const title = "List of currencies available for conversion";
     const columns = ["", "", ""];
-    const currencyKeys = Object.keys(currencies).sort().slice(0, -1);
+    const currencyKeys = Object.keys(currencies).sort();
 
     // Equally divides the currencies into 3 columns
     for (let i = 0; i < currencyKeys.length; i++) {
@@ -291,12 +284,12 @@ export async function convert(message: Message, prefix: string) {
             `Usage: \`${prefix}convert <amount of money> <cur1> <cur2>\``
         );
 
-    const currencies = (
-        await mongoClient.db("hifumi").collection("currencies").find().toArray()
-    )[0];
+    const table = await db.select().from(currenciesTable).execute();
 
-    if (currencies === null)
-        return await message.channel.send("Couldn't find any currencies in the database");
+    const currencies = table.reduce((acc, curr) => {
+        acc[curr.code] = curr.longName;
+        return acc;
+    }, {} as Record<string, string>);
 
     const amount = parseFloat(content[1]);
     const from = content[2].toUpperCase();
@@ -413,7 +406,6 @@ export async function bye(message: Message) {
 
     // Closes the MongoDB connection and stops the running daemon via pm2
     await message.channel.send("Bai baaaaaaaai!!");
-    await mongoClient.close();
     client.destroy();
     exec("pm2 delete hifumi");
 }

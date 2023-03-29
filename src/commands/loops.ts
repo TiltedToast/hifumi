@@ -1,7 +1,8 @@
 import type { Client, TextChannel } from "discord.js";
 import fetch from "node-fetch";
 import { statusArr } from "../app.js";
-import { CatFactResponse, CatFactResponseSchema, StatusDoc, StatusType } from "../helpers/types.js";
+import { Status } from "../db/types.js";
+import { CatFactResponse, CatFactResponseSchema, StatusType } from "../helpers/types.js";
 import { randomElementFromArray, randomIntFromRange, sleep } from "../helpers/utils.js";
 
 export async function startCatFactLoop(channel: TextChannel) {
@@ -37,7 +38,7 @@ export async function startStatusLoop(client: Client) {
  */
 async function setRandomStatus(client: Client) {
     if (!client.user) return console.error("Could not set status, client user is undefined");
-    const randomStatusDoc = randomElementFromArray(statusArr) as StatusDoc;
+    const randomStatusDoc = randomElementFromArray(statusArr) as Status;
     const { type, status } = randomStatusDoc;
 
     return client.user.setActivity(status, { type: StatusType[type] });

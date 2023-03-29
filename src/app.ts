@@ -1,3 +1,4 @@
+import { connect } from "@planetscale/database";
 import {
     Client as DiscordClient,
     GatewayIntentBits,
@@ -6,14 +7,15 @@ import {
     TextChannel,
 } from "discord.js";
 import "dotenv/config";
+import { drizzle } from "drizzle-orm/planetscale-serverless/driver.js";
 import { existsSync, rmSync } from "fs";
-import { MongoClient } from "mongodb";
 import strftime from "strftime";
 import { startStatusLoop } from "./commands/loops.js";
-import { BOT_TOKEN, LOG_CHANNEL, MONGO_URI } from "./config.js";
+import { BOT_TOKEN, LOG_CHANNEL, PLANETSCALE_URL } from "./config.js";
+import { prefixes, statuses } from "./db/schema.js";
+import type { Status } from "./db/types.js";
 import handleInteraction from "./handlers/interactions.js";
 import handleMessage from "./handlers/messages.js";
-import type { StatusDoc } from "./helpers/types.js";
 import { getMissingCredentials, isDev } from "./helpers/utils.js";
 
 const startTime = Date.now();
@@ -30,10 +32,12 @@ export const client = new DiscordClient({
     ],
     partials: [Partials.Channel],
 });
-export const mongoClient = new MongoClient(MONGO_URI);
-export const prefixes = new Map<Snowflake, string>();
-export let statusArr: StatusDoc[] = [];
+export const prefixMap = new Map<Snowflake, string>();
+export let statusArr: Status[] = [];
 export let botIsLoading = true;
+
+const PSConnection = connect({ url: PLANETSCALE_URL });
+export const db = drizzle(PSConnection);
 
 client.once("ready", async () => {
     const time = strftime("%d/%m/%Y %H:%M:%S");
@@ -47,22 +51,13 @@ client.once("ready", async () => {
     console.log(client.user.id);
     console.log("------------------");
 
-    await mongoClient.connect();
-
     // Puts all statuses into an array to avoid reading the database on every status change
-    statusArr = (await mongoClient
-        .db("hifumi")
-        .collection("statuses")
-        .find()
-        .toArray()) as StatusDoc[];
+    statusArr = await db.select().from(statuses).execute();
 
     if (statusArr.length) startStatusLoop(client);
 
-    // Gets all prefixes from the database and puts them into a dictionary to avoid reading
-    // The database every time a message is received
-    const prefixDocs = await mongoClient.db("hifumi").collection("prefixes").find().toArray();
-    for (const prefixDoc of prefixDocs) {
-        prefixes.set(prefixDoc["serverId"], prefixDoc["prefix"]);
+    for (const prefixDoc of await db.select().from(prefixes).execute()) {
+        prefixMap.set(prefixDoc.serverId, prefixDoc.prefix);
     }
     botIsLoading = false;
 
@@ -75,7 +70,6 @@ client.once("ready", async () => {
     if (credentials.length > 0) {
         console.error(`Missing credentials: ${credentials.join(", ")}`);
         console.error("Exiting...");
-        await mongoClient.close();
         client.destroy();
         process.exit(1);
     }
@@ -104,12 +98,8 @@ if (process.platform === "win32") {
 // Graceful Shutdown on Ctrl + C / Docker stop
 stopSignals.forEach((signal) => {
     process.on(signal, async () => {
-        await mongoClient.close();
-        console.log("Closed MongoDB connection");
-
         client.destroy();
-        console.log("Closed Discord client");
-
+        console.log("Closed Discord connection");
         process.exit(0);
     });
 });

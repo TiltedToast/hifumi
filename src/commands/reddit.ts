@@ -1,16 +1,20 @@
+import { RedditPost } from "./../db/types.js";
+import { redditPosts } from "./../db/schema.js";
 import { EmbedBuilder, Message, TextChannel } from "discord.js";
 import fetch from "node-fetch";
-import type { Submission } from "snoowrap";
+import { eq } from "drizzle-orm/expressions.js";
 import Snoowrap from "snoowrap";
 import type { Timespan } from "snoowrap/dist/objects/Subreddit";
 import strftime from "strftime";
-import { mongoClient } from "../app.js";
+import { db } from "../app.js";
 import {
     EMBED_COLOUR,
     REDDIT_CLIENT_ID,
     REDDIT_CLIENT_SECRET,
     REDDIT_REFRESH_TOKEN,
 } from "../config.js";
+import { NewRedditPost } from "../db/types.js";
+import { randomElementFromArray } from "../helpers/utils.js";
 
 const RedditClient = new Snoowrap({
     userAgent: "linux:hifumi:v1.0.0 (by /u/tilted_toast)",
@@ -63,7 +67,7 @@ export async function sub(message: Message, prefix: string): Promise<Message> {
     if (isNSFW && !(message.channel as TextChannel).nsfw)
         return await message.channel.send("You have to be in a NSFW channel for this");
 
-    const subreddit = content[1];
+    const subreddit = content[1].toLowerCase();
 
     // Check if the subreddit exists
     const response = await fetch(`https://www.reddit.com/r/${subreddit}/about.json`);
@@ -76,31 +80,27 @@ export async function sub(message: Message, prefix: string): Promise<Message> {
         return await message.channel.send(`Reddit's API might be having issues, try again later`);
     if (data["kind"] !== "t5") return await message.channel.send(`Subreddit not found`);
 
-    const db = mongoClient.db("reddit");
-    const collections = await db.listCollections().toArray();
-    const collectionNames = collections.map((c) => c.name);
+    const posts = await db
+        .select()
+        .from(redditPosts)
+        .where(eq(redditPosts.subreddit, subreddit))
+        .execute();
 
     if (force) {
         await message.channel.send("Force fetching images, this might take a while...");
-        await fetchSubmissions(subreddit, message);
-    } else if (!collectionNames.includes(subreddit)) {
+        posts.push(...(await fetchSubmissions(subreddit, message)));
+    } else if (!posts.length) {
         await message.channel.send(
             "Fetching images for the first time, this might take a while..."
         );
-        await fetchSubmissions(subreddit, message);
+        posts.push(...(await fetchSubmissions(subreddit, message)));
     }
 
-    const query = isNSFW && !isSFW ? { over_18: isNSFW } : { over_18: { $exists: true } };
+    const filtered_posts = isNSFW && !isSFW ? posts.filter((x) => x.over_18) : posts;
 
-    // Get a random post that's stored in the database and send it via an Embed
-    const collection = db.collection(subreddit);
-    const randomSubmission = (await collection
-        .aggregate([{ $match: query }, { $sample: { size: 1 } }])
-        .toArray()) as Submission[];
+    if (filtered_posts.length === 0) return await message.channel.send("No images found!");
 
-    if (randomSubmission.length === 0) return await message.channel.send("No images found!");
-
-    const [{ title, permalink, url }] = randomSubmission;
+    const { title, permalink, url } = randomElementFromArray(filtered_posts);
 
     const imgEmbed = new EmbedBuilder()
         .setColor(EMBED_COLOUR)
@@ -143,14 +143,13 @@ function parseSubFlags(message: Message): [boolean, boolean, boolean] {
  * @param message The message that triggered the command
  * @param limit The amount of submissions to fetch per category
  */
-export async function fetchSubmissions(subreddit: string, message: Message, limit = 100) {
-    const posts: Submission[] = [];
-    const db = mongoClient.db("reddit");
+export async function fetchSubmissions(
+    subreddit: string,
+    message: Message,
+    limit = 100
+): Promise<RedditPost[]> {
+    const posts: NewRedditPost[] = [];
 
-    // Make sure there's a collection ready for the subreddit
-    if (db.collection(subreddit) === null) await db.createCollection(subreddit);
-
-    const collection = db.collection(subreddit);
     const submissionsArray = await getSubmissions(subreddit, limit);
 
     for (const submissionType of submissionsArray) {
@@ -159,19 +158,25 @@ export async function fetchSubmissions(subreddit: string, message: Message, limi
                 !submission.is_self &&
                 (submission.url.includes("i.redd.it") || submission.url.includes("i.imgur.com"))
             ) {
-                // This is on purpose, somehow it doesn't recognise submission
-                // as json that can be put into the db
-                posts.push(JSON.parse(JSON.stringify(submission)));
+                posts.push({
+                    subreddit: submission.subreddit.display_name,
+                    title: submission.title,
+                    url: submission.url,
+                    permalink: submission.permalink,
+                    over_18: submission.over_18,
+                });
             }
         }
     }
 
     if (posts.length === 0) {
-        return await message.channel.send("Couldn't find any new images");
+        await message.channel.send("Couldn't find any new images");
+        return [];
     }
 
-    await collection.insertMany(posts);
-    return await message.channel.send(`Fetched ${posts.length} new images for ${subreddit}`);
+    await db.insert(redditPosts).values(posts).execute();
+    await message.channel.send(`Fetched ${posts.length} new images for ${subreddit}`);
+    return posts as RedditPost[];
 }
 
 async function getSubmissions(subreddit: string, limit: number) {

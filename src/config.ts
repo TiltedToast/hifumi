@@ -1,5 +1,3 @@
-import { insideDocker } from "./helpers/utils.js";
-
 export const BOT_TOKEN = process.env["BOT_TOKEN"];
 export const EXCHANGE_API_KEY = process.env["EXCHANGE_API_KEY"];
 export const IMGUR_CLIENT_ID = process.env["IMGUR_CLIENT_ID"];
@@ -7,9 +5,7 @@ export const IMGUR_CLIENT_SECRET = process.env["IMGUR_CLIENT_SECRET"];
 export const REDDIT_CLIENT_ID = process.env["REDDIT_CLIENT_ID"];
 export const REDDIT_CLIENT_SECRET = process.env["REDDIT_CLIENT_SECRET"];
 export const REDDIT_REFRESH_TOKEN = process.env["REDDIT_REFRESH_TOKEN"];
-export const MONGO_URI = insideDocker()
-    ? "mongodb://db:27017/"
-    : process.env["MONGO_URI"] ?? "mongodb://localhost:27017/";
+export const PLANETSCALE_URL = process.env["PLANETSCALE_URL"] ?? "";
 export const DEV_MODE = process.env["DEV_MODE"] ?? "false";
 export const BOT_OWNERS = ["258993932262834188", "207505077013839883"];
 export const EMBED_COLOUR = "#ce3a9b";

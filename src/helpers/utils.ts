@@ -15,7 +15,7 @@ import type { RequestInit } from "node-fetch";
 import fetch, { Headers } from "node-fetch";
 import * as path from "path";
 import strftime from "strftime";
-import { client, mongoClient } from "../app.js";
+import { client, db } from "../app.js";
 import { execPromise } from "../commands/miscellaneous.js";
 import {
     BOT_OWNERS,
@@ -25,6 +25,7 @@ import {
     IMGUR_CLIENT_ID,
     IMGUR_CLIENT_SECRET,
     LOG_CHANNEL,
+    PLANETSCALE_URL,
     REDDIT_CLIENT_ID,
     REDDIT_CLIENT_SECRET,
     REDDIT_REFRESH_TOKEN,
@@ -36,6 +37,7 @@ import type {
     UpdateEmbedArrParams,
     UpdateEmbedOptions,
 } from "./types.js";
+import { errorLogs } from "../db/schema.js";
 
 export function splitMessage(content: string, maxLength = 2000, delim = " "): string[] {
     const chunks = [];
@@ -160,6 +162,7 @@ export async function getMissingCredentials(): Promise<string[]> {
     if (!REDDIT_CLIENT_ID) missingCredentials.push("Reddit Client ID");
     if (!REDDIT_CLIENT_SECRET) missingCredentials.push("Reddit Client Secret");
     if (!REDDIT_REFRESH_TOKEN) missingCredentials.push("Reddit Refresh Token");
+    if (!PLANETSCALE_URL) missingCredentials.push("PlanetScale URL");
     return missingCredentials;
 }
 
@@ -257,7 +260,10 @@ export function randomIntFromRange(min: number, max: number): number {
  * @param message The Message object passed on each command execution
  * @param errorObject The error object that is passed to the command through try/catch
  */
-export function errorLog({ message, errorObject }: ErrorLogOptions): Promise<Message<boolean>> {
+export async function errorLog({
+    message,
+    errorObject,
+}: ErrorLogOptions): Promise<Message<boolean>> {
     const currentTime = strftime("%d/%m/%Y %H:%M:%S");
     let channel: Channel | undefined;
     let errorMessage: string;
@@ -289,18 +295,19 @@ export function errorLog({ message, errorObject }: ErrorLogOptions): Promise<Mes
         BOT_OWNERS[0]
     }>`;
 
-    const collection = mongoClient.db("hifumi").collection("errorLog");
-    collection.insertOne({
-        server: message.guild.id,
-        channel: message.channel.id,
-        user: message.author.id,
-        command: message.content,
-        error: errorObject.message,
-        stack: errorObject.stack,
-        date: `${currentTime}`,
-        timestamp: Date.now(),
-        log: fullErrorMsg,
-    });
+    db.insert(errorLogs)
+        .values({
+            server: message.guild.id,
+            channel: message.channel.id,
+            user: message.author.id,
+            command: message.content,
+            error: errorObject.message,
+            stack: errorObject.stack,
+            timestamp: strftime("%Y-%m-%d %H:%M:%S"),
+            log: fullErrorMsg,
+        })
+        .execute()
+        .catch(console.error);
 
     if (fullErrorMsg.length <= 2000) {
         errorMessage = fullErrorMsg;
@@ -317,7 +324,6 @@ export function errorLog({ message, errorObject }: ErrorLogOptions): Promise<Mes
     } else {
         channel = client.channels.cache.get(LOG_CHANNEL);
     }
-
     return (channel as TextChannel).send(errorMessage);
 }
 
