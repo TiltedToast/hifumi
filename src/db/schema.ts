@@ -41,7 +41,7 @@ export const leet = mysqlTable("leet", {
     translated: varchar("translated", { length: 50 }).notNull(),
 });
 
-export const mikuReactionAliases = mysqlTable("miku_reaction_aliases", {
+export const mikuCommandAliases = mysqlTable("miku_command_aliases", {
     id: int("id").autoincrement().primaryKey().notNull(),
     command: varchar("command", { length: 50 }).notNull(),
     alias: varchar("alias", { length: 50 }).notNull(),

@@ -35,7 +35,7 @@ import {
     currencies as currenciesTable,
     helpMessages,
     leet as leetTable,
-    mikuReactionAliases,
+    mikuCommandAliases,
     mikuReactions,
 } from "./../db/schema.js";
 
@@ -98,12 +98,12 @@ export async function pingRandomMembers(message: Message) {
 
 export async function reactToMiku(message: Message, reactCmd: string): Promise<void | Message> {
     const reactMsgs = await db.select().from(mikuReactions).execute();
-    const cmdAliases = await db.select().from(mikuReactionAliases).execute();
+    const cmdAliases = await db.select().from(mikuCommandAliases).execute();
 
-    for (const alias of cmdAliases) {
-        if (alias.alias === reactCmd) {
+    for (const item of cmdAliases) {
+        if (item.alias === reactCmd) {
             const msg = randomElementFromArray(
-                reactMsgs.filter((x) => x.command === alias.command).map((x) => x.reaction)
+                reactMsgs.filter((x) => x.command === item.command).map((x) => x.reaction)
             ).replace("{0}", message.author.username);
             await sleep(1000);
             return await message.channel.send(msg);
