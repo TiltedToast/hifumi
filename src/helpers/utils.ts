@@ -25,6 +25,7 @@ import {
     IMGUR_CLIENT_ID,
     IMGUR_CLIENT_SECRET,
     LOG_CHANNEL,
+    PLANETSCALE_URL,
     REDDIT_CLIENT_ID,
     REDDIT_CLIENT_SECRET,
     REDDIT_REFRESH_TOKEN,
@@ -161,6 +162,7 @@ export async function getMissingCredentials(): Promise<string[]> {
     if (!REDDIT_CLIENT_ID) missingCredentials.push("Reddit Client ID");
     if (!REDDIT_CLIENT_SECRET) missingCredentials.push("Reddit Client Secret");
     if (!REDDIT_REFRESH_TOKEN) missingCredentials.push("Reddit Refresh Token");
+    if (!PLANETSCALE_URL) missingCredentials.push("PlanetScale URL");
     return missingCredentials;
 }
 
