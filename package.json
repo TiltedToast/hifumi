@@ -52,7 +52,7 @@
         "deploy": "tsc && node ./dist/deploy-commands.js",
         "build": "tsc",
         "test": "npm run lint && npm run prettier",
-        "migrate:gen": "drizzle-kit generate:mysql --out migrations --schema src/db/schema.ts",
+        "migrate": "drizzle-kit generate:mysql --out migrations --schema src/db/schema.ts",
         "migrate:up": "drizzle-kit up:mysql --out migrations",
         "deploy-dev": "tsc && node ./dist/deploy-commands.js --guild 655484563077988385",
         "clear-test-commands": "tsc && node ./dist/deploy-commands.js --guild 655484563077988385 --clear"
