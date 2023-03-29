@@ -98,9 +98,8 @@ if (process.platform === "win32") {
 // Graceful Shutdown on Ctrl + C / Docker stop
 stopSignals.forEach((signal) => {
     process.on(signal, async () => {
-        console.log("Closed MySQL connection");
         client.destroy();
-        console.log("Closed Discord client");
+        console.log("Closed Discord connection");
         process.exit(0);
     });
 });
