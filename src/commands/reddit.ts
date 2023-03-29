@@ -87,7 +87,7 @@ export async function sub(message: Message, prefix: string): Promise<Message> {
                 WHERE subreddit = ${subreddit}
                 ORDER BY RAND()
                 LIMIT 1
-    `
+            `
         )
         .then((x) => x.rows as RedditPost[]);
 
