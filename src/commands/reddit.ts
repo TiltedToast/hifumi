@@ -2,7 +2,6 @@ import { RedditPost } from "./../db/types.js";
 import { redditPosts } from "./../db/schema.js";
 import { EmbedBuilder, Message, TextChannel } from "discord.js";
 import fetch from "node-fetch";
-import { eq } from "drizzle-orm/expressions.js";
 import Snoowrap from "snoowrap";
 import type { Timespan } from "snoowrap/dist/objects/Subreddit";
 import strftime from "strftime";
@@ -15,6 +14,7 @@ import {
 } from "../config.js";
 import { NewRedditPost } from "../db/types.js";
 import { randomElementFromArray } from "../helpers/utils.js";
+import { sql } from "drizzle-orm/sql/index.js";
 
 const RedditClient = new Snoowrap({
     userAgent: "linux:hifumi:v1.0.0 (by /u/tilted_toast)",
@@ -81,10 +81,15 @@ export async function sub(message: Message, prefix: string): Promise<Message> {
     if (data["kind"] !== "t5") return await message.channel.send(`Subreddit not found`);
 
     const posts = await db
-        .select()
-        .from(redditPosts)
-        .where(eq(redditPosts.subreddit, subreddit))
-        .execute();
+        .execute(
+            sql`
+                SELECT * FROM ${redditPosts}
+                WHERE subreddit = ${subreddit}
+                ORDER BY RAND()
+                LIMIT 1
+    `
+        )
+        .then((x) => x.rows as RedditPost[]);
 
     if (force) {
         await message.channel.send("Force fetching images, this might take a while...");
@@ -96,7 +101,7 @@ export async function sub(message: Message, prefix: string): Promise<Message> {
         posts.push(...(await fetchSubmissions(subreddit, message)));
     }
 
-    const filtered_posts = isNSFW && !isSFW ? posts.filter((x) => x.over_18) : posts;
+    const filtered_posts = isNSFW && !isSFW ? posts.filter((x) => !!x.over_18) : posts;
 
     if (filtered_posts.length === 0) return await message.channel.send("No images found!");
 
