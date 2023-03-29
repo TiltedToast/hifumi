@@ -27,9 +27,7 @@ export async function insertStatus(message: Message): Promise<void | Message> {
 
     const document = { type, status } as Status;
 
-    const header = await db.insert(statuses).values(document);
-
-    document.id = +header.insertId;
+    await db.insert(statuses).values(document);
 
     statusArr.push(document);
 
