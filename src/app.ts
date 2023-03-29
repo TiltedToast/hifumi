@@ -8,11 +8,10 @@ import {
 import "dotenv/config";
 import { drizzle } from "drizzle-orm/mysql2/driver.js";
 import { existsSync, rmSync } from "fs";
-import { MongoClient } from "mongodb";
 import { createPool } from "mysql2/promise";
 import strftime from "strftime";
 import { startStatusLoop } from "./commands/loops.js";
-import { BOT_TOKEN, LOG_CHANNEL, MONGO_URI, MYSQL_URL } from "./config.js";
+import { BOT_TOKEN, LOG_CHANNEL, MYSQL_URL } from "./config.js";
 import { prefixes, statuses } from "./db/schema.js";
 import type { Status } from "./db/types.js";
 import handleInteraction from "./handlers/interactions.js";
@@ -33,7 +32,6 @@ export const client = new DiscordClient({
     ],
     partials: [Partials.Channel],
 });
-export const mongoClient = new MongoClient(MONGO_URI);
 export const prefixMap = new Map<Snowflake, string>();
 export let statusArr: Status[] = [];
 export let botIsLoading = true;

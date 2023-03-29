@@ -3,7 +3,7 @@ import { db, prefixMap, statusArr } from "../app.js";
 import { BOT_OWNERS } from "../config.js";
 import { prefixes, statuses } from "../db/schema.js";
 import { Status } from "../db/types.js";
-import { StatusType } from "../helpers/types.js";
+// import { StatusType } from "../helpers/types.js";
 import { hasPermission, isBotOwner, isDev } from "../helpers/utils.js";
 import { eq } from "drizzle-orm/expressions.js";
 
@@ -17,7 +17,7 @@ export async function insertStatus(message: Message): Promise<void | Message> {
     const status = content.slice(2).join(" ");
     const type = content[1].toUpperCase();
 
-    if (!(type in StatusType)) return await message.channel.send("Invalid type!");
+    // if (!(type in StatusType)) return await message.channel.send("Invalid type!");
 
     if (isDev()) {
         await message.channel.send(
