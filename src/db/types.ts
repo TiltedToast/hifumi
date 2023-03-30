@@ -9,7 +9,7 @@ import {
     prefixes,
     redditPosts,
     statuses,
-} from "../db/schema.js";
+} from "./schema.js";
 
 export type Currency = InferModel<typeof currencies>;
 export type ErrorLog = InferModel<typeof errorLogs>;
