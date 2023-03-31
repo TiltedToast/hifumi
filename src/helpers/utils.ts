@@ -260,10 +260,7 @@ export function randomIntFromRange(min: number, max: number): number {
  * @param message The Message object passed on each command execution
  * @param errorObject The error object that is passed to the command through try/catch
  */
-export async function errorLog({
-    message,
-    errorObject,
-}: ErrorLogOptions): Promise<Message<boolean>> {
+export async function errorLog({ message, errorObject }: ErrorLogOptions) {
     const currentTime = strftime("%d/%m/%Y %H:%M:%S");
     let channel: Channel | undefined;
     let errorMessage: string;
@@ -274,16 +271,13 @@ export async function errorLog({
         return channel.send(errorMessage);
     }
 
-    if (!message.guild) return message.channel.send(`Unknown guild!`);
-    if (!errorObject) return message.channel.send(`Unknown error!`);
-
     const commandUsed =
         message.content.substring(0, 500) +
         (message.content.substring(0, 500) !== message.content ? " ..." : "");
 
     const errorMessageWithoutStack =
         `An Error occurred on ${currentTime}\n` +
-        `**Server:** ${message.guild.name} - ${message.guild.id}\n` +
+        `**Server:** ${message.guild?.name} - ${message.guild?.id}\n` +
         `**Room:** ${(message.channel as TextChannel).name} - ${message.channel.id}\n` +
         `**User:** ${message.author.username} - ${message.author.id}\n` +
         `**Command used:** ${commandUsed}\n` +
@@ -297,7 +291,7 @@ export async function errorLog({
 
     db.insert(errorLogs)
         .values({
-            server: message.guild.id,
+            server: message.guild?.id ?? "DM",
             channel: message.channel.id,
             user: message.author.id,
             command: message.content,
