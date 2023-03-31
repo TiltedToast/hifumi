@@ -1,8 +1,8 @@
 {
     "version": "5",
     "dialect": "mysql",
-    "id": "87fbb94e-fe42-4fd2-b51f-d3d8f4929a1e",
-    "prevId": "cdbb8183-8279-48aa-8281-f2a0063c1ca1",
+    "id": "cf5c8e39-8467-4eb5-a4c2-72ded853b52b",
+    "prevId": "a11cce3a-8a8c-433d-a603-2081e56a865d",
     "tables": {
         "currencies": {
             "name": "currencies",
@@ -163,8 +163,8 @@
             "foreignKeys": {},
             "compositePrimaryKeys": {}
         },
-        "miku_reaction_aliases": {
-            "name": "miku_reaction_aliases",
+        "miku_command_aliases": {
+            "name": "miku_command_aliases",
             "columns": {
                 "id": {
                     "name": "id",
@@ -275,7 +275,7 @@
                 },
                 "title": {
                     "name": "title",
-                    "type": "varchar(255)",
+                    "type": "text",
                     "primaryKey": false,
                     "notNull": true,
                     "autoincrement": false
@@ -306,11 +306,6 @@
                 "subreddit": {
                     "name": "subreddit",
                     "columns": ["subreddit"],
-                    "isUnique": false
-                },
-                "over_18": {
-                    "name": "over_18",
-                    "columns": ["over_18"],
                     "isUnique": false
                 }
             },
