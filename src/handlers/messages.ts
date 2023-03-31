@@ -95,4 +95,5 @@ async function handleCommand({ command, subCmd, message, prefix }: MessageComman
     else if (command === "calc") await misc.jsEval(message, "math");
     else if (command === "py") await misc.consoleCmd(message, undefined, true);
     else if (command === "someone") await misc.pingRandomMembers(message);
+    else if (command === "yoink") await emoji.addEmoji(message, prefix);
 }
