@@ -1,13 +1,5 @@
 import { ActivityType, ButtonInteraction, Embed, EmbedBuilder, Message } from "discord.js";
-import type { Document, WithId } from "mongodb";
 import { z } from "zod";
-
-export const MikuEmoteReactionItemsSchema = z.tuple([
-    z.record(z.string(), z.array(z.string())),
-    z.record(z.string(), z.array(z.string())),
-]);
-
-export type MikuEmoteReactionItems = z.infer<typeof MikuEmoteReactionItemsSchema>;
 
 export type UpdateEmbedArrParams<T> = {
     result: T[];
@@ -111,11 +103,6 @@ export type ResizeOptions = {
     width: number;
     saveLocation: string;
 };
-
-export type StatusDoc = {
-    type: keyof typeof StatusType;
-    status: string;
-} & WithId<Document>;
 
 export const StatusType = {
     LISTENING: ActivityType.Listening,

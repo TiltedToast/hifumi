@@ -10,7 +10,6 @@ import {
 } from "discord.js";
 import * as fs from "fs";
 import * as fsPromise from "fs/promises";
-import type { Document } from "mongodb";
 import type { RequestInit } from "node-fetch";
 import fetch, { Headers } from "node-fetch";
 import * as path from "path";
@@ -180,25 +179,6 @@ export async function resize(options: ResizeOptions) {
         const cmdPrefix = process.platform === "win32" ? "magick convert" : "convert";
         return await execPromise(`${cmdPrefix} -resize ${width} ${fileLocation} ${saveLocation}`);
     }
-}
-
-/**
- * Parses key value pairs from discord messages into a JavaScript object
- * that can be used to interact with the Database
- * @param startIndex The content index after which arguments are expected to be present
- * @param content The content of the message after being split by spaces
- * @returns Document that contains all the parsed arguments
- */
-export function parseDbArgs(startIndex: number, content: string[]): Document {
-    const document: Document = {};
-    const evenOrOdd = startIndex % 2 === 0 ? 0 : 1;
-    // Loops over the argument pairs and adds them to as key value pairs in the document
-    for (let i = startIndex; i < content.length; i += 2) {
-        if (i % 2 === evenOrOdd) {
-            document[content[i]] = content[i + 1].replace(/_/g, " ");
-        }
-    }
-    return document;
 }
 
 /**
