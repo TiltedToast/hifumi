@@ -1,24 +1,14 @@
 import { InferModel } from "drizzle-orm";
-import {
-    currencies,
-    errorLogs,
-    helpMessages,
-    leet,
-    mikuCommandAliases,
-    mikuReactions,
-    prefixes,
-    redditPosts,
-    statuses,
-} from "./schema.js";
+import * as schema from "./schema.js";
 
-export type Currency = InferModel<typeof currencies>;
-export type ErrorLog = InferModel<typeof errorLogs>;
-export type HelpMessage = InferModel<typeof helpMessages>;
-export type LeetChar = InferModel<typeof leet>;
-export type MikuCommandAlias = InferModel<typeof mikuCommandAliases>;
-export type MikuReaction = InferModel<typeof mikuReactions>;
-export type Prefix = InferModel<typeof prefixes>;
-export type Status = InferModel<typeof statuses>;
-export type NewStatus = InferModel<typeof statuses, "insert">;
-export type RedditPost = InferModel<typeof redditPosts>;
-export type NewRedditPost = InferModel<typeof redditPosts, "insert">;
+export type Currency = InferModel<typeof schema.currencies>;
+export type ErrorLog = InferModel<typeof schema.errorLogs>;
+export type HelpMessage = InferModel<typeof schema.helpMessages>;
+export type LeetChar = InferModel<typeof schema.leet>;
+export type MikuCommandAlias = InferModel<typeof schema.mikuCommandAliases>;
+export type MikuReaction = InferModel<typeof schema.mikuReactions>;
+export type Prefix = InferModel<typeof schema.prefixes>;
+export type Status = InferModel<typeof schema.statuses>;
+export type NewStatus = InferModel<typeof schema.statuses, "insert">;
+export type RedditPost = InferModel<typeof schema.redditPosts>;
+export type NewRedditPost = InferModel<typeof schema.redditPosts, "insert">;
