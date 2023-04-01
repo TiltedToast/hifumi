@@ -19,9 +19,9 @@ export const currencies = mysqlTable("currencies", {
 
 export const errorLogs = mysqlTable("error_logs", {
     id: int("id").autoincrement().primaryKey().notNull(),
-    server: varchar("server", { length: 50 }),
-    channel: varchar("channel", { length: 50 }).notNull(),
-    user: varchar("user", { length: 50 }).notNull(),
+    server: varchar("server", { length: 25 }),
+    channel: varchar("channel", { length: 25 }).notNull(),
+    user: varchar("user", { length: 25 }).notNull(),
     command: text("command"),
     stack: text("stack"),
     timestamp: timestamp("timestamp", { mode: "string" }).defaultNow(),
@@ -31,20 +31,20 @@ export const errorLogs = mysqlTable("error_logs", {
 
 export const helpMessages = mysqlTable("help_messages", {
     id: int("id").autoincrement().primaryKey().notNull(),
-    cmd: varchar("cmd", { length: 255 }).notNull(),
+    cmd: varchar("cmd", { length: 100 }).notNull(),
     desc: varchar("desc", { length: 255 }).notNull(),
 });
 
 export const leet = mysqlTable("leet", {
     id: int("id").autoincrement().primaryKey().notNull(),
     source: char("source", { length: 1 }).notNull(),
-    translated: varchar("translated", { length: 50 }).notNull(),
+    translated: varchar("translated", { length: 10 }).notNull(),
 });
 
 export const mikuCommandAliases = mysqlTable("miku_command_aliases", {
     id: int("id").autoincrement().primaryKey().notNull(),
-    command: varchar("command", { length: 50 }).notNull(),
-    alias: varchar("alias", { length: 50 }).notNull(),
+    command: varchar("command", { length: 25 }).notNull(),
+    alias: varchar("alias", { length: 25 }).notNull(),
 });
 
 export const mikuReactions = mysqlTable("miku_reactions", {
@@ -57,8 +57,8 @@ export const prefixes = mysqlTable(
     "prefixes",
     {
         id: int("id").autoincrement().primaryKey().notNull(),
-        serverId: varchar("server_id", { length: 50 }).notNull(),
-        prefix: varchar("prefix", { length: 255 }).notNull(),
+        serverId: varchar("server_id", { length: 25 }).notNull(),
+        prefix: varchar("prefix", { length: 25 }).notNull(),
     },
     (table) => {
         return {
