@@ -15,6 +15,13 @@
             "when": 1680314770483,
             "tag": "0001_lush_gideon",
             "breakpoints": false
+        },
+        {
+            "idx": 2,
+            "version": "5",
+            "when": 1680315513979,
+            "tag": "0002_broad_jamie_braddock",
+            "breakpoints": false
         }
     ]
 }

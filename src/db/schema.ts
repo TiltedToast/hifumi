@@ -89,7 +89,7 @@ export const redditPosts = mysqlTable(
     "reddit_posts",
     {
         id: int("id").autoincrement().primaryKey().notNull(),
-        subreddit: varchar("subreddit", { length: 255 }).notNull(),
+        subreddit: varchar("subreddit", { length: 50 }).notNull(),
         title: text("title").notNull(),
         url: varchar("url", { length: 255 }).notNull(),
         over_18: boolean("over_18").notNull(),
