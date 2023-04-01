@@ -91,9 +91,9 @@ export const redditPosts = mysqlTable(
         id: int("id").autoincrement().primaryKey().notNull(),
         subreddit: varchar("subreddit", { length: 255 }).notNull(),
         title: text("title").notNull(),
-        url: text("url").notNull(),
+        url: varchar("url", { length: 255 }).notNull(),
         over_18: boolean("over_18").notNull(),
-        permalink: text("permalink").notNull(),
+        permalink: varchar("permalink", { length: 255 }).notNull(),
     },
     (table) => {
         return {

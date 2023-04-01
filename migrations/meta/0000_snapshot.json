@@ -1,8 +1,8 @@
 {
     "version": "5",
     "dialect": "mysql",
-    "id": "d84066b4-bb4c-4b53-9c95-bd998c033494",
-    "prevId": "a11cce3a-8a8c-433d-a603-2081e56a865d",
+    "id": "3c06902a-8f3d-438c-a931-64c2d34f8c62",
+    "prevId": "00000000-0000-0000-0000-000000000000",
     "tables": {
         "currencies": {
             "name": "currencies",
@@ -356,9 +356,7 @@
     "schemas": {},
     "_meta": {
         "schemas": {},
-        "tables": {
-            "\"miku_reaction_aliases\"": "\"miku_command_aliases\""
-        },
+        "tables": {},
         "columns": {}
     }
 }

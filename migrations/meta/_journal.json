@@ -1,1 +1,20 @@
-{ "version": "5", "dialect": "mysql", "entries": [] }
+{
+    "version": "5",
+    "dialect": "mysql",
+    "entries": [
+        {
+            "idx": 0,
+            "version": "5",
+            "when": 1680314703848,
+            "tag": "0000_hard_sister_grimm",
+            "breakpoints": false
+        },
+        {
+            "idx": 1,
+            "version": "5",
+            "when": 1680314770483,
+            "tag": "0001_lush_gideon",
+            "breakpoints": false
+        }
+    ]
+}
