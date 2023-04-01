@@ -60,5 +60,5 @@
         "*.{js,ts}": "eslint --cache",
         "*.{js,ts,json,css,md}": "prettier --config .prettierrc --write"
     },
-    "packageManager": "pnpm@7.29.3"
+    "packageManager": "pnpm@8.1.0"
 }
