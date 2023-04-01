@@ -1,4 +1,4 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
-npx tsc && npx lint-staged --no-stash
+pnpm tsc && pnpm lint-staged --no-stash

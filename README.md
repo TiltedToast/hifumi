@@ -17,7 +17,7 @@ DEV_MODE="true or false"
 
 You can use pm2 or any other process manager to manage reloading during runtime.
 
-Just make sure to install it first, in the case of pm2 that would be `npm install -g pm2`.
+Just make sure to install it first, in the case of pm2 that would be `pnpm install -g pm2`.
 
 Alternatively you can also just use the provided docker files to run her in an isolated container and manage things that way of course.
 
