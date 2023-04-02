@@ -1,11 +1,29 @@
 import { Message, PermissionFlagsBits } from "discord.js";
-import { db, prefixMap, statusArr } from "../app.js";
+import { PSConnection, db, prefixMap, statusArr } from "../app.js";
 import { BOT_OWNERS } from "../config.js";
 import { prefixes, statuses } from "../db/schema.js";
 import { Status } from "../db/types.js";
 import { StatusType } from "../helpers/types.js";
 import { hasPermission, isBotOwner, isDev } from "../helpers/utils.js";
 import { eq } from "drizzle-orm/expressions.js";
+
+export async function runSQL(message: Message) {
+    if (!isBotOwner(message.author)) return;
+    const content = message.content.split(" ");
+
+    const query = content.slice(1).join(" ");
+
+    if (query.length === 0) return await message.channel.send("You need to provide a query yknow");
+
+    const result = await PSConnection.execute(query);
+
+    if (content[1].toLowerCase() === "select") {
+        await message.channel.send(`\`\`\`json\n${JSON.stringify(result.rows)}\n\`\`\``);
+    } else {
+        await message.channel.send("Query executed!");
+        await message.channel.send(`Rows affected: ${result.rowsAffected}`);
+    }
+}
 
 export async function insertStatus(message: Message): Promise<void | Message> {
     if (!isBotOwner(message.author)) return;
