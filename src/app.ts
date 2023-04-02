@@ -36,7 +36,7 @@ export const prefixMap = new Map<Snowflake, string>();
 export let statusArr: Status[] = [];
 export let botIsLoading = true;
 
-export const PSConnection = connect({ url: PLANETSCALE_URL });
+const PSConnection = connect({ url: PLANETSCALE_URL });
 export const db = drizzle(PSConnection);
 
 client.once("ready", async () => {
