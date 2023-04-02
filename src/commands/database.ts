@@ -1,11 +1,12 @@
+import { DatabaseError } from "@planetscale/database";
 import { Message, PermissionFlagsBits } from "discord.js";
+import { eq } from "drizzle-orm/expressions.js";
 import { db, prefixMap, statusArr } from "../app.js";
 import { BOT_OWNERS } from "../config.js";
 import { prefixes, statuses } from "../db/schema.js";
 import { Status } from "../db/types.js";
 import { StatusType } from "../helpers/types.js";
 import { hasPermission, isBotOwner, isDev } from "../helpers/utils.js";
-import { eq } from "drizzle-orm/expressions.js";
 
 export async function insertStatus(message: Message): Promise<void | Message> {
     if (!isBotOwner(message.author)) return;
@@ -27,7 +28,20 @@ export async function insertStatus(message: Message): Promise<void | Message> {
 
     const document = { type, status } as Status;
 
-    await db.insert(statuses).values(document);
+    try {
+        await db.insert(statuses).values(document);
+    } catch (e) {
+        if (e instanceof DatabaseError) {
+            if (e.message.includes("AlreadyExists")) {
+                return await message.channel.send("Status already exists");
+            } else {
+                console.error(e);
+                return await message.channel.send("Unknown DatabaseError, check the logs");
+            }
+        }
+        console.error(e);
+        return await message.channel.send("Unknown error, check the logs");
+    }
 
     statusArr.push(document);
 

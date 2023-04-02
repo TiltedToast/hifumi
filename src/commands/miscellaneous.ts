@@ -104,7 +104,7 @@ export async function reactToMiku(message: Message, reactCmd: string): Promise<v
         if (item.alias === reactCmd) {
             const msg = randomElementFromArray(
                 reactMsgs.filter((x) => x.command === item.command).map((x) => x.reaction)
-            ).replace("{0}", message.author.username);
+            ).replace("{0}", message.member?.displayName ?? message.author.username);
             await sleep(1000);
             return await message.channel.send(msg);
         }
