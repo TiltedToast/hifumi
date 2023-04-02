@@ -1,6 +1,5 @@
-import { RedditPost } from "./../db/types.js";
-import { redditPosts } from "./../db/schema.js";
 import { EmbedBuilder, Message, TextChannel } from "discord.js";
+import { sql } from "drizzle-orm/sql/index.js";
 import fetch from "node-fetch";
 import Snoowrap from "snoowrap";
 import type { Timespan } from "snoowrap/dist/objects/Subreddit";
@@ -14,7 +13,8 @@ import {
 } from "../config.js";
 import { NewRedditPost } from "../db/types.js";
 import { randomElementFromArray } from "../helpers/utils.js";
-import { sql } from "drizzle-orm/sql/index.js";
+import { redditPosts } from "./../db/schema.js";
+import { RedditPost } from "./../db/types.js";
 
 const RedditClient = new Snoowrap({
     userAgent: "linux:hifumi:v1.0.0 (by /u/tilted_toast)",
@@ -84,6 +84,7 @@ export async function sub(message: Message, prefix: string): Promise<Message> {
         .execute(
             sql`
                 SELECT * FROM ${redditPosts}
+                FORCE INDEX (subreddit)
                 WHERE subreddit = ${subreddit}
                 ORDER BY RAND()
                 LIMIT 1
