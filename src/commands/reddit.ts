@@ -153,7 +153,7 @@ export async function fetchSubmissions(
     message: Message,
     limit = 100
 ): Promise<RedditPost[]> {
-    const posts: NewRedditPost[] = [];
+    const posts = new Set<NewRedditPost>();
 
     const submissionsArray = await getSubmissions(subreddit, limit);
 
@@ -163,7 +163,7 @@ export async function fetchSubmissions(
                 !submission.is_self &&
                 (submission.url.includes("i.redd.it") || submission.url.includes("i.imgur.com"))
             ) {
-                posts.push({
+                posts.add({
                     subreddit: submission.subreddit.display_name,
                     title: submission.title,
                     url: submission.url,
@@ -174,14 +174,16 @@ export async function fetchSubmissions(
         }
     }
 
-    if (posts.length === 0) {
+    if (posts.size === 0) {
         await message.channel.send("Couldn't find any new images");
         return [];
     }
 
-    await db.insert(redditPosts).values(posts).execute();
-    await message.channel.send(`Fetched ${posts.length} new images for ${subreddit}`);
-    return posts as RedditPost[];
+    const postArray = Array.from(posts);
+
+    await db.insert(redditPosts).values(postArray).execute();
+    await message.channel.send(`Fetched ${postArray.length} new images for ${subreddit}`);
+    return postArray as RedditPost[];
 }
 
 async function getSubmissions(subreddit: string, limit: number) {
