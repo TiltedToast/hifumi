@@ -5,9 +5,3 @@ services:
         build:
             context: ./
             dockerfile: Dockerfile
-
-    db:
-        image: mongo
-        ports:
-            - "27017"
-        command: mongod --quiet --logpath /dev/null --bind_ip_all

@@ -8,3 +8,4 @@ data
 *.log
 .vscode
 .eslintcache
+data

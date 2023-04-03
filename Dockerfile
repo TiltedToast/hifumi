@@ -1,8 +1,9 @@
-FROM node:18.12.0
+FROM node:18.14.0
 WORKDIR /hifumi
 ENV DOCKER=true
-COPY package*.json ./
-RUN npm install && npm install -g typescript
+COPY package.json .
+RUN npm install -g pnpm
+RUN pnpm install
 COPY . .
 STOPSIGNAL SIGINT
-CMD [ "npm", "run", "docker-build" ]
+CMD [ "pnpm", "run", "docker-build" ]
