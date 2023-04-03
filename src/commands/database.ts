@@ -20,7 +20,12 @@ export async function runSQL(message: Message) {
 
     try {
         const result = await PSConnection.execute(query).then((res) => res.rows);
-        await message.channel.send(`\`\`\`json\n${JSON.stringify(result)}\n\`\`\``);
+        const stringified = JSON.stringify(result);
+
+        if (stringified.length > 2000) {
+            return await message.channel.send("The result is too long to be displayed");
+        }
+        await message.channel.send(`\`\`\`json\n${stringified}\n\`\`\``);
     } catch (e) {
         if (e instanceof DatabaseError) {
             console.error(e);
