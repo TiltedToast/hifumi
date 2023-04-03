@@ -1,12 +1,35 @@
 import { DatabaseError } from "@planetscale/database";
 import { Message, PermissionFlagsBits } from "discord.js";
 import { eq } from "drizzle-orm/expressions.js";
-import { db, prefixMap, statusArr } from "../app.js";
+import { PSConnection, db, prefixMap, statusArr } from "../app.js";
 import { BOT_OWNERS } from "../config.js";
 import { prefixes, statuses } from "../db/schema.js";
 import { Status } from "../db/types.js";
 import { StatusType } from "../helpers/types.js";
 import { hasPermission, isBotOwner, isDev } from "../helpers/utils.js";
+
+export async function runSQL(message: Message) {
+    if (!isBotOwner(message.author)) return;
+    const query = message.content.split(" ").slice(1).join(" ").toLowerCase();
+
+    if (query.length === 0) return await message.channel.send("You need to provide a query smh");
+
+    if (!query.startsWith("select")) {
+        return await message.channel.send("Don't do this through here...");
+    }
+
+    try {
+        const result = await PSConnection.execute(query).then((res) => res.rows);
+        await message.channel.send(`\`\`\`json\n${JSON.stringify(result)}\n\`\`\``);
+    } catch (e) {
+        if (e instanceof DatabaseError) {
+            console.error(e);
+            return await message.channel.send(`Invalid Query\n${e.message}`);
+        }
+        console.error(e);
+        return await message.channel.send("Unknown error, check the logs");
+    }
+}
 
 export async function insertStatus(message: Message): Promise<void | Message> {
     if (!isBotOwner(message.author)) return;
