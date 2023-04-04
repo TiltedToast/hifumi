@@ -85,7 +85,7 @@ export async function sub(message: Message, prefix: string): Promise<Message> {
             sql`
                 SELECT * FROM ${redditPosts}
                 FORCE INDEX (subreddit)
-                WHERE subreddit = ${subreddit}
+                WHERE ${redditPosts.subreddit} = ${subreddit}
                 ORDER BY RAND()
                 LIMIT 1
             `
