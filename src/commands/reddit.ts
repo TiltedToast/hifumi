@@ -73,12 +73,14 @@ export async function sub(message: Message, prefix: string): Promise<Message> {
     const response = await fetch(`https://www.reddit.com/r/${subreddit}/about.json`);
     const data = (await response.json()) as Record<string, unknown>;
 
+    console.log(data);
     if ("reason" in data)
         return await message.channel.send(`Subreddit not found! Reason: ${data["reason"]}`);
 
+    if (response.status === 404) return await message.channel.send(`Subreddit not found`);
+
     if (!response.ok)
         return await message.channel.send(`Reddit's API might be having issues, try again later`);
-    if (data["kind"] !== "t5") return await message.channel.send(`Subreddit not found`);
 
     const posts = await db
         .execute(
