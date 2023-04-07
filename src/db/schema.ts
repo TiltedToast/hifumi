@@ -58,7 +58,7 @@ export const prefixes = mysqlTable(
     {
         id: int("id").autoincrement().primaryKey().notNull(),
         serverId: varchar("server_id", { length: 25 }).notNull(),
-        prefix: varchar("prefix", { length: 25 }).notNull(),
+        prefix: varchar("prefix", { length: 255 }).notNull(),
     },
     (table) => {
         return {

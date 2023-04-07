@@ -1,8 +1,8 @@
 {
     "version": "5",
     "dialect": "mysql",
-    "id": "3c06902a-8f3d-438c-a931-64c2d34f8c62",
-    "prevId": "00000000-0000-0000-0000-000000000000",
+    "id": "3cb93db6-6044-4e30-a801-e7bdf6d06e82",
+    "prevId": "7773b87a-0673-49a2-a2be-128d5a186b82",
     "tables": {
         "currencies": {
             "name": "currencies",
@@ -45,21 +45,21 @@
                 },
                 "server": {
                     "name": "server",
-                    "type": "varchar(50)",
+                    "type": "varchar(25)",
                     "primaryKey": false,
                     "notNull": false,
                     "autoincrement": false
                 },
                 "channel": {
                     "name": "channel",
-                    "type": "varchar(50)",
+                    "type": "varchar(25)",
                     "primaryKey": false,
                     "notNull": true,
                     "autoincrement": false
                 },
                 "user": {
                     "name": "user",
-                    "type": "varchar(50)",
+                    "type": "varchar(25)",
                     "primaryKey": false,
                     "notNull": true,
                     "autoincrement": false
@@ -117,7 +117,7 @@
                 },
                 "cmd": {
                     "name": "cmd",
-                    "type": "varchar(255)",
+                    "type": "varchar(100)",
                     "primaryKey": false,
                     "notNull": true,
                     "autoincrement": false
@@ -153,7 +153,7 @@
                 },
                 "translated": {
                     "name": "translated",
-                    "type": "varchar(50)",
+                    "type": "varchar(10)",
                     "primaryKey": false,
                     "notNull": true,
                     "autoincrement": false
@@ -175,14 +175,14 @@
                 },
                 "command": {
                     "name": "command",
-                    "type": "varchar(50)",
+                    "type": "varchar(25)",
                     "primaryKey": false,
                     "notNull": true,
                     "autoincrement": false
                 },
                 "alias": {
                     "name": "alias",
-                    "type": "varchar(50)",
+                    "type": "varchar(25)",
                     "primaryKey": false,
                     "notNull": true,
                     "autoincrement": false
@@ -233,7 +233,7 @@
                 },
                 "server_id": {
                     "name": "server_id",
-                    "type": "varchar(50)",
+                    "type": "varchar(25)",
                     "primaryKey": false,
                     "notNull": true,
                     "autoincrement": false
@@ -268,7 +268,7 @@
                 },
                 "subreddit": {
                     "name": "subreddit",
-                    "type": "varchar(255)",
+                    "type": "varchar(50)",
                     "primaryKey": false,
                     "notNull": true,
                     "autoincrement": false
@@ -282,7 +282,7 @@
                 },
                 "url": {
                     "name": "url",
-                    "type": "text",
+                    "type": "varchar(255)",
                     "primaryKey": false,
                     "notNull": true,
                     "autoincrement": false
@@ -296,7 +296,7 @@
                 },
                 "permalink": {
                     "name": "permalink",
-                    "type": "text",
+                    "type": "varchar(255)",
                     "primaryKey": false,
                     "notNull": true,
                     "autoincrement": false
