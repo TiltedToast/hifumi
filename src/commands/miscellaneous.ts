@@ -142,7 +142,12 @@ export async function helpCmd(message: Message | CommandInteraction, prefix?: st
     const helpMsgArray = await db.select().from(helpMessages).execute();
 
     if (helpMsgArray.length === 0) {
-        return await message.channel?.send(
+        if (message instanceof CommandInteraction) {
+            return await message.reply(
+                "Seems there aren't any help messages saved in the database"
+            );
+        }
+        return await message.channel.send(
             "Seems there aren't any help messages saved in the database"
         );
     }
@@ -158,7 +163,10 @@ export async function helpCmd(message: Message | CommandInteraction, prefix?: st
         .setTitle("**Hifumi's commands**")
         .setDescription(helpMsg);
 
-    return await message.channel?.send({ embeds: [helpEmbed] });
+    if (message instanceof CommandInteraction) {
+        return await message.reply({ embeds: [helpEmbed] });
+    }
+    return await message.channel.send({ embeds: [helpEmbed] });
 }
 
 export async function gitPull(message: Message) {
