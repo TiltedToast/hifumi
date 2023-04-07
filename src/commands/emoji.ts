@@ -6,7 +6,7 @@ import {
     MessageType,
     PermissionFlagsBits,
 } from "discord.js";
-import * as fs from "fs";
+import { readFileSync } from "fs";
 import Fuse from "fuse.js";
 import { FileSizeLimit } from "../helpers/types.js";
 import {
@@ -128,7 +128,7 @@ export async function addEmoji(message: Message, prefix: string): Promise<void |
                 return message.channel.send("File too large for Discord, even after resizing!");
             }
             if (message.guild === null) return message.channel.send("You can't add emojis to DMs!");
-            const base64 = fs.readFileSync(`./temp/unknown_resized.${imgType}`, {
+            const base64 = readFileSync(`./temp/unknown_resized.${imgType}`, {
                 encoding: "base64",
             });
             emoji = await message.guild.emojis.create({
@@ -137,7 +137,7 @@ export async function addEmoji(message: Message, prefix: string): Promise<void |
             });
         } else {
             if (message.guild === null) return message.channel.send("You can't add emojis to DMs!");
-            const base64 = fs.readFileSync(`./temp/unknown.${imgType}`, {
+            const base64 = readFileSync(`./temp/unknown.${imgType}`, {
                 encoding: "base64",
             });
             emoji = await message.guild.emojis.create({
@@ -195,7 +195,7 @@ async function bulkAddEmojis(message: Message, emojis: RegExpMatchArray) {
         await downloadURL(url, filePath);
 
         try {
-            const base64 = fs.readFileSync(filePath, { encoding: "base64" });
+            const base64 = readFileSync(filePath, { encoding: "base64" });
             emoji = await message.guild?.emojis.create({
                 attachment: `data:image/${imgType};base64,${base64}`,
                 name,
