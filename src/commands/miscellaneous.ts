@@ -28,6 +28,7 @@ import {
     hasPermission,
     isBotOwner,
     randomElementFromArray,
+    sendOrReply,
     setEmbedArr,
     sleep,
     writeUpdateFile,
@@ -142,14 +143,7 @@ export async function helpCmd(message: Message | CommandInteraction, prefix?: st
     const helpMsgArray = await db.select().from(helpMessages).execute();
 
     if (helpMsgArray.length === 0) {
-        if (message instanceof CommandInteraction) {
-            return await message.reply(
-                "Seems there aren't any help messages saved in the database"
-            );
-        }
-        return await message.channel.send(
-            "Seems there aren't any help messages saved in the database"
-        );
+        return sendOrReply(message, "Seems there aren't any help messages saved in the database");
     }
 
     if (!prefix) prefix = prefixMap.get(message.guildId ?? "") ?? "h!";
@@ -163,10 +157,7 @@ export async function helpCmd(message: Message | CommandInteraction, prefix?: st
         .setTitle("**Hifumi's commands**")
         .setDescription(helpMsg);
 
-    if (message instanceof CommandInteraction) {
-        return await message.reply({ embeds: [helpEmbed] });
-    }
-    return await message.channel.send({ embeds: [helpEmbed] });
+    return await sendOrReply(message, { embeds: [helpEmbed] });
 }
 
 export async function gitPull(message: Message) {

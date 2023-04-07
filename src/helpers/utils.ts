@@ -1,5 +1,7 @@
 import {
+    BaseMessageOptions,
     Channel,
+    CommandInteraction,
     GuildMember,
     Message,
     MessageType,
@@ -37,6 +39,21 @@ import type {
     UpdateEmbedOptions,
 } from "./types.js";
 import { errorLogs } from "../db/schema.js";
+
+/**
+ * Send a message if the input is a message, or reply if the input is a command interaction
+ * @param input Message or CommandInteraction
+ * @param message Whatever you want to send or reply with
+ */
+export async function sendOrReply(
+    input: Message | CommandInteraction,
+    message: string | BaseMessageOptions
+) {
+    if (input instanceof Message) {
+        return await input.channel.send(message);
+    }
+    return await input.reply(message);
+}
 
 export function splitMessage(content: string, maxLength = 2000, delim = " "): string[] {
     const chunks = [];
