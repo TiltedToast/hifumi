@@ -143,7 +143,10 @@ export async function helpCmd(message: Message | CommandInteraction, prefix?: st
     const helpMsgArray = await db.select().from(helpMessages).execute();
 
     if (helpMsgArray.length === 0) {
-        return sendOrReply(message, "Seems there aren't any help messages saved in the database");
+        return await sendOrReply(
+            message,
+            "Seems there aren't any help messages saved in the database"
+        );
     }
 
     if (!prefix) prefix = prefixMap.get(message.guildId ?? "") ?? "h!";
