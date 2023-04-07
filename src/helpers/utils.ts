@@ -52,7 +52,11 @@ export async function sendOrReply(
     if (input instanceof Message) {
         return await input.channel.send(message);
     }
-    return await input.reply(message);
+    if (input.isRepliable()) {
+        return await input.reply(message);
+    } else {
+        return await input.channel?.send(message);
+    }
 }
 
 export function splitMessage(content: string, maxLength = 2000, delim = " "): string[] {
