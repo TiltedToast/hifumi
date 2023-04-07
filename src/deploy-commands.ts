@@ -18,6 +18,7 @@ const commands = [
         .addUserOption((option) =>
             option.setName("user").setDescription("The user to pat").setRequired(true)
         ),
+    new SlashCommandBuilder().setName("help").setDescription("Shows a list of commands"),
 ].map((command) => command.toJSON());
 
 const rest = new REST({ version: "10" }).setToken(process.env["BOT_TOKEN"] ?? "");

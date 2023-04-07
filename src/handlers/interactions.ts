@@ -1,5 +1,5 @@
 import type { ButtonInteraction, CommandInteraction, Interaction } from "discord.js";
-import { urbanEmbeds } from "../commands/miscellaneous.js";
+import { helpCmd, urbanEmbeds } from "../commands/miscellaneous.js";
 import { updateEmbed } from "../helpers/utils.js";
 
 export default async function handleInteraction(interaction: Interaction) {
@@ -26,5 +26,7 @@ async function handleButtonInteraction(interaction: ButtonInteraction) {
 async function handleCommandInteraction(interaction: CommandInteraction) {
     if (interaction.commandName === "pat") {
         await interaction.reply(`$pat ${interaction.options.getUser("user")}`);
+    } else if (interaction.commandName === "help") {
+        await helpCmd(interaction);
     }
 }

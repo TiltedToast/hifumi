@@ -3,6 +3,7 @@ import {
     ActionRowBuilder,
     ButtonBuilder,
     ButtonStyle,
+    CommandInteraction,
     EmbedBuilder,
     Message,
     PermissionFlagsBits,
@@ -37,7 +38,9 @@ import {
     leet as leetTable,
     mikuCommandAliases,
     mikuReactions,
+    prefixes,
 } from "./../db/schema.js";
+import { sql } from "drizzle-orm";
 
 export const execPromise = promisify(exec);
 export const urbanEmbeds: EmbedMetadata[] = [];
@@ -137,12 +140,24 @@ export async function leet(message: Message): Promise<void | Message> {
     await message.channel.send(leetOutput.substring(0, 2000));
 }
 
-export async function helpCmd(message: Message, prefix: string) {
+export async function helpCmd(message: Message | CommandInteraction, prefix?: string) {
     const helpMsgArray = await db.select().from(helpMessages).execute();
-    if (helpMsgArray.length === 0)
-        return await message.channel.send(
+
+    if (helpMsgArray.length === 0) {
+        return await message.channel?.send(
             "Seems there aren't any help messages saved in the database"
         );
+    }
+
+    if (!prefix) {
+        const prefixTable = await db
+            .select()
+            .from(prefixes)
+            .where(sql`${prefixes.serverId} = ${message.guild?.id}`)
+            .execute();
+
+        prefix = prefixTable.length === 0 ? "h!" : prefixTable[0].prefix;
+    }
 
     const helpMsg = helpMsgArray
         .map((helpMsgObj) => `**${prefix}${helpMsgObj.cmd}** - ${helpMsgObj.desc}`)
@@ -153,7 +168,7 @@ export async function helpCmd(message: Message, prefix: string) {
         .setTitle("**Hifumi's commands**")
         .setDescription(helpMsg);
 
-    return await message.channel.send({ embeds: [helpEmbed] });
+    return await message.channel?.send({ embeds: [helpEmbed] });
 }
 
 export async function gitPull(message: Message) {

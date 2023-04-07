@@ -26,9 +26,6 @@ export default async function handleMessage(message: Message) {
         if (message.guild && !prefixMap.has(message.guild.id) && !isDev()) {
             await DBConn.insert(prefixes).values({ serverId: message.guild.id, prefix: "h!" });
             prefixMap.set(message.guild.id, "h!");
-            await message.channel.send(
-                "I have set the prefix to `h!`. You can change it with `h!prefix`"
-            );
         }
 
         // Gets the prefix from the map and compares to the message's beginning
