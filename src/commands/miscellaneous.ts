@@ -13,7 +13,7 @@ import { evaluate as mathEvaluate } from "mathjs";
 import fetch from "node-fetch";
 import strftime from "strftime";
 import { promisify } from "util";
-import { client, db } from "../app.js";
+import { client, db, prefixMap } from "../app.js";
 import { EMBED_COLOUR, EXCHANGE_API_KEY } from "../config.js";
 import {
     ConvertResponse,
@@ -38,9 +38,7 @@ import {
     leet as leetTable,
     mikuCommandAliases,
     mikuReactions,
-    prefixes,
 } from "./../db/schema.js";
-import { sql } from "drizzle-orm";
 
 export const execPromise = promisify(exec);
 export const urbanEmbeds: EmbedMetadata[] = [];
@@ -149,15 +147,7 @@ export async function helpCmd(message: Message | CommandInteraction, prefix?: st
         );
     }
 
-    if (!prefix) {
-        const prefixTable = await db
-            .select()
-            .from(prefixes)
-            .where(sql`${prefixes.serverId} = ${message.guild?.id}`)
-            .execute();
-
-        prefix = prefixTable.length === 0 ? "h!" : prefixTable[0].prefix;
-    }
+    if (!prefix) prefix = prefixMap.get(message.guildId ?? "") ?? "h!";
 
     const helpMsg = helpMsgArray
         .map((helpMsgObj) => `**${prefix}${helpMsgObj.cmd}** - ${helpMsgObj.desc}`)
