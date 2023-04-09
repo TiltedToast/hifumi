@@ -37,7 +37,7 @@ export let statusArr: Status[] = [];
 export let botIsLoading = true;
 
 export const PSConnection = connect({ url: PLANETSCALE_URL });
-export const db = drizzle(PSConnection);
+export const db = drizzle(PSConnection, { logger: isDev() });
 
 client.once("ready", async () => {
     const time = strftime("%d/%m/%Y %H:%M:%S");
