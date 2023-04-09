@@ -17,6 +17,7 @@ import type { Status } from "./db/types.js";
 import handleInteraction from "./handlers/interactions.js";
 import handleMessage from "./handlers/messages.js";
 import { getMissingCredentials, isDev } from "./helpers/utils.js";
+import fetch from "node-fetch";
 
 const startTime = Date.now();
 
@@ -36,7 +37,7 @@ export const prefixMap = new Map<Snowflake, string>();
 export let statusArr: Status[] = [];
 export let botIsLoading = true;
 
-export const PSConnection = connect({ url: PLANETSCALE_URL });
+export const PSConnection = connect({ url: PLANETSCALE_URL, fetch });
 export const db = drizzle(PSConnection, { logger: isDev() });
 
 client.once("ready", async () => {
