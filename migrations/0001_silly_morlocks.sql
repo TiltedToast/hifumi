@@ -1,0 +1,1 @@
+ALTER TABLE `prefixes` MODIFY COLUMN `prefix` varchar(255) NOT NULL;
