@@ -44,7 +44,7 @@
         "stop": "pm2 delete hifumi",
         "restart": "tsc && pm2 reload hifumi",
         "docker-build": "tsc && node ./dist/app.js",
-        "lint": "eslint --cache . ",
+        "lint": "eslint . ",
         "prettier": "prettier --config .prettierrc --check ./src",
         "prepare": "husky install",
         "deploy": "tsc && node ./dist/deploy-commands.js",
