@@ -44,7 +44,7 @@
         "stop": "pm2 delete hifumi",
         "restart": "tsc && pm2 reload hifumi",
         "docker-build": "tsc && node ./dist/app.js",
-        "lint": "eslint --cache . ",
+        "lint": "eslint . ",
         "prettier": "prettier --config .prettierrc --check ./src",
         "prepare": "husky install",
         "deploy": "tsc && node ./dist/deploy-commands.js",
@@ -55,6 +55,5 @@
         "deploy-dev": "tsc && node ./dist/deploy-commands.js --guild 655484563077988385",
         "clear-test-commands": "tsc && node ./dist/deploy-commands.js --guild 655484563077988385 --clear"
     },
-
     "packageManager": "pnpm@8.1.0"
 }
