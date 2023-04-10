@@ -1,4 +1,4 @@
-import { exec } from "child_process";
+import { exec } from "node:child_process";
 import {
     ActionRowBuilder,
     ButtonBuilder,
@@ -12,7 +12,7 @@ import {
 import { evaluate as mathEvaluate } from "mathjs";
 import fetch from "node-fetch";
 import strftime from "strftime";
-import { promisify } from "util";
+import { promisify } from "node:util";
 import { client, db, prefixMap } from "../app.js";
 import { EMBED_COLOUR, EXCHANGE_API_KEY } from "../config.js";
 import {

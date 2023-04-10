@@ -10,11 +10,11 @@ import {
     TextChannel,
     User,
 } from "discord.js";
-import * as fs from "fs";
-import * as fsPromise from "fs/promises";
+import * as fs from "node:fs";
+import * as fsPromise from "node:fs/promises";
 import type { RequestInit } from "node-fetch";
 import fetch, { Headers } from "node-fetch";
-import * as path from "path";
+import { resolve } from "node:path";
 import strftime from "strftime";
 import { client, db } from "../app.js";
 import { execPromise } from "../commands/miscellaneous.js";
@@ -328,7 +328,7 @@ export async function errorLog({ message, errorObject }: ErrorLogOptions) {
  * @param saveLocation Path to save the file to
  */
 export async function downloadURL(url: string, saveLocation: string) {
-    const absSaveLocation = path.resolve(saveLocation);
+    const absSaveLocation = resolve(saveLocation);
 
     const myHeaders = new Headers();
     myHeaders.append("User-Agent", "hifumi-js:v1.0.0:tiltedtoast27@gmail.com");
@@ -387,7 +387,7 @@ export function extractEmoji(emojiString: string, IdOnly = false): string {
  * @param directory Path to the temporary directory you want to create
  */
 export function createTemp(directory: string): void {
-    const absPath = path.resolve(directory);
+    const absPath = resolve(directory);
 
     if (fs.existsSync(absPath)) {
         fs.rmSync(absPath, { recursive: true });

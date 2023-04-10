@@ -1,7 +1,7 @@
 import canvas from "canvas";
 import type { Message } from "discord.js";
 import { FormData } from "formdata-node";
-import * as fsPromise from "fs/promises";
+import * as fsPromise from "node:fs/promises";
 import fetch, { Headers } from "node-fetch";
 import * as qrcode from "qrcode";
 import { IMGUR_CLIENT_ID } from "../config.js";

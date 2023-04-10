@@ -6,7 +6,7 @@ import {
     MessageType,
     PermissionFlagsBits,
 } from "discord.js";
-import { readFileSync } from "fs";
+import { readFileSync } from "node:fs";
 import Fuse from "fuse.js";
 import { FileSizeLimit } from "../helpers/types.js";
 import {

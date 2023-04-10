@@ -8,7 +8,7 @@ import {
 } from "discord.js";
 import "dotenv/config";
 import { drizzle } from "drizzle-orm/planetscale-serverless/driver.js";
-import { existsSync, rmSync } from "fs";
+import { existsSync, rmSync } from "node:fs";
 import strftime from "strftime";
 import { startStatusLoop } from "./commands/loops.js";
 import { BOT_TOKEN, LOG_CHANNEL, PLANETSCALE_URL } from "./config.js";
