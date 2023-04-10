@@ -26,6 +26,7 @@ jobs:
               with:
                   prettier_options: --config .prettierrc --write **/*.{js,ts,json,css,md,yml}
                   only_changed: True
+                  same_commit: True
 
     deploy:
         runs-on: ubuntu-latest

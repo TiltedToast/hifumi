@@ -55,5 +55,6 @@
         "deploy-dev": "tsc && node ./dist/deploy-commands.js --guild 655484563077988385",
         "clear-test-commands": "tsc && node ./dist/deploy-commands.js --guild 655484563077988385 --clear"
     },
+
     "packageManager": "pnpm@8.1.0"
 }
