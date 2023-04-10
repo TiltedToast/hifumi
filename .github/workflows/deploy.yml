@@ -1,3 +1,5 @@
+name: Continuous Integration
+
 on:
     push:
         branches: ["main"]
@@ -9,8 +11,23 @@ env:
     BOT_ID: ${{ secrets.BOT_ID }}
 
 jobs:
-  deploy:
-        name: Deploy Slash Commands
+    prettier:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v3
+              with:
+                  ref: ${{ github.head_ref }}
+                  fetch-depth: 0
+
+            - name: Prettify code
+              uses: creyD/prettier_action@v4.3
+              with:
+                  prettier_options: --config .prettierrc --write **/*.{js,ts,json,css,md,yml}
+                  only_changed: True
+
+    deploy:
         runs-on: ubuntu-latest
 
         strategy:
@@ -18,10 +35,14 @@ jobs:
                 node-version: [18.14.0]
 
         steps:
-            - uses: actions/checkout@v3
-            - uses: pnpm/action-setup@v2
+            - name: Checkout
+              uses: actions/checkout@v3
+
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v2
               with:
                   version: 8
+
             - name: Use Node.js ${{ matrix.node-version }}
               uses: actions/setup-node@v3
               with:
