@@ -1,4 +1,3 @@
-import { exec } from "node:child_process";
 import {
     ActionRowBuilder,
     ButtonBuilder,
@@ -11,8 +10,9 @@ import {
 } from "discord.js";
 import { evaluate as mathEvaluate } from "mathjs";
 import fetch from "node-fetch";
-import strftime from "strftime";
+import { exec } from "node:child_process";
 import { promisify } from "node:util";
+import strftime from "strftime";
 import { client, db, prefixMap } from "../app.js";
 import { EMBED_COLOUR, EXCHANGE_API_KEY } from "../config.js";
 import {
@@ -251,10 +251,11 @@ export async function avatar(message: Message) {
 export async function listCurrencies(message: Message) {
     const table = await db.select().from(currenciesTable).execute();
 
-    const currencies = table.reduce((acc, curr) => {
-        acc[curr.code] = curr.longName;
-        return acc;
-    }, {} as Record<string, string>);
+    const currencies = {} as Record<string, string>;
+
+    for (const currency of table) {
+        currencies[currency.code] = currency.longName;
+    }
 
     const title = "List of currencies available for conversion";
     const columns = ["", "", ""];
@@ -286,21 +287,34 @@ export async function listCurrencies(message: Message) {
 export async function convert(message: Message, prefix: string) {
     const content = message.content.split(" ");
 
-    if (content.length !== 4)
+    if (content.length < 3)
         return await message.channel.send(
             `Usage: \`${prefix}convert <amount of money> <cur1> <cur2>\``
         );
 
     const table = await db.select().from(currenciesTable).execute();
 
-    const currencies = table.reduce((acc, curr) => {
-        acc[curr.code] = curr.longName;
-        return acc;
-    }, {} as Record<string, string>);
+    const currencies = {} as Record<string, string>;
 
-    const amount = parseFloat(content[1]);
-    const from = content[2].toUpperCase();
-    const to = content[3].toUpperCase();
+    for (const currency of table) {
+        currencies[currency.code] = currency.longName;
+    }
+
+    let amount: number;
+    let from: string;
+    let to: string;
+
+    if (content.length === 3) {
+        amount = 1;
+        from = content[1].toUpperCase();
+        to = content[2].toUpperCase();
+    } else {
+        amount = parseFloat(content[1]);
+        from = content[2].toUpperCase();
+        to = content[3].toUpperCase();
+    }
+
+    amount = isNaN(amount) ? 1 : amount;
 
     if (!(from in currencies) || !(to in currencies)) {
         return await message.channel.send(
