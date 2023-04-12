@@ -1,38 +1,9 @@
 {
     "version": "5",
     "dialect": "mysql",
-    "id": "3cb93db6-6044-4e30-a801-e7bdf6d06e82",
-    "prevId": "7773b87a-0673-49a2-a2be-128d5a186b82",
+    "id": "599896bc-42ef-4817-bf93-4c1028f87d41",
+    "prevId": "00000000-0000-0000-0000-000000000000",
     "tables": {
-        "currencies": {
-            "name": "currencies",
-            "columns": {
-                "id": {
-                    "name": "id",
-                    "type": "int",
-                    "primaryKey": true,
-                    "notNull": true,
-                    "autoincrement": true
-                },
-                "code": {
-                    "name": "code",
-                    "type": "char(3)",
-                    "primaryKey": false,
-                    "notNull": true,
-                    "autoincrement": false
-                },
-                "long_name": {
-                    "name": "long_name",
-                    "type": "varchar(50)",
-                    "primaryKey": false,
-                    "notNull": true,
-                    "autoincrement": false
-                }
-            },
-            "indexes": {},
-            "foreignKeys": {},
-            "compositePrimaryKeys": {}
-        },
         "error_logs": {
             "name": "error_logs",
             "columns": {
