@@ -1,7 +1,6 @@
 import { InferModel } from "drizzle-orm";
 import * as schema from "./schema.js";
 
-export type Currency = InferModel<typeof schema.currencies>;
 export type ErrorLog = InferModel<typeof schema.errorLogs>;
 export type HelpMessage = InferModel<typeof schema.helpMessages>;
 export type LeetChar = InferModel<typeof schema.leet>;

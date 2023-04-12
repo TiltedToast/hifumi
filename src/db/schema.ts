@@ -11,12 +11,6 @@ import {
     varchar,
 } from "drizzle-orm/mysql-core/index.js";
 
-export const currencies = mysqlTable("currencies", {
-    id: int("id").autoincrement().primaryKey().notNull(),
-    code: char("code", { length: 3 }).notNull(),
-    longName: varchar("long_name", { length: 50 }).notNull(),
-});
-
 export const errorLogs = mysqlTable("error_logs", {
     id: int("id").autoincrement().primaryKey().notNull(),
     server: varchar("server", { length: 25 }),
