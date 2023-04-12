@@ -47,13 +47,38 @@ export type EmbedMetadata = {
     user: string;
 };
 
-export const ConvertResponseSchema = z.object({
+export const SupportedCodesSchema = z.object({
     result: z.union([z.literal("success"), z.literal("error")]),
-    "error-type": z.string().optional(),
-    conversion_rates: z.record(z.number()),
+    "error-type": z
+        .union([
+            z.literal("invalid-key"),
+            z.literal("inactive-account"),
+            z.literal("quota-reached"),
+        ])
+        .optional(),
+    supported_codes: z.array(z.tuple([z.string(), z.string()])),
 });
 
-export type ConvertResponse = z.infer<typeof ConvertResponseSchema>;
+export type SupportedCodesResponse = z.infer<typeof SupportedCodesSchema>;
+
+export const PairConversionResponseSchema = z.object({
+    result: z.union([z.literal("success"), z.literal("error")]),
+    base_code: z.string().optional(),
+    target_code: z.string().optional(),
+    conversion_rate: z.number().optional(),
+    conversion_result: z.number().optional(),
+    time_last_update_unix: z.number().optional(),
+    time_last_update_utc: z.string().optional(),
+    "error-type": z.union([
+        z.literal("unsupported-code"),
+        z.literal("malformed-request"),
+        z.literal("invalid-key"),
+        z.literal("inactive-account"),
+        z.literal("quota-reached").optional(),
+    ]),
+});
+
+export type PairConversionResponse = z.infer<typeof PairConversionResponseSchema>;
 
 export type ErrorLogOptions = {
     message?: Message;

@@ -12,13 +12,14 @@ import { evaluate as mathEvaluate } from "mathjs";
 import fetch from "node-fetch";
 import { exec } from "node:child_process";
 import { promisify } from "node:util";
-import strftime from "strftime";
 import { client, db, prefixMap } from "../app.js";
 import { EMBED_COLOUR, EXCHANGE_API_KEY } from "../config.js";
 import {
-    ConvertResponse,
-    ConvertResponseSchema,
     EmbedMetadata,
+    PairConversionResponse,
+    PairConversionResponseSchema,
+    SupportedCodesResponse,
+    SupportedCodesSchema,
     UrbanEntry,
     UrbanResponse,
     UrbanResponseSchema,
@@ -34,7 +35,6 @@ import {
     writeUpdateFile,
 } from "../helpers/utils.js";
 import {
-    currencies as currenciesTable,
     helpMessages,
     leet as leetTable,
     mikuCommandAliases,
@@ -248,42 +248,6 @@ export async function avatar(message: Message) {
     return await message.channel.send({ embeds: [avatarEmbed] });
 }
 
-export async function listCurrencies(message: Message) {
-    const table = await db.select().from(currenciesTable).execute();
-
-    const currencies = {} as Record<string, string>;
-
-    for (const currency of table) {
-        currencies[currency.code] = currency.longName;
-    }
-
-    const title = "List of currencies available for conversion";
-    const columns = ["", "", ""];
-    const currencyKeys = Object.keys(currencies).sort();
-
-    // Equally divides the currencies into 3 columns
-    for (let i = 0; i < currencyKeys.length; i++) {
-        if (i <= 17) {
-            columns[0] += `**${currencyKeys[i]}** - ${currencies[currencyKeys[i]]}\n`;
-        } else if (18 <= i && i <= 34) {
-            columns[1] += `**${currencyKeys[i]}** - ${currencies[currencyKeys[i]]}\n`;
-        } else {
-            columns[2] += `**${currencyKeys[i]}** - ${currencies[currencyKeys[i]]}\n`;
-        }
-    }
-
-    const currEmbed = new EmbedBuilder().setColor(EMBED_COLOUR).setTitle(title);
-    currEmbed.addFields(
-        columns.map((column) => ({
-            name: "\u200b",
-            value: column,
-            inline: true,
-        }))
-    );
-
-    return await message.channel.send({ embeds: [currEmbed] });
-}
-
 export async function convert(message: Message, prefix: string) {
     const content = message.content.split(" ");
 
@@ -292,37 +256,61 @@ export async function convert(message: Message, prefix: string) {
             `Usage: \`${prefix}convert <amount of money> <cur1> <cur2>\``
         );
 
-    const table = await db.select().from(currenciesTable).execute();
-
     const currencies = {} as Record<string, string>;
 
-    for (const currency of table) {
-        currencies[currency.code] = currency.longName;
-    }
-
     let amount: number;
-    let from: string;
-    let to: string;
+    let base_currency: string;
+    let target_currency: string;
 
     if (content.length === 3) {
         amount = 1;
-        from = content[1].toUpperCase();
-        to = content[2].toUpperCase();
+        base_currency = content[1].toUpperCase();
+        target_currency = content[2].toUpperCase();
     } else {
         amount = parseFloat(content[1]);
-        from = content[2].toUpperCase();
-        to = content[3].toUpperCase();
+        base_currency = content[2].toUpperCase();
+        target_currency = content[3].toUpperCase();
     }
 
     amount = isNaN(amount) ? 1 : amount;
 
-    if (!(from in currencies) || !(to in currencies)) {
+    const codesResp = await fetch(`https://v6.exchangerate-api.com/v6/${EXCHANGE_API_KEY}/codes`);
+    const supportedResult = (await codesResp.json()) as SupportedCodesResponse;
+
+    if (!SupportedCodesSchema.safeParse(supportedResult).success) {
         return await message.channel.send(
-            `Invalid currency codes! Check \`${prefix}currencies\` for a list`
+            "Something went wrong while fetching the supported currencies! Please try again later"
+        );
+    }
+
+    if (supportedResult.result === "error") {
+        let msg = "Something went wrong fetching the supported currencies! Please try again later";
+        switch (supportedResult["error-type"]) {
+            case "invalid-key":
+                msg = "Invalid API key. This should never happen, please contact the Bot Owner!";
+                break;
+            case "quota-reached":
+                msg = "API quota reached. Please try again later!";
+                break;
+            case "inactive-account":
+                msg = "API account is inactive. Please contact the bot owner!";
+                break;
+        }
+        return await message.channel.send(msg);
+    }
+
+    for (const [code, name] of supportedResult.supported_codes) {
+        currencies[code] = name;
+    }
+
+    if (!(base_currency in currencies) || !(target_currency in currencies)) {
+        return await message.channel.send(
+            `Invalid currency codes!\nCheck ` +
+                `<https://www.exchangerate-api.com/docs/supported-currencies> for a list of supported currencies`
         );
     }
     // Checks for possible pointless conversions
-    if (from === to)
+    if (base_currency === target_currency)
         return await message.channel.send(
             "Your first currency is the same as your second currency!"
         );
@@ -330,38 +318,57 @@ export async function convert(message: Message, prefix: string) {
     if (amount === 0) return await message.channel.send("Zero will obviously stay 0!");
 
     const response = await fetch(
-        `https://prime.exchangerate-api.com/v5/${EXCHANGE_API_KEY}/latest/${from}`
+        `https://v6.exchangerate-api.com/v6/${EXCHANGE_API_KEY}/pair/${base_currency}/${target_currency}/${amount}`
     );
 
-    const result = (await response.json()) as ConvertResponse;
+    const result = (await response.json()) as PairConversionResponse;
 
-    if (!ConvertResponseSchema.safeParse(result).success) {
+    if (!PairConversionResponseSchema.safeParse(result).success) {
         return await message.channel.send(
             "Something went wrong with the API, maybe try again later"
         );
     }
 
-    if (result.result === "error")
-        return await message.channel.send(`Error: ${result["error-type"]}`);
+    if (result.result === "error") {
+        let msg = "Something went wrong with the API, maybe try again later";
+        switch (result["error-type"]) {
+            case "unsupported-code":
+                msg = "One of the currencies you entered is not supported!";
+                break;
+            case "malformed-request":
+                msg = "The request was malformed, please try again later!";
+                break;
+            case "invalid-key":
+                msg = "Invalid API key. This should never happen, please contact the Bot Owner!";
+                break;
+            case "quota-reached":
+                msg = "API quota reached. Please try again later!";
+                break;
+            case "inactive-account":
+                msg = "API account is inactive. Please contact the bot owner!";
+                break;
+        }
+        return await message.channel.send(msg);
+    }
     if (!response.ok) return await message.channel.send("Error! Please try again later");
 
-    const convertEmbed = buildConvertEmbed(result, to, amount, from);
+    const description = [
+        `**${amount} ${currencies[base_currency]} ≈ `,
+        `${result.conversion_result ?? 0} ${currencies[target_currency]}**`,
+        `\n\nExchange Rate: 1 ${base_currency} ≈ ${result.conversion_rate} ${target_currency}`,
+    ].join("");
+
+    const lastUpdated = new Date(
+        Date.parse(result.time_last_update_utc ?? Date.now().toString())
+    ).toUTCString();
+
+    const convertEmbed = new EmbedBuilder()
+        .setColor(EMBED_COLOUR)
+        .setTitle(`Converting ${base_currency} to ${target_currency}`)
+        .setDescription(description)
+        .setFooter({ text: `Last updated: ${lastUpdated}` });
 
     return await message.channel.send({ embeds: [convertEmbed] });
-}
-
-function buildConvertEmbed(result: ConvertResponse, to: string, amount: number, from: string) {
-    const rate = result["conversion_rates"] ? result["conversion_rates"][to] : 0;
-    const rslt = Math.round(amount * rate * 100) / 100;
-    const description = `**${Number(amount)} ${from} ≈ ${Number(
-        rslt
-    )} ${to}**\n\nExchange Rate: 1 ${from} ≈ ${rate} ${to}`;
-
-    return new EmbedBuilder()
-        .setColor(EMBED_COLOUR)
-        .setTitle(`Converting ${from} to ${to}`)
-        .setDescription(description)
-        .setFooter({ text: `${strftime("%d/%m/%Y %H:%M:%S")}` });
 }
 
 export async function urban(message: Message, prefix: string) {

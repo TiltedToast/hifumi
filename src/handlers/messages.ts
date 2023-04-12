@@ -74,7 +74,6 @@ async function handleCommand({ command, subCmd, message, prefix }: MessageComman
         await misc.helpCmd(message, prefix);
     else if (["convert", "conv", "c"].includes(command)) await misc.convert(message, prefix);
     else if (["avatar", "pfp"].includes(command)) await misc.avatar(message);
-    else if (command === "currencies") await misc.listCurrencies(message);
     else if (command === "bye") await misc.bye(message);
     else if (command === "urban") await misc.urban(message, prefix);
     else if (command === "beautiful") await imgProcess.beautiful(message);
