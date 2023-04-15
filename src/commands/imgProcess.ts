@@ -1,8 +1,7 @@
 import canvas from "canvas";
 import type { Message } from "discord.js";
-import { FormData } from "formdata-node";
 import * as fsPromise from "node:fs/promises";
-import fetch, { Headers } from "node-fetch";
+import fetch, { Headers, RequestInit } from "node-fetch";
 import * as qrcode from "qrcode";
 import { IMGUR_CLIENT_ID } from "../config.js";
 import {
@@ -151,7 +150,7 @@ export async function imgur(args: ImgurParams) {
     const formdata = new FormData();
     myHeaders.append("Authorization", `Client-ID ${IMGUR_CLIENT_ID}`);
 
-    const requestOptions: Record<string, unknown> = {
+    const requestOptions: RequestInit = {
         method: "POST",
         headers: myHeaders,
         body: formdata,
