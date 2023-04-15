@@ -372,11 +372,9 @@ export async function convert(message: Message, prefix: string) {
 }
 
 export async function urban(message: Message, prefix: string) {
-    const content = message.content.split(" ").slice(1);
+    const query = message.content.split(" ").slice(1);
 
-    if (!content.length) return await message.channel.send(`Usage: \`${prefix}urban <word>\``);
-
-    const query = content.join("");
+    if (!query.length) return await message.channel.send(`Usage: \`${prefix}urban <word>\``);
 
     const response = await fetch(`https://api.urbandictionary.com/v0/define?term=${query}`);
     if (!response.ok)
