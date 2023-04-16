@@ -12,7 +12,6 @@
         "discord.js": "^14.9.0",
         "dotenv": "^16.0.3",
         "drizzle-orm": "^0.23.13",
-        "erlpack": "github:discord/erlpack",
         "fuse.js": "^6.6.2",
         "lint-staged": "^13.2.1",
         "mathjs": "^11.8.0",
