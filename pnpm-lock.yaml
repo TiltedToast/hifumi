@@ -58,9 +58,6 @@ dependencies:
   utf-8-validate:
     specifier: ^5.0.10
     version: 5.0.10
-  zlib-sync:
-    specifier: ^0.1.7
-    version: 0.1.7
   zod:
     specifier: ^3.21.4
     version: 3.21.4
@@ -3210,13 +3207,6 @@ packages:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
     dev: true
-
-  /zlib-sync@0.1.7:
-    resolution: {integrity: sha512-UmciU6ZrIwtwPC8noMzq+kGMdiWwNRZ3wC0SbED4Ew5Ikqx14MqDPRs/Pbk+3rZPh5SzsOgUBs1WRE0iieddpg==}
-    requiresBuild: true
-    dependencies:
-      nan: 2.17.0
-    dev: false
 
   /zod@3.21.4:
     resolution: {integrity: sha512-m46AKbrzKVzOzs/DZgVnG5H55N1sv1M8qZU3A8RIKbs3mrACDNeIOeilDymVb2HdmP8uwshOCF4uJ8uM9rCqJw==}
