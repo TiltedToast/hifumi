@@ -69,13 +69,15 @@ export const PairConversionResponseSchema = z.object({
     conversion_result: z.number().optional(),
     time_last_update_unix: z.number().optional(),
     time_last_update_utc: z.string().optional(),
-    "error-type": z.union([
-        z.literal("unsupported-code"),
-        z.literal("malformed-request"),
-        z.literal("invalid-key"),
-        z.literal("inactive-account"),
-        z.literal("quota-reached").optional(),
-    ]),
+    "error-type": z
+        .union([
+            z.literal("unsupported-code"),
+            z.literal("malformed-request"),
+            z.literal("invalid-key"),
+            z.literal("inactive-account"),
+            z.literal("quota-reached"),
+        ])
+        .optional(),
 });
 
 export type PairConversionResponse = z.infer<typeof PairConversionResponseSchema>;
