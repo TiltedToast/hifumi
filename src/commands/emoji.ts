@@ -189,6 +189,8 @@ async function bulkAddEmojis(message: Message, emojis: RegExpMatchArray) {
     for (const emojiStr of new Set(emojis)) {
         const url = extractEmoji(emojiStr);
         const imgType = getImgType(url);
+        if (!imgType) continue;
+
         const name = emojiStr.split(":")[1];
         const filePath = `temp/${name}.${imgType}`;
 

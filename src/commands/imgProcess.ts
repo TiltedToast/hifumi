@@ -144,7 +144,7 @@ export async function imgur(args: ImgurParams) {
     createTemp("temp");
 
     const imgType = getImgType(source);
-    if (imgType === null) return await message.channel.send("Invalid image type!");
+    if (!imgType) return await message.channel.send("Invalid image type!");
 
     const myHeaders = new Headers();
     const formdata = new FormData();
