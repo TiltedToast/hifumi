@@ -5,7 +5,7 @@ import { db } from "../app.js";
 // this will automatically run needed migrations on the database
 migrate(db, { migrationsFolder: "./migrations" })
     .then(() => {
-        console.log("Migrations complete!");
+        console.log("\nMigrations complete!");
         process.exit(0);
     })
     .catch((err) => {

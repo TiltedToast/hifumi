@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS `error_logs` (
+CREATE TABLE `error_logs` (
 	`id` int AUTO_INCREMENT PRIMARY KEY,
 	`server` varchar(25),
 	`channel` varchar(25) NOT NULL,
@@ -10,38 +10,38 @@ CREATE TABLE IF NOT EXISTS `error_logs` (
 	`error` text
 );
 --> statement-breakpoint
-CREATE TABLE IF NOT EXISTS `help_messages` (
+CREATE TABLE `help_messages` (
 	`id` int AUTO_INCREMENT PRIMARY KEY,
 	`cmd` varchar(100) NOT NULL,
 	`desc` varchar(255) NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE IF NOT EXISTS `leet` (
+CREATE TABLE `leet` (
 	`id` int AUTO_INCREMENT PRIMARY KEY,
 	`source` char(1) NOT NULL,
 	`translated` varchar(10) NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE IF NOT EXISTS `miku_command_aliases` (
+CREATE TABLE `miku_command_aliases` (
 	`id` int AUTO_INCREMENT PRIMARY KEY,
 	`command` varchar(25) NOT NULL,
 	`alias` varchar(25) NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE IF NOT EXISTS `miku_reactions` (
+CREATE TABLE `miku_reactions` (
 	`id` int AUTO_INCREMENT PRIMARY KEY,
 	`command` varchar(50) NOT NULL,
 	`reaction` varchar(255) NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE IF NOT EXISTS `prefixes` (
+CREATE TABLE `prefixes` (
 	`id` int AUTO_INCREMENT PRIMARY KEY,
 	`server_id` varchar(25) NOT NULL,
 	`prefix` varchar(255) NOT NULL,
     UNIQUE KEY `server_id` (`server_id`)
 );
 --> statement-breakpoint
-CREATE TABLE IF NOT EXISTS `reddit_posts` (
+CREATE TABLE `reddit_posts` (
 	`id` int AUTO_INCREMENT PRIMARY KEY,
 	`subreddit` varchar(50) NOT NULL,
 	`title` text NOT NULL,
@@ -51,11 +51,10 @@ CREATE TABLE IF NOT EXISTS `reddit_posts` (
     KEY `subreddit` (`subreddit`)
 );
 --> statement-breakpoint
-CREATE TABLE IF NOT EXISTS statuses (
+CREATE TABLE `statuses` (
     `id` int AUTO_INCREMENT NOT NULL,
     `type` varchar(20) NOT NULL,
     `status` varchar(255) NOT NULL,
     KEY id (id),
     PRIMARY KEY (`type`, `status`)
 )
---> statement-breakpoint
