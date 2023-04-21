@@ -12,7 +12,7 @@ import {
 } from "drizzle-orm/mysql-core/index.js";
 
 export const errorLogs = mysqlTable("error_logs", {
-    id: int("id").autoincrement().primaryKey().notNull(),
+    id: int("id").autoincrement().primaryKey(),
     server: varchar("server", { length: 25 }),
     channel: varchar("channel", { length: 25 }).notNull(),
     user: varchar("user", { length: 25 }).notNull(),
@@ -24,25 +24,25 @@ export const errorLogs = mysqlTable("error_logs", {
 });
 
 export const helpMessages = mysqlTable("help_messages", {
-    id: int("id").autoincrement().primaryKey().notNull(),
+    id: int("id").autoincrement().primaryKey(),
     cmd: varchar("cmd", { length: 100 }).notNull(),
     desc: varchar("desc", { length: 255 }).notNull(),
 });
 
 export const leet = mysqlTable("leet", {
-    id: int("id").autoincrement().primaryKey().notNull(),
+    id: int("id").autoincrement().primaryKey(),
     source: char("source", { length: 1 }).notNull(),
     translated: varchar("translated", { length: 10 }).notNull(),
 });
 
 export const mikuCommandAliases = mysqlTable("miku_command_aliases", {
-    id: int("id").autoincrement().primaryKey().notNull(),
+    id: int("id").autoincrement().primaryKey(),
     command: varchar("command", { length: 25 }).notNull(),
     alias: varchar("alias", { length: 25 }).notNull(),
 });
 
 export const mikuReactions = mysqlTable("miku_reactions", {
-    id: int("id").autoincrement().primaryKey().notNull(),
+    id: int("id").autoincrement().primaryKey(),
     command: varchar("command", { length: 50 }).notNull(),
     reaction: varchar("reaction", { length: 255 }).notNull(),
 });
@@ -50,7 +50,7 @@ export const mikuReactions = mysqlTable("miku_reactions", {
 export const prefixes = mysqlTable(
     "prefixes",
     {
-        id: int("id").autoincrement().primaryKey().notNull(),
+        id: int("id").autoincrement().primaryKey(),
         serverId: varchar("server_id", { length: 25 }).notNull(),
         prefix: varchar("prefix", { length: 255 }).notNull(),
     },
@@ -82,7 +82,7 @@ export const statuses = mysqlTable(
 export const redditPosts = mysqlTable(
     "reddit_posts",
     {
-        id: int("id").autoincrement().primaryKey().notNull(),
+        id: int("id").autoincrement().primaryKey(),
         subreddit: varchar("subreddit", { length: 50 }).notNull(),
         title: text("title").notNull(),
         url: varchar("url", { length: 255 }).notNull(),
