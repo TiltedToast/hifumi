@@ -332,7 +332,7 @@ export async function searchEmojis(message: Message): Promise<void> {
 
     const fuse = new Fuse(emojiStrings, {
         shouldSort: true,
-        threshold: 0.42069,
+        threshold: 0.3,
     });
 
     const matchedEmojis = fuse.search(searchTerm).map((x) => x.item);
