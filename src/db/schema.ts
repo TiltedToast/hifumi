@@ -13,9 +13,9 @@ import {
 
 export const errorLogs = mysqlTable("error_logs", {
     id: int("id").autoincrement().primaryKey(),
-    server: varchar("server", { length: 25 }),
-    channel: varchar("channel", { length: 25 }).notNull(),
-    user: varchar("user", { length: 25 }).notNull(),
+    server: varchar("server", { length: 255 }),
+    channel: varchar("channel", { length: 255 }).notNull(),
+    user: varchar("user", { length: 255 }).notNull(),
     command: text("command"),
     stack: text("stack"),
     timestamp: timestamp("timestamp", { mode: "string" }).defaultNow(),
@@ -37,13 +37,13 @@ export const leet = mysqlTable("leet", {
 
 export const mikuCommandAliases = mysqlTable("miku_command_aliases", {
     id: int("id").autoincrement().primaryKey(),
-    command: varchar("command", { length: 25 }).notNull(),
-    alias: varchar("alias", { length: 25 }).notNull(),
+    command: varchar("command", { length: 255 }).notNull(),
+    alias: varchar("alias", { length: 255 }).notNull(),
 });
 
 export const mikuReactions = mysqlTable("miku_reactions", {
     id: int("id").autoincrement().primaryKey(),
-    command: varchar("command", { length: 50 }).notNull(),
+    command: varchar("command", { length: 255 }).notNull(),
     reaction: varchar("reaction", { length: 255 }).notNull(),
 });
 
@@ -51,7 +51,7 @@ export const prefixes = mysqlTable(
     "prefixes",
     {
         id: int("id").autoincrement().primaryKey(),
-        serverId: varchar("server_id", { length: 25 }).notNull(),
+        serverId: varchar("server_id", { length: 255 }).notNull(),
         prefix: varchar("prefix", { length: 255 }).notNull(),
     },
     (table) => {

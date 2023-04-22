@@ -307,7 +307,9 @@ export async function errorLog({ message, errorObject }: ErrorLogOptions) {
     if (fullErrorMsg.length <= 2000) {
         errorMessage = fullErrorMsg;
     } else if (postCutErrorMessage.length > 2000) {
-        errorMessage = `An Error occurred on ${currentTime}\nCheck console for full error (2000 character limit)\n<@${BOT_OWNERS[0]}>`;
+        errorMessage =
+            `An Error occurred on ${currentTime}\n` +
+            `Check console for full error (2000 character limit)\n<@${BOT_OWNERS[0]}>`;
     } else {
         errorMessage = postCutErrorMessage;
     }
