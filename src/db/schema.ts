@@ -74,7 +74,7 @@ export const statuses = mysqlTable(
     (table) => {
         return {
             id: index("id").on(table.id),
-            statusesTypeStatus: primaryKey(table.type, table.status),
+            uniqueStatus: primaryKey(table.type, table.status),
         };
     }
 );
