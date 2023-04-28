@@ -19,7 +19,7 @@ const envVariables = z.object({
     REDDIT_REFRESH_TOKEN: z.string(),
     PLANETSCALE_URL: z.string(),
     WOLFRAM_ALPHA_APP_ID: z.string(),
-    DEV_MODE: z.union([z.literal("true"), z.literal("false")]),
+    DEV_MODE: z.enum(["true", "false"]),
 });
 
 try {
