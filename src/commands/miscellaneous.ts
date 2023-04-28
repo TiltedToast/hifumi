@@ -57,13 +57,15 @@ export async function wolframALpha(message: Message) {
     const url =
         `http://api.wolframalpha.com/v2/simple?appid=` +
         process.env.WOLFRAM_ALPHA_APP_ID +
-        `&i=${encodeURIComponent(query)}`;
+        `&i=${encodeURIComponent(query)}` +
+        `&background=181A1F&foreground=white` +
+        "&fontsize=30&units=metric&width500";
 
     const response = await fetch(url);
 
     if (!response.ok) {
         const error = await response.text();
-        return await message.channel.send(`Something went wrong! ${error}}`);
+        return await message.channel.send(`Something went wrong! ${error}`);
     }
 
     const buffer = await response.arrayBuffer();
