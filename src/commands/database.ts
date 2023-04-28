@@ -1,6 +1,6 @@
 import { DatabaseError } from "@planetscale/database";
 import { Message, PermissionFlagsBits } from "discord.js";
-import { eq } from "drizzle-orm/expressions.js";
+import { eq } from "drizzle-orm";
 import { PSConnection, db, prefixMap, statusArr } from "../app.js";
 import { BOT_OWNERS } from "../config.js";
 import { prefixes, statuses } from "../db/schema.js";

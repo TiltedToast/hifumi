@@ -1,8 +1,6 @@
 import canvas from "canvas";
 import type { Message } from "discord.js";
-import * as fsPromise from "node:fs/promises";
 import fetch, { Headers, RequestInit } from "node-fetch";
-import * as qrcode from "qrcode";
 import {
     FileSizeLimit,
     ImgurParams,
@@ -17,6 +15,8 @@ import {
     isValidSize,
     resize,
 } from "../helpers/utils.js";
+import { readFileSync, writeFileSync } from "fs";
+import { toFile } from "qrcode";
 
 export async function beautiful(message: Message) {
     createTemp("temp");
@@ -51,7 +51,7 @@ export async function beautiful(message: Message) {
 
     // Saves the output buffer to a file and sends it to the channel
     const buffer = beautifulCanvas.toBuffer("image/png");
-    await fsPromise.writeFile("./temp/beautiful.png", buffer);
+    writeFileSync("./temp/beautiful.png", buffer);
 
     return await message.channel.send({ files: ["./temp/beautiful.png"] });
 }
@@ -64,7 +64,7 @@ export async function qrCode(message: Message) {
 
     const qrText = content.slice(1).join(" ");
     try {
-        await qrcode.toFile("./temp/qr.png", qrText);
+        await toFile("./temp/qr.png", qrText);
     } catch (err) {
         return await message.channel.send("Data too big to fit into a QR code!");
     }
@@ -171,7 +171,7 @@ export async function imgur(args: ImgurParams) {
             return await message.channel.send("File too large for Imgur! (10MB limit)");
         }
 
-        const contents = await fsPromise.readFile(`./temp/unknown.${imgType}`, "base64");
+        const contents = readFileSync(`./temp/unknown.${imgType}`, "base64");
 
         formdata.append("image", contents);
 

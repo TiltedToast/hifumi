@@ -7,7 +7,7 @@ import {
     TextChannel,
 } from "discord.js";
 import "dotenv/config";
-import { drizzle } from "drizzle-orm/planetscale-serverless/driver.js";
+import { drizzle } from "drizzle-orm/planetscale-serverless";
 import fetch from "node-fetch";
 import { existsSync, rmSync } from "node:fs";
 import strftime from "strftime";

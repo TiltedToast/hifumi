@@ -10,10 +10,7 @@ import {
     TextChannel,
     User,
 } from "discord.js";
-import type { RequestInit } from "node-fetch";
-import fetch, { Headers } from "node-fetch";
-import * as fs from "node:fs";
-import * as fsPromise from "node:fs/promises";
+import fetch, { Headers, type RequestInit } from "node-fetch";
 import { resolve } from "node:path";
 import strftime from "strftime";
 import { client, db } from "../app.js";
@@ -27,6 +24,7 @@ import type {
     UpdateEmbedArrParams,
     UpdateEmbedOptions,
 } from "./types.js";
+import { existsSync, writeFileSync, mkdirSync, rmSync, statSync } from "node:fs";
 
 /**
  * Send a message if the input is a message, or reply if the input is a command interaction
@@ -62,10 +60,10 @@ export function splitMessage(content: string, maxLength = 2000, delim = " "): st
 }
 
 export function writeUpdateFile() {
-    if (!fs.existsSync("./temp")) {
-        fs.mkdirSync("./temp");
+    if (!existsSync("./temp")) {
+        mkdirSync("./temp");
     }
-    fs.writeFileSync("./temp/update.txt", Date.now().toString());
+    writeFileSync("./temp/update.txt", Date.now().toString());
 }
 
 function getEmbedIndex(arr: EmbedMetadata[], target: EmbedMetadata): number {
@@ -328,7 +326,7 @@ export async function downloadURL(url: string, saveLocation: string) {
     }
 
     const buffer = await response.arrayBuffer();
-    return await fsPromise.writeFile(absSaveLocation, new Uint8Array(buffer));
+    return writeFileSync(absSaveLocation, new Uint8Array(buffer));
 }
 
 /**
@@ -368,11 +366,11 @@ export function extractEmoji(emojiString: string, IdOnly = false): string {
 export function createTemp(directory: string): void {
     const absPath = resolve(directory);
 
-    if (fs.existsSync(absPath)) {
-        fs.rmSync(absPath, { recursive: true });
-        fs.mkdirSync(absPath);
+    if (existsSync(absPath)) {
+        rmSync(absPath, { recursive: true });
+        mkdirSync(absPath);
     } else {
-        fs.mkdirSync(absPath);
+        mkdirSync(absPath);
     }
 }
 
@@ -382,5 +380,5 @@ export function createTemp(directory: string): void {
  * @param size The max size allowed in bytes or one of the presets from {@link FileSizeLimit}
  */
 export function isValidSize(fileLocation: string, size: number): boolean {
-    return fs.statSync(fileLocation).size <= size;
+    return statSync(fileLocation).size <= size;
 }

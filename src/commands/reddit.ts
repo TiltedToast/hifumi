@@ -1,15 +1,14 @@
 import { EmbedBuilder, Message, TextChannel } from "discord.js";
-import { sql } from "drizzle-orm/sql/index.js";
+import { sql } from "drizzle-orm";
 import fetch from "node-fetch";
 import Snoowrap from "snoowrap";
 import type { Timespan } from "snoowrap/dist/objects/Subreddit";
 import strftime from "strftime";
 import { db } from "../app.js";
 import { EMBED_COLOUR } from "../config.js";
-import { NewRedditPost } from "../db/types.js";
 import { randomElementFromArray } from "../helpers/utils.js";
 import { redditPosts } from "./../db/schema.js";
-import { RedditPost } from "./../db/types.js";
+import { RedditPost, NewRedditPost } from "./../db/types.js";
 
 const RedditClient = new Snoowrap({
     userAgent: "linux:hifumi:v1.0.0 (by /u/tilted_toast)",
