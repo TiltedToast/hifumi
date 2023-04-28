@@ -15,7 +15,7 @@ import { resolve } from "node:path";
 import strftime from "strftime";
 import { client, db } from "../app.js";
 import { execPromise } from "../commands/miscellaneous.js";
-import { BOT_OWNERS, DEV_CHANNELS, DEV_MODE, LOG_CHANNEL } from "../config.js";
+import { BOT_OWNERS, DEV_CHANNELS, LOG_CHANNEL } from "../config.js";
 import { errorLogs } from "../db/schema.js";
 import type {
     EmbedMetadata,
@@ -176,7 +176,7 @@ export async function resize(options: ResizeOptions) {
  * Checks whether the currently active bot is the dev version or not
  */
 export function isDev(): boolean {
-    return DEV_MODE === "true";
+    return process.env.DEV_MODE === "true";
 }
 
 /**
