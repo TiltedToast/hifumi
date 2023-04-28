@@ -5,12 +5,7 @@ import Snoowrap from "snoowrap";
 import type { Timespan } from "snoowrap/dist/objects/Subreddit";
 import strftime from "strftime";
 import { db } from "../app.js";
-import {
-    EMBED_COLOUR,
-    REDDIT_CLIENT_ID,
-    REDDIT_CLIENT_SECRET,
-    REDDIT_REFRESH_TOKEN,
-} from "../config.js";
+import { EMBED_COLOUR } from "../config.js";
 import { NewRedditPost } from "../db/types.js";
 import { randomElementFromArray } from "../helpers/utils.js";
 import { redditPosts } from "./../db/schema.js";
@@ -18,9 +13,9 @@ import { RedditPost } from "./../db/types.js";
 
 const RedditClient = new Snoowrap({
     userAgent: "linux:hifumi:v1.0.0 (by /u/tilted_toast)",
-    clientId: REDDIT_CLIENT_ID,
-    clientSecret: REDDIT_CLIENT_SECRET,
-    refreshToken: REDDIT_REFRESH_TOKEN,
+    clientId: process.env.REDDIT_CLIENT_ID,
+    clientSecret: process.env.REDDIT_CLIENT_SECRET,
+    refreshToken: process.env.REDDIT_REFRESH_TOKEN,
 });
 
 export async function profile(message: Message, prefix: string): Promise<Message> {

@@ -88,9 +88,10 @@ async function handleCommand({ command, subCmd, message, prefix }: MessageComman
     else if (command === "link") await emoji.linkEmoji(message);
     else if (command === "leet") await misc.leet(message);
     else if (command === "pull") await misc.gitPull(message);
-    else if (command === "calc") await misc.jsEval(message, "math");
+    else if (["calc", "math"].includes(command)) await misc.jsEval(message, "math");
     else if (command === "py") await misc.consoleCmd(message, undefined, true);
     else if (command === "someone") await misc.pingRandomMembers(message);
     else if (command === "yoink") await emoji.addEmoji(message, prefix);
     else if (command === "db") await db.runSQL(message);
+    else if (command === "wolfram") await misc.wolframALpha(message);
 }
