@@ -2,7 +2,6 @@
 /* eslint-disable @typescript-eslint/no-namespace */
 import { z } from "zod";
 
-export const DEV_MODE = process.env["DEV_MODE"] ?? "false";
 export const BOT_OWNERS = ["258993932262834188", "207505077013839883"];
 export const EMBED_COLOUR = "#CE3A9B";
 export const DEV_CHANNELS = ["655484859405303809", "551588329003548683", "922679249058553857"];
@@ -19,6 +18,7 @@ const envVariables = z.object({
     REDDIT_REFRESH_TOKEN: z.string(),
     PLANETSCALE_URL: z.string(),
     WOLFRAM_ALPHA_APP_ID: z.string(),
+    DEV_MODE: z.union([z.literal("true"), z.literal("false")]),
 });
 
 envVariables.parse(process.env);
