@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-empty-interface */
 /* eslint-disable @typescript-eslint/no-namespace */
 import { z } from "zod";
+import { fromZodError } from "zod-validation-error";
 
 export const BOT_OWNERS = ["258993932262834188", "207505077013839883"];
 export const EMBED_COLOUR = "#CE3A9B";
@@ -21,7 +22,19 @@ const envVariables = z.object({
     DEV_MODE: z.union([z.literal("true"), z.literal("false")]),
 });
 
-envVariables.parse(process.env);
+try {
+    envVariables.parse(process.env);
+} catch (e) {
+    const validationError = fromZodError(e as z.ZodError, {
+        issueSeparator: "\n",
+        prefix: "",
+        prefixSeparator: "",
+        unionSeparator: "\n",
+    });
+    console.error("\nError validating environment variables:\n");
+    console.error(validationError.message);
+    process.exit(1);
+}
 
 declare global {
     namespace NodeJS {
