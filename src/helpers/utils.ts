@@ -10,27 +10,16 @@ import {
     TextChannel,
     User,
 } from "discord.js";
-import * as fs from "node:fs";
-import * as fsPromise from "node:fs/promises";
 import type { RequestInit } from "node-fetch";
 import fetch, { Headers } from "node-fetch";
+import * as fs from "node:fs";
+import * as fsPromise from "node:fs/promises";
 import { resolve } from "node:path";
 import strftime from "strftime";
 import { client, db } from "../app.js";
 import { execPromise } from "../commands/miscellaneous.js";
-import {
-    BOT_OWNERS,
-    DEV_CHANNELS,
-    DEV_MODE,
-    EXCHANGE_API_KEY,
-    IMGUR_CLIENT_ID,
-    IMGUR_CLIENT_SECRET,
-    LOG_CHANNEL,
-    PLANETSCALE_URL,
-    REDDIT_CLIENT_ID,
-    REDDIT_CLIENT_SECRET,
-    REDDIT_REFRESH_TOKEN,
-} from "../config.js";
+import { BOT_OWNERS, DEV_CHANNELS, DEV_MODE, LOG_CHANNEL } from "../config.js";
+import { errorLogs } from "../db/schema.js";
 import type {
     EmbedMetadata,
     ErrorLogOptions,
@@ -38,7 +27,6 @@ import type {
     UpdateEmbedArrParams,
     UpdateEmbedOptions,
 } from "./types.js";
-import { errorLogs } from "../db/schema.js";
 
 /**
  * Send a message if the input is a message, or reply if the input is a command interaction
@@ -168,22 +156,6 @@ export async function updateEmbed(options: UpdateEmbedOptions) {
 export function hasPermission(permission: PermissionResolvable, message: Message): boolean {
     if (!message.member) return false;
     return message.member.permissions.has(permission);
-}
-
-/**
- * Checks config variables for missing credentials
- * @returns a list of missing credentials
- */
-export function getMissingCredentials(): string[] {
-    const missingCredentials = [];
-    if (!EXCHANGE_API_KEY) missingCredentials.push("Exchange API Key");
-    if (!IMGUR_CLIENT_ID) missingCredentials.push("Imgur Client ID");
-    if (!IMGUR_CLIENT_SECRET) missingCredentials.push("Imgur Client Secret");
-    if (!REDDIT_CLIENT_ID) missingCredentials.push("Reddit Client ID");
-    if (!REDDIT_CLIENT_SECRET) missingCredentials.push("Reddit Client Secret");
-    if (!REDDIT_REFRESH_TOKEN) missingCredentials.push("Reddit Refresh Token");
-    if (!PLANETSCALE_URL) missingCredentials.push("PlanetScale URL");
-    return missingCredentials;
 }
 
 /**

@@ -8,16 +8,16 @@ import {
 } from "discord.js";
 import "dotenv/config";
 import { drizzle } from "drizzle-orm/planetscale-serverless/driver.js";
+import fetch from "node-fetch";
 import { existsSync, rmSync } from "node:fs";
 import strftime from "strftime";
 import { startStatusLoop } from "./commands/loops.js";
-import { BOT_TOKEN, LOG_CHANNEL, PLANETSCALE_URL } from "./config.js";
+import { LOG_CHANNEL } from "./config.js";
 import { prefixes, statuses } from "./db/schema.js";
 import type { Status } from "./db/types.js";
 import handleInteraction from "./handlers/interactions.js";
 import handleMessage from "./handlers/messages.js";
-import { getMissingCredentials, isDev } from "./helpers/utils.js";
-import fetch from "node-fetch";
+import { isDev } from "./helpers/utils.js";
 
 const startTime = Date.now();
 
@@ -37,7 +37,7 @@ export const prefixMap = new Map<Snowflake, string>();
 export let statusArr: Status[] = [];
 export let botIsLoading = true;
 
-export const PSConnection = connect({ url: PLANETSCALE_URL, fetch });
+export const PSConnection = connect({ url: process.env.PLANETSCALE_URL, fetch });
 export const db = drizzle(PSConnection, { logger: isDev() });
 
 client.once("ready", async () => {
@@ -65,15 +65,6 @@ client.once("ready", async () => {
     const logChannel = client.channels.cache.get(LOG_CHANNEL) as TextChannel;
     // const catFactChannel = client.channels.cache.get(CAT_FACT_CHANNEL) as TextChannel;
     // startCatFactLoop(catFactChannel);
-
-    const credentials = getMissingCredentials();
-
-    if (credentials.length > 0) {
-        console.error(`Missing credentials: ${credentials.join(", ")}`);
-        console.error("Exiting...");
-        client.destroy();
-        process.exit(1);
-    }
 
     if (isDev()) return;
     if (existsSync("./temp/update.txt")) return rmSync("./temp/update.txt");
@@ -105,4 +96,4 @@ stopSignals.forEach((signal) => {
     });
 });
 
-await client.login(BOT_TOKEN);
+await client.login(process.env.BOT_TOKEN);

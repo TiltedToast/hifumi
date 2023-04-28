@@ -8,12 +8,12 @@ import {
     PermissionFlagsBits,
     ThreadAutoArchiveDuration,
 } from "discord.js";
-import { evaluate as mathEvaluate } from "mathjs";
+// import { evaluate as mathEvaluate } from "mathjs";
 import fetch from "node-fetch";
 import { exec } from "node:child_process";
 import { promisify } from "node:util";
 import { client, db, prefixMap } from "../app.js";
-import { EMBED_COLOUR, EXCHANGE_API_KEY } from "../config.js";
+import { EMBED_COLOUR } from "../config.js";
 import {
     EmbedMetadata,
     PairConversionResponse,
@@ -40,9 +40,38 @@ import {
     mikuCommandAliases,
     mikuReactions,
 } from "./../db/schema.js";
-
+import { writeFileSync } from "node:fs";
+import { createTemp } from "../helpers/utils.js";
+import { evaluate as mathEvaluate } from "mathjs";
 export const execPromise = promisify(exec);
 export const urbanEmbeds: EmbedMetadata[] = [];
+
+export async function wolframALpha(message: Message) {
+    if (!isBotOwner(message.author)) return;
+    const query = message.content.split(" ").slice(1).join(" ");
+
+    createTemp("temp");
+
+    if (!query) return await message.channel.send("No query provided!");
+
+    const url =
+        `http://api.wolframalpha.com/v2/simple?appid=` +
+        process.env.WOLFRAM_ALPHA_APP_ID +
+        `&i=${encodeURIComponent(query)}`;
+
+    const response = await fetch(url);
+
+    if (!response.ok) {
+        const error = await response.text();
+        return await message.channel.send(`Something went wrong! ${error}}`);
+    }
+
+    const buffer = await response.arrayBuffer();
+
+    writeFileSync("./temp/wolfram.png", Buffer.from(buffer));
+
+    return await message.channel.send({ files: ["./temp/wolfram.png"] });
+}
 
 export async function checkForImgAndCreateThread(message: Message) {
     if (!["1059119862741471253", "1059120608593584258"].includes(message.channel.id)) {
@@ -274,7 +303,9 @@ export async function convert(message: Message, prefix: string) {
 
     amount = isNaN(amount) ? 1 : amount;
 
-    const codesResp = await fetch(`https://v6.exchangerate-api.com/v6/${EXCHANGE_API_KEY}/codes`);
+    const codesResp = await fetch(
+        `https://v6.exchangerate-api.com/v6/${process.env.EXCHANGE_API_KEY}/codes`
+    );
     const supportedResult = (await codesResp.json()) as SupportedCodesResponse;
 
     if (!SupportedCodesSchema.safeParse(supportedResult).success) {
@@ -318,7 +349,8 @@ export async function convert(message: Message, prefix: string) {
     if (amount === 0) return await message.channel.send("Zero will obviously stay 0!");
 
     const response = await fetch(
-        `https://v6.exchangerate-api.com/v6/${EXCHANGE_API_KEY}/pair/${base_currency}/${target_currency}/${amount}`
+        `https://v6.exchangerate-api.com/v6/` +
+            `${process.env.EXCHANGE_API_KEY}/pair/${base_currency}/${target_currency}/${amount}`
     );
 
     const result = (await response.json()) as PairConversionResponse;

@@ -3,7 +3,6 @@ import type { Message } from "discord.js";
 import * as fsPromise from "node:fs/promises";
 import fetch, { Headers, RequestInit } from "node-fetch";
 import * as qrcode from "qrcode";
-import { IMGUR_CLIENT_ID } from "../config.js";
 import {
     FileSizeLimit,
     ImgurParams,
@@ -147,7 +146,7 @@ export async function imgur(args: ImgurParams) {
 
     const myHeaders = new Headers();
     const formdata = new FormData();
-    myHeaders.append("Authorization", `Client-ID ${IMGUR_CLIENT_ID}`);
+    myHeaders.append("Authorization", `Client-ID ${process.env.IMGUR_CLIENT_ID}`);
 
     const requestOptions: RequestInit = {
         method: "POST",
