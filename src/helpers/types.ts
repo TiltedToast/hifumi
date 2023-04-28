@@ -1,13 +1,13 @@
 import { ActivityType, ButtonInteraction, Embed, EmbedBuilder, Message } from "discord.js";
 import { z } from "zod";
 
-export type UpdateEmbedArrParams<T> = {
+export interface UpdateEmbedArrParams<T> {
     result: T[];
     userID: string;
     sortKey?: keyof T & string;
     embedArray: EmbedMetadata[];
     buildEmbedFunc: (item: T, idx: number, arr: T[]) => EmbedBuilder;
-};
+}
 
 const UrbanEntrySchema = z.object({
     definition: z.string(),
@@ -34,18 +34,18 @@ export const CatFactResponseSchema = z.object({
 
 export type CatFactResponse = z.infer<typeof CatFactResponseSchema>;
 
-export type UpdateEmbedOptions = {
+export interface UpdateEmbedOptions {
     interaction: ButtonInteraction;
     embedArray: EmbedMetadata[];
     prevButtonId: string;
     nextButtonId: string;
     user: string;
-};
+}
 
-export type EmbedMetadata = {
+export interface EmbedMetadata {
     embed: Embed | EmbedBuilder;
     user: string;
-};
+}
 
 export const SupportedCodesSchema = z.object({
     result: z.union([z.literal("success"), z.literal("error")]),
@@ -82,10 +82,10 @@ export const PairConversionResponseSchema = z.object({
 
 export type PairConversionResponse = z.infer<typeof PairConversionResponseSchema>;
 
-export type ErrorLogOptions = {
+export interface ErrorLogOptions {
     message?: Message;
     errorObject: Error;
-};
+}
 
 export const FileSizeLimit = {
     DiscordFile: 8388608,
@@ -112,24 +112,24 @@ export const ImgurResponseSchema = z.object({
 
 export type ImgurResponse = z.infer<typeof ImgurResponseSchema>;
 
-export type ImgurParams = {
+export interface ImgurParams {
     message: Message;
     prefix: string;
     url?: string;
-};
+}
 
-export type MessageCommandData = {
+export interface MessageCommandData {
     command: string;
     subCmd: string;
     message: Message;
     prefix: string;
-};
+}
 
-export type ResizeOptions = {
+export interface ResizeOptions {
     fileLocation: string;
     width: number;
     saveLocation: string;
-};
+}
 
 export const StatusType = {
     LISTENING: ActivityType.Listening,

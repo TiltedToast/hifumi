@@ -98,7 +98,7 @@ export async function pingRandomMembers(message: Message) {
     return await message.channel.send(outputString);
 }
 
-export async function reactToMiku(message: Message, reactCmd: string): Promise<void | Message> {
+export async function reactToMiku(message: Message, reactCmd: string) {
     const reactMsgs = await db.select().from(mikuReactions).execute();
     const cmdAliases = await db.select().from(mikuCommandAliases).execute();
 
@@ -113,7 +113,7 @@ export async function reactToMiku(message: Message, reactCmd: string): Promise<v
     }
 }
 
-export async function leet(message: Message): Promise<void | Message> {
+export async function leet(message: Message) {
     const inputWords = message.content.split(" ").slice(1);
     const leetDoc = await db.select().from(leetTable).execute();
 
@@ -152,7 +152,7 @@ export async function helpCmd(message: Message | CommandInteraction, prefix?: st
     if (!prefix) prefix = prefixMap.get(message.guildId ?? "") ?? "h!";
 
     const helpMsg = helpMsgArray
-        .map((helpMsgObj) => `**${prefix}${helpMsgObj.cmd}** - ${helpMsgObj.desc}`)
+        .map((helpMsgObj) => `**${prefix ?? "h!"}${helpMsgObj.cmd}** - ${helpMsgObj.desc}`)
         .join("\n");
 
     const helpEmbed = new EmbedBuilder()
@@ -186,7 +186,7 @@ export async function consoleCmd(message: Message, cmd?: string, python = false)
         if (msg.length > 2000) return await message.channel.send("Command output too long!");
         return await message.channel.send(msg);
     } catch (error) {
-        return await message.channel.send(`\`\`\`${error}\`\`\``);
+        return await message.channel.send(`\`\`\`${error as string}\`\`\``);
     }
 }
 
@@ -213,14 +213,14 @@ export async function jsEval(message: Message, mode?: "math") {
 
     const command = message.content.split(" ").slice(1).join(" ");
     try {
-        if (mode === "math") rslt = mathEvaluate(command);
-        else rslt = await eval(command);
+        if (mode === "math") rslt = mathEvaluate(command) as string;
+        else rslt = (await eval(command)) as string;
     } catch (error) {
-        return await message.channel.send(`\`\`\`${error}\`\`\``);
+        return await message.channel.send(`\`\`\`${error as string}\`\`\``);
     }
 
     if (typeof rslt === "object") rslt = `\`\`\`js\n${JSON.stringify(rslt, null, 4)}\n\`\`\``;
-    if (rslt == null) return await message.channel.send("Cannot send an empty message!");
+    if (!rslt) return await message.channel.send("Cannot send an empty message!");
 
     const resultString = rslt.toString();
 
@@ -355,7 +355,7 @@ export async function convert(message: Message, prefix: string) {
     const description = [
         `**${amount} ${currencies[base_currency]} ≈ `,
         `${result.conversion_result ?? 0} ${currencies[target_currency]}**`,
-        `\n\nExchange Rate: 1 ${base_currency} ≈ ${result.conversion_rate} ${target_currency}`,
+        `\n\nExchange Rate: 1 ${base_currency} ≈ ${result.conversion_rate ?? 0} ${target_currency}`,
     ].join("");
 
     const lastUpdated = new Date(
@@ -372,7 +372,7 @@ export async function convert(message: Message, prefix: string) {
 }
 
 export async function urban(message: Message, prefix: string) {
-    const query = message.content.split(" ").slice(1);
+    const query = message.content.split(" ").slice(1).join(" ");
 
     if (!query.length) return await message.channel.send(`Usage: \`${prefix}urban <query>\``);
 
@@ -390,7 +390,7 @@ export async function urban(message: Message, prefix: string) {
 
     if (result.list.length === 0) return message.channel.send("No results found!");
 
-    await setEmbedArr({
+    setEmbedArr({
         result: result.list,
         userID: message.author.id,
         sortKey: "thumbs_up",

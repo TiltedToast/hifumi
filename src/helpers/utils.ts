@@ -92,9 +92,9 @@ export function clientNoPermissions(message: Message, guildClient?: GuildMember)
     if (!guildClient) return false;
     return (
         !guildClient
-            ?.permissionsIn(message.channel.id)
+            .permissionsIn(message.channel.id)
             .has(PermissionsBitField.Flags.SendMessages) ||
-        !guildClient?.permissionsIn(message.channel.id).has(PermissionsBitField.Flags.ViewChannel)
+        !guildClient.permissionsIn(message.channel.id).has(PermissionsBitField.Flags.ViewChannel)
     );
 }
 
@@ -120,7 +120,7 @@ export function isMikuTrigger(message: Message, reactCmd: string): boolean {
     );
 }
 
-export async function setEmbedArr<T>(args: UpdateEmbedArrParams<T>): Promise<void> {
+export function setEmbedArr<T>(args: UpdateEmbedArrParams<T>): void {
     const { result, userID, sortKey, embedArray, buildEmbedFunc } = args;
 
     if (sortKey) result.sort((a, b) => (b[sortKey] > a[sortKey] ? 1 : -1));
@@ -174,7 +174,7 @@ export function hasPermission(permission: PermissionResolvable, message: Message
  * Checks config variables for missing credentials
  * @returns a list of missing credentials
  */
-export async function getMissingCredentials(): Promise<string[]> {
+export function getMissingCredentials(): string[] {
     const missingCredentials = [];
     if (!EXCHANGE_API_KEY) missingCredentials.push("Exchange API Key");
     if (!IMGUR_CLIENT_ID) missingCredentials.push("Imgur Client ID");
@@ -268,23 +268,28 @@ export async function errorLog({ message, errorObject }: ErrorLogOptions) {
 
     if (message === undefined) {
         channel = client.channels.cache.get(LOG_CHANNEL) as TextChannel;
-        errorMessage = `Unhandled Rejection\n\n${errorObject.stack}\n\n<@${BOT_OWNERS[0]}>`;
+        errorMessage = `Unhandled Rejection\n\n${errorObject.stack ?? "Stack missing"}\n\n<@${
+            BOT_OWNERS[0]
+        }>`;
         return channel.send(errorMessage);
     }
 
     const commandUsed =
         message.content.substring(0, 500) +
+        // eslint-disable-next-line @typescript-eslint/prefer-string-starts-ends-with
         (message.content.substring(0, 500) !== message.content ? " ..." : "");
 
     const errorMessageWithoutStack =
         `An Error occurred on ${currentTime}\n` +
-        `**Server:** ${message.guild?.name} - ${message.guild?.id}\n` +
+        `**Server:** ${message.guild?.name ?? "Unknown"} - ${message.guild?.id ?? "Unknown"}\n` +
         `**Room:** ${(message.channel as TextChannel).name} - ${message.channel.id}\n` +
         `**User:** ${message.author.username} - ${message.author.id}\n` +
         `**Command used:** ${commandUsed}\n` +
         `**Error:** ${errorObject.message}\n`;
 
-    const fullErrorMsg = `${errorMessageWithoutStack}\n\n**${errorObject.stack}**\n\n<@${BOT_OWNERS[0]}>`;
+    const fullErrorMsg = `${errorMessageWithoutStack}\n\n**${
+        errorObject.stack ?? "Stack missing"
+    }**\n\n<@${BOT_OWNERS[0]}>`;
     const preCutErrorMessage = fullErrorMsg.substring(0, 1900 - errorMessageWithoutStack.length);
     const postCutErrorMessage = `${preCutErrorMessage.split("\n").slice(0, -2).join("\n")}**\n\n<@${
         BOT_OWNERS[0]

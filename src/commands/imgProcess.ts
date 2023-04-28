@@ -26,10 +26,9 @@ export async function beautiful(message: Message) {
     const user = content.length === 1 ? message.author : await getUserObjectPingId(message);
     if (!user) return await message.channel.send("Couldn't find the specified User");
 
-    // Downloads User Avatar and resizes it to the size required (180x180)
-    const avatarURL = `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=4096`;
+    const avatarUrl = user.avatarURL({ size: 4096 }) ?? user.defaultAvatarURL;
 
-    const fetchErrorMsg = await downloadURL(avatarURL, `./temp/avatar.png`);
+    const fetchErrorMsg = await downloadURL(avatarUrl, `./temp/avatar.png`);
     if (fetchErrorMsg) return await message.channel.send(fetchErrorMsg);
 
     await resize({
@@ -181,7 +180,9 @@ export async function imgur(args: ImgurParams) {
         const result = (await response.json()) as ImgurResponse;
 
         if (!response.ok)
-            return message.channel.send(`Failed to upload image: ${result.data.error?.message}`);
+            return message.channel.send(
+                `Failed to upload image: ${result.data.error?.message ?? "Unknown Error"}`
+            );
 
         if (!ImgurResponseSchema.safeParse(result).success) {
             return await message.channel.send(
@@ -197,7 +198,9 @@ export async function imgur(args: ImgurParams) {
         const result = (await response.json()) as ImgurResponse;
 
         if (!response.ok)
-            return message.channel.send(`Failed to upload image: ${result.data.error?.message}`);
+            return message.channel.send(
+                `Failed to upload image: ${result.data.error?.message ?? "Unknown Error"}`
+            );
 
         if (!ImgurResponseSchema.safeParse(result).success) {
             return await message.channel.send(

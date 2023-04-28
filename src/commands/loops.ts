@@ -1,7 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unnecessary-condition */
 import type { Client, TextChannel } from "discord.js";
 import fetch from "node-fetch";
 import { statusArr } from "../app.js";
-import { Status } from "../db/types.js";
 import { CatFactResponse, CatFactResponseSchema, StatusType } from "../helpers/types.js";
 import { randomElementFromArray, randomIntFromRange, sleep } from "../helpers/utils.js";
 
@@ -26,7 +26,7 @@ export async function startCatFactLoop(channel: TextChannel) {
  */
 export async function startStatusLoop(client: Client) {
     while (true) {
-        const status = await setRandomStatus(client);
+        const status = setRandomStatus(client);
         if (!status) break;
         await sleep(randomIntFromRange(300000, 900000)); // 5m-15m
     }
@@ -36,9 +36,9 @@ export async function startStatusLoop(client: Client) {
  * Grabs a random status from the database and sets it as the status of the bot
  * @param client Discord client used to access the API
  */
-async function setRandomStatus(client: Client) {
+function setRandomStatus(client: Client) {
     if (!client.user) return console.error("Could not set status, client user is undefined");
-    const randStatus = randomElementFromArray(statusArr) as Status;
+    const randStatus = randomElementFromArray(statusArr);
 
     return client.user.setActivity(randStatus.status, {
         type: StatusType[randStatus.type],

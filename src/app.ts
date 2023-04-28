@@ -55,7 +55,7 @@ client.once("ready", async () => {
     // Puts all statuses into an array to avoid reading the database on every status change
     statusArr = await db.select().from(statuses).execute();
 
-    if (statusArr.length) startStatusLoop(client);
+    if (statusArr.length) startStatusLoop(client).catch(console.error);
 
     for (const prefixDoc of await db.select().from(prefixes).execute()) {
         prefixMap.set(prefixDoc.serverId, prefixDoc.prefix);
@@ -66,7 +66,7 @@ client.once("ready", async () => {
     // const catFactChannel = client.channels.cache.get(CAT_FACT_CHANNEL) as TextChannel;
     // startCatFactLoop(catFactChannel);
 
-    const credentials = await getMissingCredentials();
+    const credentials = getMissingCredentials();
 
     if (credentials.length > 0) {
         console.error(`Missing credentials: ${credentials.join(", ")}`);
@@ -98,11 +98,11 @@ if (process.platform === "win32") {
 
 // Graceful Shutdown on Ctrl + C / Docker stop
 stopSignals.forEach((signal) => {
-    process.on(signal, async () => {
+    process.on(signal, () => {
         client.destroy();
         console.log("Closed Discord connection");
         process.exit(0);
     });
 });
 
-client.login(BOT_TOKEN);
+await client.login(BOT_TOKEN);

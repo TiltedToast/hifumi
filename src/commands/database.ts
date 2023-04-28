@@ -36,7 +36,7 @@ export async function runSQL(message: Message) {
     }
 }
 
-export async function insertStatus(message: Message): Promise<void | Message> {
+export async function insertStatus(message: Message): Promise<undefined | Message> {
     if (!isBotOwner(message.author)) return;
 
     const content = message.content.split(" ");

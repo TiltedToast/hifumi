@@ -74,7 +74,9 @@ export async function sub(message: Message, prefix: string): Promise<Message> {
     const data = (await response.json()) as Record<string, unknown>;
 
     if ("reason" in data)
-        return await message.channel.send(`Subreddit not found! Reason: ${data["reason"]}`);
+        return await message.channel.send(
+            `Subreddit not found! Reason: ${data["reason"] as string}`
+        );
 
     if (response.status === 404) return await message.channel.send(`Subreddit not found`);
 
