@@ -273,7 +273,6 @@ export async function errorLog({ message, errorObject }: ErrorLogOptions) {
             command: message.content,
             error: errorObject.message,
             stack: errorObject.stack,
-            timestamp: strftime("%Y-%m-%d %H:%M:%S"),
             log: fullErrorMsg,
         })
         .execute()
