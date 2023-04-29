@@ -1,7 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unnecessary-condition */
 import type { Client, TextChannel } from "discord.js";
+import { PlanetScaleDatabase } from "drizzle-orm/planetscale-serverless/index.js";
 import fetch from "node-fetch";
 import { statusArr } from "../app.js";
+import { errorLogs } from "../db/schema.js";
 import { CatFactResponse, CatFactResponseSchema, StatusType } from "../helpers/types.js";
 import { randomElementFromArray, randomIntFromRange, sleep } from "../helpers/utils.js";
 
@@ -43,4 +45,18 @@ function setRandomStatus(client: Client) {
     return client.user.setActivity(randStatus.status, {
         type: StatusType[randStatus.type],
     });
+}
+
+export async function avoidDbSleeping(db: PlanetScaleDatabase) {
+    const sixDaysinSeconds = 518400;
+
+    while (true) {
+        await db.insert(errorLogs).values({
+            channel: "N/A",
+            error: "Avoiding database freezing",
+            user: "N/A",
+        });
+
+        await sleep(sixDaysinSeconds * 1000);
+    }
 }

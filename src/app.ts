@@ -11,7 +11,7 @@ import { drizzle } from "drizzle-orm/planetscale-serverless";
 import fetch from "node-fetch";
 import { existsSync, rmSync } from "node:fs";
 import strftime from "strftime";
-import { startStatusLoop } from "./commands/loops.js";
+import { avoidDbSleeping, startStatusLoop } from "./commands/loops.js";
 import { LOG_CHANNEL } from "./config.js";
 import { prefixes, statuses } from "./db/schema.js";
 import type { Status } from "./db/types.js";
@@ -56,6 +56,7 @@ client.once("ready", async () => {
     statusArr = await db.select().from(statuses).execute();
 
     if (statusArr.length) startStatusLoop(client).catch(console.error);
+    avoidDbSleeping(db).catch(console.error);
 
     for (const prefixDoc of await db.select().from(prefixes).execute()) {
         prefixMap.set(prefixDoc.serverId, prefixDoc.prefix);
