@@ -276,7 +276,7 @@ export async function removeEmoji(message: Message): Promise<void> {
 }
 
 export async function renameEmoji(message: Message, prefix: string): Promise<Message> {
-    if (!hasPermission(PermissionFlagsBits.ManageEmojisAndStickers, message)) {
+    if (!hasPermission(PermissionFlagsBits.ManageGuildExpressions, message)) {
         return message.channel.send(
             'You need the "Manage Emoji and Stickers" permission to rename emojis!'
         );
