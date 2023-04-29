@@ -7,6 +7,7 @@ import {
     Message,
     PermissionFlagsBits,
     ThreadAutoArchiveDuration,
+    codeBlock,
 } from "discord.js";
 // import { evaluate as mathEvaluate } from "mathjs";
 import fetch from "node-fetch";
@@ -210,14 +211,14 @@ export async function consoleCmd(message: Message, cmd?: string, python = false)
     const command = cmd ? cmd : python ? `${pythonCmd} -c "print(${input})"` : input;
     try {
         const { stdout, stderr } = await execPromise(command);
-        if (stderr) await message.channel.send(`\`\`\`${stderr}\`\`\``);
+        if (stderr) await message.channel.send(codeBlock(stderr));
 
-        const msg = stdout ? `\`\`\`${stdout}\`\`\`` : "Command executed!";
+        const msg = stdout ? codeBlock(stdout) : "Command executed!";
 
         if (msg.length > 2000) return await message.channel.send("Command output too long!");
         return await message.channel.send(msg);
     } catch (error) {
-        return await message.channel.send(`\`\`\`${error as string}\`\`\``);
+        return await message.channel.send(codeBlock(error as string));
     }
 }
 
@@ -247,10 +248,10 @@ export async function jsEval(message: Message, mode?: "math") {
         if (mode === "math") rslt = mathEvaluate(command) as string;
         else rslt = (await eval(command)) as string;
     } catch (error) {
-        return await message.channel.send(`\`\`\`${error as string}\`\`\``);
+        return await message.channel.send(codeBlock(error as string));
     }
 
-    if (typeof rslt === "object") rslt = `\`\`\`js\n${JSON.stringify(rslt, null, 4)}\n\`\`\``;
+    if (typeof rslt === "object") rslt = codeBlock("js", JSON.stringify(rslt, null, 4));
     if (!rslt) return await message.channel.send("Cannot send an empty message!");
 
     const resultString = rslt.toString();
@@ -339,7 +340,8 @@ export async function convert(message: Message, prefix: string) {
     if (!(base_currency in currencies) || !(target_currency in currencies)) {
         return await message.channel.send(
             `Invalid currency codes!\nCheck ` +
-                `<https://www.exchangerate-api.com/docs/supported-currencies> for a list of supported currencies`
+                `<https://www.exchangerate-api.com/docs/supported-currencies> ` +
+                `for a list of supported currencies`
         );
     }
     // Checks for possible pointless conversions

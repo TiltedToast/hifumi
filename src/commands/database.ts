@@ -1,5 +1,5 @@
 import { DatabaseError } from "@planetscale/database";
-import { Message, PermissionFlagsBits } from "discord.js";
+import { Message, PermissionFlagsBits, codeBlock } from "discord.js";
 import { eq } from "drizzle-orm";
 import { PSConnection, db, prefixMap, statusArr } from "../app.js";
 import { BOT_OWNERS } from "../config.js";
@@ -25,7 +25,7 @@ export async function runSQL(message: Message) {
         if (stringified.length > 2000) {
             return await message.channel.send("The result is too long to be displayed");
         }
-        await message.channel.send(`\`\`\`json\n${stringified}\n\`\`\``);
+        await message.channel.send(codeBlock("json", stringified));
     } catch (e) {
         if (e instanceof DatabaseError) {
             console.error(e);
@@ -74,7 +74,7 @@ export async function insertStatus(message: Message): Promise<undefined | Messag
     statusArr.push(document);
 
     await message.channel.send("Status added!");
-    await message.channel.send(`\`\`\`json\n${JSON.stringify(document, null, 4)}\n\`\`\``);
+    await message.channel.send(codeBlock("json", JSON.stringify(document, null, 4)));
 }
 
 export async function updatePrefix(message: Message) {
