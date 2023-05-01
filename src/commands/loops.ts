@@ -5,7 +5,7 @@ import fetch from "node-fetch";
 import { statusArr } from "../app.js";
 import { errorLogs } from "../db/schema.js";
 import { CatFactResponse, CatFactResponseSchema, StatusType } from "../helpers/types.js";
-import { randomElementFromArray, randomIntFromRange, sleep } from "../helpers/utils.js";
+import { isDev, randomElementFromArray, randomIntFromRange, sleep } from "../helpers/utils.js";
 
 export async function startCatFactLoop(channel: TextChannel) {
     while (true) {
@@ -49,6 +49,8 @@ function setRandomStatus(client: Client) {
 
 export async function avoidDbSleeping(db: PlanetScaleDatabase) {
     const sixDaysinSeconds = 518400;
+
+    if (isDev()) return;
 
     while (true) {
         await db.insert(errorLogs).values({
