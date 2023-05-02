@@ -48,21 +48,15 @@ export interface EmbedMetadata {
 }
 
 export const SupportedCodesSchema = z.object({
-    result: z.union([z.literal("success"), z.literal("error")]),
-    "error-type": z
-        .union([
-            z.literal("invalid-key"),
-            z.literal("inactive-account"),
-            z.literal("quota-reached"),
-        ])
-        .optional(),
+    result: z.enum(["success", "error"]),
+    "error-type": z.enum(["invalid-key", "inactive-account", "quota-reached"]).optional(),
     supported_codes: z.array(z.tuple([z.string(), z.string()])),
 });
 
 export type SupportedCodesResponse = z.infer<typeof SupportedCodesSchema>;
 
 export const PairConversionResponseSchema = z.object({
-    result: z.union([z.literal("success"), z.literal("error")]),
+    result: z.enum(["success", "error"]),
     base_code: z.string().optional(),
     target_code: z.string().optional(),
     conversion_rate: z.number().optional(),
@@ -70,12 +64,12 @@ export const PairConversionResponseSchema = z.object({
     time_last_update_unix: z.number().optional(),
     time_last_update_utc: z.string().optional(),
     "error-type": z
-        .union([
-            z.literal("unsupported-code"),
-            z.literal("malformed-request"),
-            z.literal("invalid-key"),
-            z.literal("inactive-account"),
-            z.literal("quota-reached"),
+        .enum([
+            "unsupported-code",
+            "malformed-request",
+            "invalid-key",
+            "inactive-account",
+            "quota-reached",
         ])
         .optional(),
 });
