@@ -17,7 +17,8 @@
         "project": "./tsconfig.json"
     },
     "rules": {
-        "no-constant-condition": "off"
+        "no-constant-condition": "off",
+        "@typescript-eslint/consistent-type-definitions": "off"
     },
     "ignorePatterns": ["dist", "node_modules"]
 }
