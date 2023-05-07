@@ -3,12 +3,9 @@
     "version": "1.0.0",
     "type": "module",
     "dependencies": {
-        "@discordjs/builders": "^1.6.3",
-        "@discordjs/rest": "^1.7.1",
         "@planetscale/database": "^1.7.0",
         "bufferutil": "^4.0.7",
         "canvas": "^2.11.2",
-        "discord-api-types": "^0.37.41",
         "discord.js": "^14.11.0",
         "dotenv": "^16.0.3",
         "drizzle-orm": "^0.25.4",

@@ -1,12 +1,6 @@
 lockfileVersion: '6.0'
 
 dependencies:
-  '@discordjs/builders':
-    specifier: ^1.6.3
-    version: 1.6.3
-  '@discordjs/rest':
-    specifier: ^1.7.1
-    version: 1.7.1
   '@planetscale/database':
     specifier: ^1.7.0
     version: 1.7.0
@@ -16,9 +10,6 @@ dependencies:
   canvas:
     specifier: ^2.11.2
     version: 2.11.2
-  discord-api-types:
-    specifier: ^0.37.41
-    version: 0.37.41
   discord.js:
     specifier: ^14.11.0
     version: 14.11.0(bufferutil@4.0.7)(utf-8-validate@5.0.10)
