@@ -1,4 +1,4 @@
-import { EmbedBuilder, Message, TextChannel } from "discord.js";
+import { ChatInputCommandInteraction, EmbedBuilder, Message, TextChannel } from "discord.js";
 import { sql } from "drizzle-orm";
 import fetch from "node-fetch";
 import Snoowrap from "snoowrap";
@@ -50,32 +50,30 @@ function buildProfileEmbed(userName: string) {
         .setThumbnail(icon_img);
 }
 
-export async function sub(message: Message, prefix: string): Promise<Message> {
-    const content = message.content.split(" ").map((x) => x.toLowerCase());
-    if (content.length === 1)
-        return await message.channel.send(`Usage: \`${prefix}sub <subreddit>\``);
+export async function sub(interaction: ChatInputCommandInteraction) {
+    const [isSFW, isNSFW, force] = parseSubFlags(interaction);
 
-    const [isSFW, isNSFW, force] = parseSubFlags(message);
+    await interaction.deferReply();
 
     // Check if command has been run in a channel marked as NSFW to avoid potential NSFW posts in non-NSFW channels
-    if (isNSFW && !(message.channel as TextChannel).nsfw)
-        return await message.channel.send("You have to be in a NSFW channel for this");
+    if (isNSFW && !(interaction.channel as TextChannel).nsfw)
+        return await interaction.editReply("You have to be in a NSFW channel for this");
 
-    const subreddit = content[1].toLowerCase();
+    const subreddit = interaction.options.getString("subreddit", true).toLowerCase();
 
     // Check if the subreddit exists
     const response = await fetch(`https://www.reddit.com/r/${subreddit}/about.json`);
     const data = (await response.json()) as Record<string, unknown>;
 
     if ("reason" in data)
-        return await message.channel.send(
+        return await interaction.editReply(
             `Subreddit not found! Reason: ${data["reason"] as string}`
         );
 
-    if (response.status === 404) return await message.channel.send(`Subreddit not found`);
+    if (response.status === 404) return await interaction.editReply(`Subreddit not found`);
 
     if (!response.ok)
-        return await message.channel.send(`Reddit's API might be having issues, try again later`);
+        return await interaction.editReply(`Reddit's API might be having issues, try again later`);
 
     const posts = await db
         .execute(
@@ -89,18 +87,18 @@ export async function sub(message: Message, prefix: string): Promise<Message> {
         .then((x) => x.rows as RedditPost[]);
 
     if (force) {
-        await message.channel.send("Force fetching images, this might take a while...");
-        posts.push(...(await fetchSubmissions(subreddit, message)));
+        await interaction.channel?.send("Force fetching images, this might take a while...");
+        posts.push(...(await fetchSubmissions(subreddit, interaction)));
     } else if (!posts.length) {
-        await message.channel.send(
+        await interaction.channel?.send(
             "Fetching images for the first time, this might take a while..."
         );
-        posts.push(...(await fetchSubmissions(subreddit, message)));
+        posts.push(...(await fetchSubmissions(subreddit, interaction)));
     }
 
     const filtered_posts = isNSFW && !isSFW ? posts.filter((x) => !!x.over_18) : posts;
 
-    if (filtered_posts.length === 0) return await message.channel.send("No images found!");
+    if (filtered_posts.length === 0) return await interaction.editReply("No images found!");
 
     const { title, permalink, url } = randomElementFromArray(filtered_posts);
 
@@ -110,7 +108,7 @@ export async function sub(message: Message, prefix: string): Promise<Message> {
         .setURL(`https://reddit.com${permalink}`)
         .setImage(url);
 
-    return await message.channel.send({ embeds: [imgEmbed] });
+    return await interaction.editReply({ embeds: [imgEmbed] });
 }
 
 /**
@@ -119,22 +117,18 @@ export async function sub(message: Message, prefix: string): Promise<Message> {
  * @returns An array containing a boolean that indicated whether
  * to fetch NSFW posts or not and a boolean that indicates whether to force fetch posts or not
  */
-function parseSubFlags(message: Message): [boolean, boolean, boolean] {
+function parseSubFlags(interaction: ChatInputCommandInteraction): [boolean, boolean, boolean] {
     let isSFW = true,
         isNSFW = false,
         force = false;
 
-    const content = message.content.toLowerCase().split(" ");
-
-    for (let i = 2; i < content.length; i++) {
-        if (content[i] === "nsfw") {
-            isNSFW = true;
-            isSFW = false;
-        } else if (content[i] === "force") {
-            force = true;
-        }
+    if (interaction.options.getBoolean("nsfw")) {
+        isNSFW = true;
+        isSFW = false;
+    } else if (interaction.options.getBoolean("force")) {
+        force = true;
     }
-    if ((message.channel as TextChannel).nsfw) isNSFW = true;
+    if ((interaction.channel as TextChannel).nsfw) isNSFW = true;
 
     return [isSFW, isNSFW, force];
 }
@@ -147,7 +141,7 @@ function parseSubFlags(message: Message): [boolean, boolean, boolean] {
  */
 export async function fetchSubmissions(
     subreddit: string,
-    message: Message,
+    interaction: ChatInputCommandInteraction,
     limit = 100
 ): Promise<RedditPost[]> {
     const posts = new Array<NewRedditPost>();
@@ -175,12 +169,12 @@ export async function fetchSubmissions(
     }
 
     if (posts.length === 0) {
-        await message.channel.send("Couldn't find any new images");
+        await interaction.channel?.send("Couldn't find any new images");
         return [];
     }
 
     await db.insert(redditPosts).values(posts);
-    await message.channel.send(`Fetched ${posts.length} new images for ${subreddit}`);
+    await interaction.channel?.send(`Fetched ${posts.length} new images for ${subreddit}`);
     return posts as RedditPost[];
 }
 

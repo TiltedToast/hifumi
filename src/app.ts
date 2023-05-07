@@ -79,6 +79,10 @@ client.on("messageCreate", handleMessage);
 client.on("interactionCreate", handleInteraction);
 process.on("unhandledRejection", console.error);
 process.on("uncaughtException", console.error);
+process.on("exit", () => {
+    client.destroy();
+    console.log("Closed Discord connection");
+});
 
 // Linux doesn't allow you to listen to SIGKILL
 // This is only useful for development anyway

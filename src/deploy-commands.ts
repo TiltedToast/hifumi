@@ -19,6 +19,25 @@ const commands = [
             option.setName("user").setDescription("The user to pat").setRequired(true)
         ),
     new SlashCommandBuilder().setName("help").setDescription("Shows a list of commands"),
+
+    new SlashCommandBuilder()
+        .setName("sub")
+        .setDescription("Get a random image from a subreddit")
+        .addStringOption((option) =>
+            option
+                .setName("subreddit")
+                .setDescription("The subreddit to search in")
+                .setRequired(true)
+        )
+        .addBooleanOption((option) =>
+            option
+                .setName("nsfw")
+                .setDescription("Whether to fetch NSFW posts or not")
+                .setRequired(false)
+        )
+        .addBooleanOption((option) =>
+            option.setName("force").setDescription("Force fetch posts").setRequired(false)
+        ),
 ].map((command) => command.toJSON());
 
 const rest = new REST({ version: "10" }).setToken(process.env.BOT_TOKEN);

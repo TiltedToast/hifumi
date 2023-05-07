@@ -80,7 +80,8 @@ async function handleCommand({ command, subCmd, message, prefix }: MessageComman
     else if (command === "resize") await imgProcess.resizeImg(message, prefix);
     else if (command === "imgur") await imgProcess.imgur({ message, prefix });
     else if (command === "profile") await reddit.profile(message, prefix);
-    else if (command === "sub") await reddit.sub(message, prefix);
+    else if (command === "sub")
+        await message.channel.send("This has been moved to a separate /sub command");
     else if (command === "prefix") await db.updatePrefix(message);
     else if (command === "con") await misc.consoleCmd(message);
     else if (command === "qr") await imgProcess.qrCode(message);
