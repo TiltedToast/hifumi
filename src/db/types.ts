@@ -1,5 +1,7 @@
 import { InferModel } from "drizzle-orm";
 import * as schema from "./schema.js";
+import { z } from "zod";
+import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 
 export type ErrorLog = InferModel<typeof schema.errorLogs>;
 export type HelpMessage = InferModel<typeof schema.helpMessages>;
@@ -7,7 +9,12 @@ export type LeetChar = InferModel<typeof schema.leet>;
 export type MikuCommandAlias = InferModel<typeof schema.mikuCommandAliases>;
 export type MikuReaction = InferModel<typeof schema.mikuReactions>;
 export type Prefix = InferModel<typeof schema.prefixes>;
-export type Status = InferModel<typeof schema.statuses>;
-export type NewStatus = InferModel<typeof schema.statuses, "insert">;
-export type RedditPost = InferModel<typeof schema.redditPosts>;
-export type NewRedditPost = InferModel<typeof schema.redditPosts, "insert">;
+export type Status = z.infer<typeof SelectStatusSchema>;
+export type NewStatus = z.infer<typeof InsertStatusSchema>;
+export type RedditPost = z.infer<typeof SelectRedditPostSchema>;
+export type NewRedditPost = z.infer<typeof InsertRedditPostSchema>;
+
+export const InsertRedditPostSchema = createInsertSchema(schema.redditPosts);
+export const SelectRedditPostSchema = createSelectSchema(schema.redditPosts);
+export const InsertStatusSchema = createInsertSchema(schema.statuses);
+export const SelectStatusSchema = createSelectSchema(schema.statuses);

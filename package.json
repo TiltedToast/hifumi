@@ -12,6 +12,7 @@
         "discord.js": "^14.11.0",
         "dotenv": "^16.0.3",
         "drizzle-orm": "^0.25.4",
+        "drizzle-zod": "^0.4.1",
         "fuse.js": "^6.6.2",
         "lint-staged": "^13.2.2",
         "mathjs": "^11.8.0",

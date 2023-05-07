@@ -1,5 +1,5 @@
 import "dotenv/config";
-import { migrate } from "drizzle-orm/planetscale-serverless/migrator.js";
+import { migrate } from "drizzle-orm/planetscale-serverless/migrator";
 import { client, db } from "../app.js";
 
 // this will automatically run needed migrations on the database

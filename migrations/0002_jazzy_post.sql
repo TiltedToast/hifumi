@@ -1,0 +1,1 @@
+ALTER TABLE `reddit_posts` MODIFY COLUMN `title` varchar(255) NOT NULL;

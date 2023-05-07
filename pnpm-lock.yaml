@@ -28,6 +28,9 @@ dependencies:
   drizzle-orm:
     specifier: ^0.25.4
     version: 0.25.4(@planetscale/database@1.7.0)
+  drizzle-zod:
+    specifier: ^0.4.1
+    version: 0.4.1(drizzle-orm@0.25.4)(zod@3.21.4)
   fuse.js:
     specifier: ^6.6.2
     version: 6.6.2
@@ -1055,6 +1058,16 @@ packages:
         optional: true
     dependencies:
       '@planetscale/database': 1.7.0
+    dev: false
+
+  /drizzle-zod@0.4.1(drizzle-orm@0.25.4)(zod@3.21.4):
+    resolution: {integrity: sha512-0SoW2YwQwh+9QUNezzPAg179qO6OinbmLJFLjCjxfBpNDD39YH2hlSRK/rrkzskyBSORKraSrim/abynQ4k79w==}
+    peerDependencies:
+      drizzle-orm: '>=0.23.13'
+      zod: '*'
+    dependencies:
+      drizzle-orm: 0.25.4(@planetscale/database@1.7.0)
+      zod: 3.21.4
     dev: false
 
   /eastasianwidth@0.2.0:
