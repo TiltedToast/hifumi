@@ -8,7 +8,7 @@ import { db } from "../app.js";
 import { EMBED_COLOUR } from "../config.js";
 import { randomElementFromArray } from "../helpers/utils.js";
 import { redditPosts } from "./../db/schema.js";
-import { RedditPost, NewRedditPost, InsertRedditPostSchema } from "./../db/types.js";
+import { RedditPost, NewRedditPost } from "./../db/types.js";
 
 const RedditClient = new Snoowrap({
     userAgent: "linux:hifumi:v1.0.0 (by /u/tilted_toast)",
@@ -81,7 +81,6 @@ export async function sub(message: Message, prefix: string): Promise<Message> {
         .execute(
             sql`
                 SELECT * FROM ${redditPosts}
-                FORCE INDEX (subreddit)
                 WHERE ${redditPosts.subreddit} = ${subreddit}
                 ORDER BY RAND()
                 LIMIT 1
@@ -168,10 +167,8 @@ export async function fetchSubmissions(
                     permalink: submission.permalink,
                     over_18: submission.over_18,
                 };
-                if (
-                    !posts.some((x) => x.url === post.url) &&
-                    InsertRedditPostSchema.safeParse(post).success
-                )
+
+                if (!posts.some((x) => x.url === post.url) && post.title.length <= 255)
                     posts.push(post);
             }
         }
