@@ -11,6 +11,7 @@ import {
     User,
 } from "discord.js";
 import fetch, { Headers, type RequestInit } from "node-fetch";
+import { existsSync, mkdirSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import strftime from "strftime";
 import { client, db } from "../app.js";
@@ -24,7 +25,6 @@ import type {
     UpdateEmbedArrParams,
     UpdateEmbedOptions,
 } from "./types.js";
-import { existsSync, writeFileSync, mkdirSync, rmSync, statSync } from "node:fs";
 
 /**
  * Send a message if the input is a message, or reply if the input is a command interaction

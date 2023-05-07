@@ -6,9 +6,9 @@ import * as imgProcess from "../commands/imgProcess.js";
 import * as misc from "../commands/miscellaneous.js";
 import * as reddit from "../commands/reddit.js";
 
+import { prefixes } from "../db/schema.js";
 import type { MessageCommandData } from "../helpers/types.js";
 import { clientNoPermissions, errorLog, isDev, isMikuTrigger } from "../helpers/utils.js";
-import { prefixes } from "../db/schema.js";
 
 export default async function handleMessage(message: Message) {
     const guildClient = await message.guild?.members.fetchMe();

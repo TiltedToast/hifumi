@@ -1,6 +1,6 @@
 import { DiscordAPIError, GuildEmoji, Message, MessageType, PermissionFlagsBits } from "discord.js";
-import { readFileSync } from "node:fs";
 import Fuse from "fuse.js";
+import { readFileSync } from "node:fs";
 import { FileSizeLimit } from "../helpers/types.js";
 import {
     createTemp,

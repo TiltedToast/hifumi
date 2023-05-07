@@ -1,7 +1,7 @@
 import type { ButtonInteraction, ChatInputCommandInteraction, Interaction } from "discord.js";
 import { helpCmd, urbanEmbeds } from "../commands/miscellaneous.js";
-import { updateEmbed } from "../helpers/utils.js";
 import { sub } from "../commands/reddit.js";
+import { updateEmbed } from "../helpers/utils.js";
 
 export default async function handleInteraction(interaction: Interaction) {
     try {

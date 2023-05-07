@@ -9,9 +9,10 @@ import {
     ThreadAutoArchiveDuration,
     codeBlock,
 } from "discord.js";
-// import { evaluate as mathEvaluate } from "mathjs";
+import { evaluate as mathEvaluate } from "mathjs";
 import fetch from "node-fetch";
 import { exec } from "node:child_process";
+import { writeFileSync } from "node:fs";
 import { promisify } from "node:util";
 import { client, db, prefixMap } from "../app.js";
 import { EMBED_COLOUR } from "../config.js";
@@ -26,6 +27,7 @@ import {
     UrbanResponseSchema,
 } from "../helpers/types.js";
 import {
+    createTemp,
     getUserObjectPingId,
     hasPermission,
     isBotOwner,
@@ -41,9 +43,7 @@ import {
     mikuCommandAliases,
     mikuReactions,
 } from "./../db/schema.js";
-import { writeFileSync } from "node:fs";
-import { createTemp } from "../helpers/utils.js";
-import { evaluate as mathEvaluate } from "mathjs";
+
 export const execPromise = promisify(exec);
 export const urbanEmbeds: EmbedMetadata[] = [];
 

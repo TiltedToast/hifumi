@@ -8,7 +8,7 @@ import { db } from "../app.js";
 import { EMBED_COLOUR } from "../config.js";
 import { randomElementFromArray } from "../helpers/utils.js";
 import { redditPosts } from "./../db/schema.js";
-import { RedditPost, NewRedditPost } from "./../db/types.js";
+import { NewRedditPost, RedditPost } from "./../db/types.js";
 
 const RedditClient = new Snoowrap({
     userAgent: "linux:hifumi:v1.0.0 (by /u/tilted_toast)",

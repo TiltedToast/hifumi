@@ -1,6 +1,8 @@
 import canvas from "canvas";
 import type { Message } from "discord.js";
+import { readFileSync, writeFileSync } from "fs";
 import fetch, { Headers, RequestInit } from "node-fetch";
+import { toFile } from "qrcode";
 import {
     FileSizeLimit,
     ImgurParams,
@@ -15,8 +17,6 @@ import {
     isValidSize,
     resize,
 } from "../helpers/utils.js";
-import { readFileSync, writeFileSync } from "fs";
-import { toFile } from "qrcode";
 
 export async function beautiful(message: Message) {
     createTemp("temp");
