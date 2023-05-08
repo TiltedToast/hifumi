@@ -1,7 +1,14 @@
-import type { ButtonInteraction, ChatInputCommandInteraction, Interaction } from "discord.js";
+import {
+    ButtonInteraction,
+    ChatInputCommandInteraction,
+    Interaction,
+    codeBlock,
+    userMention,
+} from "discord.js";
 import { helpCmd, urbanEmbeds } from "../commands/miscellaneous.js";
 import { sub } from "../commands/reddit.js";
 import { updateEmbed } from "../helpers/utils.js";
+import { BOT_OWNERS, LOG_CHANNEL } from "../config.js";
 
 export default async function handleInteraction(interaction: Interaction) {
     try {
@@ -9,6 +16,14 @@ export default async function handleInteraction(interaction: Interaction) {
         if (interaction.isChatInputCommand()) await handleCommandInteraction(interaction);
     } catch (error) {
         console.error(error);
+
+        const channel = interaction.client.channels.cache.get(LOG_CHANNEL);
+        if (!channel?.isTextBased()) return;
+
+        if (!interaction.isChatInputCommand()) return;
+        await channel.send(
+            codeBlock("js", `${error as string}`) + `\n\n${userMention(BOT_OWNERS[0])}`
+        );
     }
 }
 
