@@ -63,12 +63,10 @@ export async function sub(interaction: ChatInputCommandInteraction) {
 
     // Check if the subreddit exists
     const response = await fetch(`https://www.reddit.com/r/${subreddit}/about.json`);
-    const data = (await response.json()) as Record<string, unknown>;
+    const data = (await response.json()) as Record<string, string>;
 
     if ("reason" in data)
-        return await interaction.editReply(
-            `Subreddit not found! Reason: ${data["reason"] as string}`
-        );
+        return await interaction.editReply(`Subreddit not found! Reason: ${data["reason"]}`);
 
     if (response.status === 404) return await interaction.editReply(`Subreddit not found`);
 

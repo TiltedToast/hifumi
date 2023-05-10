@@ -30,7 +30,7 @@ const commands = [
         .addBooleanOption((option) =>
             option
                 .setName("nsfw")
-                .setDescription("Whether to fetch NSFW posts or not")
+                .setDescription("Whether to fetch only NSFW posts")
                 .setRequired(false)
         )
         .addBooleanOption((option) =>
