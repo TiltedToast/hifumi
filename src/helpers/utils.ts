@@ -362,8 +362,8 @@ export function extractEmoji(emojiString: string, IdOnly = false): string {
  *  If it doesn't, it creates it
  * @param directory Path to the temporary directory you want to create
  */
-export function createTemp(directory: string): void {
-    const absPath = resolve(directory);
+export function createTemp(): void {
+    const absPath = resolve("temp");
 
     if (existsSync(absPath)) {
         rmSync(absPath, { recursive: true });

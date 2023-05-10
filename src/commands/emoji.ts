@@ -73,7 +73,7 @@ export async function addEmoji(message: Message, prefix: string) {
 
     const emojis = message.content.match(emojiRegex);
 
-    createTemp("temp");
+    createTemp();
 
     if (emojis?.length) {
         const emojiStringOutput = await bulkAddEmojis(message, emojis);
@@ -102,7 +102,7 @@ export async function addEmoji(message: Message, prefix: string) {
         url = message.attachments.first()!.url;
     }
 
-    createTemp("temp");
+    createTemp();
     const imgType = getImgType(url);
     if (!imgType) return await message.channel.send("Invalid image type!");
 

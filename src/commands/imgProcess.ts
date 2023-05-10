@@ -19,7 +19,7 @@ import {
 } from "../helpers/utils.js";
 
 export async function beautiful(message: Message) {
-    createTemp("temp");
+    createTemp();
     const content = message.content.split(" ");
 
     const user = content.length === 1 ? message.author : await getUserObjectPingId(message);
@@ -60,7 +60,7 @@ export async function qrCode(message: Message) {
     const content = message.content.split(" ");
     if (content.length === 1) return await message.channel.send("Missing argument!");
 
-    createTemp("temp");
+    createTemp();
 
     const qrText = content.slice(1).join(" ");
     try {
@@ -72,7 +72,7 @@ export async function qrCode(message: Message) {
 }
 
 export async function resizeImg(message: Message, prefix: string) {
-    createTemp("temp");
+    createTemp();
     const content = message.content.split(" ");
 
     // Checks for invalid User input
@@ -89,8 +89,6 @@ export async function resizeImg(message: Message, prefix: string) {
 
     const urlPattern = new RegExp(/https?:\/\/.*\.(?:jpg|jpeg|png|webp|avif|gif|svg|tiff)/i);
     const isValidURL = urlPattern.test(source);
-
-    createTemp("temp");
 
     // Matches URL against a regex pattern and invalidates gif files (they are not supported yet)
     if (!isValidURL) return await message.channel.send("Invalid source url!");
@@ -139,7 +137,7 @@ export async function imgur(args: ImgurParams) {
         source = source.replace(".webp", ".png");
     }
 
-    createTemp("temp");
+    createTemp();
 
     const imgType = getImgType(source);
     if (!imgType) return await message.channel.send("Invalid image type!");

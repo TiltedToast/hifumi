@@ -51,7 +51,7 @@ export async function wolframALpha(message: Message) {
     if (!isBotOwner(message.author)) return;
     const query = message.content.split(" ").slice(1).join(" ");
 
-    createTemp("temp");
+    createTemp();
 
     if (!query) return await message.channel.send("No query provided!");
 
