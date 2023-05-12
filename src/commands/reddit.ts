@@ -4,7 +4,7 @@ import Snoowrap from "snoowrap";
 import type { Timespan } from "snoowrap/dist/objects/Subreddit";
 import strftime from "strftime";
 import { EMBED_COLOUR } from "../config.js";
-import { db, getRandomRedditPost } from "../db/index.js";
+import { db, getRandomRedditPosts } from "../db/index.js";
 import { randomElementFromArray } from "../helpers/utils.js";
 import { redditPosts } from "./../db/schema.js";
 import { NewRedditPost, RedditPost } from "./../db/types.js";
@@ -72,7 +72,7 @@ export async function sub(interaction: ChatInputCommandInteraction) {
     if (!response.ok)
         return await interaction.editReply(`Reddit's API might be having issues, try again later`);
 
-    const posts = await getRandomRedditPost(subreddit);
+    const posts = await getRandomRedditPosts(subreddit);
 
     if (force) {
         await interaction.channel?.send("Force fetching images, this might take a while...");

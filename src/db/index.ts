@@ -2,6 +2,7 @@ import { connect } from "@planetscale/database";
 import "dotenv/config";
 import { eq, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/planetscale-serverless";
+import fetch from "node-fetch";
 import { prefixes, redditPosts } from "./schema.js";
 import { RedditPost } from "./types.js";
 
@@ -15,12 +16,8 @@ export const db = drizzle(PSConnection, { logger: process.env.DEV_MODE === "true
  * const post = await getRandomRedditPost("awwnime");
  * console.log(post);
  * // => [{ subreddit: "awwnime", title: "Cute cat", url: "https://i.imgur.com/1234567.jpg", permalink: "/r/awwnime/1234567", over_18: false }]
- *
- * const post = await getRandomRedditPost("awwnime");
- * console.log(post);
- * // => []
  */
-export async function getRandomRedditPost(subreddit: string, limit = 1): Promise<RedditPost[]> {
+export async function getRandomRedditPosts(subreddit: string, limit = 1): Promise<RedditPost[]> {
     return await db
         .select()
         .from(redditPosts)
