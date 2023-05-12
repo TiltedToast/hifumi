@@ -14,8 +14,9 @@ import fetch from "node-fetch";
 import { exec } from "node:child_process";
 import { writeFileSync } from "node:fs";
 import { promisify } from "node:util";
-import { client, db, prefixMap } from "../app.js";
+import { client, prefixMap } from "../app.js";
 import { EMBED_COLOUR } from "../config.js";
+import { db } from "../db/index.js";
 import {
     EmbedMetadata,
     PairConversionResponse,

@@ -1,12 +1,13 @@
 import { DatabaseError } from "@planetscale/database";
 import { Message, PermissionFlagsBits, codeBlock } from "discord.js";
-import { eq } from "drizzle-orm";
-import { PSConnection, db, prefixMap, statusArr } from "../app.js";
+import { prefixMap, statusArr } from "../app.js";
 import { BOT_OWNERS } from "../config.js";
-import { prefixes, statuses } from "../db/schema.js";
+import { PSConnection, db } from "../db/index.js";
+import { statuses } from "../db/schema.js";
 import { Status } from "../db/types.js";
 import { StatusType } from "../helpers/types.js";
 import { hasPermission, isBotOwner, isDev } from "../helpers/utils.js";
+import { updatePrefix as updatePrefixDB } from "../db/index.js";
 
 export async function runSQL(message: Message) {
     if (!isBotOwner(message.author)) return;
@@ -101,11 +102,7 @@ export async function updatePrefix(message: Message) {
 
     const serverId = message.guild.id;
     try {
-        await db
-            .update(prefixes)
-            .set({ prefix: content[1] })
-            .where(eq(prefixes.serverId, serverId))
-            .execute();
+        await updatePrefixDB(serverId, content[1]);
     } catch (_) {
         return await message.channel.send("Couldn't update prefix, maybe try again later");
     }

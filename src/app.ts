@@ -1,4 +1,3 @@
-import { connect } from "@planetscale/database";
 import {
     Client as DiscordClient,
     GatewayIntentBits,
@@ -7,12 +6,11 @@ import {
     TextChannel,
 } from "discord.js";
 import "dotenv/config";
-import { drizzle } from "drizzle-orm/planetscale-serverless";
-import fetch from "node-fetch";
 import { existsSync, rmSync } from "node:fs";
 import strftime from "strftime";
 import { avoidDbSleeping, startStatusLoop } from "./commands/loops.js";
 import { LOG_CHANNEL } from "./config.js";
+import { db } from "./db/index.js";
 import { prefixes, statuses } from "./db/schema.js";
 import type { Status } from "./db/types.js";
 import handleInteraction from "./handlers/interactions.js";
@@ -36,9 +34,6 @@ export const client = new DiscordClient({
 export const prefixMap = new Map<Snowflake, string>();
 export let statusArr: Status[] = [];
 export let botIsLoading = true;
-
-export const PSConnection = connect({ url: process.env.PLANETSCALE_URL, fetch });
-export const db = drizzle(PSConnection, { logger: isDev() });
 
 client.once("ready", async () => {
     const time = strftime("%d/%m/%Y %H:%M:%S");

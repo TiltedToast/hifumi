@@ -1,11 +1,10 @@
 import { ChatInputCommandInteraction, EmbedBuilder, Message, TextChannel } from "discord.js";
-import { sql } from "drizzle-orm";
 import fetch from "node-fetch";
 import Snoowrap from "snoowrap";
 import type { Timespan } from "snoowrap/dist/objects/Subreddit";
 import strftime from "strftime";
-import { db } from "../app.js";
 import { EMBED_COLOUR } from "../config.js";
+import { db, getRandomRedditPost } from "../db/index.js";
 import { randomElementFromArray } from "../helpers/utils.js";
 import { redditPosts } from "./../db/schema.js";
 import { NewRedditPost, RedditPost } from "./../db/types.js";
@@ -73,16 +72,7 @@ export async function sub(interaction: ChatInputCommandInteraction) {
     if (!response.ok)
         return await interaction.editReply(`Reddit's API might be having issues, try again later`);
 
-    const posts = await db
-        .execute(
-            sql`
-                SELECT * FROM ${redditPosts}
-                WHERE ${redditPosts.subreddit} = ${subreddit}
-                ORDER BY RAND()
-                LIMIT 1
-            `
-        )
-        .then((x) => x.rows as RedditPost[]);
+    const posts = await getRandomRedditPost(subreddit);
 
     if (force) {
         await interaction.channel?.send("Force fetching images, this might take a while...");

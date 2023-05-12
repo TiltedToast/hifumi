@@ -1,10 +1,11 @@
 import type { Message } from "discord.js";
-import { botIsLoading, db as DBConn, prefixMap } from "../app.js";
+import { botIsLoading, prefixMap } from "../app.js";
 import * as db from "../commands/database.js";
 import * as emoji from "../commands/emoji.js";
 import * as imgProcess from "../commands/imgProcess.js";
 import * as misc from "../commands/miscellaneous.js";
 import * as reddit from "../commands/reddit.js";
+import { db as DBConn } from "../db/index.js";
 
 import { prefixes } from "../db/schema.js";
 import type { MessageCommandData } from "../helpers/types.js";

@@ -14,9 +14,10 @@ import fetch, { Headers, type RequestInit } from "node-fetch";
 import { existsSync, mkdirSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import strftime from "strftime";
-import { client, db } from "../app.js";
+import { client } from "../app.js";
 import { execPromise } from "../commands/miscellaneous.js";
 import { BOT_OWNERS, DEV_CHANNELS, LOG_CHANNEL } from "../config.js";
+import { db } from "../db/index.js";
 import { errorLogs } from "../db/schema.js";
 import type {
     EmbedMetadata,
