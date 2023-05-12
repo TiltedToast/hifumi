@@ -91,7 +91,7 @@ export const redditPosts = mysqlTable(
     },
     (table) => {
         return {
-            subreddit: index("subreddit").on(table.subreddit),
+            subredditIdx: index("subreddit_idx").on(table.subreddit),
         };
     }
 );
