@@ -150,7 +150,13 @@ export async function fetchSubmissions(
                     over_18: submission.over_18,
                 };
 
-                if (!posts.some((x) => x.url === post.url) && post.title.length <= 255)
+                if (
+                    !posts.some((x) => x.url === post.url) &&
+                    post.title.length <= 255 &&
+                    post.subreddit.length <= 50 &&
+                    post.permalink.length <= 255 &&
+                    post.url.length <= 255
+                )
                     posts.push(post);
             }
         }
