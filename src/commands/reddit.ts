@@ -7,7 +7,7 @@ import { EMBED_COLOUR } from "../config.js";
 import { db, getRandomRedditPosts } from "../db/index.js";
 import { randomElementFromArray } from "../helpers/utils.js";
 import { redditPosts } from "./../db/schema.js";
-import { NewRedditPost, RedditPost } from "./../db/types.js";
+import { InsertRedditPostSchema, NewRedditPost, RedditPost } from "./../db/types.js";
 
 const RedditClient = new Snoowrap({
     userAgent: "linux:hifumi:v1.0.0 (by /u/tilted_toast)",
@@ -152,10 +152,7 @@ export async function fetchSubmissions(
 
                 if (
                     !posts.some((x) => x.url === post.url) &&
-                    post.title.length <= 255 &&
-                    post.subreddit.length <= 50 &&
-                    post.permalink.length <= 255 &&
-                    post.url.length <= 255
+                    InsertRedditPostSchema.safeParse(post).success
                 )
                     posts.push(post);
             }
