@@ -15,7 +15,7 @@ import { prefixes, statuses } from "./db/schema.js";
 import type { Status } from "./db/types.js";
 import handleInteraction from "./handlers/interactions.js";
 import handleMessage from "./handlers/messages.js";
-import { isDev } from "./helpers/utils.js";
+import { isDev, sleep } from "./helpers/utils.js";
 
 const startTime = Date.now();
 
@@ -88,7 +88,9 @@ stopSignals.forEach((signal) => {
     process.on(signal, () => {
         client.destroy();
         console.log("Closed Discord connection");
-        process.exit(0);
+        sleep(500)
+            .then(() => process.exit(0))
+            .catch(console.error);
     });
 });
 
