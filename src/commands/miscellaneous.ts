@@ -132,8 +132,8 @@ export async function pingRandomMembers(message: Message) {
 }
 
 export async function reactToMiku(message: Message, reactCmd: string) {
-    const reactMsgs = await db.select().from(mikuReactions).execute();
-    const cmdAliases = await db.select().from(mikuCommandAliases).execute();
+    const reactMsgs = await db.select().from(mikuReactions);
+    const cmdAliases = await db.select().from(mikuCommandAliases);
 
     for (const item of cmdAliases) {
         if (item.alias === reactCmd) {

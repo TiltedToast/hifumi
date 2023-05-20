@@ -73,7 +73,7 @@ export const statuses = mysqlTable(
     },
     (table) => {
         return {
-            id: index("id").on(table.id),
+            idIdx: index("id").on(table.id),
             uniqueStatus: primaryKey(table.type, table.status),
         };
     }

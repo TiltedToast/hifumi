@@ -3,11 +3,12 @@ import "dotenv/config";
 import { eq, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/planetscale-serverless";
 import fetch from "node-fetch";
+import * as schema from "./schema.js";
 import { prefixes, redditPosts } from "./schema.js";
 import { RedditPost } from "./types.js";
 
 export const PSConnection = connect({ url: process.env.PLANETSCALE_URL, fetch });
-export const db = drizzle(PSConnection, { logger: process.env.DEV_MODE === "true" });
+export const db = drizzle(PSConnection, { logger: process.env.DEV_MODE === "true", schema });
 
 /**
  * Queries the database for random posts from a subreddit. Defaults to 1 post.
@@ -18,12 +19,11 @@ export const db = drizzle(PSConnection, { logger: process.env.DEV_MODE === "true
  * // => [{ subreddit: "awwnime", title: "Cute cat", url: "https://i.imgur.com/1234567.jpg", permalink: "/r/awwnime/1234567", over_18: false }]
  */
 export async function getRandomRedditPosts(subreddit: string, limit = 1): Promise<RedditPost[]> {
-    return await db
-        .select()
-        .from(redditPosts)
-        .where(eq(redditPosts.subreddit, subreddit))
-        .orderBy(sql`RAND()`)
-        .limit(limit);
+    return await db.query.redditPosts.findMany({
+        where: eq(redditPosts.subreddit, subreddit),
+        orderBy: sql`RAND()`,
+        limit,
+    });
 }
 
 /**

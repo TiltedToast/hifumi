@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unnecessary-condition */
 import type { Client, TextChannel } from "discord.js";
-import { PlanetScaleDatabase } from "drizzle-orm/planetscale-serverless/index.js";
 import fetch from "node-fetch";
 import { statusArr } from "../app.js";
 import { errorLogs } from "../db/schema.js";
 import { CatFactResponse, CatFactResponseSchema, StatusType } from "../helpers/types.js";
 import { isDev, randomElementFromArray, randomIntFromRange, sleep } from "../helpers/utils.js";
+import { db } from "../db/index.js";
 
 export async function startCatFactLoop(channel: TextChannel) {
     while (true) {
@@ -47,7 +47,7 @@ function setRandomStatus(client: Client) {
     });
 }
 
-export async function avoidDbSleeping(db: PlanetScaleDatabase) {
+export async function avoidDbSleeping() {
     const sixDaysinSeconds = 518400;
 
     if (isDev()) return;

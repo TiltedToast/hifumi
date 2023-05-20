@@ -51,7 +51,7 @@ client.once("ready", async () => {
     statusArr = await db.select().from(statuses).execute();
 
     if (statusArr.length) startStatusLoop(client).catch(console.error);
-    avoidDbSleeping(db).catch(console.error);
+    avoidDbSleeping().catch(console.error);
 
     for (const prefixDoc of await db.select().from(prefixes).execute()) {
         prefixMap.set(prefixDoc.serverId, prefixDoc.prefix);
