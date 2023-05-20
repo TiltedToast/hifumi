@@ -3,8 +3,9 @@ import "dotenv/config";
 import { eq, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/planetscale-serverless";
 import fetch from "node-fetch";
-import * as schema from "./schema.js";
-import { prefixes, redditPosts } from "./schema.js";
+import prefixes from "./models/prefixes.js";
+import redditPosts from "./models/redditPosts.js";
+import schema from "./schema.js";
 import { RedditPost } from "./types.js";
 
 export const PSConnection = connect({ url: process.env.PLANETSCALE_URL, fetch });

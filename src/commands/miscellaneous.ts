@@ -17,6 +17,9 @@ import { promisify } from "node:util";
 import { client, prefixMap } from "../app.js";
 import { EMBED_COLOUR } from "../config.js";
 import { db } from "../db/index.js";
+import helpMessages from "../db/models/helpMessages.js";
+import leetTable from "../db/models/leet.js";
+import { mikuCommandAliases, mikuReactions } from "../db/models/miku.js";
 import {
     EmbedMetadata,
     PairConversionResponse,
@@ -38,12 +41,6 @@ import {
     sleep,
     writeUpdateFile,
 } from "../helpers/utils.js";
-import {
-    helpMessages,
-    leet as leetTable,
-    mikuCommandAliases,
-    mikuReactions,
-} from "./../db/schema.js";
 
 export const execPromise = promisify(exec);
 export const urbanEmbeds: EmbedMetadata[] = [];

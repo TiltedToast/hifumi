@@ -7,8 +7,8 @@ import {
 } from "discord.js";
 import { helpCmd, urbanEmbeds } from "../commands/miscellaneous.js";
 import { sub } from "../commands/reddit.js";
-import { updateEmbed } from "../helpers/utils.js";
 import { BOT_OWNERS, LOG_CHANNEL } from "../config.js";
+import { updateEmbed } from "../helpers/utils.js";
 
 export default async function handleInteraction(interaction: Interaction) {
     try {

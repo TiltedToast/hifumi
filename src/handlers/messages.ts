@@ -7,7 +7,7 @@ import * as misc from "../commands/miscellaneous.js";
 import * as reddit from "../commands/reddit.js";
 import { db as DBConn } from "../db/index.js";
 
-import { prefixes } from "../db/schema.js";
+import prefixes from "../db/models/prefixes.js";
 import type { MessageCommandData } from "../helpers/types.js";
 import { clientNoPermissions, errorLog, isDev, isMikuTrigger } from "../helpers/utils.js";
 

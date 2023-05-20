@@ -2,12 +2,11 @@ import { DatabaseError } from "@planetscale/database";
 import { Message, PermissionFlagsBits, codeBlock } from "discord.js";
 import { prefixMap, statusArr } from "../app.js";
 import { BOT_OWNERS } from "../config.js";
-import { PSConnection, db } from "../db/index.js";
-import { statuses } from "../db/schema.js";
+import { PSConnection, db, updatePrefix as updatePrefixDB } from "../db/index.js";
+import statuses from "../db/models/statuses.js";
 import { Status } from "../db/types.js";
 import { StatusType } from "../helpers/types.js";
 import { hasPermission, isBotOwner, isDev } from "../helpers/utils.js";
-import { updatePrefix as updatePrefixDB } from "../db/index.js";
 
 export async function runSQL(message: Message) {
     if (!isBotOwner(message.author)) return;

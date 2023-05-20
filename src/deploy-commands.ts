@@ -1,4 +1,4 @@
-import { Routes, SlashCommandBuilder, REST } from "discord.js";
+import { REST, Routes, SlashCommandBuilder } from "discord.js";
 import "dotenv/config";
 
 let guildId;
