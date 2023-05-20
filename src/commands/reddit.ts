@@ -9,11 +9,13 @@ import redditPosts from "../db/models/redditPosts.js";
 import { randomElementFromArray } from "../helpers/utils.js";
 import { InsertRedditPostSchema, NewRedditPost, RedditPost } from "./../db/types.js";
 
+const { REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET, REDDIT_REFRESH_TOKEN } = process.env;
+
 const RedditClient = new Snoowrap({
     userAgent: "linux:hifumi:v1.0.0 (by /u/tilted_toast)",
-    clientId: process.env.REDDIT_CLIENT_ID,
-    clientSecret: process.env.REDDIT_CLIENT_SECRET,
-    refreshToken: process.env.REDDIT_REFRESH_TOKEN,
+    clientId: REDDIT_CLIENT_ID,
+    clientSecret: REDDIT_CLIENT_SECRET,
+    refreshToken: REDDIT_REFRESH_TOKEN,
 });
 
 export async function profile(message: Message, prefix: string): Promise<Message> {

@@ -42,6 +42,8 @@ import {
     writeUpdateFile,
 } from "../helpers/utils.js";
 
+const { WOLFRAM_ALPHA_APP_ID, EXCHANGE_API_KEY } = process.env;
+
 export const execPromise = promisify(exec);
 export const urbanEmbeds: EmbedMetadata[] = [];
 
@@ -55,7 +57,7 @@ export async function wolframALpha(message: Message) {
 
     const url =
         `http://api.wolframalpha.com/v2/simple?appid=` +
-        process.env.WOLFRAM_ALPHA_APP_ID +
+        WOLFRAM_ALPHA_APP_ID +
         `&i=${encodeURIComponent(query)}` +
         `&background=181A1F&foreground=white` +
         "&fontsize=30&units=metric&width500";
@@ -304,9 +306,7 @@ export async function convert(message: Message, prefix: string) {
 
     amount = isNaN(amount) ? 1 : amount;
 
-    const codesResp = await fetch(
-        `https://v6.exchangerate-api.com/v6/${process.env.EXCHANGE_API_KEY}/codes`
-    );
+    const codesResp = await fetch(`https://v6.exchangerate-api.com/v6/${EXCHANGE_API_KEY}/codes`);
     const supportedResult = (await codesResp.json()) as SupportedCodesResponse;
 
     if (!SupportedCodesSchema.safeParse(supportedResult).success) {
@@ -352,7 +352,7 @@ export async function convert(message: Message, prefix: string) {
 
     const response = await fetch(
         `https://v6.exchangerate-api.com/v6/` +
-            `${process.env.EXCHANGE_API_KEY}/pair/${base_currency}/${target_currency}/${amount}`
+            `${EXCHANGE_API_KEY}/pair/${base_currency}/${target_currency}/${amount}`
     );
 
     const result = (await response.json()) as PairConversionResponse;

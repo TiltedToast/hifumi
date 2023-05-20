@@ -6,7 +6,7 @@ import prefixes from "./models/prefixes.js";
 import redditPosts from "./models/redditPosts.js";
 import statuses from "./models/statuses.js";
 
-const schema = {
+export default {
     errorLogs,
     helpMessages,
     leet,
@@ -16,5 +16,3 @@ const schema = {
     redditPosts,
     statuses,
 };
-
-export default schema;

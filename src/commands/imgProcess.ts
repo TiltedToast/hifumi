@@ -18,6 +18,8 @@ import {
     resize,
 } from "../helpers/utils.js";
 
+const { IMGUR_CLIENT_ID } = process.env;
+
 export async function beautiful(message: Message) {
     createTemp();
     const content = message.content.split(" ");
@@ -144,7 +146,7 @@ export async function imgur(args: ImgurParams) {
 
     const myHeaders = new Headers();
     const formdata = new FormData();
-    myHeaders.append("Authorization", `Client-ID ${process.env.IMGUR_CLIENT_ID}`);
+    myHeaders.append("Authorization", `Client-ID ${IMGUR_CLIENT_ID}`);
 
     const requestOptions: RequestInit = {
         method: "POST",

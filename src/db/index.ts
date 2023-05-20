@@ -8,8 +8,10 @@ import redditPosts from "./models/redditPosts.js";
 import schema from "./schema.js";
 import { RedditPost } from "./types.js";
 
-export const PSConnection = connect({ url: process.env.PLANETSCALE_URL, fetch });
-export const db = drizzle(PSConnection, { logger: process.env.DEV_MODE === "true", schema });
+const { PLANETSCALE_URL, DEV_MODE } = process.env;
+
+export const PSConnection = connect({ url: PLANETSCALE_URL, fetch });
+export const db = drizzle(PSConnection, { logger: DEV_MODE === "true", schema });
 
 /**
  * Queries the database for random posts from a subreddit. Defaults to 1 post.
