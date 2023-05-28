@@ -252,11 +252,11 @@ export async function jsEval(message: Message, mode?: "math") {
     }
 
     if (typeof rslt === "object") rslt = codeBlock("js", JSON.stringify(rslt, null, 4));
-    if (!rslt) return await message.channel.send("Cannot send an empty message!");
+    if (rslt === "") return await message.channel.send("Cannot send an empty message!");
 
     const resultString = rslt.toString();
 
-    if (!resultString || resultString.length > 2000)
+    if (resultString === "" || resultString.length > 2000)
         return await message.channel.send("Invalid message length for discord!");
     return await message.channel.send(resultString);
 }
