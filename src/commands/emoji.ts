@@ -38,6 +38,8 @@ export async function addEmoji(message: Message, prefix: string) {
         emoji,
         url = "";
 
+    createTemp();
+
     if (!hasPermission(PermissionFlagsBits.ManageGuildExpressions, message)) {
         return await message.channel.send(
             'You need the "Manage Emoji and Stickers" permission to add emojis!'
@@ -65,20 +67,21 @@ export async function addEmoji(message: Message, prefix: string) {
 
         try {
             const ch = await client.channels.fetch(channelId);
-            if (!ch?.isTextBased())
+            if (!ch?.isTextBased()) {
                 return await message.channel.send("Somehow this is not a text channel?");
+            }
 
             const msg = await ch.messages.fetch(msgId);
 
             const emojis = msg.content.match(emojiRegex);
 
-            if (emojis?.length) {
-                const emojiStringOutput = await bulkAddEmojis(message, emojis);
-                if (!emojiStringOutput) return message.channel.send("No emojis found!");
-                return message.channel.send(emojiStringOutput);
-            }
+            if (emojis === null) return await message.channel.send("No emojis found");
+
+            const emojiStringOutput = await bulkAddEmojis(message, emojis);
+            if (!emojiStringOutput) return;
+            return await message.channel.send(emojiStringOutput);
         } catch (_) {
-            return await message.channel.send("I probably don't have access to that channel!");
+            return await message.channel.send("I probably don't have access to that channel");
         }
     }
 
@@ -96,7 +99,6 @@ export async function addEmoji(message: Message, prefix: string) {
     } else {
         name = content[2];
     }
-    createTemp();
 
     const emojis = message.content.match(emojiRegex);
 

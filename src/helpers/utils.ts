@@ -359,12 +359,12 @@ export function extractEmoji(emojiString: string, IdOnly = false): string {
 }
 
 /**
- * Takes a directory, checks whether it exists. If it does, it deletes it and recreates it.
- *  If it doesn't, it creates it
+ *  Create a temporary directory in the CWD, if it already exists, delete it and create a new one
+ * Default to "temp" if no name is provided
  * @param directory Path to the temporary directory you want to create
  */
-export function createTemp(): void {
-    const absPath = resolve("temp");
+export function createTemp(name = "temp"): void {
+    const absPath = resolve(name);
 
     if (existsSync(absPath)) {
         rmSync(absPath, { recursive: true });
