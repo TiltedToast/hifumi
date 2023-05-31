@@ -12,6 +12,7 @@ import {
     resize,
     splitMessage,
 } from "../helpers/utils.js";
+import { client } from "../app.js";
 
 const emojiRegex = new RegExp(/<a?:\w+:\d+>/gi);
 
@@ -55,8 +56,33 @@ export async function addEmoji(message: Message, prefix: string) {
         return message.channel.send(await bulkAddEmojis(message, emojis));
     }
 
-    // Check if the user provided a name and an image n
-    if (content.length === 2 && message.attachments.size === 0) {
+    const msgLinkRegexp = new RegExp(/https:\/\/discord\.com\/channels\/\d+\/(\d+)\/(\d+)/);
+
+    const matchedArr = msgLinkRegexp.exec(message.content);
+
+    if (matchedArr) {
+        const [channelId, msgId] = matchedArr.slice(1);
+
+        try {
+            const ch = await client.channels.fetch(channelId);
+            if (!ch?.isTextBased())
+                return await message.channel.send("Somehow this is not a text channel?");
+
+            const msg = await ch.messages.fetch(msgId);
+
+            const emojis = msg.content.match(emojiRegex);
+
+            if (emojis?.length) {
+                const emojiStringOutput = await bulkAddEmojis(message, emojis);
+                if (!emojiStringOutput) return message.channel.send("No emojis found!");
+                return message.channel.send(emojiStringOutput);
+            }
+        } catch (_) {
+            return await message.channel.send("I probably don't have access to that channel!");
+        }
+    }
+
+    if (content.length <= 2 && message.attachments.size === 0) {
         return await message.channel.send(`Usage: \`${prefix}emoji add <name> <url/emoji>\``);
     } else if (content.length === 2 && message.attachments.size > 0) {
         return await message.channel.send("You have to specify a name!");
@@ -70,10 +96,9 @@ export async function addEmoji(message: Message, prefix: string) {
     } else {
         name = content[2];
     }
+    createTemp();
 
     const emojis = message.content.match(emojiRegex);
-
-    createTemp();
 
     if (emojis?.length) {
         const emojiStringOutput = await bulkAddEmojis(message, emojis);
