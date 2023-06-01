@@ -239,8 +239,6 @@ export async function jsEval(message: Message, mode?: "math") {
     const tools = await import("../helpers/utils.js");
     await tools.sleep(1);
 
-    throw new Error("This is a test error");
-
     const content = message.content.split(" ");
 
     if (content.length === 1) {
@@ -458,7 +456,7 @@ function buildUrbanEmbed(resultEntry: UrbanEntry, index: number, array: UrbanEnt
         **Example:** ${example}
 
         **Author:** ${author}
-        
+
         **Permalink:** ${permalink}`.replace(/\]|\[/g, "");
 
     return new EmbedBuilder()

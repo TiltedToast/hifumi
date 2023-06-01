@@ -24,11 +24,11 @@ dependencies:
     specifier: ^16.1.3
     version: 16.1.3
   drizzle-orm:
-    specifier: ^0.26.3
-    version: 0.26.3(@planetscale/database@1.7.0)
+    specifier: ^0.26.4
+    version: 0.26.4(@planetscale/database@1.7.0)
   drizzle-zod:
-    specifier: ^0.4.2
-    version: 0.4.2(drizzle-orm@0.26.3)(zod@3.21.4)
+    specifier: ^0.4.3
+    version: 0.4.3(drizzle-orm@0.26.4)(zod@3.21.4)
   fuse.js:
     specifier: ^6.6.2
     version: 6.6.2
@@ -1008,8 +1008,8 @@ packages:
       - supports-color
     dev: true
 
-  /drizzle-orm@0.26.3(@planetscale/database@1.7.0):
-    resolution: {integrity: sha512-KefTFAXxFtBmDRZWgM71ucxUuDvNEiPgv0lg7qAPEfrQVfyzSz0ukUfNz2Ck4Pro6PEmYFJmA6oNQwwgENkk7g==}
+  /drizzle-orm@0.26.4(@planetscale/database@1.7.0):
+    resolution: {integrity: sha512-1MWMZfyBghI0GfGRhKGrIPT28PublpfE/PCj8206Cxpml/FeTKsZMGDRJ9RPIuj3deTgQrP5/Nopm7SLA4qS+A==}
     peerDependencies:
       '@aws-sdk/client-rds-data': '>=3'
       '@cloudflare/workers-types': '>=3'
@@ -1073,13 +1073,13 @@ packages:
       '@planetscale/database': 1.7.0
     dev: false
 
-  /drizzle-zod@0.4.2(drizzle-orm@0.26.3)(zod@3.21.4):
-    resolution: {integrity: sha512-/ZQ5UlKd4xrhvMxicwukluxbx6zwBK165dQtjltNxCFoWL6opMVQIw/fVqEhnyNKqaUhXbo5hPbxnsGa6Z7wiQ==}
+  /drizzle-zod@0.4.3(drizzle-orm@0.26.4)(zod@3.21.4):
+    resolution: {integrity: sha512-VyOMD88lyLZE+BeujYzXnRLxsREOJPfi3hVw12EWMMpu7e6IR6sVNlMoo8xPPuQSCbNSbUjfIyICnItwG+fmcA==}
     peerDependencies:
       drizzle-orm: '>=0.23.13'
       zod: '*'
     dependencies:
-      drizzle-orm: 0.26.3(@planetscale/database@1.7.0)
+      drizzle-orm: 0.26.4(@planetscale/database@1.7.0)
       zod: 3.21.4
     dev: false
 

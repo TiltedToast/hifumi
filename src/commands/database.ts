@@ -4,8 +4,8 @@ import { prefixMap, statusArr } from "../app.js";
 import { BOT_OWNERS } from "../config.js";
 import { PSConnection, db, updatePrefix as updatePrefixDB } from "../db/index.js";
 import statuses from "../db/models/statuses.js";
-import { Status } from "../db/types.js";
-import { StatusType } from "../helpers/types.js";
+import { InsertStatusSchema, Status } from "../db/types.js";
+import { fromZodError } from "zod-validation-error";
 import { hasPermission, isBotOwner, isDev } from "../helpers/utils.js";
 
 export async function runSQL(message: Message) {
@@ -43,18 +43,29 @@ export async function insertStatus(message: Message): Promise<undefined | Messag
 
     if (content.length < 3) return await message.channel.send("Invalid syntax!");
 
-    const status = content.slice(2).join(" ");
-    const type = content[1].toUpperCase();
+    const document = {
+        type: content[1].toUpperCase(),
+        status: content.slice(2).join(" "),
+    } as Status;
 
-    if (!(type in StatusType)) return await message.channel.send("Invalid type!");
+    const result = InsertStatusSchema.safeParse(document);
+
+    if (!result.success) {
+        const error = fromZodError(result.error, {
+            issueSeparator: "\n",
+            prefix: "Invalid status\n",
+            prefixSeparator: "- ",
+            unionSeparator: "\n",
+        });
+
+        return await message.channel.send(error.message);
+    }
 
     if (isDev()) {
         await message.channel.send(
             "Add your statuses to the main db instead <:emiliaSMH:747132102645907587>"
         );
     }
-
-    const document = { type, status } as Status;
 
     try {
         await db.insert(statuses).values(document);
