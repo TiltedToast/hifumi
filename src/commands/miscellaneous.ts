@@ -41,6 +41,7 @@ import {
     sleep,
     writeUpdateFile,
 } from "../helpers/utils.js";
+import dedent from "dedent";
 
 const { WOLFRAM_ALPHA_APP_ID, EXCHANGE_API_KEY } = process.env;
 
@@ -238,10 +239,13 @@ export async function jsEval(message: Message, mode?: "math") {
     const tools = await import("../helpers/utils.js");
     await tools.sleep(1);
 
+    throw new Error("This is a test error");
+
     const content = message.content.split(" ");
 
-    if (content.length === 1)
+    if (content.length === 1) {
         return await message.channel.send("You have to type **SOMETHING** at least");
+    }
 
     const command = message.content.split(" ").slice(1).join(" ");
     try {
@@ -448,9 +452,14 @@ function buildUrbanEmbed(resultEntry: UrbanEntry, index: number, array: UrbanEnt
 
     const footerPagination = `${index + 1}/${array.length}`;
 
-    const description =
-        `${definition}\n\n**Example:** ${example}\n\n**Author:** ${author}\n\n**Permalink:** ${permalink}
-    `.replace(/\]|\[/g, "");
+    const description = dedent`
+        ${definition}
+
+        **Example:** ${example}
+
+        **Author:** ${author}
+        
+        **Permalink:** ${permalink}`.replace(/\]|\[/g, "");
 
     return new EmbedBuilder()
         .setColor(EMBED_COLOUR)

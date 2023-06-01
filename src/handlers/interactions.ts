@@ -41,8 +41,7 @@ async function handleButtonInteraction(interaction: ButtonInteraction) {
 
 async function handleCommandInteraction(interaction: ChatInputCommandInteraction) {
     if (interaction.commandName === "pat") {
-        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-        await interaction.reply(`$pat ${interaction.options.getUser("user")}`);
+        await interaction.reply(`$pat ${interaction.options.getUser("user", true).toString()}`);
     } else if (interaction.commandName === "help") {
         await helpCmd(interaction);
     } else if (interaction.commandName === "sub") {

@@ -9,8 +9,8 @@ export type LeetChar = InferModel<typeof schema.leet>;
 export type MikuCommandAlias = InferModel<typeof schema.mikuCommandAliases>;
 export type MikuReaction = InferModel<typeof schema.mikuReactions>;
 export type Prefix = InferModel<typeof schema.prefixes>;
-
 export type Status = z.infer<typeof SelectStatusSchema>;
+
 export type NewStatus = z.infer<typeof InsertStatusSchema>;
 export type RedditPost = z.infer<typeof SelectRedditPostSchema>;
 export type NewRedditPost = z.infer<typeof InsertRedditPostSchema>;

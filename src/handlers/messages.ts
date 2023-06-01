@@ -39,8 +39,10 @@ export default async function handleMessage(message: Message) {
         const command = content[0].slice(prefix.length).toLowerCase();
         const lowerCasePrefix = content[0].substring(0, prefix.length).toLowerCase();
 
-        if (message.content.toLowerCase() === "hr~~~" && !isDev()) await misc.reloadBot(message);
-        if (message.content.toLowerCase() === "hr~" && isDev()) await misc.reloadBot(message);
+        if (message.content.toLowerCase().startsWith("hr~~~") && !isDev())
+            await misc.reloadBot(message);
+        if (message.content.toLowerCase().startsWith("hr~") && isDev())
+            await misc.reloadBot(message);
 
         if (lowerCasePrefix === prefix.toLowerCase()) {
             await handleCommand({ command, subCmd, message, prefix });

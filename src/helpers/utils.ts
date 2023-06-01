@@ -1,3 +1,4 @@
+import dedent from "dedent";
 import {
     BaseMessageOptions,
     Channel,
@@ -239,9 +240,12 @@ export async function errorLog({ message, errorObject }: ErrorLogOptions) {
 
     if (message === undefined) {
         channel = client.channels.cache.get(LOG_CHANNEL) as TextChannel;
-        errorMessage = `Unhandled Rejection\n\n${errorObject.stack ?? "Stack missing"}\n\n<@${
-            BOT_OWNERS[0]
-        }>`;
+        errorMessage = dedent`
+        Unhandled Rejection
+
+        ${errorObject.stack ?? "Stack missing"}
+
+        <@${BOT_OWNERS[0]}>`;
         return channel.send(errorMessage);
     }
 
@@ -250,17 +254,21 @@ export async function errorLog({ message, errorObject }: ErrorLogOptions) {
         // eslint-disable-next-line @typescript-eslint/prefer-string-starts-ends-with
         (message.content.substring(0, 500) !== message.content ? " ..." : "");
 
-    const errorMessageWithoutStack =
-        `An Error occurred on ${currentTime}\n` +
-        `**Server:** ${message.guild?.name ?? "Unknown"} - ${message.guild?.id ?? "Unknown"}\n` +
-        `**Room:** ${(message.channel as TextChannel).name} - ${message.channel.id}\n` +
-        `**User:** ${message.author.username} - ${message.author.id}\n` +
-        `**Command used:** ${commandUsed}\n` +
-        `**Error:** ${errorObject.message}\n`;
+    const errorMessageWithoutStack = dedent`
+        An Error occurred on ${currentTime}
+        **Server:** ${message.guild?.name ?? "Unknown"} - ${message.guild?.id ?? "Unknown"}
+        **Room:** ${(message.channel as TextChannel).name} - ${message.channel.id}
+        **User:** ${message.author.username} - ${message.author.id}
+        **Command used:** ${commandUsed}
+        **Error:** ${errorObject.message}`;
 
-    const fullErrorMsg = `${errorMessageWithoutStack}\n\n**${
-        errorObject.stack ?? "Stack missing"
-    }**\n\n<@${BOT_OWNERS[0]}>`;
+    const fullErrorMsg = dedent`
+        ${errorMessageWithoutStack}
+
+    **${errorObject.stack ?? "Stack missing"}**
+
+    <@${BOT_OWNERS[0]}>`;
+
     const preCutErrorMessage = fullErrorMsg.substring(0, 1900 - errorMessageWithoutStack.length);
     const postCutErrorMessage = `${preCutErrorMessage.split("\n").slice(0, -2).join("\n")}**\n\n<@${
         BOT_OWNERS[0]
@@ -282,9 +290,10 @@ export async function errorLog({ message, errorObject }: ErrorLogOptions) {
     if (fullErrorMsg.length <= 2000) {
         errorMessage = fullErrorMsg;
     } else if (postCutErrorMessage.length > 2000) {
-        errorMessage =
-            `An Error occurred on ${currentTime}\n` +
-            `Check console for full error (2000 character limit)\n<@${BOT_OWNERS[0]}>`;
+        errorMessage = dedent`
+            An Error occurred on ${currentTime}
+            Check console for full error (2000 character limit)
+            <@${BOT_OWNERS[0]}>`;
     } else {
         errorMessage = postCutErrorMessage;
     }
