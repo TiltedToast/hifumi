@@ -1,3 +1,4 @@
+import dedent from "dedent";
 import {
     ActionRowBuilder,
     ButtonBuilder,
@@ -15,7 +16,7 @@ import { exec } from "node:child_process";
 import { writeFileSync } from "node:fs";
 import { promisify } from "node:util";
 import { client, prefixMap } from "../app.js";
-import { EMBED_COLOUR } from "../config.js";
+import { EMBED_COLOUR, OWNER_USERNAME } from "../config.js";
 import { db } from "../db/index.js";
 import helpMessages from "../db/models/helpMessages.js";
 import leetTable from "../db/models/leet.js";
@@ -41,7 +42,6 @@ import {
     sleep,
     writeUpdateFile,
 } from "../helpers/utils.js";
-import dedent from "dedent";
 
 const { WOLFRAM_ALPHA_APP_ID, EXCHANGE_API_KEY } = process.env;
 
@@ -292,19 +292,12 @@ export async function convert(message: Message, prefix: string) {
 
     const currencies = {} as Record<string, string>;
 
-    let amount: number;
-    let base_currency: string;
-    let target_currency: string;
+    let amount = content.length === 3 ? 1 : parseFloat(content[1]);
+    let base_currency = content.length === 3 ? content[1] : content[2];
+    let target_currency = content.length === 3 ? content[2] : content[3];
 
-    if (content.length === 3) {
-        amount = 1;
-        base_currency = content[1].toUpperCase();
-        target_currency = content[2].toUpperCase();
-    } else {
-        amount = parseFloat(content[1]);
-        base_currency = content[2].toUpperCase();
-        target_currency = content[3].toUpperCase();
-    }
+    base_currency = base_currency.toUpperCase();
+    target_currency = target_currency.toUpperCase();
 
     amount = isNaN(amount) ? 1 : amount;
 
@@ -321,13 +314,13 @@ export async function convert(message: Message, prefix: string) {
         let msg = "Something went wrong fetching the supported currencies! Please try again later";
         switch (supportedResult["error-type"]) {
             case "invalid-key":
-                msg = "Invalid API key. This should never happen, please contact the Bot Owner!";
+                msg = `Invalid API key. This should never happen, please contact ${OWNER_USERNAME}`;
                 break;
             case "quota-reached":
                 msg = "API quota reached. Please try again later!";
                 break;
             case "inactive-account":
-                msg = "API account is inactive. Please contact the bot owner!";
+                msg = `API account is inactive. Please contact ${OWNER_USERNAME}`;
                 break;
         }
         return await message.channel.send(msg);
@@ -375,13 +368,13 @@ export async function convert(message: Message, prefix: string) {
                 msg = "The request was malformed, please try again later!";
                 break;
             case "invalid-key":
-                msg = "Invalid API key. This should never happen, please contact the Bot Owner!";
+                msg = `Invalid API key. This should never happen, please contact ${OWNER_USERNAME}`;
                 break;
             case "quota-reached":
                 msg = "API quota reached. Please try again later!";
                 break;
             case "inactive-account":
-                msg = "API account is inactive. Please contact the bot owner!";
+                msg = `API account is inactive. Please contact ${OWNER_USERNAME}`;
                 break;
         }
         return await message.channel.send(msg);

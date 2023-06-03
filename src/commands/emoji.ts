@@ -195,7 +195,9 @@ export async function addEmoji(message: Message, prefix: string) {
                     errorMessage = `Could not add \`${name}\`, the name is invalid!`;
                     break;
                 default:
-                    errorMessage = `Could not add \`${name}\`, unknown error! Error message: ${error.message}`;
+                    errorMessage =
+                        `Could not add \`${name}\`, unknown error! ` +
+                        `Error message: ${error.message}`;
                     break;
             }
             return await message.channel.send(errorMessage);
@@ -249,7 +251,9 @@ async function bulkAddEmojis(message: Message, emojis: RegExpMatchArray) {
                         errorMessage = `Could not add \`${name}\`, you've hit the limit!`;
                         break;
                     default:
-                        errorMessage = `Could not add \`${name}\`, unknown error! Error message: ${error.message}`;
+                        errorMessage =
+                            `Could not add \`${name}\`, unknown error! ` +
+                            `Error message: ${error.message}`;
                         break;
                 }
                 await message.channel.send(errorMessage);
@@ -307,7 +311,9 @@ export async function removeEmoji(message: Message): Promise<void> {
                         errorMessage = `\`${emojiStr}\` does not exist in this server`;
                         break;
                     default:
-                        errorMessage = `Failed to delete \`${emojiStr}\`, unknown error! Error message: ${error.message}`;
+                        errorMessage =
+                            `Failed to delete \`${emojiStr}\`, unknown error! ` +
+                            `Error message: ${error.message}`;
                         break;
                 }
                 await message.channel.send(errorMessage);
