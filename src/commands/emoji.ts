@@ -1,4 +1,11 @@
-import { DiscordAPIError, GuildEmoji, Message, MessageType, PermissionFlagsBits } from "discord.js";
+import {
+    DiscordAPIError,
+    GuildEmoji,
+    Message,
+    MessageType,
+    PermissionFlagsBits,
+    RESTJSONErrorCodes,
+} from "discord.js";
 import Fuse from "fuse.js";
 import { readFileSync } from "node:fs";
 import { FileSizeLimit } from "../helpers/types.js";
@@ -15,6 +22,13 @@ import {
 import { client } from "../app.js";
 
 const emojiRegex = new RegExp(/<a?:\w+:\d+>/gi);
+
+const {
+    FailedToResizeAssetBelowTheMinimumSize,
+    MaximumNumberOfEmojisReached,
+    InvalidFormBodyOrContentType,
+    UnknownEmoji,
+} = RESTJSONErrorCodes;
 
 export async function linkEmoji(message: Message) {
     let msgContent = message.content;
@@ -168,15 +182,16 @@ export async function addEmoji(message: Message, prefix: string) {
         }
     } catch (error) {
         let errorMessage: string;
+
         if (error instanceof DiscordAPIError) {
             switch (+error.code) {
-                case 50138:
+                case FailedToResizeAssetBelowTheMinimumSize:
                     errorMessage = `The emoji \`${name}\` does not fit under the size limit!`;
                     break;
-                case 30008:
+                case MaximumNumberOfEmojisReached:
                     errorMessage = `Could not add \`${name}\`, you've hit the limit!`;
                     break;
-                case 50035:
+                case InvalidFormBodyOrContentType:
                     errorMessage = `Could not add \`${name}\`, the name is invalid!`;
                     break;
                 default:
@@ -227,10 +242,10 @@ async function bulkAddEmojis(message: Message, emojis: RegExpMatchArray) {
             let errorMessage: string;
             if (error instanceof DiscordAPIError) {
                 switch (+error.code) {
-                    case 50138:
+                    case FailedToResizeAssetBelowTheMinimumSize:
                         errorMessage = `The emoji \`${name}\` does not fit under the size limit!`;
                         break;
-                    case 30008:
+                    case MaximumNumberOfEmojisReached:
                         errorMessage = `Could not add \`${name}\`, you've hit the limit!`;
                         break;
                     default:
@@ -288,7 +303,7 @@ export async function removeEmoji(message: Message): Promise<void> {
             if (error instanceof DiscordAPIError) {
                 let errorMessage: string;
                 switch (+error.code) {
-                    case 10014:
+                    case UnknownEmoji:
                         errorMessage = `\`${emojiStr}\` does not exist in this server`;
                         break;
                     default:
