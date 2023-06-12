@@ -1,6 +1,6 @@
 import { ChatInputCommandInteraction, EmbedBuilder, Message, TextChannel } from "discord.js";
 import fetch from "node-fetch";
-import Snoowrap from "snoowrap";
+import Snoowrap, { Submission } from "snoowrap";
 import type { Timespan } from "snoowrap/dist/objects/Subreddit";
 import strftime from "strftime";
 import { EMBED_COLOUR } from "../config.js";
@@ -64,7 +64,14 @@ export async function sub(interaction: ChatInputCommandInteraction) {
 
     // Check if the subreddit exists
     const response = await fetch(`https://www.reddit.com/r/${subreddit}/about.json`);
-    const data = (await response.json()) as Record<string, string>;
+
+    let data: Record<string, string>;
+
+    try {
+        data = (await response.json()) as Record<string, string>;
+    } catch (_) {
+        return await interaction.editReply(`Reddit's API might be having issues, try again later`);
+    }
 
     if ("reason" in data)
         return await interaction.editReply(`Subreddit not found! Reason: ${data["reason"]}`);
@@ -76,14 +83,19 @@ export async function sub(interaction: ChatInputCommandInteraction) {
 
     const posts = await getRandomRedditPosts(subreddit);
 
-    if (force) {
-        await interaction.channel?.send("Force fetching images, this might take a while...");
-        posts.push(...(await fetchSubmissions(subreddit, interaction)));
-    } else if (!posts.length) {
-        await interaction.channel?.send(
-            "Fetching images for the first time, this might take a while..."
-        );
-        posts.push(...(await fetchSubmissions(subreddit, interaction)));
+    try {
+        if (force) {
+            await interaction.channel?.send("Force fetching images, this might take a while...");
+            posts.push(...(await fetchSubmissions(subreddit, interaction)));
+        } else if (!posts.length) {
+            await interaction.channel?.send(
+                "Fetching images for the first time, this might take a while..."
+            );
+            posts.push(...(await fetchSubmissions(subreddit, interaction)));
+        }
+    } catch (error) {
+        console.error(error);
+        return await interaction.editReply(`Reddit's API might be having issues, try again later`);
     }
 
     const filtered_posts = isNSFW && !isSFW ? posts.filter((x) => !!x.over_18) : posts;
