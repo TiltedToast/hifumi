@@ -42,7 +42,7 @@
         "stop": "pm2 delete hifumi",
         "restart": "tsc && pm2 reload hifumi",
         "docker-build": "tsc && node ./dist/app.js",
-        "lint": "eslint .",
+        "lint": "eslint . --max-warnings 0",
         "prettier": "prettier --config .prettierrc --check .",
         "prepare": "husky install",
         "deploy": "tsc && node ./dist/deploy-commands.js",
