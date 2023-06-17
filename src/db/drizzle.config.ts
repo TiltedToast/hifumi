@@ -3,6 +3,6 @@ import { Config } from "drizzle-kit";
 
 export default {
     schema: "./src/db/models/*.ts",
-    connectionString: process.env.PLANETSCALE_URL,
     breakpoints: true,
+    connectionString: process.env.PLANETSCALE_URL,
 } satisfies Config;
