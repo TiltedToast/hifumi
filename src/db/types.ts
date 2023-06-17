@@ -15,15 +15,14 @@ export type NewStatus = z.infer<typeof InsertStatusSchema>;
 export type RedditPost = z.infer<typeof SelectRedditPostSchema>;
 export type NewRedditPost = z.infer<typeof InsertRedditPostSchema>;
 
-// export const InsertRedditPostSchema = z.object({
-//     id: z.number().optional(),
-//     subreddit: z.string().max(50),
-//     title: z.string().max(255),
-//     url: z.string().max(255).url(),
-//     permalink: z.string().max(255),
-//     over_18: z.boolean(),
-// });
-export const InsertRedditPostSchema = createInsertSchema(schema.redditPosts);
+export const InsertRedditPostSchema = z.object({
+    id: z.number().optional(),
+    subreddit: z.string().max(50),
+    title: z.string().max(255),
+    url: z.string().max(255).url(),
+    permalink: z.string().max(255),
+    over_18: z.boolean(),
+});
 export const SelectRedditPostSchema = createSelectSchema(schema.redditPosts);
 export const InsertStatusSchema = createInsertSchema(schema.statuses);
 export const SelectStatusSchema = createSelectSchema(schema.statuses);
