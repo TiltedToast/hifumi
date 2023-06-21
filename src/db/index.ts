@@ -16,10 +16,6 @@ export const db = drizzle(PSConnection, { logger: DEV_MODE === "true", schema })
 /**
  * Queries the database for random posts from a subreddit. Defaults to 1 post.
  * @returns Random post(s) from the specified subreddit or an empty array if no posts were found
- * @example
- * const post = await getRandomRedditPost("awwnime");
- * console.log(post);
- * // => [{ subreddit: "awwnime", title: "Cute cat", url: "https://i.imgur.com/1234567.jpg", permalink: "/r/awwnime/1234567", over_18: false }]
  */
 export async function getRandomRedditPosts(subreddit: string, limit = 1): Promise<RedditPost[]> {
     return await db.query.redditPosts.findMany({
