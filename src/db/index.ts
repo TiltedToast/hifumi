@@ -1,11 +1,10 @@
-import { connect } from "@planetscale/database";
 import "dotenv/config";
 import { eq, sql } from "drizzle-orm";
+import { connect } from "@planetscale/database";
 import { drizzle } from "drizzle-orm/planetscale-serverless";
 import fetch from "node-fetch";
-import prefixes from "./models/prefixes.js";
-import redditPosts from "./models/redditPosts.js";
-import schema from "./schema.js";
+import { redditPosts, prefixes } from "./schema.js";
+import * as schema from "./schema.js";
 import { RedditPost } from "./types.js";
 
 const { PLANETSCALE_URL, DEV_MODE } = process.env;

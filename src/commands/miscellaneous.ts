@@ -18,9 +18,12 @@ import { promisify } from "node:util";
 import { client, prefixMap } from "../app.js";
 import { EMBED_COLOUR, OWNER_USERNAME } from "../config.js";
 import { db } from "../db/index.js";
-import helpMessages from "../db/models/helpMessages.js";
-import leetTable from "../db/models/leet.js";
-import { mikuCommandAliases, mikuReactions } from "../db/models/miku.js";
+import {
+    mikuCommandAliases,
+    mikuReactions,
+    leet as leetTable,
+    helpMessages,
+} from "../db/schema.js";
 import {
     EmbedMetadata,
     PairConversionResponse,

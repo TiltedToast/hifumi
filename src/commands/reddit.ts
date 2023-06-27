@@ -5,9 +5,9 @@ import type { Timespan } from "snoowrap/dist/objects/Subreddit";
 import strftime from "strftime";
 import { EMBED_COLOUR } from "../config.js";
 import { db, getRandomRedditPosts } from "../db/index.js";
-import redditPosts from "../db/models/redditPosts.js";
+import { redditPosts } from "../db/schema.js";
 import { randomElementFromArray } from "../helpers/utils.js";
-import { InsertRedditPostSchema, NewRedditPost, RedditPost } from "./../db/types.js";
+import { InsertRedditPostSchema, NewRedditPost, RedditPost } from "../db/types.js";
 
 const { REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET, REDDIT_REFRESH_TOKEN } = process.env;
 

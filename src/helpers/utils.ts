@@ -19,7 +19,7 @@ import { client } from "../app.js";
 import { execPromise } from "../commands/miscellaneous.js";
 import { BOT_OWNERS, DEV_CHANNELS, LOG_CHANNEL } from "../config.js";
 import { db } from "../db/index.js";
-import errorLogs from "../db/models/errorLogs.js";
+import { errorLogs } from "../db/schema.js";
 import type {
     EmbedMetadata,
     ErrorLogOptions,

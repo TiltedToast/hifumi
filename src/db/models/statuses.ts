@@ -8,7 +8,7 @@ const statuses = mysqlTable(
             length: 20,
             enum: ["PLAYING", "WATCHING", "STREAMING", "LISTENING", "COMPETING"],
         }).notNull(),
-        status: varchar("status", { length: 255 }).notNull(),
+        status: varchar("status", { length: 128 }).notNull(),
     },
     (table) => {
         return {

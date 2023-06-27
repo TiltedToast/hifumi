@@ -6,7 +6,7 @@ import prefixes from "./models/prefixes.js";
 import redditPosts from "./models/redditPosts.js";
 import statuses from "./models/statuses.js";
 
-export default {
+export {
     errorLogs,
     helpMessages,
     leet,

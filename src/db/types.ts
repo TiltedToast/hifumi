@@ -1,7 +1,7 @@
 import { InferModel } from "drizzle-orm";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
-import schema from "./schema.js";
+import * as schema from "./schema.js";
 
 export type ErrorLog = InferModel<typeof schema.errorLogs>;
 export type HelpMessage = InferModel<typeof schema.helpMessages>;

@@ -3,7 +3,7 @@ import { Message, PermissionFlagsBits, codeBlock } from "discord.js";
 import { prefixMap, statusArr } from "../app.js";
 import { BOT_OWNERS } from "../config.js";
 import { PSConnection, db, updatePrefix as updatePrefixDB } from "../db/index.js";
-import statuses from "../db/models/statuses.js";
+import { statuses } from "../db/schema.js";
 import { InsertStatusSchema, Status } from "../db/types.js";
 import { fromZodError } from "zod-validation-error";
 import { hasPermission, isBotOwner, isDev } from "../helpers/utils.js";
@@ -23,7 +23,10 @@ export async function runSQL(message: Message) {
         const stringified = JSON.stringify(result);
 
         if (stringified.length > 2000) {
-            return await message.channel.send("The result is too long to be displayed");
+            console.error(stringified);
+            return await message.channel.send(
+                "The result is too long to be displayed, check the logs"
+            );
         }
         await message.channel.send(codeBlock("json", stringified));
     } catch (e) {
@@ -52,9 +55,9 @@ export async function insertStatus(message: Message): Promise<undefined | Messag
 
     if (!result.success) {
         const error = fromZodError(result.error, {
-            issueSeparator: "\n",
-            prefix: "Invalid status\n",
-            prefixSeparator: "- ",
+            issueSeparator: "\n- ",
+            prefix: "Invalid status",
+            prefixSeparator: "\n- ",
             unionSeparator: "\n",
         });
 
