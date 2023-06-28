@@ -314,7 +314,7 @@ export async function convert(message: Message, prefix: string) {
     }
 
     if (supportedResult.result === "error") {
-        let msg = "Something went wrong fetching the supported currencies! Please try again later";
+        let msg: string;
         switch (supportedResult["error-type"]) {
             case "invalid-key":
                 msg = `Invalid API key. This should never happen, please contact ${OWNER_USERNAME}`;
@@ -325,6 +325,10 @@ export async function convert(message: Message, prefix: string) {
             case "inactive-account":
                 msg = `API account is inactive. Please contact ${OWNER_USERNAME}`;
                 break;
+            default:
+                console.error(supportedResult);
+                msg =
+                    "Something went wrong fetching the supported currencies! Please try again later";
         }
         return await message.channel.send(msg);
     }
@@ -362,7 +366,7 @@ export async function convert(message: Message, prefix: string) {
     }
 
     if (result.result === "error") {
-        let msg = "Something went wrong with the API, maybe try again later";
+        let msg: string;
         switch (result["error-type"]) {
             case "unsupported-code":
                 msg = "One of the currencies you entered is not supported!";
@@ -379,6 +383,9 @@ export async function convert(message: Message, prefix: string) {
             case "inactive-account":
                 msg = `API account is inactive. Please contact ${OWNER_USERNAME}`;
                 break;
+            default:
+                console.error(result);
+                msg = "Something went wrong with the API, maybe try again later";
         }
         return await message.channel.send(msg);
     }
