@@ -49,7 +49,7 @@ export async function linkEmoji(message: Message) {
 
 export async function addEmoji(message: Message, prefix: string) {
     let name = "",
-        emoji,
+        emoji: GuildEmoji | undefined,
         url = "";
 
     createTemp();
@@ -181,34 +181,38 @@ export async function addEmoji(message: Message, prefix: string) {
             });
         }
     } catch (error) {
-        let errorMessage: string;
-
-        if (error instanceof DiscordAPIError) {
-            switch (+error.code) {
-                case FailedToResizeAssetBelowTheMinimumSize:
-                    errorMessage = `The emoji \`${name}\` does not fit under the size limit!`;
-                    break;
-                case MaximumNumberOfEmojisReached:
-                    errorMessage = `Could not add \`${name}\`, you've hit the limit!`;
-                    break;
-                case InvalidFormBodyOrContentType:
-                    errorMessage = `Could not add \`${name}\`, the name is invalid!`;
-                    break;
-                default:
-                    errorMessage =
-                        `Could not add \`${name}\`, unknown error! ` +
-                        `Error message: ${error.message}`;
-                    break;
-            }
-            return await message.channel.send(errorMessage);
-        }
+        return await handleCreateError(error, message, name);
     }
 
     // Sends newly created emoji to the channel
-    if (emoji?.animated) {
+    if (emoji.animated) {
         return await message.channel.send(`<a:${emoji.name ?? "NameNotFound"}:${emoji.id}>`);
-    } else if (emoji && !emoji.animated) {
+    } else {
         return await message.channel.send(`<:${emoji.name ?? "NameNotFound"}:${emoji.id}>`);
+    }
+}
+
+async function handleCreateError(error: unknown, message: Message, name: string) {
+    let errorMessage: string;
+
+    if (error instanceof DiscordAPIError) {
+        switch (+error.code) {
+            case FailedToResizeAssetBelowTheMinimumSize:
+                errorMessage = `The emoji \`${name}\` does not fit under the size limit!`;
+                break;
+            case MaximumNumberOfEmojisReached:
+                errorMessage = `Could not add \`${name}\`, you've hit the limit!`;
+                break;
+            case InvalidFormBodyOrContentType:
+                errorMessage = `Could not add \`${name}\`, the name is invalid!`;
+                break;
+            default:
+                errorMessage =
+                    `Could not add \`${name}\`, unknown error! ` +
+                    `Error message: ${error.message}`;
+                break;
+        }
+        return await message.channel.send(errorMessage);
     }
 }
 
@@ -241,24 +245,8 @@ async function bulkAddEmojis(message: Message, emojis: RegExpMatchArray) {
                 name,
             });
         } catch (error) {
-            let errorMessage: string;
-            if (error instanceof DiscordAPIError) {
-                switch (+error.code) {
-                    case FailedToResizeAssetBelowTheMinimumSize:
-                        errorMessage = `The emoji \`${name}\` does not fit under the size limit!`;
-                        break;
-                    case MaximumNumberOfEmojisReached:
-                        errorMessage = `Could not add \`${name}\`, you've hit the limit!`;
-                        break;
-                    default:
-                        errorMessage =
-                            `Could not add \`${name}\`, unknown error! ` +
-                            `Error message: ${error.message}`;
-                        break;
-                }
-                await message.channel.send(errorMessage);
-                continue;
-            }
+            await handleCreateError(error, message, name);
+            continue;
         }
         if (emoji === undefined) {
             await message.channel.send(
@@ -267,7 +255,7 @@ async function bulkAddEmojis(message: Message, emojis: RegExpMatchArray) {
             continue;
         }
 
-        if (imgType === "gif") {
+        if (emoji.animated) {
             msg = `<a:${emoji.name ?? "NameNotFound"}:${emoji.id}>`;
         } else {
             msg = `<:${emoji.name ?? "NameNotFound"}:${emoji.id}>`;

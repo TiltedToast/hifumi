@@ -290,6 +290,7 @@ export async function errorLog({ message, errorObject }: ErrorLogOptions) {
     if (fullErrorMsg.length <= 2000) {
         errorMessage = fullErrorMsg;
     } else if (postCutErrorMessage.length > 2000) {
+        console.error(fullErrorMsg);
         errorMessage = dedent`
             An Error occurred on ${currentTime}
             Check console for full error (2000 character limit)
@@ -316,10 +317,11 @@ export async function errorLog({ message, errorObject }: ErrorLogOptions) {
 export async function downloadURL(url: string, saveLocation: string) {
     const absSaveLocation = resolve(saveLocation);
 
-    const myHeaders = new Headers();
-    myHeaders.append("User-Agent", "hifumi-js:v1.0.0:tiltedtoast27@gmail.com");
+    const myHeaders = new Headers({
+        "User-Agent": "hifumi-js:v1.0.0:tiltedtoast27@gmail.com",
+    });
 
-    // Pixiv requires a Referer header
+    // Pixiv will only allow you to download images if you have a referer header
     if (url.includes("pximg")) myHeaders.append("Referer", "https://www.pixiv.net/");
 
     const requestOptions: RequestInit = {
