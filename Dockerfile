@@ -1,13 +1,10 @@
-FROM node:18.16.0
-WORKDIR /hifumi
-ENV DOCKER=true
-COPY package.json .
-RUN npm install -g pnpm \
-    && pnpm install \
-    && apt-get install -y imagemagick
+FROM node:lts
 
-COPY . .
-STOPSIGNAL SIGINT
+RUN corepack enable && corepack prepare pnpm@latest --activate
+
+WORKDIR /hifumi
+ENV DOCKER true
+COPY package.json .
 
 ENV GIFSICLE_VERSION 1.94
 RUN wget https://www.lcdf.org/gifsicle/gifsicle-${GIFSICLE_VERSION}.tar.gz \
@@ -17,5 +14,12 @@ RUN wget https://www.lcdf.org/gifsicle/gifsicle-${GIFSICLE_VERSION}.tar.gz \
     && make install \
     && cd .. \
     && rm -rf gifsicle-${GIFSICLE_VERSION} gifsicle-${GIFSICLE_VERSION}.tar.gz
+
+RUN apt-get install -y imagemagick \
+    && pnpm install
+
+COPY . .
+
+STOPSIGNAL SIGINT
 
 CMD [ "pnpm", "run", "docker-build" ]
