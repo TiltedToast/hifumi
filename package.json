@@ -41,7 +41,6 @@
         "start": "tsc && pm2 start ./dist/app.js --name hifumi --time",
         "stop": "pm2 delete hifumi",
         "restart": "tsc && pm2 reload hifumi",
-        "docker-build": "tsc && node ./dist/app.js",
         "lint": "eslint . -c .eslintrc --max-warnings 0",
         "prettier": "prettier --config .prettierrc --check .",
         "prepare": "husky install",

@@ -15,11 +15,12 @@ RUN wget https://www.lcdf.org/gifsicle/gifsicle-${GIFSICLE_VERSION}.tar.gz \
     && cd .. \
     && rm -rf gifsicle-${GIFSICLE_VERSION} gifsicle-${GIFSICLE_VERSION}.tar.gz
 
-RUN apt-get install -y imagemagick \
-    && pnpm install
-
 COPY . .
+
+RUN apt-get install -y imagemagick \
+    && pnpm install \
+    && ./node_modules/.bin/tsc
 
 STOPSIGNAL SIGINT
 
-CMD [ "pnpm", "run", "docker-build" ]
+CMD [ "node", "./dist/app.js" ]
