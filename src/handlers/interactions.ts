@@ -7,7 +7,7 @@ import {
 } from "discord.js";
 import { helpCmd, urbanEmbeds } from "../commands/miscellaneous.js";
 import { sub } from "../commands/reddit.js";
-import { BOT_OWNERS, LOG_CHANNEL } from "../config.js";
+import { BOT_OWNERS, LOG_CHANNEL, OWNER_USERNAME } from "../config.js";
 import { updateEmbed } from "../helpers/utils.js";
 
 export default async function handleInteraction(interaction: Interaction) {
@@ -16,6 +16,16 @@ export default async function handleInteraction(interaction: Interaction) {
         if (interaction.isChatInputCommand()) await handleCommandInteraction(interaction);
     } catch (error) {
         console.error(error);
+
+        if (interaction.isChatInputCommand() && interaction.isRepliable()) {
+            await interaction.reply({
+                content:
+                    "Congratulations, you broke me! Or maybe it was discord, who knows? " +
+                    `Either way, I'm broken now. ` +
+                    `Please try again later or contact my owner ${OWNER_USERNAME} if it keeps happening.`,
+                ephemeral: true,
+            });
+        }
 
         const channel = interaction.client.channels.cache.get(LOG_CHANNEL);
         if (!channel?.isTextBased()) return;
