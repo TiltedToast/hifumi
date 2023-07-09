@@ -23,9 +23,7 @@ const envVariables = z.object({
     DEV_MODE: z.enum(["true", "false"]),
 });
 
-try {
-    envVariables.parse(process.env);
-} catch (e) {
+envVariables.parseAsync(process.env).catch((e) => {
     const validationError = fromZodError(e as z.ZodError, {
         issueSeparator: "\n",
         prefix: "",
@@ -35,7 +33,7 @@ try {
     console.error("\nError validating environment variables:\n");
     console.error(validationError.message);
     process.exit(1);
-}
+});
 
 declare global {
     namespace NodeJS {

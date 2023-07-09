@@ -18,25 +18,25 @@ export async function runSQL(message: Message) {
         return await message.channel.send("Don't do this through here...");
     }
 
-    try {
-        const result = await PSConnection.execute(query).then((res) => res.rows);
-        const stringified = JSON.stringify(result);
-
-        if (stringified.length > 2000) {
-            console.error(stringified);
-            return await message.channel.send(
-                "The result is too long to be displayed, check the logs"
-            );
-        }
-        await message.channel.send(codeBlock("json", stringified));
-    } catch (e) {
-        if (e instanceof DatabaseError) {
+    const result = await PSConnection.execute(query)
+        .then((res) => res.rows)
+        .catch(async (e) => {
+            if (e instanceof DatabaseError) {
+                await message.channel.send(`Invalid Query\n${e.message}`);
+            } else {
+                await message.channel.send("Unknown error, check the logs");
+            }
             console.error(e);
-            return await message.channel.send(`Invalid Query\n${e.message}`);
-        }
-        console.error(e);
-        return await message.channel.send("Unknown error, check the logs");
+        });
+
+    if (!result) return;
+    const stringified = JSON.stringify(result);
+
+    if (stringified.length > 2000) {
+        console.error(stringified);
+        return await message.channel.send("The result is too long to be displayed, check the logs");
     }
+    await message.channel.send(codeBlock("json", stringified));
 }
 
 export async function insertStatus(message: Message): Promise<undefined | Message> {
@@ -70,20 +70,21 @@ export async function insertStatus(message: Message): Promise<undefined | Messag
         );
     }
 
-    try {
-        await db.insert(statuses).values(document);
-    } catch (e) {
-        if (e instanceof DatabaseError) {
-            if (e.message.includes("AlreadyExists")) {
-                return await message.channel.send("Status already exists");
-            } else {
-                console.error(e);
-                return await message.channel.send("Unknown DatabaseError, check the logs");
+    const query = await db
+        .insert(statuses)
+        .values(document)
+        .catch(async (e) => {
+            if (e instanceof DatabaseError) {
+                if (e.message.includes("AlreadyExists")) {
+                    await message.channel.send("Status already exists");
+                } else {
+                    await message.channel.send("Unknown error, check the logs");
+                }
             }
-        }
-        console.error(e);
-        return await message.channel.send("Unknown error, check the logs");
-    }
+            console.error(e);
+        });
+
+    if (!query) return;
 
     statusArr.push(document);
 
