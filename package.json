@@ -42,6 +42,7 @@
         "stop": "pm2 delete hifumi",
         "restart": "tsc && pm2 reload hifumi",
         "prettier": "prettier --config .prettierrc --check .",
+        "test": "pnpm run /^test:/",
         "test:lint": "eslint . -c .eslintrc --max-warnings 0",
         "test:build": "tsc",
         "prepare": "husky install",
