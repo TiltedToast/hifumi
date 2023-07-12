@@ -41,17 +41,22 @@
         "start": "tsc && pm2 start ./dist/app.js --name hifumi --time",
         "stop": "pm2 delete hifumi",
         "restart": "tsc && pm2 reload hifumi",
-        "lint": "eslint . -c .eslintrc --max-warnings 0",
         "prettier": "prettier --config .prettierrc --check .",
+        "test:lint": "eslint . -c .eslintrc --max-warnings 0",
+        "test:build": "tsc",
         "prepare": "husky install",
         "deploy": "tsc && node ./dist/deploy-commands.js",
-        "build": "tsc",
-        "test": "pnpm run lint && pnpm run prettier",
-        "mg": "drizzle-kit push:mysql --config ./src/db/drizzle.config.ts",
+        "db:push": "drizzle-kit push:mysql --config ./src/db/drizzle.config.ts",
         "deploy-dev": "tsc && node ./dist/deploy-commands.js --guild 655484563077988385",
         "clear-test-commands": "tsc && node ./dist/deploy-commands.js --guild 655484563077988385 --clear"
     },
     "lint-staged": {
         "*.{js,ts,json,css,md,yml}": "prettier --config .prettierrc --write"
+    },
+    "husky": {
+        "hooks": {
+            "pre-commit": "pnpm lint-staged --no-stash",
+            "pre-push": "pnpm run /^test:/"
+        }
     }
 }
