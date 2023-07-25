@@ -69,7 +69,9 @@ export async function addEmoji(message: Message, prefix: string) {
         const emojis = repliedMsg.content.match(emojiRegex);
         if (!emojis)
             return await message.channel.send("The message must contain at least one emoji!");
-        return message.channel.send(await bulkAddEmojis(message, emojis));
+        const emojiStringOutput = await bulkAddEmojis(message, emojis);
+        if (!emojiStringOutput) return;
+        return await message.channel.send(emojiStringOutput);
     }
 
     const msgLinkRegexp = new RegExp(/https:\/\/discord\.com\/channels\/\d+\/(\d+)\/(\d+)/);
