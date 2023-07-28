@@ -5,6 +5,8 @@ import {
     MessageType,
     PermissionFlagsBits,
     RESTJSONErrorCodes,
+    Sticker,
+    StickerFormatType,
 } from "discord.js";
 import Fuse from "fuse.js";
 import { readFileSync } from "node:fs";
@@ -64,14 +66,24 @@ export async function addEmoji(message: Message, prefix: string) {
     if (message.type === MessageType.Reply) {
         const repliedMsg = message.channel.messages.resolve(message.reference?.messageId ?? "");
         if (!repliedMsg)
-            return await message.channel.send("Could not find message to grab emojis from!");
+            return await message.channel.send(
+                "Could not find message to grab emojis/stickers from!"
+            );
 
         const emojis = repliedMsg.content.match(emojiRegex);
-        if (!emojis)
-            return await message.channel.send("The message must contain at least one emoji!");
-        const emojiStringOutput = await bulkAddEmojis(message, emojis);
-        if (!emojiStringOutput) return;
-        return await message.channel.send(emojiStringOutput);
+        const stickers = repliedMsg.stickers;
+        if (!emojis && stickers.size === 0)
+            return await message.channel.send(
+                "The message must contain at least one/sticker emoji!"
+            );
+
+        if (emojis?.length) {
+            const emojiStringOutput = await bulkAddEmojis(message, emojis);
+            if (!emojiStringOutput) return;
+            return await message.channel.send(emojiStringOutput);
+        } else if (stickers.size > 0) {
+            return await addStickers(repliedMsg);
+        }
     }
 
     const msgLinkRegexp = new RegExp(/https:\/\/discord\.com\/channels\/\d+\/(\d+)\/(\d+)/);
@@ -216,6 +228,41 @@ async function handleCreateError(error: unknown, message: Message, name: string)
         }
         return await message.channel.send(errorMessage);
     }
+}
+
+async function addStickers(message: Message) {
+    const stickers = message.stickers;
+    const addedStickers: Sticker[] = [];
+
+    if (message.guild === null)
+        return await message.channel.send("You must be in a server for this");
+
+    if (stickers.size === 0) {
+        return await message.channel.send("No stickers found!");
+    }
+
+    for (const sticker of stickers.values()) {
+        const { name, url: file, format, tags, description } = sticker;
+
+        if (format === StickerFormatType.Lottie) {
+            await message.channel.send(
+                `\`${name}\` is a Lottie sticker. I cannot add those yet unfortunately`
+            );
+        }
+        try {
+            const newSticker = await message.guild.stickers.create({
+                name,
+                file,
+                tags: tags || name,
+                description,
+            });
+            addedStickers.push(newSticker);
+        } catch (_) {
+            await message.channel.send(`Could not add ${name}, something went wrong`);
+            continue;
+        }
+    }
+    await message.channel.send({ stickers: addedStickers });
 }
 
 /**
