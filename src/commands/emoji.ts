@@ -262,6 +262,8 @@ async function addStickers(message: Message) {
             continue;
         }
     }
+    if (!addedStickers.length) return;
+
     await message.channel.send({ stickers: addedStickers });
 }
 
