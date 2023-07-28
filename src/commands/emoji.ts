@@ -74,7 +74,7 @@ export async function addEmoji(message: Message, prefix: string) {
         const stickers = repliedMsg.stickers;
         if (!emojis && stickers.size === 0)
             return await message.channel.send(
-                "The message must contain at least one/sticker emoji!"
+                "The message must contain at least one emoji/sticker!"
             );
 
         if (emojis?.length) {
