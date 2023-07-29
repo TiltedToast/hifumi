@@ -212,7 +212,11 @@ export async function consoleCmd(message: Message, cmd?: string, python = false)
 
     const input = message.content.split(" ").slice(1).join(" ");
     const pythonCmd = process.platform === "win32" ? "python" : "python3";
-    const command = cmd ? cmd : python ? `${pythonCmd} -c "print(${input})"` : input;
+    const command = cmd
+        ? cmd
+        : python
+        ? `${pythonCmd} -c "print(${input.replaceAll('"', '\\"')})"`
+        : input;
     try {
         const { stdout, stderr } = await execPromise(command);
         if (stderr) await message.channel.send(codeBlock(stderr));
