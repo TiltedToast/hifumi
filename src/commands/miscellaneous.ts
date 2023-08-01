@@ -480,6 +480,6 @@ export async function bye(message: Message) {
 
     // Closes the MongoDB connection and stops the running daemon via pm2
     await message.channel.send("Bai baaaaaaaai!!");
-    client.destroy();
+    await client.destroy();
     exec("pm2 delete hifumi");
 }
