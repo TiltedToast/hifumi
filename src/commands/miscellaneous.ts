@@ -11,7 +11,6 @@ import {
     codeBlock,
 } from "discord.js";
 import { evaluate as mathEvaluate } from "mathjs";
-import fetch from "node-fetch";
 import { exec } from "node:child_process";
 import { writeFileSync } from "node:fs";
 import { promisify } from "node:util";

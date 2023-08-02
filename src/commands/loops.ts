@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unnecessary-condition */
 import type { Client, TextChannel } from "discord.js";
-import fetch from "node-fetch";
 import { statusArr } from "../app.js";
 import { db } from "../db/index.js";
 import { errorLogs } from "../db/schema.js";

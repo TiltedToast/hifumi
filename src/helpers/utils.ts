@@ -11,7 +11,6 @@ import {
     TextChannel,
     User,
 } from "discord.js";
-import fetch, { Headers, type RequestInit } from "node-fetch";
 import { existsSync, mkdirSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import strftime from "strftime";
