@@ -6,6 +6,5 @@ dist
 data
 .env
 *.log
-.vscode
 .eslintcache
 data
