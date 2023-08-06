@@ -2,7 +2,6 @@ import { connect } from "@planetscale/database";
 import "dotenv/config";
 import { eq, placeholder, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/planetscale-serverless";
-// import fetch from "node-fetch";
 import * as schema from "./schema.js";
 import { prefixes, redditPosts } from "./schema.js";
 import { RedditPost } from "./types.js";

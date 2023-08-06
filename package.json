@@ -9,8 +9,8 @@
         "dedent": "^1.5.1",
         "discord.js": "^14.12.1",
         "dotenv": "^16.3.1",
-        "drizzle-orm": "^0.27.2",
-        "drizzle-zod": "^0.4.4",
+        "drizzle-orm": "^0.28.0",
+        "drizzle-zod": "^0.5.0",
         "fuse.js": "^6.6.2",
         "lint-staged": "^13.2.3",
         "mathjs": "^11.9.1",
@@ -24,7 +24,7 @@
     },
     "devDependencies": {
         "@types/dedent": "^0.7.0",
-        "@types/node": "^20.4.5",
+        "@types/node": "^20.4.8",
         "@types/qrcode": "^1.5.1",
         "@types/strftime": "^0.9.4",
         "@typescript-eslint/eslint-plugin": "^6.2.1",
@@ -32,7 +32,7 @@
         "drizzle-kit": "^0.19.12",
         "eslint": "^8.46.0",
         "husky": "^8.0.3",
-        "prettier": "^3.0.0",
+        "prettier": "^3.0.1",
         "tsx": "^3.12.7",
         "typescript": "^5.1.6"
     },
