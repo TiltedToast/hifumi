@@ -15,7 +15,7 @@ import { exec } from "node:child_process";
 import { writeFileSync } from "node:fs";
 import { promisify } from "node:util";
 import { client, prefixMap } from "../app.js";
-import { EMBED_COLOUR, OWNER_USERNAME } from "../config.js";
+import { BOT_NAME, EMBED_COLOUR, OWNER_USERNAME } from "../config.js";
 import { db } from "../db/index.js";
 import {
     mikuCommandAliases,
@@ -192,7 +192,7 @@ export async function helpCmd(message: Message | CommandInteraction, prefix?: st
 
     const helpEmbed = new EmbedBuilder()
         .setColor(EMBED_COLOUR)
-        .setTitle("**Hifumi's commands**")
+        .setTitle(`**${BOT_NAME}'s commands**`)
         .setDescription(helpMsg);
 
     return await sendOrReply(message, { embeds: [helpEmbed] });

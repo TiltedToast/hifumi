@@ -228,7 +228,7 @@ export function randomIntFromRange(min: number, max: number): number {
 
 /**
  * Parses a message and error and sends it to the channel to avoid
- * Hifumi dying every time an error occurs
+ * the bot dying every time an error occurs
  * @param message The Message object passed on each command execution
  * @param errorObject The error object that is passed to the command through try/catch
  */

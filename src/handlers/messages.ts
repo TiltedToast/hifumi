@@ -7,6 +7,7 @@ import * as misc from "../commands/miscellaneous.js";
 import * as reddit from "../commands/reddit.js";
 import { db as DBConn } from "../db/index.js";
 
+import { DEFAULT_PREFIX, DEV_PREFIX } from "../config.js";
 import { prefixes } from "../db/schema.js";
 import type { MessageCommandData } from "../helpers/types.js";
 import { clientNoPermissions, errorLog, isDev, isMikuTrigger } from "../helpers/utils.js";
@@ -25,16 +26,19 @@ export default async function handleMessage(message: Message) {
 
         // Adds a default prefix to the db if it doesn't exist
         if (message.guild && !prefixMap.has(message.guild.id) && !isDev()) {
-            await DBConn.insert(prefixes).values({ serverId: message.guild.id, prefix: "h!" });
-            prefixMap.set(message.guild.id, "h!");
+            await DBConn.insert(prefixes).values({
+                serverId: message.guild.id,
+                prefix: DEFAULT_PREFIX,
+            });
+            prefixMap.set(message.guild.id, DEFAULT_PREFIX);
         }
 
         // Gets the prefix from the map and compares to the message's beginning
         // This way the prefix can be case insensitive
-        let prefix = "h!";
-        if (message.guild) prefix = prefixMap.get(message.guild.id) ?? "h!";
+        let prefix = DEFAULT_PREFIX;
+        if (message.guild) prefix = prefixMap.get(message.guild.id) ?? DEFAULT_PREFIX;
 
-        if (isDev()) prefix = "h?";
+        if (isDev()) prefix = DEV_PREFIX;
 
         const command = content[0].slice(prefix.length).toLowerCase();
         const lowerCasePrefix = content[0].substring(0, prefix.length).toLowerCase();

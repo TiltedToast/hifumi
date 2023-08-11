@@ -3,8 +3,12 @@
 import { z } from "zod";
 import { fromZodError } from "zod-validation-error";
 
+// First one is the one that gets pinged in the event of an error
 export const BOT_OWNERS = ["258993932262834188", "207505077013839883"];
 export const OWNER_USERNAME = "@toast.dll";
+export const BOT_NAME = "Hifumi";
+export const DEFAULT_PREFIX = "h!";
+export const DEV_PREFIX = "h?";
 export const EMBED_COLOUR = "#CE3A9B";
 export const DEV_CHANNELS = ["655484859405303809", "551588329003548683", "922679249058553857"];
 export const LOG_CHANNEL = "655484804405657642";
