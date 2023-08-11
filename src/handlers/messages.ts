@@ -7,7 +7,7 @@ import * as misc from "../commands/miscellaneous.js";
 import * as reddit from "../commands/reddit.js";
 import { db as DBConn } from "../db/index.js";
 
-import { DEFAULT_PREFIX, DEV_PREFIX } from "../config.js";
+import { DEFAULT_PREFIX, DEV_PREFIX, RELOAD_PREFIX } from "../config.js";
 import { prefixes } from "../db/schema.js";
 import type { MessageCommandData } from "../helpers/types.js";
 import { clientNoPermissions, errorLog, isDev, isMikuTrigger } from "../helpers/utils.js";
@@ -43,9 +43,9 @@ export default async function handleMessage(message: Message) {
         const command = content[0].slice(prefix.length).toLowerCase();
         const lowerCasePrefix = content[0].substring(0, prefix.length).toLowerCase();
 
-        if (message.content.toLowerCase().startsWith("hr~~~") && !isDev())
+        if (message.content.toLowerCase().startsWith(`${RELOAD_PREFIX}~~~`) && !isDev())
             await misc.reloadBot(message);
-        if (message.content.toLowerCase().startsWith("hr~") && isDev())
+        if (message.content.toLowerCase().startsWith(`${RELOAD_PREFIX}~`) && isDev())
             await misc.reloadBot(message);
 
         if (lowerCasePrefix === prefix.toLowerCase()) {

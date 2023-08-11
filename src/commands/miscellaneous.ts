@@ -15,13 +15,13 @@ import { exec } from "node:child_process";
 import { writeFileSync } from "node:fs";
 import { promisify } from "node:util";
 import { client, prefixMap } from "../app.js";
-import { BOT_NAME, EMBED_COLOUR, OWNER_USERNAME } from "../config.js";
+import { BOT_NAME, EMBED_COLOUR, OWNER_NAME } from "../config.js";
 import { db } from "../db/index.js";
 import {
+    helpMessages,
+    leet as leetTable,
     mikuCommandAliases,
     mikuReactions,
-    leet as leetTable,
-    helpMessages,
 } from "../db/schema.js";
 import {
     EmbedMetadata,
@@ -320,13 +320,13 @@ export async function convert(message: Message, prefix: string) {
         let msg: string;
         switch (supportedResult["error-type"]) {
             case "invalid-key":
-                msg = `Invalid API key. This should never happen, please contact ${OWNER_USERNAME}`;
+                msg = `Invalid API key. This should never happen, please contact ${OWNER_NAME}`;
                 break;
             case "quota-reached":
                 msg = "API quota reached. Please try again later!";
                 break;
             case "inactive-account":
-                msg = `API account is inactive. Please contact ${OWNER_USERNAME}`;
+                msg = `API account is inactive. Please contact ${OWNER_NAME}`;
                 break;
             default:
                 console.error(supportedResult);
@@ -378,13 +378,13 @@ export async function convert(message: Message, prefix: string) {
                 msg = "The request was malformed, please try again later!";
                 break;
             case "invalid-key":
-                msg = `Invalid API key. This should never happen, please contact ${OWNER_USERNAME}`;
+                msg = `Invalid API key. This should never happen, please contact ${OWNER_NAME}`;
                 break;
             case "quota-reached":
                 msg = "API quota reached. Please try again later!";
                 break;
             case "inactive-account":
-                msg = `API account is inactive. Please contact ${OWNER_USERNAME}`;
+                msg = `API account is inactive. Please contact ${OWNER_NAME}`;
                 break;
             default:
                 console.error(result);

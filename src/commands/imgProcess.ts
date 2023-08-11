@@ -80,7 +80,7 @@ export async function resizeImg(message: Message, prefix: string) {
     if (content.length !== 3 && message.attachments.size === 0) {
         return await message.channel.send(`Usage: \`${prefix}resize <width> <url>\``);
     } else if (content.length === 1 && message.attachments.size > 0) {
-        return await message.channel.send("You have to provide the with!");
+        return await message.channel.send("You have to provide the width!");
     }
 
     const width = parseInt(content[1]);
