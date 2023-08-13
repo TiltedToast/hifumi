@@ -182,16 +182,20 @@ export async function fetchSubmissions(
     return posts as RedditPost[];
 }
 
+function isFulfilled<T>(p: PromiseSettledResult<T>): p is PromiseFulfilledResult<T> {
+    return p.status === "fulfilled";
+}
+
 async function getSubmissions(subreddit: string, limit: number) {
     const timeSpans: Timespan[] = ["hour", "day", "week", "month", "year", "all"];
     const subredditObject = RedditClient.getSubreddit(subreddit);
 
     const topSubmissions = timeSpans.map((time) => subredditObject.getTop({ time, limit }));
 
-    return await Promise.all([
+    return await Promise.allSettled([
         subredditObject.getHot({ limit }),
         subredditObject.getNew({ limit }),
         subredditObject.getRising({ limit }),
         ...topSubmissions,
-    ]);
+    ]).then((results) => results.filter(isFulfilled).map((p) => p.value));
 }
