@@ -201,6 +201,7 @@ export async function helpCmd(message: Message | CommandInteraction, prefix?: st
 export async function gitPull(message: Message) {
     if (!isBotOwner(message.author)) return;
     await consoleCmd(message, "git pull");
+    await consoleCmd(message, "pnpm install");
     await reloadBot(message);
 }
 
