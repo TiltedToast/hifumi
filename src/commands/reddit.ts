@@ -140,7 +140,7 @@ function parseSubFlags(interaction: ChatInputCommandInteraction): [boolean, bool
  * @param message The message that triggered the command
  * @param limit The amount of submissions to fetch per category
  */
-export async function fetchSubmissions(
+async function fetchSubmissions(
     subreddit: string,
     interaction: ChatInputCommandInteraction,
     limit = 100
