@@ -1,6 +1,5 @@
 **/node_modules
 **/dist
-**/.vscode
 **/.devcontainer
 pnpm-lock.yaml
 

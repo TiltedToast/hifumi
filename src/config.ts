@@ -15,17 +15,18 @@ export const DEV_CHANNELS = ["655484859405303809", "551588329003548683", "922679
 export const LOG_CHANNEL = "655484804405657642";
 export const CAT_FACT_CHANNEL = "655484859405303809";
 
+// prettier-ignore
 const envVariables = z.object({
-    BOT_TOKEN: z.string(),
-    EXCHANGE_API_KEY: z.string(),
-    IMGUR_CLIENT_ID: z.string(),
-    IMGUR_CLIENT_SECRET: z.string(),
-    REDDIT_CLIENT_ID: z.string(),
-    REDDIT_CLIENT_SECRET: z.string(),
-    REDDIT_REFRESH_TOKEN: z.string(),
-    PLANETSCALE_URL: z.string(),
-    WOLFRAM_ALPHA_APP_ID: z.string(),
-    DEV_MODE: z.enum(["true", "false"]),
+    BOT_TOKEN:            z.string().nonempty("You must provide a Discord Bot Token"),
+    EXCHANGE_API_KEY:     z.string().nonempty("You must provide an API key for currency conversion"),
+    IMGUR_CLIENT_ID:      z.string().nonempty("You must provide an Imgur Client Id"),
+    IMGUR_CLIENT_SECRET:  z.string().nonempty("You must provide an Imgur Client Secret"),
+    REDDIT_CLIENT_ID:     z.string().nonempty("You must provide a Reddit Client Id"),
+    REDDIT_CLIENT_SECRET: z.string().nonempty("You must provide a Reddit Client Secret"),
+    REDDIT_REFRESH_TOKEN: z.string().nonempty("You must provide a Reddit Refresh Token"),
+    PLANETSCALE_URL:      z.string().nonempty("You must provide a PlanetScale Database URL"),
+    WOLFRAM_ALPHA_APP_ID: z.string().nonempty("You must provide a Wolfram|Alpha App ID"),
+    DEV_MODE:             z.enum(["true", "false"]),
 });
 
 envVariables.parseAsync(process.env).catch((e) => {
