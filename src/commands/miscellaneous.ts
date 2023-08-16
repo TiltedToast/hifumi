@@ -3,6 +3,7 @@ import {
     ActionRowBuilder,
     ButtonBuilder,
     ButtonStyle,
+    ChatInputCommandInteraction,
     CommandInteraction,
     EmbedBuilder,
     Message,
@@ -15,7 +16,7 @@ import { exec } from "node:child_process";
 import { writeFileSync } from "node:fs";
 import { promisify } from "node:util";
 import { client, prefixMap } from "../app.js";
-import { BOT_NAME, EMBED_COLOUR, OWNER_NAME } from "../config.js";
+import { BOT_NAME, DEFAULT_PREFIX, EMBED_COLOUR, OWNER_NAME } from "../config.js";
 import { db } from "../db/index.js";
 import {
     helpMessages,
@@ -174,20 +175,20 @@ export async function leet(message: Message) {
     await message.channel.send(leetOutput.substring(0, 2000));
 }
 
-export async function helpCmd(message: Message | CommandInteraction, prefix?: string) {
+export async function helpCmd(input: Message | CommandInteraction, prefix?: string) {
     const helpMsgArray = await db.select().from(helpMessages).execute();
 
     if (helpMsgArray.length === 0) {
         return await sendOrReply(
-            message,
+            input,
             "Seems there aren't any help messages saved in the database"
         );
     }
 
-    if (!prefix) prefix = prefixMap.get(message.guildId ?? "") ?? "h!";
+    if (!prefix) prefix = prefixMap.get(input.guildId ?? "") ?? DEFAULT_PREFIX;
 
     const helpMsg = helpMsgArray
-        .map((helpMsgObj) => `**${prefix ?? "h!"}${helpMsgObj.cmd}** - ${helpMsgObj.desc}`)
+        .map((msg) => `**${prefix ?? DEFAULT_PREFIX}${msg.cmd}** - ${msg.desc}`)
         .join("\n");
 
     const helpEmbed = new EmbedBuilder()
@@ -195,7 +196,7 @@ export async function helpCmd(message: Message | CommandInteraction, prefix?: st
         .setTitle(`**${BOT_NAME}'s commands**`)
         .setDescription(helpMsg);
 
-    return await sendOrReply(message, { embeds: [helpEmbed] });
+    return await sendOrReply(input, { embeds: [helpEmbed] });
 }
 
 export async function gitPull(message: Message) {
@@ -413,28 +414,41 @@ export async function convert(message: Message, prefix: string) {
     return await message.channel.send({ embeds: [convertEmbed] });
 }
 
-export async function urban(message: Message, prefix: string) {
-    const query = message.content.split(" ").slice(1).join(" ");
+export async function urban(interaction: ChatInputCommandInteraction) {
+    const query = (interaction.options.getString("term", false) || "").toLowerCase();
+    const random = interaction.options.getBoolean("random", false) || false;
 
-    if (!query.length) return await message.channel.send(`Usage: \`${prefix}urban <query>\``);
+    if (query.length < 1 && !random) {
+        return await interaction.reply({
+            content: "You have to provide a search term or use the random flag",
+            ephemeral: true,
+        });
+    }
 
-    const response = await fetch(`https://api.urbandictionary.com/v0/define?term=${query}`);
-    if (!response.ok)
-        return await message.channel.send(`Error ${response.status}! Please try again later`);
+    await interaction.deferReply();
+
+    const url = random
+        ? `https://api.urbandictionary.com/v0/random`
+        : `https://api.urbandictionary.com/v0/define?term=${query}`;
+
+    const response = await fetch(url);
+    if (!response.ok) {
+        return await interaction.editReply(`Error ${response.status}! Please try again later`);
+    }
 
     const result = (await response.json()) as UrbanResponse;
 
     if (!UrbanResponseSchema.safeParse(result).success) {
-        return await message.channel.send(
+        return await interaction.editReply(
             "Something went wrong with the API, maybe try again later"
         );
     }
 
-    if (result.list.length === 0) return message.channel.send("No results found!");
+    if (result.list.length === 0) return await interaction.editReply("No results found!");
 
     setEmbedArr({
         result: result.list,
-        userID: message.author.id,
+        userID: interaction.user.id,
         sortKey: "thumbs_up",
         embedArray: urbanEmbeds,
         buildEmbedFunc: buildUrbanEmbed,
@@ -445,7 +459,7 @@ export async function urban(message: Message, prefix: string) {
         new ButtonBuilder().setCustomId("nextUrban").setLabel("NEXT").setStyle(ButtonStyle.Primary)
     );
 
-    return await message.channel.send({
+    return await interaction.editReply({
         embeds: [urbanEmbeds[0].embed],
         components: [row],
     });

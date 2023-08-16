@@ -36,6 +36,19 @@ const commands = [
         .addBooleanOption((option) =>
             option.setName("force").setDescription("Force fetch posts").setRequired(false)
         ),
+
+    new SlashCommandBuilder()
+        .setName("urban")
+        .setDescription("Searches for a term on Urban Dictionary")
+        .addStringOption((option) =>
+            option.setName("term").setDescription("The term to search for").setRequired(false)
+        )
+        .addBooleanOption((option) =>
+            option
+                .setName("random")
+                .setDescription("Whether to search for random terms")
+                .setRequired(false)
+        ),
 ].map((command) => command.toJSON());
 
 const rest = new REST({ version: "10" }).setToken(process.env.BOT_TOKEN);

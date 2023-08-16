@@ -82,7 +82,6 @@ async function handleCommand({ command, subCmd, message, prefix }: MessageComman
     else if (["convert", "conv", "c"].includes(command)) await misc.convert(message, prefix);
     else if (["avatar", "pfp"].includes(command)) await misc.avatar(message);
     else if (command === "bye") await misc.bye(message);
-    else if (command === "urban") await misc.urban(message, prefix);
     else if (command === "beautiful") await imgProcess.beautiful(message);
     else if (command === "resize") await imgProcess.resizeImg(message, prefix);
     else if (command === "imgur") await imgProcess.imgur({ message, prefix });
