@@ -14,10 +14,6 @@ export async function runSQL(message: Message) {
 
     if (query.length === 0) return await message.channel.send("You need to provide a query smh");
 
-    if (!query.startsWith("select")) {
-        return await message.channel.send("Don't do this through here...");
-    }
-
     const result = await PSConnection.execute(query)
         .then((res) => res.rows)
         .catch(async (e) => {
