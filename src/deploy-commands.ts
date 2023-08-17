@@ -16,6 +16,7 @@ const commands = [
         .addUserOption((option) =>
             option.setName("user").setDescription("The user to pat").setRequired(true)
         ),
+
     new SlashCommandBuilder().setName("help").setDescription("Shows a list of commands"),
 
     new SlashCommandBuilder()

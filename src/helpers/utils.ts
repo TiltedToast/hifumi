@@ -41,6 +41,8 @@ export async function sendOrReply(
     }
     if (input.isRepliable()) {
         return await input.reply(message);
+    } else if (input.deferred) {
+        return await input.editReply(message);
     } else {
         return await input.channel?.send(message);
     }
