@@ -41,7 +41,9 @@ function setRandomStatus(client: Client) {
     if (!client.user) return console.error("Could not set status, client user is undefined");
     const randStatus = randomElementFromArray(statusArr);
 
-    return client.user.setActivity(randStatus.status, {
+    return client.user.setActivity({
+        name: randStatus.type !== "CUSTOM" ? randStatus.status : "Custom status",
+        state: randStatus.type === "CUSTOM" ? randStatus.status : undefined,
         type: StatusType[randStatus.type],
     });
 }

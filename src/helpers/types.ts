@@ -131,4 +131,5 @@ export const StatusType = {
     WATCHING: ActivityType.Watching,
     PLAYING: ActivityType.Playing,
     COMPETING: ActivityType.Competing,
+    CUSTOM: ActivityType.Custom,
 } as const;

@@ -6,7 +6,7 @@ const statuses = mysqlTable(
         id: int("id").autoincrement().notNull(),
         type: varchar("type", {
             length: 20,
-            enum: ["PLAYING", "WATCHING", "STREAMING", "LISTENING", "COMPETING"],
+            enum: ["PLAYING", "WATCHING", "STREAMING", "LISTENING", "COMPETING", "CUSTOM"],
         }).notNull(),
         status: varchar("status", { length: 128 }).notNull(),
     },
