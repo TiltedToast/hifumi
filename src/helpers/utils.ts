@@ -39,10 +39,10 @@ export async function sendOrReply(
     if (input instanceof Message) {
         return await input.channel.send(message);
     }
-    if (input.isRepliable()) {
-        return await input.reply(message);
-    } else if (input.deferred) {
+    if (input.deferred) {
         return await input.editReply(message);
+    } else if (input.isRepliable()) {
+        return await input.reply(message);
     } else {
         return await input.channel?.send(message);
     }

@@ -79,24 +79,21 @@ async function handleCommand({ command, subCmd, message, prefix }: MessageComman
     } else if (["status", "stat"].includes(command)) await db.insertStatus(message);
     else if (["commands", "command", "comm", "com", "help"].includes(command))
         await misc.helpCmd(message, prefix);
-    else if (["convert", "conv", "c"].includes(command)) await misc.convert(message, prefix);
     else if (["avatar", "pfp"].includes(command)) await misc.avatar(message);
     else if (command === "bye") await misc.bye(message);
     else if (command === "beautiful") await imgProcess.beautiful(message);
     else if (command === "resize") await imgProcess.resizeImg(message, prefix);
     else if (command === "imgur") await imgProcess.imgur({ message, prefix });
     else if (command === "profile") await reddit.profile(message, prefix);
-    else if (command === "sub")
-        await message.channel.send("This has been moved to a separate /sub command");
     else if (command === "prefix") await db.updatePrefix(message);
-    else if (command === "con") await misc.consoleCmd(message);
+    else if (command === "con") await misc.cmdConsole(message);
     else if (command === "qr") await imgProcess.qrCode(message);
     else if (command === "js") await misc.jsEval(message);
     else if (command === "link") await emoji.linkEmoji(message);
     else if (command === "leet") await misc.leet(message);
     else if (command === "pull") await misc.gitPull(message);
     else if (["calc", "math"].includes(command)) await misc.jsEval(message, "math");
-    else if (command === "py") await misc.consoleCmd(message, undefined, true);
+    else if (command === "py") await misc.cmdConsole(message, undefined, true);
     else if (command === "someone") await misc.pingRandomMembers(message);
     else if (command === "yoink") await emoji.addEmoji(message, prefix);
     else if (command === "db") await db.runSQL(message);

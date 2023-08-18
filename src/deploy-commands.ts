@@ -50,6 +50,23 @@ const commands = [
                 .setDescription("Whether to search for random terms")
                 .setRequired(false)
         ),
+
+    new SlashCommandBuilder()
+        .setName("convert")
+        .setDescription("Converts from one currency to another")
+        .addStringOption((option) =>
+            option.setName("from").setDescription("The currency to convert from").setRequired(true)
+        )
+        .addStringOption((option) =>
+            option.setName("to").setDescription("The currency to convert to").setRequired(true)
+        )
+        .addNumberOption((option) =>
+            option
+                .setName("amount")
+                .setDescription("The amount to convert")
+                .setRequired(false)
+                .setMinValue(Number.MIN_VALUE)
+        ),
 ].map((command) => command.toJSON());
 
 const rest = new REST({ version: "10" }).setToken(process.env.BOT_TOKEN);

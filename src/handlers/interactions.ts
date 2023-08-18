@@ -1,3 +1,4 @@
+import { DEV_CHANNELS } from "./../config";
 import {
     ButtonInteraction,
     ChatInputCommandInteraction,
@@ -5,10 +6,11 @@ import {
     codeBlock,
     userMention,
 } from "discord.js";
-import { helpCmd, urban, urbanEmbeds } from "../commands/miscellaneous.js";
+import { convert, helpCmd, urban, urbanEmbeds } from "../commands/miscellaneous.js";
 import { sub } from "../commands/reddit.js";
 import { BOT_OWNERS, LOG_CHANNEL, OWNER_NAME } from "../config.js";
 import { updateEmbed } from "../helpers/utils.js";
+import { client } from "../app.js";
 
 export default async function handleInteraction(interaction: Interaction) {
     try {
@@ -17,22 +19,28 @@ export default async function handleInteraction(interaction: Interaction) {
     } catch (error) {
         console.error(error);
 
-        if (interaction.isChatInputCommand() && interaction.isRepliable()) {
-            await interaction.reply({
-                content:
-                    "Congratulations, you broke me! Or maybe it was discord, who knows? " +
-                    `Either way, I'm broken now. ` +
-                    `Please try again later or contact my owner \`${OWNER_NAME}\` if it keeps happening.`,
-                ephemeral: true,
-            });
+        const msg =
+            "Congratulations, you broke me! Or maybe it was discord, who knows? " +
+            `Either way, I'm broken now. ` +
+            `Please try again later or contact my owner \`${OWNER_NAME}\` if it keeps happening.`;
+
+        if (interaction.isChatInputCommand()) {
+            if (interaction.deferred) {
+                await interaction.editReply(msg);
+            } else {
+                await interaction.reply({ content: msg, ephemeral: true });
+            }
         }
 
-        const channel = interaction.client.channels.cache.get(LOG_CHANNEL);
+        const channel = DEV_CHANNELS.includes(interaction.channel?.id ?? "")
+            ? interaction.channel
+            : await client.channels.fetch(LOG_CHANNEL);
+
         if (!channel?.isTextBased()) return;
 
         if (!interaction.isChatInputCommand()) return;
         await channel.send(
-            codeBlock("js", `${error as string}`) + `\n\n${userMention(BOT_OWNERS[0])}`
+            codeBlock("js", `${error as string}`) + `\n${userMention(BOT_OWNERS[0])}`
         );
     }
 }
@@ -58,5 +66,7 @@ async function handleCommandInteraction(interaction: ChatInputCommandInteraction
         await sub(interaction);
     } else if (interaction.commandName === "urban") {
         await urban(interaction);
+    } else if (interaction.commandName === "convert") {
+        await convert(interaction);
     }
 }

@@ -201,11 +201,11 @@ export async function helpCmd(input: Message | CommandInteraction, prefix?: stri
 
 export async function gitPull(message: Message) {
     if (!isBotOwner(message.author)) return;
-    await consoleCmd(message, "git pull");
+    await cmdConsole(message, "git pull");
     await reloadBot(message);
 }
 
-export async function consoleCmd(message: Message, cmd?: string, python = false) {
+export async function cmdConsole(message: Message, cmd?: string, python = false) {
     if (!isBotOwner(message.author)) return;
     // Creates a new string with the message content without the command
     // And runs it in a new shell process
@@ -283,36 +283,27 @@ export async function avatar(message: Message) {
 
     const avatarEmbed = new EmbedBuilder()
         .setColor(EMBED_COLOUR)
-        .setTitle(`*${user.username}'s Avatar*`)
+        .setTitle(`*${user.displayName}'s Avatar*`)
         .setImage(avatarURL);
 
     return await message.channel.send({ embeds: [avatarEmbed] });
 }
 
-export async function convert(message: Message, prefix: string) {
-    const content = message.content.split(" ");
-
-    if (content.length < 3)
-        return await message.channel.send(
-            `Usage: \`${prefix}convert <amount of money> <cur1> <cur2>\``
-        );
+export async function convert(interaction: ChatInputCommandInteraction) {
+    await interaction.deferReply();
 
     const currencies = {} as Record<string, string>;
 
-    let amount = content.length === 3 ? 1 : parseFloat(content[1]);
-    let base_currency = content.length === 3 ? content[1] : content[2];
-    let target_currency = content.length === 3 ? content[2] : content[3];
-
-    base_currency = base_currency.toUpperCase();
-    target_currency = target_currency.toUpperCase();
-
-    amount = isNaN(amount) ? 1 : amount;
+    // The API can't seem to handle more than 7 or so decimal places
+    const amount = +(interaction.options.getNumber("amount", false) ?? 1).toFixed(5);
+    const base_currency = interaction.options.getString("from", true).toUpperCase();
+    const target_currency = interaction.options.getString("to", true).toUpperCase();
 
     const codesResp = await fetch(`https://v6.exchangerate-api.com/v6/${EXCHANGE_API_KEY}/codes`);
     const supportedResult = (await codesResp.json()) as SupportedCodesResponse;
 
     if (!SupportedCodesSchema.safeParse(supportedResult).success) {
-        return await message.channel.send(
+        return await interaction.editReply(
             "Something went wrong while fetching the supported currencies! Please try again later"
         );
     }
@@ -321,20 +312,20 @@ export async function convert(message: Message, prefix: string) {
         let msg: string;
         switch (supportedResult["error-type"]) {
             case "invalid-key":
-                msg = `Invalid API key. This should never happen, please contact ${OWNER_NAME}`;
+                msg = `Invalid API key. This should never happen, please contact \`${OWNER_NAME}\``;
                 break;
             case "quota-reached":
                 msg = "API quota reached. Please try again later!";
                 break;
             case "inactive-account":
-                msg = `API account is inactive. Please contact ${OWNER_NAME}`;
+                msg = `API account is inactive. Please contact \`${OWNER_NAME}\``;
                 break;
             default:
                 console.error(supportedResult);
                 msg =
                     "Something went wrong fetching the supported currencies! Please try again later";
         }
-        return await message.channel.send(msg);
+        return await interaction.editReply(msg);
     }
 
     for (const [code, name] of supportedResult.supported_codes) {
@@ -342,7 +333,7 @@ export async function convert(message: Message, prefix: string) {
     }
 
     if (!(base_currency in currencies) || !(target_currency in currencies)) {
-        return await message.channel.send(
+        return await interaction.editReply(
             `Invalid currency codes!\nCheck ` +
                 `<https://www.exchangerate-api.com/docs/supported-currencies> ` +
                 `for a list of supported currencies`
@@ -350,11 +341,11 @@ export async function convert(message: Message, prefix: string) {
     }
     // Checks for possible pointless conversions
     if (base_currency === target_currency)
-        return await message.channel.send(
+        return await interaction.editReply(
             "Your first currency is the same as your second currency!"
         );
-    if (amount < 0) return await message.channel.send("You can't convert a negative amount!");
-    if (amount === 0) return await message.channel.send("Zero will obviously stay 0!");
+    if (amount < 0) return await interaction.editReply("You can't convert a negative amount!");
+    if (amount === 0) return await interaction.editReply("Zero will obviously stay 0!");
 
     const response = await fetch(
         `https://v6.exchangerate-api.com/v6/` +
@@ -364,7 +355,7 @@ export async function convert(message: Message, prefix: string) {
     const result = (await response.json()) as PairConversionResponse;
 
     if (!PairConversionResponseSchema.safeParse(result).success) {
-        return await message.channel.send(
+        return await interaction.editReply(
             "Something went wrong with the API, maybe try again later"
         );
     }
@@ -391,9 +382,9 @@ export async function convert(message: Message, prefix: string) {
                 console.error(result);
                 msg = "Something went wrong with the API, maybe try again later";
         }
-        return await message.channel.send(msg);
+        return await interaction.editReply(msg);
     }
-    if (!response.ok) return await message.channel.send("Error! Please try again later");
+    if (!response.ok) return await interaction.editReply("Error! Please try again later");
 
     const description = [
         `**${amount} ${currencies[base_currency]} ≈ `,
@@ -411,12 +402,12 @@ export async function convert(message: Message, prefix: string) {
         .setDescription(description)
         .setFooter({ text: `Last updated: ${lastUpdated}` });
 
-    return await message.channel.send({ embeds: [convertEmbed] });
+    return await interaction.editReply({ embeds: [convertEmbed] });
 }
 
 export async function urban(interaction: ChatInputCommandInteraction) {
-    const query = (interaction.options.getString("term", false) || "").toLowerCase();
-    const random = interaction.options.getBoolean("random", false) || false;
+    const query = (interaction.options.getString("term", false) ?? "").toLowerCase();
+    const random = interaction.options.getBoolean("random", false) ?? false;
 
     if (query.length < 1 && !random) {
         return await interaction.reply({
