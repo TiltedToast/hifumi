@@ -1,4 +1,3 @@
-import { DEV_CHANNELS } from "./../config";
 import {
     ButtonInteraction,
     ChatInputCommandInteraction,
@@ -8,7 +7,7 @@ import {
 } from "discord.js";
 import { convert, helpCmd, urban, urbanEmbeds } from "../commands/miscellaneous.js";
 import { sub } from "../commands/reddit.js";
-import { BOT_OWNERS, LOG_CHANNEL, OWNER_NAME } from "../config.js";
+import { BOT_OWNERS, LOG_CHANNEL, OWNER_NAME, DEV_CHANNELS } from "../config.js";
 import { updateEmbed } from "../helpers/utils.js";
 import { client } from "../app.js";
 
