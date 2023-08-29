@@ -85,7 +85,9 @@ export async function insertStatus(message: Message): Promise<undefined | Messag
     statusArr.push(document);
 
     await message.channel.send("Status added!");
-    await message.channel.send(codeBlock("json", JSON.stringify(document, null, 4)));
+    await message.channel.send(
+        codeBlock("json", JSON.stringify({ ...document, id: query.insertId }, null, 4))
+    );
 }
 
 export async function updatePrefix(message: Message) {
