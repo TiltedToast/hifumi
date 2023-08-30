@@ -17,8 +17,7 @@ RUN wget https://www.lcdf.org/gifsicle/gifsicle-${GIFSICLE_VERSION}.tar.gz \
 
 COPY . .
 
-RUN apt-get install -y imagemagick \
-    && pnpm install \
+RUN pnpm install \
     && ./node_modules/.bin/tsc
 
 STOPSIGNAL SIGINT

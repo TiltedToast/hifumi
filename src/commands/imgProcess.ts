@@ -1,6 +1,5 @@
-import canvas from "canvas";
 import type { Message } from "discord.js";
-import { readFileSync, writeFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { toFile } from "qrcode";
 import { prefixMap } from "../app.js";
 import { DEFAULT_PREFIX, DEV_PREFIX } from "../config.js";
@@ -14,6 +13,7 @@ import {
     isValidSize,
     resize,
 } from "../helpers/utils.js";
+import sharp from "sharp";
 
 const { IMGUR_CLIENT_ID } = process.env;
 
@@ -35,22 +35,30 @@ export async function beautiful(message: Message) {
         saveLocation: "./temp/avatar_resized.png",
     });
 
-    // Creates a canvas and adds avatar as well as the background to it
-    const beautifulCanvas = new canvas.Canvas(640, 674);
-    const ctx = beautifulCanvas.getContext("2d");
-    const avatar = await canvas.loadImage("./temp/avatar_resized.png");
-    const background = await canvas.loadImage("./src/assets/beautiful_background.png");
+    const canvas = sharp({
+        create: {
+            width: 640,
+            height: 674,
+            channels: 4, // Assuming RGBA format
+            background: { r: 0, g: 0, b: 0, alpha: 0 }, // Transparent background
+        },
+    });
 
-    // Top pfp
-    ctx.drawImage(avatar, 422, 35);
-    // Bottom pfp
-    ctx.drawImage(avatar, 430, 377);
-    // Background
-    ctx.drawImage(background, 0, 0);
+    const avatar = await sharp("./temp/avatar_resized.png").toBuffer();
+    const background = await sharp("./src/assets/beautiful_background.png").toBuffer();
 
-    // Saves the output buffer to a file and sends it to the channel
-    const buffer = beautifulCanvas.toBuffer("image/png");
-    writeFileSync("./temp/beautiful.png", buffer);
+    canvas.composite([
+        { input: avatar, top: 35, left: 422 }, // Top pfp
+        { input: avatar, top: 377, left: 430 }, // Bottom pfp
+        { input: background, top: 0, left: 0 }, // Background
+    ]);
+
+    const info = await canvas.png().toFile("./temp/beautiful.png").catch(console.error);
+
+    if (!info)
+        return await message.channel.send(
+            "I'm sorry, it seems something went wrong generating the image"
+        );
 
     return await message.channel.send({ files: ["./temp/beautiful.png"] });
 }
