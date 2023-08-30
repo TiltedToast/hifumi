@@ -13,7 +13,6 @@ import {
 } from "discord.js";
 import { evaluate as mathEvaluate } from "mathjs";
 import { exec } from "node:child_process";
-import { writeFileSync } from "node:fs";
 import { promisify } from "node:util";
 import { client, prefixMap } from "../app.js";
 import { BOT_NAME, DEFAULT_PREFIX, DEV_PREFIX, EMBED_COLOUR, OWNER_NAME } from "../config.js";
@@ -78,11 +77,11 @@ export async function wolframALpha(message: Message) {
         return await message.channel.send(`Something went wrong! ${error}`);
     }
 
-    const buffer = await response.arrayBuffer();
+    const buffer = await response.arrayBuffer().catch(console.error);
 
-    writeFileSync("./temp/wolfram.png", Buffer.from(buffer));
+    if (!buffer) return await message.channel.send("Something went wrong!");
 
-    return await message.channel.send({ files: ["./temp/wolfram.png"] });
+    return await message.channel.send({ files: [Buffer.from(buffer)] });
 }
 
 export async function checkForImgAndCreateThread(message: Message) {

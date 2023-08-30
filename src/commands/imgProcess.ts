@@ -1,6 +1,6 @@
 import type { Message } from "discord.js";
 import { readFileSync } from "node:fs";
-import { toFile } from "qrcode";
+import qr from "qrcode";
 import { prefixMap } from "../app.js";
 import { DEFAULT_PREFIX, DEV_PREFIX } from "../config.js";
 import { FileSizeLimit, ImgurResponse, ImgurResponseSchema } from "../helpers/types.js";
@@ -70,12 +70,12 @@ export async function qrCode(message: Message) {
     createTemp();
 
     const qrText = content.slice(1).join(" ");
-    try {
-        await toFile("./temp/qr.png", qrText);
-    } catch (err) {
-        return await message.channel.send("Data too big to fit into a QR code!");
-    }
-    return await message.channel.send({ files: ["./temp/qr.png"] });
+
+    const buf = await qr.toBuffer(qrText).catch(console.error);
+
+    if (!buf) return await message.channel.send("Data too big to fit into a QR code!");
+
+    return await message.channel.send({ files: [buf] });
 }
 
 export async function resizeImg(message: Message) {
