@@ -106,12 +106,6 @@ export const ImgurResponseSchema = z.object({
 
 export type ImgurResponse = z.infer<typeof ImgurResponseSchema>;
 
-export type ImgurParams = {
-    message: Message;
-    prefix: string;
-    url?: string;
-};
-
 export type MessageCommandData = {
     command: string;
     subCmd: string;

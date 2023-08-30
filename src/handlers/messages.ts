@@ -83,7 +83,7 @@ async function handleCommand({ command, subCmd, message, prefix }: MessageComman
     else if (command === "bye") await misc.bye(message);
     else if (command === "beautiful") await imgProcess.beautiful(message);
     else if (command === "resize") await imgProcess.resizeImg(message, prefix);
-    else if (command === "imgur") await imgProcess.imgur({ message, prefix });
+    else if (command === "imgur") await imgProcess.imgur(message, prefix);
     else if (command === "profile") await reddit.profile(message, prefix);
     else if (command === "prefix") await db.updatePrefix(message);
     else if (command === "con") await misc.cmdConsole(message);

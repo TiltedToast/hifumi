@@ -2,12 +2,7 @@ import canvas from "canvas";
 import type { Message } from "discord.js";
 import { readFileSync, writeFileSync } from "node:fs";
 import { toFile } from "qrcode";
-import {
-    FileSizeLimit,
-    ImgurParams,
-    ImgurResponse,
-    ImgurResponseSchema,
-} from "../helpers/types.js";
+import { FileSizeLimit, ImgurResponse, ImgurResponseSchema } from "../helpers/types.js";
 import {
     createTemp,
     downloadURL,
@@ -115,15 +110,13 @@ export async function resizeImg(message: Message, prefix: string) {
     return await message.channel.send({ files: [`./temp/unknown_resized.${imgType}`] });
 }
 
-export async function imgur(args: ImgurParams) {
-    const { message, prefix, url } = args;
+export async function imgur(message: Message, prefix: string) {
     const content = message.content.split(" ");
     if (content.length !== 2 && message.attachments.size === 0) {
         return await message.channel.send(`Usage: \`${prefix}imgur <url>\``);
     }
 
     let source = message.attachments.size > 0 ? message.attachments.first()?.url : content[1];
-    if (url) source = url;
 
     if (!source) return await message.channel.send("Invalid URL!");
 
