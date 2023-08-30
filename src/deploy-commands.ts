@@ -1,6 +1,8 @@
 import { REST, Routes, SlashCommandBuilder } from "discord.js";
 import "dotenv/config";
 
+if (!process.env["BOT_ID"]) throw new Error("You must provide a BOT_ID env variable");
+
 let guildId;
 const clear = process.argv.includes("--clear");
 
@@ -73,7 +75,7 @@ const rest = new REST({ version: "10" }).setToken(process.env.BOT_TOKEN);
 
 try {
     if (guildId) {
-        await rest.put(Routes.applicationGuildCommands(process.env["BOT_ID"] ?? "", guildId), {
+        await rest.put(Routes.applicationGuildCommands(process.env["BOT_ID"], guildId), {
             body: clear ? [] : commands,
         });
         const msg = clear
@@ -81,7 +83,7 @@ try {
             : "Successfully registered all commands in your test guild.";
         console.log(msg);
     } else {
-        await rest.put(Routes.applicationCommands(process.env["BOT_ID"] ?? ""), {
+        await rest.put(Routes.applicationCommands(process.env["BOT_ID"]), {
             body: clear ? [] : commands,
         });
         const msg = clear
