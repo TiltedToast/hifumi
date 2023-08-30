@@ -1,6 +1,6 @@
 import { connect } from "@planetscale/database";
 import "dotenv/config";
-import { eq, placeholder, sql } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/planetscale-serverless";
 import * as schema from "./schema.js";
 import { prefixes, redditPosts } from "./schema.js";
@@ -14,7 +14,7 @@ export const db = drizzle(PSConnection, { logger: DEV_MODE === "true", schema })
 const randomPostQuery = db
     .select()
     .from(redditPosts)
-    .where(eq(redditPosts.subreddit, placeholder("subreddit")))
+    .where(eq(redditPosts.subreddit, sql.placeholder("subreddit")))
     .orderBy(sql`RAND()`)
     .limit(1)
     .prepare();
