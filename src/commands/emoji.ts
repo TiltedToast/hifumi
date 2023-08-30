@@ -10,6 +10,8 @@ import {
 } from "discord.js";
 import Fuse from "fuse.js";
 import { readFileSync } from "node:fs";
+import { client, prefixMap } from "../app.js";
+import { DEFAULT_PREFIX, DEV_PREFIX } from "../config.js";
 import { FileSizeLimit } from "../helpers/types.js";
 import {
     createTemp,
@@ -17,11 +19,11 @@ import {
     extractEmoji,
     getImgType,
     hasPermission,
+    isDev,
     isValidSize,
     resize,
     splitMessage,
 } from "../helpers/utils.js";
-import { client } from "../app.js";
 
 const emojiRegex = new RegExp(/<a?:\w+:\d+>/gi);
 
@@ -49,10 +51,12 @@ export async function linkEmoji(message: Message) {
     return await message.channel.send(output);
 }
 
-export async function addEmoji(message: Message, prefix: string) {
+export async function addEmoji(message: Message) {
     let name = "",
         emoji: GuildEmoji | undefined,
         url = "";
+
+    const prefix = isDev() ? DEV_PREFIX : prefixMap.get(message.guildId ?? "") ?? DEFAULT_PREFIX;
 
     createTemp();
 
@@ -362,12 +366,14 @@ export async function removeEmoji(message: Message): Promise<void> {
     }
 }
 
-export async function renameEmoji(message: Message, prefix: string): Promise<Message> {
+export async function renameEmoji(message: Message): Promise<Message> {
     if (!hasPermission(PermissionFlagsBits.ManageGuildExpressions, message)) {
         return message.channel.send(
             'You need the "Manage Emoji and Stickers" permission to rename emojis!'
         );
     }
+
+    const prefix = isDev() ? DEV_PREFIX : prefixMap.get(message.guildId ?? "") ?? DEFAULT_PREFIX;
 
     try {
         const content = message.content.split(" ");

@@ -49,7 +49,7 @@ export default async function handleMessage(message: Message) {
             await misc.reloadBot(message);
 
         if (lowerCasePrefix === prefix.toLowerCase()) {
-            await handleCommand({ command, subCmd, message, prefix });
+            await handleCommand({ command, subCmd, message });
         }
 
         // Reacting to Miku's emote commands
@@ -63,39 +63,55 @@ export default async function handleMessage(message: Message) {
     }
 }
 
-async function handleCommand({ command, subCmd, message, prefix }: MessageCommandData) {
-    if (command === "emoji") {
-        if (["add", "ad", "create"].includes(subCmd)) {
-            await emoji.addEmoji(message, prefix);
-        } else if (["delete", "delet", "del", "remove", "rm"].includes(subCmd)) {
-            await emoji.removeEmoji(message);
-        } else if (["edit", "e", "rename", "rn"].includes(subCmd)) {
-            await emoji.renameEmoji(message, prefix);
-        } else if (["link"].includes(subCmd)) {
-            await emoji.linkEmoji(message);
-        } else if (["search", "s"].includes(subCmd)) {
-            await emoji.searchEmojis(message);
+type MsgCommandFn = (message: Message) => Promise<unknown>;
+
+type MsgCommandName = `${string}::${string}` | `.${string}`;
+
+// prettier-ignore
+/**
+ * Map of commands and their functions.
+ *
+ * There are two ways to use this map:
+ * 1. The command is a single word, prefixed with a `.`, e.g. ".status"
+ * 2. The command is a combination of two words, e.g. "emoji::add"
+ *
+ * The first word is the command, the second word is the subcommand.
+ * I don't know if this is the best way to do this, but it'll do for now
+ */
+const commands = new Map<MsgCommandName[], MsgCommandFn>([
+    [[".status", ".stat"], db.insertStatus],
+    [[".commands", ".command", ".comm", ".com", ".help"], misc.helpCmd],
+    [[".avatar", ".pfp"], misc.avatar],
+    [[".bye"], misc.bye],
+    [[".beautiful"], imgProcess.beautiful],
+    [[".resize"], imgProcess.resizeImg],
+    [[".imgur"], imgProcess.imgur],
+    [[".profile"], reddit.profile],
+    [[".prefix"], db.updatePrefix],
+    [[".con"], misc.cmdConsole],
+    [[".qr"], imgProcess.qrCode],
+    [[".js"], misc.jsEval],
+    [[".link"], emoji.linkEmoji],
+    [[".leet"], misc.leet],
+    [[".pull"], misc.gitPull],
+    [[".someone"], misc.pingRandomMembers],
+    [[".yoink"], emoji.addEmoji],
+    [[".db"], db.runSQL],
+    [[".wolfram"], misc.wolframALpha],
+    [[".calc", ".math"], misc.calc],
+    [[".py"], misc.py],
+
+    [["emoji::add", "emoji::ad", "emoji::create"], emoji.addEmoji],
+    [["emoji::delete", "emoji::delet", "emoji::del", "emoji::remove", "emoji::rm"], emoji.removeEmoji],
+    [["emoji::edit", "emoji::e", "emoji::rename", "emoji::rn"], emoji.renameEmoji],
+    [["emoji::link"], emoji.linkEmoji],
+    [["emoji::search", "emoji::s"], emoji.searchEmojis],
+]);
+
+async function handleCommand({ command, subCmd, message }: MessageCommandData) {
+    for (const [cmd, fn] of commands) {
+        if (cmd.includes(`${command}::${subCmd}`) || cmd.includes(`.${command}`)) {
+            return await fn(message);
         }
-    } else if (["status", "stat"].includes(command)) await db.insertStatus(message);
-    else if (["commands", "command", "comm", "com", "help"].includes(command))
-        await misc.helpCmd(message, prefix);
-    else if (["avatar", "pfp"].includes(command)) await misc.avatar(message);
-    else if (command === "bye") await misc.bye(message);
-    else if (command === "beautiful") await imgProcess.beautiful(message);
-    else if (command === "resize") await imgProcess.resizeImg(message, prefix);
-    else if (command === "imgur") await imgProcess.imgur(message, prefix);
-    else if (command === "profile") await reddit.profile(message, prefix);
-    else if (command === "prefix") await db.updatePrefix(message);
-    else if (command === "con") await misc.cmdConsole(message);
-    else if (command === "qr") await imgProcess.qrCode(message);
-    else if (command === "js") await misc.jsEval(message);
-    else if (command === "link") await emoji.linkEmoji(message);
-    else if (command === "leet") await misc.leet(message);
-    else if (command === "pull") await misc.gitPull(message);
-    else if (["calc", "math"].includes(command)) await misc.jsEval(message, "math");
-    else if (command === "py") await misc.cmdConsole(message, undefined, true);
-    else if (command === "someone") await misc.pingRandomMembers(message);
-    else if (command === "yoink") await emoji.addEmoji(message, prefix);
-    else if (command === "db") await db.runSQL(message);
-    else if (command === "wolfram") await misc.wolframALpha(message);
+    }
 }

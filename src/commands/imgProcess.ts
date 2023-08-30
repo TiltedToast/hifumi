@@ -2,12 +2,15 @@ import canvas from "canvas";
 import type { Message } from "discord.js";
 import { readFileSync, writeFileSync } from "node:fs";
 import { toFile } from "qrcode";
+import { prefixMap } from "../app.js";
+import { DEFAULT_PREFIX, DEV_PREFIX } from "../config.js";
 import { FileSizeLimit, ImgurResponse, ImgurResponseSchema } from "../helpers/types.js";
 import {
     createTemp,
     downloadURL,
     getImgType,
     getUserObjectPingId,
+    isDev,
     isValidSize,
     resize,
 } from "../helpers/utils.js";
@@ -67,9 +70,11 @@ export async function qrCode(message: Message) {
     return await message.channel.send({ files: ["./temp/qr.png"] });
 }
 
-export async function resizeImg(message: Message, prefix: string) {
+export async function resizeImg(message: Message) {
     createTemp();
     const content = message.content.split(" ");
+
+    const prefix = isDev() ? DEV_PREFIX : prefixMap.get(message.guildId ?? "") ?? DEFAULT_PREFIX;
 
     // Checks for invalid User input
     if (content.length !== 3 && message.attachments.size === 0) {
@@ -110,8 +115,11 @@ export async function resizeImg(message: Message, prefix: string) {
     return await message.channel.send({ files: [`./temp/unknown_resized.${imgType}`] });
 }
 
-export async function imgur(message: Message, prefix: string) {
+export async function imgur(message: Message) {
     const content = message.content.split(" ");
+
+    const prefix = isDev() ? DEV_PREFIX : prefixMap.get(message.guildId ?? "") ?? DEFAULT_PREFIX;
+
     if (content.length !== 2 && message.attachments.size === 0) {
         return await message.channel.send(`Usage: \`${prefix}imgur <url>\``);
     }
@@ -127,9 +135,7 @@ export async function imgur(message: Message, prefix: string) {
     if (!isValidURL) return await message.channel.send("Invalid source url!");
 
     // Imgur API doesn't support webp images
-    if (source.includes(".webp")) {
-        source = source.replace(".webp", ".png");
-    }
+    if (source.includes(".webp")) source = source.replace(".webp", ".png");
 
     createTemp();
 

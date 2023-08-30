@@ -2,11 +2,12 @@ import { ChatInputCommandInteraction, EmbedBuilder, Message, TextChannel } from 
 import Snoowrap from "snoowrap";
 import type { Timespan } from "snoowrap/dist/objects/Subreddit";
 import strftime from "strftime";
-import { EMBED_COLOUR } from "../config.js";
+import { prefixMap } from "../app.js";
+import { DEFAULT_PREFIX, DEV_PREFIX, EMBED_COLOUR } from "../config.js";
 import { db, getRandomRedditPosts } from "../db/index.js";
 import { redditPosts } from "../db/schema.js";
-import { randomElementFromArray } from "../helpers/utils.js";
 import { InsertRedditPostSchema, NewRedditPost, RedditPost } from "../db/types.js";
+import { isDev, randomElementFromArray } from "../helpers/utils.js";
 
 const { REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET, REDDIT_REFRESH_TOKEN } = process.env;
 
@@ -17,8 +18,10 @@ const RedditClient = new Snoowrap({
     refreshToken: REDDIT_REFRESH_TOKEN,
 });
 
-export async function profile(message: Message, prefix: string): Promise<Message> {
+export async function profile(message: Message): Promise<Message> {
     const content = message.content.split(" ");
+
+    const prefix = isDev() ? DEV_PREFIX : prefixMap.get(message.guildId ?? "") ?? DEFAULT_PREFIX;
 
     if (content.length !== 2) return message.channel.send(`Usage: \`${prefix}profile <username>\``);
 

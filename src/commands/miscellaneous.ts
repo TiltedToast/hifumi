@@ -16,7 +16,7 @@ import { exec } from "node:child_process";
 import { writeFileSync } from "node:fs";
 import { promisify } from "node:util";
 import { client, prefixMap } from "../app.js";
-import { BOT_NAME, DEFAULT_PREFIX, EMBED_COLOUR, OWNER_NAME } from "../config.js";
+import { BOT_NAME, DEFAULT_PREFIX, DEV_PREFIX, EMBED_COLOUR, OWNER_NAME } from "../config.js";
 import { db } from "../db/index.js";
 import {
     helpMessages,
@@ -39,6 +39,7 @@ import {
     getUserObjectPingId,
     hasPermission,
     isBotOwner,
+    isDev,
     randomElementFromArray,
     sendOrReply,
     setEmbedArr,
@@ -179,7 +180,7 @@ export async function leet(message: Message) {
     await message.channel.send(leetOutput.substring(0, 2000));
 }
 
-export async function helpCmd(input: Message | CommandInteraction, prefix?: string) {
+export async function helpCmd(input: Message | CommandInteraction) {
     const helpMsgArray = await db.select().from(helpMessages).execute();
 
     if (helpMsgArray.length === 0) {
@@ -189,7 +190,7 @@ export async function helpCmd(input: Message | CommandInteraction, prefix?: stri
         );
     }
 
-    if (!prefix) prefix = prefixMap.get(input.guildId ?? "") ?? DEFAULT_PREFIX;
+    const prefix = isDev() ? DEV_PREFIX : prefixMap.get(input.guildId ?? "") ?? DEFAULT_PREFIX;
 
     const helpMsg = helpMsgArray
         .map((msg) => `**${prefix ?? DEFAULT_PREFIX}${msg.cmd}** - ${msg.desc}`)
@@ -207,6 +208,10 @@ export async function gitPull(message: Message) {
     if (!isBotOwner(message.author)) return;
     await cmdConsole(message, "git pull");
     await reloadBot(message);
+}
+
+export async function py(message: Message) {
+    return await cmdConsole(message, undefined, true);
 }
 
 export async function cmdConsole(message: Message, cmd?: string, python = false) {
@@ -239,6 +244,10 @@ export async function reloadBot(message: Message) {
     writeUpdateFile();
     exec("pnpm run restart");
     await message.channel.send("Reload successful!");
+}
+
+export async function calc(message: Message) {
+    return await jsEval(message, "math");
 }
 
 export async function jsEval(message: Message, mode?: "math") {

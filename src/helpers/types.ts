@@ -110,7 +110,6 @@ export type MessageCommandData = {
     command: string;
     subCmd: string;
     message: Message;
-    prefix: string;
 };
 
 export type ResizeOptions = {
