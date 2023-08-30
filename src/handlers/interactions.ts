@@ -5,11 +5,11 @@ import {
     codeBlock,
     userMention,
 } from "discord.js";
-import { convert, helpCmd, urban, urbanEmbeds } from "../commands/miscellaneous.js";
-import { sub } from "../commands/reddit.js";
-import { BOT_OWNERS, LOG_CHANNEL, OWNER_NAME, DEV_CHANNELS } from "../config.js";
-import { updateEmbed } from "../helpers/utils.js";
 import { client } from "../app.js";
+import { convert, helpCmd, patUser, urban, urbanEmbeds } from "../commands/miscellaneous.js";
+import { sub } from "../commands/reddit.js";
+import { BOT_OWNERS, DEV_CHANNELS, LOG_CHANNEL, OWNER_NAME } from "../config.js";
+import { updateEmbed } from "../helpers/utils.js";
 
 export default async function handleInteraction(interaction: Interaction) {
     try {
@@ -56,16 +56,16 @@ async function handleButtonInteraction(interaction: ButtonInteraction) {
     }
 }
 
+type ChatInputCommandFn = (interaction: ChatInputCommandInteraction) => Promise<unknown>;
+
+const commands = new Map<string, ChatInputCommandFn>([
+    ["pat", patUser],
+    ["help", helpCmd],
+    ["sub", sub],
+    ["urban", urban],
+    ["convert", convert],
+]);
+
 async function handleCommandInteraction(interaction: ChatInputCommandInteraction) {
-    if (interaction.commandName === "pat") {
-        await interaction.reply(`$pat ${interaction.options.getUser("user", true).toString()}`);
-    } else if (interaction.commandName === "help") {
-        await helpCmd(interaction);
-    } else if (interaction.commandName === "sub") {
-        await sub(interaction);
-    } else if (interaction.commandName === "urban") {
-        await urban(interaction);
-    } else if (interaction.commandName === "convert") {
-        await convert(interaction);
-    }
+    return await commands.get(interaction.commandName)?.(interaction);
 }

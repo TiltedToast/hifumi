@@ -51,6 +51,10 @@ const { WOLFRAM_ALPHA_APP_ID, EXCHANGE_API_KEY } = process.env;
 export const execPromise = promisify(exec);
 export const urbanEmbeds: EmbedMetadata[] = [];
 
+export async function patUser(interaction: ChatInputCommandInteraction) {
+    return await interaction.reply(`$pat ${interaction.options.getUser("user", true).toString()}`);
+}
+
 export async function wolframALpha(message: Message) {
     if (!isBotOwner(message.author)) return;
     const query = message.content.split(" ").slice(1).join(" ");
