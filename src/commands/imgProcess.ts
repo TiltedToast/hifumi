@@ -53,14 +53,14 @@ export async function beautiful(message: Message) {
         { input: background, top: 0, left: 0 }, // Background
     ]);
 
-    const info = await canvas.png().toFile("./temp/beautiful.png").catch(console.error);
+    const imgBuf = await canvas.png().toBuffer().catch(console.error);
 
-    if (!info)
+    if (!imgBuf)
         return await message.channel.send(
             "I'm sorry, it seems something went wrong generating the image"
         );
 
-    return await message.channel.send({ files: ["./temp/beautiful.png"] });
+    return await message.channel.send({ files: [imgBuf] });
 }
 
 export async function qrCode(message: Message) {
