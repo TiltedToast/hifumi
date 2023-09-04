@@ -321,18 +321,16 @@ async function bulkAddEmojis(message: Message, emojis: RegExpMatchArray) {
     return output;
 }
 
-export async function removeEmoji(message: Message): Promise<void> {
+export async function removeEmoji(message: Message) {
     if (!hasPermission(PermissionFlagsBits.ManageGuildExpressions, message)) {
-        await message.channel.send(
+        return await message.channel.send(
             'You need the "Manage Emoji and Stickers" permission to remove emojis'
         );
-        return;
     }
 
     const emojiStrings = message.content.match(emojiRegex);
     if (!emojiStrings || emojiStrings.length === 0) {
-        await message.channel.send(`You need to provide at least one emoji to remove`);
-        return;
+        return await message.channel.send(`You need to provide at least one emoji to remove`);
     }
 
     const emojiIds = emojiStrings.map((emoji) => extractEmoji(emoji, true));
@@ -400,19 +398,17 @@ export async function renameEmoji(message: Message): Promise<Message> {
     }
 }
 
-export async function searchEmojis(message: Message): Promise<void> {
+export async function searchEmojis(message: Message) {
     const content = message.content.split(" ");
     if (content.length <= 2) {
-        await message.channel.send("Please provide a search term!");
-        return;
+        return await message.channel.send("Please provide a search term!");
     }
 
     const searchTerm = content[2].toLowerCase();
     const emojis = await message.guild?.emojis.fetch();
 
     if (!emojis) {
-        await message.channel.send("You need to be in a server to use this command!");
-        return;
+        return await message.channel.send("You need to be in a server to use this command!");
     }
 
     const emojiStrings = Array.from(emojis.map((x) => x.toString()));
@@ -425,8 +421,7 @@ export async function searchEmojis(message: Message): Promise<void> {
     const matchedEmojis = fuse.search(searchTerm).map((x) => x.item);
 
     if (matchedEmojis.length === 0) {
-        await message.channel.send("No matching emojis found!");
-        return;
+        return await message.channel.send("No matching emojis found!");
     }
 
     const outputString = matchedEmojis.join(" ");
