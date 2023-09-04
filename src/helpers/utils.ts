@@ -29,6 +29,29 @@ import sharp from "sharp";
 import { execPromise } from "../commands/miscellaneous.js";
 
 /**
+ * Takes an unknown value and returns a string representation of it
+ *
+ * The reason this exists is because I need to deal with some weird edge cases
+ *
+ * @example
+ * toStringEx(undefined) // "undefined"
+ * toStringEx(null) // "null"
+ * toStringEx(1) // "1"
+ * toStringEx("Hello") // "Hello"
+ * toStringEx(NaN) // "NaN"
+ * toStringEx({ name: "Tim" }) // '{ name: "Tim" }'
+ *
+ * @param value The value you want to convert to a string
+ * @returns A string representation of the value
+ */
+export function toStringEx(value: unknown): string {
+    if (value === undefined) return "undefined";
+    if (value === null) return "null";
+    if (Number.isNaN(value)) return "NaN";
+    return JSON.stringify(value);
+}
+
+/**
  * Send a message if the input is a message, or reply if the input is a command interaction
  * @param input Message or CommandInteraction
  * @param message Whatever you want to send or reply with

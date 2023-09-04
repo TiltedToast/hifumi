@@ -35,10 +35,9 @@ export default async function handleMessage(message: Message) {
 
         // Gets the prefix from the map and compares to the message's beginning
         // This way the prefix can be case insensitive
-        let prefix = DEFAULT_PREFIX;
-        if (message.guild) prefix = prefixMap.get(message.guild.id) ?? DEFAULT_PREFIX;
-
-        if (isDev()) prefix = DEV_PREFIX;
+        const prefix = isDev()
+            ? DEV_PREFIX
+            : prefixMap.get(message.guild?.id ?? "") ?? DEFAULT_PREFIX;
 
         const command = content[0].slice(prefix.length).toLowerCase();
         const lowerCasePrefix = content[0].substring(0, prefix.length).toLowerCase();
@@ -72,8 +71,8 @@ type MsgCommandName = `${string}::${string}` | `.${string}`;
  * Map of commands and their functions.
  *
  * There are two ways to use this map:
- * 1. The command is a single word, prefixed with a `.`, e.g. ".status"
- * 2. The command is a combination of two words, e.g. "emoji::add"
+ * 1. The command is a single word, prefixed with a `.`, e.g. `".status"`
+ * 2. The command is a combination of two words, e.g. `"emoji::add"`
  *
  * The first word is the command, the second word is the subcommand.
  * I don't know if this is the best way to do this, but it'll do for now

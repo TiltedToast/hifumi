@@ -43,6 +43,7 @@ import {
     sendOrReply,
     setEmbedArr,
     sleep,
+    toStringEx,
     writeUpdateFile,
 } from "../helpers/utils.js";
 
@@ -275,7 +276,7 @@ export async function jsEval(message: Message, mode?: "math") {
     if (typeof rslt === "object") rslt = codeBlock("js", JSON.stringify(rslt, null, 4));
     if (rslt === "") return await message.channel.send("Cannot send an empty message!");
 
-    const resultString = rslt.toString();
+    const resultString = toStringEx(rslt);
 
     if (resultString === "" || resultString.length > 2000)
         return await message.channel.send("Invalid message length for discord!");
