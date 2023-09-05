@@ -15,7 +15,7 @@ export async function runSQL(message: Message) {
     if (query.length === 0) return await message.channel.send("You need to provide a query smh");
 
     const result = await PSConnection.execute(query)
-        .then((res) => res.rows)
+        .then((res) => (query.startsWith("select") ? res.rows : res))
         .catch(async (e) => {
             if (e instanceof DatabaseError) {
                 await message.channel.send(`Invalid Query\n${e.message}`);
@@ -26,7 +26,9 @@ export async function runSQL(message: Message) {
         });
 
     if (!result) return;
-    const stringified = JSON.stringify(result);
+    const stringified = query.startsWith("select")
+        ? JSON.stringify(result)
+        : JSON.stringify(result, null, 4);
 
     if (stringified.length > 2000) {
         console.error(stringified);
