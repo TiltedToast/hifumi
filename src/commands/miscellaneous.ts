@@ -275,14 +275,7 @@ export async function jsEval(message: Message, mode?: "math") {
     if (typeof rslt === "object") rslt = codeBlock("js", JSON.stringify(rslt, null, 2));
     if (rslt === "") return await message.channel.send("Cannot send an empty message!");
 
-    const resultString =
-        rslt === undefined
-            ? "undefined"
-            : rslt === null
-            ? "null"
-            : Number.isNaN(rslt)
-            ? "NaN"
-            : rslt.toString();
+    const resultString = String(rslt);
 
     if (resultString === "" || resultString.length > 2000)
         return await message.channel.send("Invalid message length for discord!");
