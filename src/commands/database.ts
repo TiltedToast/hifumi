@@ -26,9 +26,13 @@ export async function runSQL(message: Message) {
         });
 
     if (!result) return;
-    const stringified = query.startsWith("select")
-        ? JSON.stringify(result)
-        : JSON.stringify(result, null, 4);
+    let stringified = JSON.stringify(result, null, 4);
+
+    // Prefer indented JSON over an ugly single line
+    // unless it's too long
+    if (stringified.length > 2000) {
+        stringified = JSON.stringify(result);
+    }
 
     if (stringified.length > 2000) {
         console.error(stringified);
