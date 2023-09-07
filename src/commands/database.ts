@@ -15,7 +15,7 @@ export async function runSQL(message: Message) {
     if (query.length === 0) return await message.channel.send("You need to provide a query smh");
 
     const result = await PSConnection.execute(query)
-        .then((res) => (query.startsWith("select") ? res.rows : res))
+        .then((res) => res)
         .catch(async (e) => {
             if (e instanceof DatabaseError) {
                 await message.channel.send(`Invalid Query\n${e.message}`);
@@ -26,7 +26,7 @@ export async function runSQL(message: Message) {
         });
 
     if (!result) return;
-    let stringified = JSON.stringify(result, null, 4);
+    let stringified = JSON.stringify(result, null, 2);
 
     // Prefer indented JSON over an ugly single line
     // unless it's too long

@@ -272,7 +272,7 @@ export async function jsEval(message: Message, mode?: "math") {
         return await message.channel.send(codeBlock(error as string));
     }
 
-    if (typeof rslt === "object") rslt = codeBlock("js", JSON.stringify(rslt, null, 4));
+    if (typeof rslt === "object") rslt = codeBlock("js", JSON.stringify(rslt, null, 2));
     if (rslt === "") return await message.channel.send("Cannot send an empty message!");
 
     const resultString =
