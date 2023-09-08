@@ -1,5 +1,5 @@
 import { ChatInputCommandInteraction, EmbedBuilder, Message, TextChannel } from "discord.js";
-import Snoowrap from "snoowrap";
+import Snoowrap, { Subreddit } from "snoowrap";
 import type { Timespan } from "snoowrap/dist/objects/Subreddit";
 import strftime from "strftime";
 import { prefixMap } from "../app.js";
@@ -67,16 +67,20 @@ export async function sub(interaction: ChatInputCommandInteraction) {
     // Check if the subreddit exists
     const response = await fetch(`https://www.reddit.com/r/${subreddit}/about.json`);
 
-    let data: Record<string, string>;
+    let data: { data: Subreddit; reason?: string };
 
     try {
-        data = (await response.json()) as Record<string, string>;
+        data = (await response.json()) as { data: Subreddit; reason?: string };
     } catch (_) {
         return await interaction.editReply(`Reddit's API might be having issues, try again later`);
     }
 
+    if (!isNSFW && data.data.over18) {
+        return await interaction.editReply("You have to be in a NSFW channel for this");
+    }
+
     if ("reason" in data)
-        return await interaction.editReply(`Subreddit not found! Reason: ${data["reason"]}`);
+        return await interaction.editReply(`Subreddit not found! Reason: ${data.reason}`);
 
     if (response.status === 404) return await interaction.editReply(`Subreddit not found`);
 
