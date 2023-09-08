@@ -16,6 +16,7 @@ import type { Status } from "./db/types.js";
 import handleInteraction from "./handlers/interactions.js";
 import handleMessage from "./handlers/messages.js";
 import { isDev } from "./helpers/utils.js";
+import dedent from "dedent";
 
 const startTime = Date.now();
 
@@ -48,12 +49,12 @@ client.once("ready", async () => {
     console.log("------------------");
 
     // Puts all statuses into an array to avoid reading the database on every status change
-    statusArr = await db.select().from(statuses).execute();
+    statusArr = await db.select().from(statuses);
 
     if (statusArr.length) startStatusLoop(client).catch(console.error);
     avoidDbSleeping().catch(console.error);
 
-    for (const prefixDoc of await db.select().from(prefixes).execute()) {
+    for (const prefixDoc of await db.select().from(prefixes)) {
         prefixMap.set(prefixDoc.serverId, prefixDoc.prefix);
     }
     botIsLoading = false;
@@ -65,9 +66,12 @@ client.once("ready", async () => {
     if (isDev()) return;
     if (existsSync("./temp/update.txt")) return rmSync("./temp/update.txt");
 
-    await logChannel.send(
-        `Logged in as:\n${client.user.username}\nTime: ${time}\n--------------------------`
-    );
+    await logChannel.send(dedent`
+        Logged in as:
+        ${client.user.username}
+        Time: ${time}
+        --------------------------
+        `);
 });
 
 client.on("messageCreate", handleMessage);

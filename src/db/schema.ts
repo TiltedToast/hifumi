@@ -9,7 +9,7 @@ import {
     timestamp,
     uniqueIndex,
     varchar,
-} from "drizzle-orm/mysql-core/index.mjs";
+} from "drizzle-orm/mysql-core";
 
 export const errorLogs = mysqlTable("error_logs", {
     id: int("id").autoincrement().primaryKey(),
