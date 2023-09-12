@@ -11,7 +11,7 @@ import {
     ThreadAutoArchiveDuration,
     codeBlock,
 } from "discord.js";
-import { evaluate as mathEvaluate } from "mathjs";
+import { all, create } from "mathjs";
 import { exec } from "node:child_process";
 import { promisify } from "node:util";
 import { client, prefixMap } from "../app.js";
@@ -50,6 +50,26 @@ const { WOLFRAM_ALPHA_APP_ID, EXCHANGE_API_KEY } = process.env;
 
 export const execPromise = promisify(exec);
 export const urbanEmbeds: EmbedMetadata[] = [];
+const math = create(all);
+
+// eslint-disable-next-line @typescript-eslint/unbound-method
+const mathEvaluate = math.evaluate;
+
+// prettier-ignore
+/**
+ * Disables all the functions that could be used to do malicious stuff
+ */
+math.import(
+    {
+        import:     () => { throw new Error("Function import is disabled") },
+        createUnit: () => { throw new Error("Function createUnit is disabled") },
+        evaluate:   () => { throw new Error("Function evaluate is disabled") },
+        parse:      () => { throw new Error("Function parse is disabled") },
+        simplify:   () => { throw new Error("Function simplify is disabled") },
+        derivative: () => { throw new Error("Function derivative is disabled") },
+    },
+    { override: true }
+);
 
 export async function patUser(interaction: ChatInputCommandInteraction) {
     return await interaction.reply(`$pat ${interaction.options.getUser("user", true).toString()}`);
@@ -250,7 +270,7 @@ export async function calc(message: Message) {
 }
 
 export async function jsEval(message: Message, mode?: "math") {
-    if (!isBotOwner(message.author)) return;
+    if (!isBotOwner(message.author) && !mode) return;
     let rslt: string;
 
     // This is to be able to use all the functions inside the below eval function
