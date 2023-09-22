@@ -31,7 +31,7 @@ export async function runSQL(message: Message) {
     // Prefer indented JSON over an ugly single line
     // unless it's too long
     if (stringified.length > 2000) {
-        stringified = JSON.stringify(result);
+        stringified = JSON.stringify(result.rows);
     }
 
     if (stringified.length > 2000) {
