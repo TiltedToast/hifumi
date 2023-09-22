@@ -110,7 +110,7 @@ export async function checkForImgAndCreateThread(message: Message) {
     }
 
     if (
-        !hasPermission(PermissionFlagsBits.ManageMessages, message) &&
+        !hasPermission(message.member, PermissionFlagsBits.ManageMessages) &&
         message.attachments.size === 0
     ) {
         return await message.delete();
@@ -130,7 +130,7 @@ export async function pingRandomMembers(message: Message) {
 
     if (
         !isBotOwner(message.author) &&
-        !hasPermission(PermissionFlagsBits.MentionEveryone, message)
+        !hasPermission(message.member, PermissionFlagsBits.MentionEveryone)
     ) {
         return;
     }

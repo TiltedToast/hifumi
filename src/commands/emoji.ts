@@ -60,9 +60,10 @@ export async function addEmoji(message: Message) {
 
     createTemp();
 
-    if (!hasPermission(PermissionFlagsBits.ManageGuildExpressions, message)) {
+    // They haven't added "Create Expressions" permission (1 << 43) to the enum yet, hence the magic number
+    if (!hasPermission(message.member, 8796093022208n)) {
         return await message.channel.send(
-            'You need the "Manage Emoji and Stickers" permission to add emojis!'
+            'You need the "Create Expressions" permission to add emojis!'
         );
     }
     const content = message.content.split(" ");
@@ -202,12 +203,11 @@ export async function addEmoji(message: Message) {
         return await handleCreateError(error, message, name);
     }
 
+    const emojiPrefix = emoji?.animated ? "a" : "";
+    const emojiName = `<${emojiPrefix}:${emoji?.name ?? "NameNotFound"}:${emoji?.id}>`;
+
     // Sends newly created emoji to the channel
-    if (emoji.animated) {
-        return await message.channel.send(`<a:${emoji.name ?? "NameNotFound"}:${emoji.id}>`);
-    } else {
-        return await message.channel.send(`<:${emoji.name ?? "NameNotFound"}:${emoji.id}>`);
-    }
+    return await message.channel.send(emojiName);
 }
 
 async function handleCreateError(error: unknown, message: Message, name: string) {
@@ -322,9 +322,9 @@ async function bulkAddEmojis(message: Message, emojis: RegExpMatchArray) {
 }
 
 export async function removeEmoji(message: Message) {
-    if (!hasPermission(PermissionFlagsBits.ManageGuildExpressions, message)) {
+    if (!hasPermission(message.member, PermissionFlagsBits.ManageGuildExpressions)) {
         return await message.channel.send(
-            'You need the "Manage Emoji and Stickers" permission to remove emojis'
+            'You need the "Manage Expressions" permission to remove emojis'
         );
     }
 
@@ -365,9 +365,9 @@ export async function removeEmoji(message: Message) {
 }
 
 export async function renameEmoji(message: Message): Promise<Message> {
-    if (!hasPermission(PermissionFlagsBits.ManageGuildExpressions, message)) {
+    if (!hasPermission(message.member, PermissionFlagsBits.ManageGuildExpressions)) {
         return message.channel.send(
-            'You need the "Manage Emoji and Stickers" permission to rename emojis!'
+            'You need the "Manage Expressions" permission to rename emojis!'
         );
     }
 

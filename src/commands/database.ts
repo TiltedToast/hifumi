@@ -98,7 +98,7 @@ export async function insertStatus(message: Message): Promise<undefined | Messag
 
 export async function updatePrefix(message: Message) {
     if (
-        !hasPermission(PermissionFlagsBits.KickMembers, message) &&
+        !hasPermission(message.member, PermissionFlagsBits.ManageGuild) &&
         !BOT_OWNERS.includes(message.author.id)
     ) {
         return message.channel.send("Insufficient permissions!");
