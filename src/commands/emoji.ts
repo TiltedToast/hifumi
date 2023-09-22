@@ -252,6 +252,7 @@ async function addStickers(message: Message) {
             await message.channel.send(
                 `\`${name}\` is a Lottie sticker. I cannot add those yet unfortunately`
             );
+            continue;
         }
         try {
             const newSticker = await message.guild.stickers.create({
