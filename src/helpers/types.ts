@@ -47,32 +47,45 @@ export type EmbedMetadata = {
     user: string;
 };
 
-export const SupportedCodesSchema = z.object({
-    result: z.enum(["success", "error"]),
-    "error-type": z.enum(["invalid-key", "inactive-account", "quota-reached"]).optional(),
+const SuccessfulSupportedCodesSchema = z.object({
+    result: z.literal("success"),
     supported_codes: z.array(z.tuple([z.string(), z.string()])),
 });
 
+const FailedSupportedCodesSchema = z.object({
+    result: z.literal("error"),
+    "error-type": z.enum(["invalid-key", "inactive-account", "quota-reached"]),
+});
+
+export const SupportedCodesSchema = z.union([
+    SuccessfulSupportedCodesSchema,
+    FailedSupportedCodesSchema,
+]);
+
 export type SupportedCodesResponse = z.infer<typeof SupportedCodesSchema>;
 
-export const PairConversionResponseSchema = z.object({
-    result: z.enum(["success", "error"]),
-    base_code: z.string().optional(),
-    target_code: z.string().optional(),
-    conversion_rate: z.number().optional(),
-    conversion_result: z.number().optional(),
-    time_last_update_unix: z.number().optional(),
-    time_last_update_utc: z.string().optional(),
-    "error-type": z
-        .enum([
-            "unsupported-code",
-            "malformed-request",
-            "invalid-key",
-            "inactive-account",
-            "quota-reached",
-        ])
-        .optional(),
+const SuccessfulPairConversionSchema = z.object({
+    result: z.literal("success"),
+    time_last_update_utc: z.string(),
+    conversion_rate: z.number(),
+    conversion_result: z.number(),
 });
+
+const FailedPairConversionSchema = z.object({
+    result: z.literal("error"),
+    "error-type": z.enum([
+        "unsupported-code",
+        "malformed-request",
+        "invalid-key",
+        "inactive-account",
+        "quota-reached",
+    ]),
+});
+
+export const PairConversionResponseSchema = z.union([
+    SuccessfulPairConversionSchema,
+    FailedPairConversionSchema,
+]);
 
 export type PairConversionResponse = z.infer<typeof PairConversionResponseSchema>;
 
