@@ -14,7 +14,9 @@ import { updateEmbed } from "../helpers/utils.js";
 export default async function handleInteraction(interaction: Interaction) {
     try {
         if (interaction.isButton()) await handleButtonInteraction(interaction);
-        if (interaction.isChatInputCommand()) await handleCommandInteraction(interaction);
+        if (interaction.isChatInputCommand()) {
+            await handleCommandInteraction(interaction, interaction.options.getSubcommand(false));
+        }
     } catch (error) {
         console.error(error);
 
@@ -57,15 +59,36 @@ async function handleButtonInteraction(interaction: ButtonInteraction) {
 }
 
 type ChatInputCommandFn = (interaction: ChatInputCommandInteraction) => Promise<unknown>;
+type ChatInputCommandName = `${string}::${string}` | `.${string}`;
 
-const commands = new Map<string, ChatInputCommandFn>([
-    ["pat", patUser],
-    ["help", helpCmd],
-    ["sub", sub],
-    ["urban", urban],
-    ["convert", convert],
+/**
+ * Map of commands and their functions.
+ *
+ * There are two ways to use this map:
+ * 1. The command is a single word, prefixed with a `.`, e.g. `".pat"`
+ * 2. The command is a combination of two words, e.g. `"emoji::add"`
+ *
+ * The first word is the command, the second word is the subcommand.
+ * I don't know if this is the best way to do this, but it'll do for now
+ */
+const commands = new Map<ChatInputCommandName, ChatInputCommandFn>([
+    [".pat", patUser],
+    [".help", helpCmd],
+    [".sub", sub],
+    [".urban", urban],
+    [".convert", convert],
 ]);
 
-async function handleCommandInteraction(interaction: ChatInputCommandInteraction) {
-    return await commands.get(interaction.commandName)?.(interaction);
+async function handleCommandInteraction(
+    interaction: ChatInputCommandInteraction,
+    subcommand: string | null
+) {
+    for (const [cmd, fn] of commands) {
+        if (
+            cmd.includes(`${interaction.commandName}::${subcommand ?? ""}`) ||
+            cmd.includes(`.${interaction.commandName}`)
+        ) {
+            return await fn(interaction);
+        }
+    }
 }
