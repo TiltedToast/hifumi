@@ -38,7 +38,7 @@
         "typescript": "^5.2.2"
     },
     "scripts": {
-        "start": "tsc && pm2 start ./dist/app.js --name hifumi --time --interpreter=/home/ubuntu/.volta/bin/node",
+        "start": "tsc && pm2 start ./dist/app.js --name hifumi --time",
         "stop": "pm2 delete hifumi",
         "restart": "tsc && pm2 reload hifumi",
         "fmt:check": "prettier --config .prettierrc --check .",
