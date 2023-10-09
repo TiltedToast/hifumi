@@ -33,7 +33,7 @@ export async function runSQL(message: Message) {
     // Prefer indented JSON over an ugly single line
     // unless it's too long
     if (stringified.length > 2000) {
-        stringified = JSON.stringify(result.rows);
+        stringified = query.startsWith("select") ? JSON.stringify(result.rows) : result.statement;
     }
 
     if (stringified.length > 2000) {
