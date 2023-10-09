@@ -1,6 +1,7 @@
 import type { Message } from "discord.js";
 import { readFileSync } from "node:fs";
 import qr from "qrcode";
+import sharp from "sharp";
 import { prefixMap } from "../app.js";
 import { DEFAULT_PREFIX, DEV_PREFIX } from "../config.js";
 import { FileSizeLimit, ImgurResponse, ImgurResponseSchema } from "../helpers/types.js";
@@ -13,7 +14,6 @@ import {
     isValidSize,
     resize,
 } from "../helpers/utils.js";
-import sharp from "sharp";
 
 const { IMGUR_CLIENT_ID } = process.env;
 

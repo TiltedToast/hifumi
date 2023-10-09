@@ -13,8 +13,10 @@ import {
 } from "discord.js";
 import { existsSync, mkdirSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
+import sharp from "sharp";
 import strftime from "strftime";
 import { client } from "../app.js";
+import { execPromise } from "../commands/miscellaneous.js";
 import { BOT_OWNERS, DEV_CHANNELS, LOG_CHANNEL } from "../config.js";
 import { db } from "../db/index.js";
 import { errorLogs } from "../db/schema.js";
@@ -25,8 +27,6 @@ import type {
     UpdateEmbedArrParams,
     UpdateEmbedOptions,
 } from "./types.js";
-import sharp from "sharp";
-import { execPromise } from "../commands/miscellaneous.js";
 
 /**
  * Send a message if the input is a message, or reply if the input is a command interaction

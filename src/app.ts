@@ -1,3 +1,4 @@
+import dedent from "dedent";
 import {
     Client as DiscordClient,
     GatewayIntentBits,
@@ -16,7 +17,6 @@ import type { Status } from "./db/types.js";
 import handleInteraction from "./handlers/interactions.js";
 import handleMessage from "./handlers/messages.js";
 import { isDev } from "./helpers/utils.js";
-import dedent from "dedent";
 
 const startTime = Date.now();
 

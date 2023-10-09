@@ -1,11 +1,11 @@
 import { DatabaseError } from "@planetscale/database";
 import { Message, PermissionFlagsBits, codeBlock } from "discord.js";
+import { fromZodError } from "zod-validation-error";
 import { prefixMap, statusArr } from "../app.js";
 import { BOT_OWNERS } from "../config.js";
 import { PSConnection, db, updatePrefix as updatePrefixDB } from "../db/index.js";
 import { statuses } from "../db/schema.js";
 import { InsertStatusSchema, Status } from "../db/types.js";
-import { fromZodError } from "zod-validation-error";
 import { hasPermission, isBotOwner, isDev } from "../helpers/utils.js";
 
 export async function runSQL(message: Message) {
@@ -26,7 +26,9 @@ export async function runSQL(message: Message) {
         });
 
     if (!result) return;
-    let stringified = JSON.stringify(result, null, 2);
+    let stringified = query.startsWith("select")
+        ? JSON.stringify({ rows: result.rows, time: result.time }, null, 2)
+        : JSON.stringify(result, null, 2);
 
     // Prefer indented JSON over an ugly single line
     // unless it's too long
