@@ -10,7 +10,7 @@ import { hasPermission, isBotOwner, isDev } from "../helpers/utils.js";
 
 export async function runSQL(message: Message) {
     if (!isBotOwner(message.author)) return;
-    const query = message.content.split(" ").slice(1).join(" ").toLowerCase();
+    const query = message.content.split(" ").slice(1).join(" ");
 
     if (query.length === 0) return await message.channel.send("You need to provide a query smh");
 
@@ -26,14 +26,16 @@ export async function runSQL(message: Message) {
         });
 
     if (!result) return;
-    let stringified = query.startsWith("select")
+    let stringified = query.toLowerCase().startsWith("select")
         ? JSON.stringify({ rows: result.rows, time: result.time }, null, 2)
         : JSON.stringify(result, null, 2);
 
     // Prefer indented JSON over an ugly single line
     // unless it's too long
     if (stringified.length > 2000) {
-        stringified = query.startsWith("select") ? JSON.stringify(result.rows) : result.statement;
+        stringified = query.toLowerCase().startsWith("select")
+            ? JSON.stringify(result.rows)
+            : result.statement;
     }
 
     if (stringified.length > 2000) {
