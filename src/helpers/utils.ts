@@ -340,7 +340,9 @@ export async function downloadURL(url: string, saveLocation: string) {
         return `Failed to download <${url}>\n${response.status} ${response.statusText}`;
     }
 
-    const buffer = await response.arrayBuffer();
+    const buffer = await response.arrayBuffer().catch(console.error);
+
+    if (!buffer) return "Failed to extract contents from response";
     return writeFileSync(absSaveLocation, new Uint8Array(buffer));
 }
 

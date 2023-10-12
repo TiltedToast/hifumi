@@ -93,8 +93,7 @@ export async function wolframALpha(message: Message) {
     const response = await fetch(url);
 
     if (!response.ok) {
-        const error = await response.text();
-        return await message.channel.send(`Something went wrong! ${error}`);
+        return await message.channel.send(`Something went wrong! ${await response.text()}`);
     }
 
     const buffer = await response.arrayBuffer().catch(console.error);
@@ -211,9 +210,7 @@ export async function helpCmd(input: Message | CommandInteraction) {
 
     const prefix = isDev() ? DEV_PREFIX : prefixMap.get(input.guildId ?? "") ?? DEFAULT_PREFIX;
 
-    const helpMsg = helpMsgArray
-        .map((msg) => `**${prefix ?? DEFAULT_PREFIX}${msg.cmd}** - ${msg.desc}`)
-        .join("\n");
+    const helpMsg = helpMsgArray.map((msg) => `**${prefix}${msg.cmd}** - ${msg.desc}`).join("\n");
 
     const helpEmbed = new EmbedBuilder()
         .setColor(EMBED_COLOUR)
@@ -424,9 +421,13 @@ export async function convert(interaction: ChatInputCommandInteraction) {
         `\n\nExchange Rate: 1 ${base_currency} ≈ ${result.conversion_rate ?? 0} ${target_currency}`,
     ].join("");
 
-    const lastUpdated = new Date(
-        Date.parse(result.time_last_update_utc ?? Date.now().toString())
-    ).toUTCString();
+    let lastUpdated: string;
+
+    try {
+        lastUpdated = new Date(Date.parse(result.time_last_update_utc)).toUTCString();
+    } catch (_) {
+        lastUpdated = new Date().toUTCString();
+    }
 
     const convertEmbed = new EmbedBuilder()
         .setColor(EMBED_COLOUR)
