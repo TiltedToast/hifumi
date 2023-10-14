@@ -166,7 +166,12 @@ export async function imgur(message: Message) {
     // If not, downloads the image and checks for valid size before uploading to Imgur
     const response = await fetch(source, {
         headers: source.includes("pximg") ? { Referer: "https://www.pixiv.net/" } : undefined,
-    });
+    }).catch(console.error);
+
+    if (!response) {
+        return await message.channel.send("Something went wrong checking the image size");
+    }
+
     const contentLength = response.headers.get("Content-Length");
 
     if (!response.headers.has("Content-Length")) {
@@ -181,8 +186,21 @@ export async function imgur(message: Message) {
 
         formdata.append("image", contents);
 
-        const response = await fetch("https://api.imgur.com/3/image", requestOptions);
-        const result = (await response.json()) as ImgurResponse;
+        const response = await fetch("https://api.imgur.com/3/image", requestOptions).catch(
+            console.error
+        );
+
+        if (!response)
+            return await message.channel.send(
+                "Failed to upload the image. Something must've gone really wrong for this to happen"
+            );
+        const result = (await response.json().catch(console.error)) as ImgurResponse;
+
+        if (!result) {
+            return await message.channel.send(
+                "Imgur API returned an invalid response. Maybe try again later?"
+            );
+        }
 
         if (!response.ok)
             return message.channel.send(
@@ -199,8 +217,21 @@ export async function imgur(message: Message) {
     } else if (contentLength !== null && parseInt(contentLength) <= FileSizeLimit.ImgurFile) {
         formdata.append("image", source);
 
-        const response = await fetch("https://api.imgur.com/3/image", requestOptions);
-        const result = (await response.json()) as ImgurResponse;
+        const response = await fetch("https://api.imgur.com/3/image", requestOptions).catch(
+            console.error
+        );
+
+        if (!response)
+            return await message.channel.send(
+                "Failed to upload the image. Something must've gone really wrong for this to happen"
+            );
+        const result = (await response.json().catch(console.error)) as ImgurResponse;
+
+        if (!result) {
+            return await message.channel.send(
+                "Imgur API returned an invalid response. Maybe try again later?"
+            );
+        }
 
         if (!response.ok)
             return message.channel.send(

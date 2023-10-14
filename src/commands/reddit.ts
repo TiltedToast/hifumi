@@ -28,9 +28,19 @@ export async function profile(message: Message): Promise<Message> {
     // Make sure the provided username is valid
     // If it is, create an embed with the user's profile
     const userName = content[1].toLowerCase();
-    const response = await fetch(`https://www.reddit.com/user/${userName}/about.json`);
-    if (!response.ok) return await message.channel.send(`User not found!`);
+    const response = await fetch(`https://www.reddit.com/user/${userName}/about.json`).catch(
+        console.error
+    );
 
+    if (!response) {
+        return await message.channel.send(`Reddit's API might be having issues, try again later`);
+    }
+
+    if (response.status == 404) {
+        return await message.channel.send(`User not found!`);
+    } else if (!response.ok) {
+        return await message.channel.send(`Reddit's API might be having issues, try again later`);
+    }
     const profileEmbed = buildProfileEmbed(userName);
 
     return await message.channel.send({ embeds: [profileEmbed] });
@@ -65,22 +75,34 @@ export async function sub(interaction: ChatInputCommandInteraction) {
     const subreddit = interaction.options.getString("subreddit", true).toLowerCase();
 
     // Check if the subreddit exists
-    const response = await fetch(`https://www.reddit.com/r/${subreddit}/about.json`);
+    const response = await fetch(`https://www.reddit.com/r/${subreddit}/about.json`).catch(
+        console.error
+    );
 
-    let data: { data: Subreddit; reason?: string };
-
-    try {
-        data = (await response.json()) as { data: Subreddit; reason?: string };
-    } catch (_) {
-        return await interaction.editReply(`Reddit's API might be having issues, try again later`);
+    if (!response) {
+        return await interaction.editReply(
+            `Couldn't grab subreddit info, Reddit's API is probably down so try again later`
+        );
     }
 
-    if (!isNSFW && data.data.over18) {
+    const json = (await response.json().catch(console.error)) as {
+        data: Subreddit;
+        reason?: string;
+    };
+
+    if (!json) {
+        return await interaction.editReply(
+            `Reddit returned an invalid response, probably something broke with their API`
+        );
+    }
+
+    if (!isNSFW && json.data.over18) {
         return await interaction.editReply("You have to be in a NSFW channel for this");
     }
 
-    if ("reason" in data)
-        return await interaction.editReply(`Subreddit not found! Reason: ${data.reason}`);
+    if ("reason" in json) {
+        return await interaction.editReply(`Subreddit not found! Reason: ${json.reason}`);
+    }
 
     if (response.status === 404) return await interaction.editReply(`Subreddit not found`);
 
@@ -92,12 +114,22 @@ export async function sub(interaction: ChatInputCommandInteraction) {
     try {
         if (force) {
             await interaction.channel?.send("Force fetching images, this might take a while...");
-            posts.push(...(await fetchSubmissions(subreddit, interaction)));
+            posts.push(
+                ...(await fetchSubmissions(subreddit, interaction).catch((e) => {
+                    console.error(e);
+                    return [];
+                }))
+            );
         } else if (!posts.length) {
             await interaction.channel?.send(
                 "Fetching images for the first time, this might take a while..."
             );
-            posts.push(...(await fetchSubmissions(subreddit, interaction)));
+            posts.push(
+                ...(await fetchSubmissions(subreddit, interaction).catch((e) => {
+                    console.error(e);
+                    return [];
+                }))
+            );
         }
     } catch (error) {
         console.error(error);

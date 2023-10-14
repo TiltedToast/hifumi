@@ -4,20 +4,35 @@ import { statusArr } from "../app.js";
 import { db } from "../db/index.js";
 import { errorLogs } from "../db/schema.js";
 import { CatFactResponse, CatFactResponseSchema, StatusType } from "../helpers/types.js";
-import { isDev, randomElementFromArray, randomIntFromRange, sleep } from "../helpers/utils.js";
+import {
+    isDev,
+    randomElementFromArray,
+    randomIntFromRange,
+    sleep as utilSleep,
+} from "../helpers/utils.js";
 
 export async function startCatFactLoop(channel: TextChannel) {
-    while (true) {
-        const response = await fetch("https://catfact.ninja/fact");
-        const json = (await response.json()) as CatFactResponse;
+    const sleep = async () => await utilSleep(randomIntFromRange(54000000, 86400000)); // 15h-24h
 
-        if (!CatFactResponseSchema.safeParse(json).success) {
-            console.error("Error parsing cat fact response");
+    while (true) {
+        const response = await fetch("https://catfact.ninja/fact").catch(console.error);
+
+        if (!response) {
+            await channel.send("Error fetching cat fact");
+            await sleep();
+            continue;
+        }
+
+        const json = (await response.json().catch(console.error)) as CatFactResponse;
+
+        if (!json || !CatFactResponseSchema.safeParse(json).success) {
+            await channel.send("Error parsing cat fact response");
+            await sleep();
             continue;
         }
 
         await channel.send(json.fact);
-        await sleep(randomIntFromRange(54000000, 86400000)); // 15h-24h
+        await sleep();
     }
 }
 
@@ -29,7 +44,7 @@ export async function startStatusLoop(client: Client) {
     while (true) {
         const status = setRandomStatus(client);
         if (!status) break;
-        await sleep(randomIntFromRange(300000, 900000)); // 5m-15m
+        await utilSleep(randomIntFromRange(300000, 900000)); // 5m-15m
     }
 }
 
@@ -60,6 +75,6 @@ export async function avoidDbSleeping() {
             user: "N/A",
         });
 
-        await sleep(sixDaysinSeconds * 1000);
+        await utilSleep(sixDaysinSeconds * 1000);
     }
 }

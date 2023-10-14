@@ -335,7 +335,10 @@ export async function downloadURL(url: string, saveLocation: string) {
     };
 
     // Fetches the file from the URL and saves it to the file path
-    const response = await fetch(url, requestOptions);
+    const response = await fetch(url, requestOptions).catch(console.error);
+
+    if (!response) return `Failed to fetch ${url}`;
+
     if (!response.ok) {
         return `Failed to download <${url}>\n${response.status} ${response.statusText}`;
     }

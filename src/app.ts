@@ -89,6 +89,7 @@ if (process.platform === "win32") {
 
 // Graceful Shutdown on Ctrl + C / Docker stop
 stopSignals.forEach((signal) => {
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
     process.on(signal, async () => {
         await client.destroy();
         console.log("Closed Discord connection");

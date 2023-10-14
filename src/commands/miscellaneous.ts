@@ -90,15 +90,19 @@ export async function wolframALpha(message: Message) {
         `&background=181A1F&foreground=white` +
         "&fontsize=30&units=metric&width500";
 
-    const response = await fetch(url);
+    const response = await fetch(url).catch(console.error);
+
+    if (!response) return await message.channel.send("Fetch failed, not sure why");
 
     if (!response.ok) {
-        return await message.channel.send(`Something went wrong! ${await response.text()}`);
+        return await message.channel.send(
+            `Something went wrong! HTTP ${response.status} ${response.statusText}`
+        );
     }
 
     const buffer = await response.arrayBuffer().catch(console.error);
 
-    if (!buffer) return await message.channel.send("Something went wrong!");
+    if (!buffer) return await message.channel.send("Failed to extract the buffer for some reason?");
 
     return await message.channel.send({ files: [Buffer.from(buffer)] });
 }
@@ -328,8 +332,23 @@ export async function convert(interaction: ChatInputCommandInteraction) {
     const base_currency = interaction.options.getString("from", true).toUpperCase();
     const target_currency = interaction.options.getString("to", true).toUpperCase();
 
-    const codesResp = await fetch(`https://v6.exchangerate-api.com/v6/${EXCHANGE_API_KEY}/codes`);
-    const supportedResult = (await codesResp.json()) as SupportedCodesResponse;
+    const codesResp = await fetch(
+        `https://v6.exchangerate-api.com/v6/${EXCHANGE_API_KEY}/codes`
+    ).catch(console.error);
+
+    if (!codesResp) {
+        return await interaction.editReply(
+            "Something went wrong while fetching the currencies! API is probably down or something"
+        );
+    }
+
+    const supportedResult = (await codesResp.json().catch(console.error)) as SupportedCodesResponse;
+
+    if (!supportedResult) {
+        return await interaction.editReply(
+            "Something went really wrong, API didn't send JSON as a response. Probably best to try again later"
+        );
+    }
 
     if (!SupportedCodesSchema.safeParse(supportedResult).success) {
         return await interaction.editReply(
@@ -455,12 +474,25 @@ export async function urban(interaction: ChatInputCommandInteraction) {
         ? `https://api.urbandictionary.com/v0/random`
         : `https://api.urbandictionary.com/v0/define?term=${query}`;
 
-    const response = await fetch(url);
+    const response = await fetch(url).catch(console.error);
+
+    if (!response) {
+        return await interaction.editReply(
+            "Something went wrong while fetching the definitions! API is probably down or something"
+        );
+    }
+
     if (!response.ok) {
         return await interaction.editReply(`Error ${response.status}! Please try again later`);
     }
 
-    const result = (await response.json()) as UrbanResponse;
+    const result = (await response.json().catch(console.error)) as UrbanResponse;
+
+    if (!result) {
+        return await interaction.editReply(
+            "Something went really wrong, API didn't send JSON. Probably best to try again later"
+        );
+    }
 
     if (!UrbanResponseSchema.safeParse(result).success) {
         return await interaction.editReply(
