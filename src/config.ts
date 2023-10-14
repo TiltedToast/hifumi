@@ -14,6 +14,7 @@ export const EMBED_COLOUR = "#CE3A9B";
 export const DEV_CHANNELS = ["655484859405303809", "551588329003548683", "922679249058553857"];
 export const LOG_CHANNEL = "655484804405657642";
 export const CAT_FACT_CHANNEL = "655484859405303809";
+export const DEV_COMMAND_POSTFIX = "-dev";
 
 // prettier-ignore
 const envVariables = z.object({

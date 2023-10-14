@@ -8,8 +8,14 @@ import {
 import { client } from "../app.js";
 import { convert, helpCmd, patUser, urban, urbanEmbeds } from "../commands/miscellaneous.js";
 import { sub } from "../commands/reddit.js";
-import { BOT_OWNERS, DEV_CHANNELS, LOG_CHANNEL, OWNER_NAME } from "../config.js";
-import { updateEmbed } from "../helpers/utils.js";
+import {
+    BOT_OWNERS,
+    DEV_CHANNELS,
+    DEV_COMMAND_POSTFIX,
+    LOG_CHANNEL,
+    OWNER_NAME,
+} from "../config.js";
+import { isDev, updateEmbed } from "../helpers/utils.js";
 
 export default async function handleInteraction(interaction: Interaction) {
     try {
@@ -79,11 +85,15 @@ const commands = new Map<ChatInputCommandName, ChatInputCommandFn>([
     [".convert", convert],
 ]);
 
+const devCommands = new Map<ChatInputCommandName, ChatInputCommandFn>();
+for (const [cmd, fn] of commands) devCommands.set(`${cmd}${DEV_COMMAND_POSTFIX}`, fn);
+
 async function handleCommandInteraction(
     interaction: ChatInputCommandInteraction,
     subcommand: string | null
 ) {
-    for (const [cmd, fn] of commands) {
+    const commandsToCheck = isDev() ? devCommands : commands;
+    for (const [cmd, fn] of commandsToCheck) {
         if (
             cmd.includes(`${interaction.commandName}::${subcommand ?? ""}`) ||
             cmd.includes(`.${interaction.commandName}`)
