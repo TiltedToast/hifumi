@@ -114,22 +114,12 @@ export async function sub(interaction: ChatInputCommandInteraction) {
     try {
         if (force) {
             await interaction.channel?.send("Force fetching images, this might take a while...");
-            posts.push(
-                ...(await fetchSubmissions(subreddit, interaction).catch((e) => {
-                    console.error(e);
-                    return [];
-                }))
-            );
+            posts.push(...(await fetchSubmissions(subreddit, interaction)));
         } else if (!posts.length) {
             await interaction.channel?.send(
                 "Fetching images for the first time, this might take a while..."
             );
-            posts.push(
-                ...(await fetchSubmissions(subreddit, interaction).catch((e) => {
-                    console.error(e);
-                    return [];
-                }))
-            );
+            posts.push(...(await fetchSubmissions(subreddit, interaction)));
         }
     } catch (error) {
         console.error(error);
