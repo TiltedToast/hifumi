@@ -15,7 +15,14 @@ import { all, create } from "mathjs";
 import { exec } from "node:child_process";
 import { promisify } from "node:util";
 import { client, prefixMap } from "../app.js";
-import { BOT_NAME, DEFAULT_PREFIX, DEV_PREFIX, EMBED_COLOUR, OWNER_NAME } from "../config.js";
+import {
+    BOT_NAME,
+    DEFAULT_PREFIX,
+    DEV_PREFIX,
+    EMBED_COLOUR,
+    IMAGE_THREAD_CHANNELS,
+    OWNER_NAME,
+} from "../config.js";
 import { db } from "../db/index.js";
 import {
     helpMessages,
@@ -108,7 +115,7 @@ export async function wolframALpha(message: Message) {
 }
 
 export async function checkForImgAndCreateThread(message: Message) {
-    if (!["1059119862741471253", "1059120608593584258"].includes(message.channel.id)) {
+    if (!IMAGE_THREAD_CHANNELS.includes(message.channel.id)) {
         return;
     }
 
