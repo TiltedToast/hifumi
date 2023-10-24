@@ -40,7 +40,6 @@ const envVariables = z.object({
 // If we are, we don't want to parse the environment variables
 // Cause this crashes Github Actions and I don't want to deal with it
 if (!/deploy-commands\.(ts|js)$/.test(process.argv[1])) {
-    console.log("Running in deploy-commands mode");
     envVariables.parseAsync(process.env).catch((e) => {
         const validationError = fromZodError(e as z.ZodError, {
             issueSeparator: "\n",
