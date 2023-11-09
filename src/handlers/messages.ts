@@ -1,4 +1,4 @@
-import type { Message } from "discord.js";
+import { type Message } from "discord.js";
 import { botIsLoading, prefixMap } from "../app.js";
 import * as db from "../commands/database.js";
 import * as emoji from "../commands/emoji.js";
@@ -96,7 +96,7 @@ const commands = new Map<MsgCommandName[], MsgCommandFn>([
     [[".someone"], misc.pingRandomMembers],
     [[".yoink"], emoji.addEmoji],
     [[".db"], db.runSQL],
-    [[".wolfram"], misc.wolframALpha],
+    [[".wolfram"], misc.wolframAlpha],
     [[".calc", ".math"], misc.calc],
     [[".py"], misc.py],
 

@@ -1,5 +1,6 @@
 import { DatabaseError } from "@planetscale/database";
 import { Message, PermissionFlagsBits, codeBlock } from "discord.js";
+import { table } from "table";
 import { fromZodError } from "zod-validation-error";
 import { prefixMap, statusArr } from "../app.js";
 import { BOT_OWNERS } from "../config.js";
@@ -7,6 +8,8 @@ import { PSConnection, db, updatePrefix as updatePrefixDB } from "../db/index.js
 import { statuses } from "../db/schema.js";
 import { InsertStatusSchema, Status } from "../db/types.js";
 import { hasPermission, isBotOwner, isDev } from "../helpers/utils.js";
+
+const MIN_WRAP_LENGTH = 30;
 
 export async function runSQL(message: Message) {
     if (!isBotOwner(message.author)) return;
@@ -26,23 +29,52 @@ export async function runSQL(message: Message) {
         });
 
     if (!result) return;
-    let stringified = query.toLowerCase().startsWith("select")
-        ? JSON.stringify({ rows: result.rows, time: result.time }, null, 2)
-        : JSON.stringify(result, null, 2);
 
-    // Prefer indented JSON over an ugly single line
-    // unless it's too long
+    if (!query.toLowerCase().startsWith("select")) {
+        return await message.channel.send(codeBlock("json", JSON.stringify(result, null, 2)));
+    }
+
+    const data = result.rows;
+
+    const keys = Object.keys(data[0]);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    const values = data.map((obj) => Object.values(obj));
+
+    const columns = {};
+
+    for (let i = 0; i < values[0].length; i++) {
+        const minVal = Math.min(
+            MIN_WRAP_LENGTH,
+            Math.max(...values.map((v) => String(v[i]).length))
+        );
+        //@ts-expect-error I don't care, this is valid so leave me alone TS
+        columns[i] = {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+            width: minVal >= keys[i].length ? minVal : keys[i].length,
+        };
+    }
+    let stringified = table([keys, ...values], {
+        columnDefault: {
+            wrapWord: true,
+        },
+        columns,
+    });
+
+    // If the nice table is too long, just send the raw JSON
     if (stringified.length > 2000) {
-        stringified = query.toLowerCase().startsWith("select")
-            ? JSON.stringify(result.rows)
-            : result.statement;
+        stringified = JSON.stringify(result.rows);
     }
 
     if (stringified.length > 2000) {
         console.error(stringified);
         return await message.channel.send("The result is too long to be displayed, check the logs");
     }
-    await message.channel.send(codeBlock("json", stringified));
+
+    await message.channel.send(
+        stringified.startsWith("{") || stringified.startsWith("[")
+            ? codeBlock("json", stringified)
+            : codeBlock(stringified)
+    );
 }
 
 export async function insertStatus(message: Message): Promise<undefined | Message> {
