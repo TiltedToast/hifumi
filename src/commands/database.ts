@@ -40,14 +40,13 @@ export async function runSQL(message: Message) {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     const values = data.map((obj) => Object.values(obj));
 
-    const columns = {};
+    const columns = {} as { [key: number]: { width: number } };
 
     for (let i = 0; i < values[0].length; i++) {
         const minVal = Math.min(
             MIN_WRAP_LENGTH,
             Math.max(...values.map((v) => String(v[i]).length))
         );
-        //@ts-expect-error I don't care, this is valid so leave me alone TS
         columns[i] = {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             width: minVal >= keys[i].length ? minVal : keys[i].length,
