@@ -59,7 +59,7 @@ async function handleButtonInteraction(interaction: ButtonInteraction) {
             embedArray: urbanEmbeds,
             prevButtonId: "prevUrban",
             nextButtonId: "nextUrban",
-            user: interaction.user.id,
+            user: interaction.user,
         });
     }
 }

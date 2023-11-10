@@ -511,7 +511,7 @@ export async function urban(interaction: ChatInputCommandInteraction) {
 
     setEmbedArr({
         result: result.list,
-        userID: interaction.user.id,
+        user: interaction.user,
         sortKey: "thumbs_up",
         embedArray: urbanEmbeds,
         buildEmbedFunc: buildUrbanEmbed,

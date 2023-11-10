@@ -111,7 +111,7 @@ export function isMikuTrigger(message: Message, reactCmd: string): boolean {
 }
 
 export function setEmbedArr<T>(args: UpdateEmbedArrParams<T>): void {
-    const { result, userID, sortKey, embedArray, buildEmbedFunc } = args;
+    const { result, user, sortKey, embedArray, buildEmbedFunc } = args;
 
     if (sortKey) result.sort((a, b) => (b[sortKey] > a[sortKey] ? 1 : -1));
 
@@ -119,7 +119,7 @@ export function setEmbedArr<T>(args: UpdateEmbedArrParams<T>): void {
     for (let i = 0; i < result.length; i++) {
         embedArray.push({
             embed: buildEmbedFunc(result[i], i, result),
-            user: userID,
+            user,
         });
     }
 }
@@ -133,7 +133,7 @@ export async function updateEmbed(options: UpdateEmbedOptions) {
         user,
     });
 
-    if (interaction.user.id !== embedArray[activeIndex].user) {
+    if (interaction.user.id !== embedArray[activeIndex].user.id) {
         return interaction.reply({
             content: "Run the command yourself to be able to cycle through the results",
             ephemeral: true,

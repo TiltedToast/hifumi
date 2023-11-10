@@ -1,9 +1,9 @@
-import { ActivityType, ButtonInteraction, Embed, EmbedBuilder, Message } from "discord.js";
+import { ActivityType, ButtonInteraction, Embed, EmbedBuilder, Message, User } from "discord.js";
 import { z } from "zod";
 
 export type UpdateEmbedArrParams<T> = {
     result: T[];
-    userID: string;
+    user: User;
     sortKey?: keyof T & string;
     embedArray: EmbedMetadata[];
     buildEmbedFunc: (item: T, idx: number, arr: T[]) => EmbedBuilder;
@@ -39,12 +39,12 @@ export type UpdateEmbedOptions = {
     embedArray: EmbedMetadata[];
     prevButtonId: string;
     nextButtonId: string;
-    user: string;
+    user: User;
 };
 
 export type EmbedMetadata = {
     embed: Embed | EmbedBuilder;
-    user: string;
+    user: User;
 };
 
 const SuccessfulSupportedCodesSchema = z.object({
