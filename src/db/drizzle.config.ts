@@ -6,6 +6,6 @@ export default {
     breakpoints: true,
     driver: "mysql2",
     dbCredentials: {
-        connectionString: process.env.PLANETSCALE_URL,
+        uri: process.env.PLANETSCALE_URL,
     },
 } satisfies Config;
