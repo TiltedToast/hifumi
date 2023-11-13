@@ -45,6 +45,7 @@ import {
     getUserObjectPingId,
     hasPermission,
     isBotOwner,
+    isCommandInteraction,
     isDev,
     randomElementFromArray,
     sendOrReply,
@@ -329,22 +330,43 @@ export async function avatar(message: Message) {
     return await message.channel.send({ embeds: [avatarEmbed] });
 }
 
-export async function convert(interaction: ChatInputCommandInteraction) {
-    await interaction.deferReply();
+export async function convert(input: ChatInputCommandInteraction | Message) {
+    if (isCommandInteraction(input)) {
+        await input.deferReply();
+    }
 
     const currencies = {} as Record<string, string>;
 
-    // The API can't seem to handle more than 7 or so decimal places
-    const amount = +(interaction.options.getNumber("amount", false) ?? 1).toFixed(5);
-    const base_currency = interaction.options.getString("from", true).toUpperCase();
-    const target_currency = interaction.options.getString("to", true).toUpperCase();
+    let amount: number;
+    let base_currency: string;
+    let target_currency: string;
 
+    // The API can't seem to handle more than 7 or so decimal places
+    if (isCommandInteraction(input)) {
+        amount = +(input.options.getNumber("amount", false) ?? 1).toFixed(5);
+        base_currency = input.options.getString("from", true).toUpperCase();
+        target_currency = input.options.getString("to", true).toUpperCase();
+    } else {
+        const content = input.content.split(" ");
+        if (content.length < 3) return await input.channel.send("Not enough arguments!");
+
+        if (isNaN(+content[1])) {
+            amount = 1;
+            base_currency = content[1].toUpperCase();
+            target_currency = content[2].toUpperCase();
+        } else {
+            amount = +(+content[1]).toFixed(5);
+            base_currency = content[2].toUpperCase();
+            target_currency = content[3].toUpperCase();
+        }
+    }
     const codesResp = await fetch(
         `https://v6.exchangerate-api.com/v6/${EXCHANGE_API_KEY}/codes`
     ).catch(console.error);
 
     if (!codesResp) {
-        return await interaction.editReply(
+        return await sendOrReply(
+            input,
             "Something went wrong while fetching the currencies! API is probably down or something"
         );
     }
@@ -352,13 +374,15 @@ export async function convert(interaction: ChatInputCommandInteraction) {
     const supportedResult = (await codesResp.json().catch(console.error)) as SupportedCodesResponse;
 
     if (!supportedResult) {
-        return await interaction.editReply(
+        return await sendOrReply(
+            input,
             "Something went really wrong, API didn't send JSON as a response. Probably best to try again later"
         );
     }
 
     if (!SupportedCodesSchema.safeParse(supportedResult).success) {
-        return await interaction.editReply(
+        return await sendOrReply(
+            input,
             "Something went wrong while fetching the supported currencies! Please try again later"
         );
     }
@@ -380,7 +404,7 @@ export async function convert(interaction: ChatInputCommandInteraction) {
                 msg =
                     "Something went wrong fetching the supported currencies! Please try again later";
         }
-        return await interaction.editReply(msg);
+        return await sendOrReply(input, msg);
     }
 
     for (const [code, name] of supportedResult.supported_codes) {
@@ -388,7 +412,8 @@ export async function convert(interaction: ChatInputCommandInteraction) {
     }
 
     if (!(base_currency in currencies) || !(target_currency in currencies)) {
-        return await interaction.editReply(
+        return await sendOrReply(
+            input,
             `Invalid currency codes!\nCheck ` +
                 `<https://www.exchangerate-api.com/docs/supported-currencies> ` +
                 `for a list of supported currencies`
@@ -396,11 +421,9 @@ export async function convert(interaction: ChatInputCommandInteraction) {
     }
     // Checks for possible pointless conversions
     if (base_currency === target_currency)
-        return await interaction.editReply(
-            "Your first currency is the same as your second currency!"
-        );
-    if (amount < 0) return await interaction.editReply("You can't convert a negative amount!");
-    if (amount === 0) return await interaction.editReply("Zero will obviously stay 0!");
+        return await sendOrReply(input, "Your first currency is the same as your second currency!");
+    if (amount < 0) return await sendOrReply(input, "You can't convert a negative amount!");
+    if (amount === 0) return await sendOrReply(input, "Zero will obviously stay 0!");
 
     const response = await fetch(
         `https://v6.exchangerate-api.com/v6/` +
@@ -410,9 +433,7 @@ export async function convert(interaction: ChatInputCommandInteraction) {
     const result = (await response.json()) as PairConversionResponse;
 
     if (!PairConversionResponseSchema.safeParse(result).success) {
-        return await interaction.editReply(
-            "Something went wrong with the API, maybe try again later"
-        );
+        return await sendOrReply(input, "Something went wrong with the API, maybe try again later");
     }
 
     if (result.result === "error") {
@@ -437,9 +458,9 @@ export async function convert(interaction: ChatInputCommandInteraction) {
                 console.error(result);
                 msg = "Something went wrong with the API, maybe try again later";
         }
-        return await interaction.editReply(msg);
+        return await sendOrReply(input, msg);
     }
-    if (!response.ok) return await interaction.editReply("Error! Please try again later");
+    if (!response.ok) return await sendOrReply(input, "Error! Please try again later");
 
     const description = [
         `**${amount} ${currencies[base_currency]} ≈ `,
@@ -461,21 +482,31 @@ export async function convert(interaction: ChatInputCommandInteraction) {
         .setDescription(description)
         .setFooter({ text: `Last updated: ${lastUpdated}` });
 
-    return await interaction.editReply({ embeds: [convertEmbed] });
+    return await sendOrReply(input, { embeds: [convertEmbed] });
 }
 
-export async function urban(interaction: ChatInputCommandInteraction) {
-    const query = (interaction.options.getString("term", false) ?? "").toLowerCase();
-    const random = interaction.options.getBoolean("random", false) ?? false;
+export async function urban(input: ChatInputCommandInteraction | Message) {
+    let query: string;
+    let random: boolean;
 
-    if (query.length < 1 && !random) {
-        return await interaction.reply({
-            content: "You have to provide a search term or use the random flag",
-            ephemeral: true,
-        });
+    if (isCommandInteraction(input)) {
+        query = (input.options.getString("term", false) ?? "").toLowerCase();
+        random = input.options.getBoolean("random", false) ?? false;
+    } else {
+        const content = input.content.split(" ");
+        query = content.slice(1).join(" ").toLowerCase();
+        random = content[1] === "random";
     }
 
-    await interaction.deferReply();
+    if (query.length < 1 && !random) {
+        return await sendOrReply(
+            input,
+            "You have to provide a search term or use the random flag",
+            true
+        );
+    }
+
+    if (isCommandInteraction(input)) await input.deferReply();
 
     const url = random
         ? `https://api.urbandictionary.com/v0/random`
@@ -484,34 +515,34 @@ export async function urban(interaction: ChatInputCommandInteraction) {
     const response = await fetch(url).catch(console.error);
 
     if (!response) {
-        return await interaction.editReply(
+        return await sendOrReply(
+            input,
             "Something went wrong while fetching the definitions! API is probably down or something"
         );
     }
 
     if (!response.ok) {
-        return await interaction.editReply(`Error ${response.status}! Please try again later`);
+        return await sendOrReply(input, `Error ${response.status}! Please try again later`);
     }
 
     const result = (await response.json().catch(console.error)) as UrbanResponse;
 
     if (!result) {
-        return await interaction.editReply(
+        return await sendOrReply(
+            input,
             "Something went really wrong, API didn't send JSON. Probably best to try again later"
         );
     }
 
     if (!UrbanResponseSchema.safeParse(result).success) {
-        return await interaction.editReply(
-            "Something went wrong with the API, maybe try again later"
-        );
+        return await sendOrReply(input, "Something went wrong with the API, maybe try again later");
     }
 
-    if (result.list.length === 0) return await interaction.editReply("No results found!");
+    if (result.list.length === 0) return await sendOrReply(input, "No results found!");
 
     setEmbedArr({
         result: result.list,
-        user: interaction.user,
+        user: isCommandInteraction(input) ? input.user : input.author,
         sortKey: "thumbs_up",
         embedArray: urbanEmbeds,
         buildEmbedFunc: buildUrbanEmbed,
@@ -522,7 +553,7 @@ export async function urban(interaction: ChatInputCommandInteraction) {
         new ButtonBuilder().setCustomId("nextUrban").setLabel("NEXT").setStyle(ButtonStyle.Primary)
     );
 
-    return await interaction.editReply({
+    return await sendOrReply(input, {
         embeds: [urbanEmbeds[0].embed],
         components: [row],
     });

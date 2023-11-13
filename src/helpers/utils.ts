@@ -28,6 +28,16 @@ import type {
     UpdateEmbedOptions,
 } from "./types.js";
 
+export function isCommandInteraction(
+    input: Message | CommandInteraction
+): input is CommandInteraction {
+    return input instanceof CommandInteraction;
+}
+
+export function isMessage(input: Message | CommandInteraction): input is Message {
+    return input instanceof Message;
+}
+
 /**
  * Send a message if the input is a message, or reply if the input is a command interaction
  * @param input Message or CommandInteraction
@@ -35,14 +45,17 @@ import type {
  */
 export async function sendOrReply(
     input: Message | CommandInteraction,
-    message: string | BaseMessageOptions
+    message: string | BaseMessageOptions,
+    ephemeral = false
 ) {
     if (input instanceof Message) {
         return await input.channel.send(message);
     }
     if (input.deferred) {
         return await input.editReply(message);
-    } else if (input.isRepliable()) {
+    } else if (input.isRepliable() && typeof message === "string") {
+        return await input.reply({ content: message, ephemeral });
+    } else if (input.isRepliable() && !ephemeral) {
         return await input.reply(message);
     } else {
         return await input.channel?.send(message);

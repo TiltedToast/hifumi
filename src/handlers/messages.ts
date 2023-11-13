@@ -99,6 +99,9 @@ const commands = new Map<MsgCommandName[], MsgCommandFn>([
     [[".wolfram"], misc.wolframAlpha],
     [[".calc", ".math"], misc.calc],
     [[".py"], misc.py],
+    [[".cur", ".convert"], misc.convert],
+    [[".urban"], misc.urban],
+    [[".sub"], reddit.sub],
 
     [["emoji::add", "emoji::ad", "emoji::create"], emoji.addEmoji],
     [["emoji::delete", "emoji::delet", "emoji::del", "emoji::remove", "emoji::rm"], emoji.removeEmoji],

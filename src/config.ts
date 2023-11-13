@@ -15,6 +15,7 @@ export const DEV_CHANNELS = ["655484859405303809", "551588329003548683", "922679
 export const LOG_CHANNEL = "655484804405657642";
 export const CAT_FACT_CHANNEL = "655484859405303809";
 export const DEV_COMMAND_POSTFIX = "-dev";
+export const REDDIT_USER_AGENT = "linux:hifumi:v1.0.0 (by /u/tilted_toast)";
 export const IMAGE_THREAD_CHANNELS = [
     "1059119862741471253",
     "1059120608593584258",
