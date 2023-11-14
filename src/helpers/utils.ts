@@ -117,10 +117,7 @@ export function isMikuTrigger(message: Message, reactCmd: string): boolean {
         if (repliedMsg.author.id === client.user.id) return true;
     }
 
-    return (
-        message.content.startsWith(`$${reactCmd} <@${client.user.id}>`) ||
-        message.content.startsWith(`$${reactCmd} <@!${client.user.id}>`)
-    );
+    return message.content.startsWith(`$${reactCmd}`) && message.content.includes(client.user.id);
 }
 
 export function setEmbedArr<T>(args: UpdateEmbedArrParams<T>): void {
