@@ -16,5 +16,5 @@
         "skipLibCheck": true,
         "alwaysStrict": true
     },
-    "include": ["src/**/*.ts"]
+    "include": ["**/*.ts", "pm2.config.cjs"]
 }

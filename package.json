@@ -39,9 +39,9 @@
         "typescript": "^5.2.2"
     },
     "scripts": {
-        "start": "tsc && pm2 start ./dist/app.js --name hifumi --time",
-        "stop": "pm2 delete hifumi",
-        "restart": "tsc && pm2 reload hifumi",
+        "start": "tsc && pm2 start ./pm2.config.cjs",
+        "stop": "pm2 delete ./pm2.config.cjs",
+        "restart": "tsc && pm2 reload ./pm2.config.cjs",
         "fmt:check": "prettier --config .prettierrc --check .",
         "fmt:write": "prettier --config .prettierrc --write .",
         "test": "pnpm run /^test:/",
