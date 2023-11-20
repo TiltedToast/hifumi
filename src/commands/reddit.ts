@@ -184,10 +184,10 @@ function parseSubFlags(input: ChatInputCommandInteraction | Message): [boolean, 
         }
     } else {
         const content = input.content.split(" ");
-        if (content.includes("--nsfw")) {
+        if (content.includes("nsfw")) {
             isNSFW = true;
             isSFW = false;
-        } else if (content.includes("--force")) {
+        } else if (content.includes("force")) {
             force = true;
         }
     }
@@ -213,10 +213,7 @@ async function fetchSubmissions(
 
     for (const submissionType of submissionsArray) {
         for (const submission of submissionType) {
-            if (
-                !submission.is_self &&
-                (submission.url.includes("i.redd.it") || submission.url.includes("i.imgur.com"))
-            ) {
+            if (await isValidSubmission(submission)) {
                 const post = {
                     subreddit: submission.subreddit.display_name,
                     title: submission.title,
@@ -260,4 +257,24 @@ async function getSubmissions(subreddit: string, limit: number) {
         subredditObject.getRising({ limit }),
         ...topSubmissions,
     ]).then((results) => results.filter(isFulfilled).map((p) => p.value));
+}
+
+async function isValidSubmission(submission: Snoowrap.Submission): Promise<boolean> {
+    if (submission.is_self) return false;
+    if (submission.url.includes("i.redd.it")) return true;
+
+    const regex = /^https:\/\/i\.imgur\.com\/([\w\d]+)\./;
+
+    if (!submission.url.includes("i.imgur.com")) return false;
+
+    const id = submission.url.match(regex)?.[1];
+    if (!id) return false;
+
+    const response = await fetch(`https://api.imgur.com/3/image/${id}`, {
+        headers: {
+            Authorization: `Client-ID ${process.env.IMGUR_CLIENT_ID}`,
+        },
+    }).catch(console.error);
+
+    return !!response?.ok;
 }
