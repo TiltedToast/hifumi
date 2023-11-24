@@ -430,7 +430,14 @@ export async function convert(input: ChatInputCommandInteraction | Message) {
             `${EXCHANGE_API_KEY}/pair/${base_currency}/${target_currency}/${amount}`
     );
 
-    const result = (await response.json()) as PairConversionResponse;
+    const result = (await response.json().catch(console.error)) as PairConversionResponse;
+
+    if (!result) {
+        return await sendOrReply(
+            input,
+            "Something went really wrong, API didn't send JSON as a response. Probably best to try again later"
+        );
+    }
 
     if (!PairConversionResponseSchema.safeParse(result).success) {
         return await sendOrReply(input, "Something went wrong with the API, maybe try again later");

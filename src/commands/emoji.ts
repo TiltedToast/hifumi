@@ -292,7 +292,12 @@ async function bulkAddEmojis(message: Message, emojis: RegExpMatchArray) {
         const name = emojiStr.split(":")[1];
         const filePath = `temp/${name}.${imgType}`;
 
-        await downloadURL(url, filePath);
+        const err = await downloadURL(url, filePath);
+
+        if (err) {
+            await message.channel.send(`Could not download ${name}, skipping`);
+            continue;
+        }
 
         if (message.guild?.emojis.cache.find((emoji) => emoji.name === name)) {
             await message.channel.send(`Emoji \`${name}\` already exists!`);
