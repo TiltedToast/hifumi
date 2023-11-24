@@ -96,7 +96,7 @@ export async function wolframAlpha(message: Message) {
         WOLFRAM_ALPHA_APP_ID +
         `&i=${encodeURIComponent(query)}` +
         `&background=181A1F&foreground=white` +
-        "&fontsize=30&units=metric&width500";
+        "&fontsize=30&units=metric&maxwidth=1500&output=json";
 
     const response = await fetch(url).catch(console.error);
 
