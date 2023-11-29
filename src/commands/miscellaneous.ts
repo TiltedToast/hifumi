@@ -85,7 +85,7 @@ export async function patUser(interaction: ChatInputCommandInteraction) {
 export async function wolframAlpha(message: Message) {
     if (!isBotOwner(message.author)) return;
 
-    const shortAnswer = message.content.split(" ")[1].toLowerCase() === "short";
+    const shortAnswer = ["s", "short"].includes(message.content.split(" ")[1].toLowerCase());
 
     const queryIdx = shortAnswer ? 2 : 1;
 
