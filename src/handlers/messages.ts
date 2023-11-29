@@ -96,7 +96,7 @@ const commands = new Map<MsgCommandName[], MsgCommandFn>([
     [[".someone"], misc.pingRandomMembers],
     [[".yoink"], emoji.addEmoji],
     [[".db"], db.runSQL],
-    [[".wolfram"], misc.wolframAlpha],
+    [[".wolfram", ".wolf"], misc.wolframAlpha],
     [[".calc", ".math"], misc.calc],
     [[".py"], misc.py],
     [[".cur", ".convert"], misc.convert],

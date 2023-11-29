@@ -41,7 +41,6 @@ import {
     UrbanResponseSchema,
 } from "../helpers/types.js";
 import {
-    createTemp,
     getUserObjectPingId,
     hasPermission,
     isBotOwner,
@@ -85,14 +84,19 @@ export async function patUser(interaction: ChatInputCommandInteraction) {
 
 export async function wolframAlpha(message: Message) {
     if (!isBotOwner(message.author)) return;
-    const query = message.content.split(" ").slice(1).join(" ");
 
-    createTemp();
+    const shortAnswer = message.content.split(" ")[1].toLowerCase() === "short";
+
+    const queryIdx = shortAnswer ? 2 : 1;
+
+    const query = message.content.split(" ").slice(queryIdx).join(" ");
 
     if (!query) return await message.channel.send("No query provided!");
 
+    const endpoint = shortAnswer ? "/v1/result" : "/v2/simple";
+
     const url =
-        `http://api.wolframalpha.com/v2/simple?appid=` +
+        `http://api.wolframalpha.com${endpoint}?appid=` +
         WOLFRAM_ALPHA_APP_ID +
         `&i=${encodeURIComponent(query)}` +
         `&background=181A1F&foreground=white` +
@@ -106,6 +110,12 @@ export async function wolframAlpha(message: Message) {
         return await message.channel.send(
             `Something went wrong! HTTP ${response.status} ${response.statusText}`
         );
+    }
+
+    if (shortAnswer) {
+        const answer = await response.text().catch(console.error);
+        if (!answer) return await message.channel.send("Failed to get the answer for some reason");
+        return await message.channel.send(codeBlock(answer));
     }
 
     const buffer = await response.arrayBuffer().catch(console.error);
