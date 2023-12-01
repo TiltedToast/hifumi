@@ -71,7 +71,7 @@ function buildProfileEmbed(userName: string) {
 }
 
 export async function sub(input: ChatInputCommandInteraction | Message) {
-    const [isSFW, isNSFW, force] = parseSubFlags(input);
+    const { isSFW, isNSFW, force } = parseSubFlags(input);
 
     if (isCommandInteraction(input)) await input.deferReply();
 
@@ -170,7 +170,11 @@ export async function sub(input: ChatInputCommandInteraction | Message) {
  * @returns An array containing a boolean that indicated whether
  * to fetch NSFW posts or not and a boolean that indicates whether to force fetch posts or not
  */
-function parseSubFlags(input: ChatInputCommandInteraction | Message): [boolean, boolean, boolean] {
+function parseSubFlags(input: ChatInputCommandInteraction | Message): {
+    isSFW: boolean;
+    isNSFW: boolean;
+    force: boolean;
+} {
     let isSFW = true,
         isNSFW = false,
         force = false;
@@ -193,7 +197,7 @@ function parseSubFlags(input: ChatInputCommandInteraction | Message): [boolean, 
     }
     if ((input.channel as TextChannel).nsfw) isNSFW = true;
 
-    return [isSFW, isNSFW, force];
+    return { isSFW, isNSFW, force };
 }
 
 /**
