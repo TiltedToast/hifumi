@@ -150,8 +150,10 @@ export async function pingRandomMembers(message: Message) {
     if (message.guild === null) return;
 
     if (
-        !isBotOwner(message.author) &&
-        !hasPermission(message.member, PermissionFlagsBits.MentionEveryone)
+        !(
+            isBotOwner(message.author) ||
+            hasPermission(message.member, PermissionFlagsBits.MentionEveryone)
+        )
     ) {
         return;
     }

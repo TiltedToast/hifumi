@@ -63,65 +63,69 @@ export default async function handleMessage(message: Message) {
 }
 
 async function handleCommand({ command, subCmd, message }: MessageCommandData) {
-    if (command === "emoji") {
-        if (["add", "ad", "create"].includes(subCmd)) {
-            return await emoji.addEmoji(message);
-        } else if (["delete", "delet", "del", "remove", "rm"].includes(subCmd)) {
-            return await emoji.removeEmoji(message);
-        } else if (["edit", "e", "rename", "rn"].includes(subCmd)) {
-            return await emoji.renameEmoji(message);
-        } else if (subCmd === "link") {
-            return await emoji.linkEmoji(message);
-        } else if (["search", "s"].includes(subCmd)) {
-            return await emoji.searchEmojis(message);
-        }
-    } else if (["status", "stat"].includes(command)) {
-        return await db.insertStatus(message);
-    } else if (["commands", "command", "comm", "com", "help"].includes(command)) {
-        return await misc.helpCmd(message);
-    } else if (["avatar", "pfp"].includes(command)) {
-        return await misc.avatar(message);
-    } else if (command === "bye") {
-        return await misc.bye(message);
-    } else if (command === "beautiful") {
-        return await imgProcess.beautiful(message);
-    } else if (command === "resize") {
-        return await imgProcess.resizeImg(message);
-    } else if (command === "imgur") {
-        return await imgProcess.imgur(message);
-    } else if (command === "profile") {
-        return await reddit.profile(message);
-    } else if (command === "prefix") {
-        return await db.updatePrefix(message);
-    } else if (command === "con") {
-        return await misc.cmdConsole(message);
-    } else if (command === "qr") {
-        return await imgProcess.qrCode(message);
-    } else if (command === "js") {
-        return await misc.jsEval(message);
-    } else if (command === "link") {
-        return await emoji.linkEmoji(message);
-    } else if (command === "leet") {
-        return await misc.leet(message);
-    } else if (command === "pull") {
-        return await misc.gitPull(message);
-    } else if (command === "someone") {
-        return await misc.pingRandomMembers(message);
-    } else if (command === "yoink") {
-        return await emoji.addEmoji(message);
-    } else if (command === "db") {
-        return await db.runSQL(message);
-    } else if (["wolfram", "wolf"].includes(command)) {
-        return await misc.wolframAlpha(message, command);
-    } else if (["calc", "math"].includes(command)) {
-        return await misc.calc(message);
-    } else if (command === "py") {
-        return await misc.py(message);
-    } else if (["cur", "convert"].includes(command)) {
-        return await misc.convert(message);
-    } else if (command === "urban") {
-        return await misc.urban(message);
-    } else if (command === "sub") {
-        return await reddit.sub(message);
+    // prettier-ignore
+    switch (command) {
+        case "bye":       return misc.bye(message);
+        case "beautiful": return imgProcess.beautiful(message);
+        case "resize":    return imgProcess.resizeImg(message);
+        case "imgur":     return imgProcess.imgur(message);
+        case "profile":   return reddit.profile(message);
+        case "prefix":    return db.updatePrefix(message);
+        case "con":       return misc.cmdConsole(message);
+        case "qr":        return imgProcess.qrCode(message);
+        case "js":        return misc.jsEval(message);
+        case "link":      return emoji.linkEmoji(message);
+        case "leet":      return misc.leet(message);
+        case "pull":      return misc.gitPull(message);
+        case "someone":   return misc.pingRandomMembers(message);
+        case "yoink":     return emoji.addEmoji(message);
+        case "db":        return db.runSQL(message);
+        case "py":        return misc.py(message);
+        case "urban":     return misc.urban(message);
+        case "sub":       return reddit.sub(message);
+        case "emoji":     return handleEmojiCommand({ command, subCmd, message });
+
+        case "wolf":      return misc.wolframAlpha(message, command);
+        case "wolfram":   return misc.wolframAlpha(message, command);
+
+        case "commands":  return misc.helpCmd(message);
+        case "command":   return misc.helpCmd(message);
+        case "comm":      return misc.helpCmd(message);
+        case "com":       return misc.helpCmd(message);
+        case "help":      return misc.helpCmd(message);
+
+        case "status":    return db.insertStatus(message);
+        case "stat":      return db.insertStatus(message);
+
+        case "avatar":    return misc.avatar(message);
+        case "pfp":       return misc.avatar(message);
+        
+        case "calc":      return misc.calc(message);
+        case "math":      return misc.calc(message);
+    }
+}
+
+async function handleEmojiCommand({ subCmd, message }: MessageCommandData) {
+    // prettier-ignore
+    switch (subCmd) {
+        case "add":    return emoji.addEmoji(message);
+        case "ad":     return emoji.addEmoji(message);
+        case "create": return emoji.addEmoji(message);
+
+        case "delete": return emoji.removeEmoji(message);
+        case "delet":  return emoji.removeEmoji(message);
+        case "del":    return emoji.removeEmoji(message);
+        case "remove": return emoji.removeEmoji(message);
+        case "rm":     return emoji.removeEmoji(message);
+
+        case "edit":   return emoji.renameEmoji(message);
+        case "e":      return emoji.renameEmoji(message);
+        case "rename": return emoji.renameEmoji(message);
+        case "rn":     return emoji.renameEmoji(message);
+
+        case "link":   return emoji.linkEmoji(message);
+
+        case "search": return emoji.searchEmojis(message);
+        case "s":      return emoji.searchEmojis(message);
     }
 }
