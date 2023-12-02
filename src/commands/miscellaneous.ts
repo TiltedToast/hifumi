@@ -82,18 +82,16 @@ export async function patUser(interaction: ChatInputCommandInteraction) {
     return await interaction.reply(`$pat ${interaction.options.getUser("user", true).toString()}`);
 }
 
-export async function wolframAlpha(message: Message) {
+export async function wolframAlpha(message: Message, command: string) {
     if (!isBotOwner(message.author)) return;
 
-    const shortAnswer = ["s", "short"].includes(message.content.split(" ")[1].toLowerCase());
+    const longAnswer = command === "wolfram";
 
-    const queryIdx = shortAnswer ? 2 : 1;
-
-    const query = message.content.split(" ").slice(queryIdx).join(" ");
+    const query = message.content.split(" ").slice(1).join(" ");
 
     if (!query) return await message.channel.send("No query provided!");
 
-    const endpoint = shortAnswer ? "/v1/result" : "/v2/simple";
+    const endpoint = longAnswer ? "/v2/simple" : "/v1/result";
 
     const url =
         `http://api.wolframalpha.com${endpoint}?appid=` +
@@ -112,17 +110,19 @@ export async function wolframAlpha(message: Message) {
         );
     }
 
-    if (shortAnswer) {
-        const answer = await response.text().catch(console.error);
-        if (!answer) return await message.channel.send("Failed to get the answer for some reason");
-        return await message.channel.send(codeBlock(answer));
+    if (longAnswer) {
+        const buffer = await response.arrayBuffer().catch(console.error);
+
+        if (!buffer) {
+            return await message.channel.send("Failed to extract the buffer for some reason?");
+        }
+
+        return await message.channel.send({ files: [Buffer.from(buffer)] });
     }
 
-    const buffer = await response.arrayBuffer().catch(console.error);
-
-    if (!buffer) return await message.channel.send("Failed to extract the buffer for some reason?");
-
-    return await message.channel.send({ files: [Buffer.from(buffer)] });
+    const answer = await response.text().catch(console.error);
+    if (!answer) return await message.channel.send("Failed to get the answer for some reason");
+    return await message.channel.send(codeBlock(answer));
 }
 
 export async function checkForImgAndCreateThread(message: Message) {

@@ -62,58 +62,66 @@ export default async function handleMessage(message: Message) {
     }
 }
 
-type MsgCommandFn = (message: Message) => Promise<unknown>;
-
-type MsgCommandName = `${string}::${string}` | `.${string}`;
-
-// prettier-ignore
-/**
- * Map of commands and their functions.
- *
- * There are two ways to use this map:
- * 1. The command is a single word, prefixed with a `.`, e.g. `".status"`
- * 2. The command is a combination of two words, e.g. `"emoji::add"`
- *
- * The first word is the command, the second word is the subcommand.
- * I don't know if this is the best way to do this, but it'll do for now
- */
-const commands = new Map<MsgCommandName[], MsgCommandFn>([
-    [[".status", ".stat"], db.insertStatus],
-    [[".commands", ".command", ".comm", ".com", ".help"], misc.helpCmd],
-    [[".avatar", ".pfp"], misc.avatar],
-    [[".bye"], misc.bye],
-    [[".beautiful"], imgProcess.beautiful],
-    [[".resize"], imgProcess.resizeImg],
-    [[".imgur"], imgProcess.imgur],
-    [[".profile"], reddit.profile],
-    [[".prefix"], db.updatePrefix],
-    [[".con"], misc.cmdConsole],
-    [[".qr"], imgProcess.qrCode],
-    [[".js"], misc.jsEval],
-    [[".link"], emoji.linkEmoji],
-    [[".leet"], misc.leet],
-    [[".pull"], misc.gitPull],
-    [[".someone"], misc.pingRandomMembers],
-    [[".yoink"], emoji.addEmoji],
-    [[".db"], db.runSQL],
-    [[".wolfram", ".wolf"], misc.wolframAlpha],
-    [[".calc", ".math"], misc.calc],
-    [[".py"], misc.py],
-    [[".cur", ".convert"], misc.convert],
-    [[".urban"], misc.urban],
-    [[".sub"], reddit.sub],
-
-    [["emoji::add", "emoji::ad", "emoji::create"], emoji.addEmoji],
-    [["emoji::delete", "emoji::delet", "emoji::del", "emoji::remove", "emoji::rm"], emoji.removeEmoji],
-    [["emoji::edit", "emoji::e", "emoji::rename", "emoji::rn"], emoji.renameEmoji],
-    [["emoji::link"], emoji.linkEmoji],
-    [["emoji::search", "emoji::s"], emoji.searchEmojis],
-]);
-
 async function handleCommand({ command, subCmd, message }: MessageCommandData) {
-    for (const [cmd, fn] of commands) {
-        if (cmd.includes(`${command}::${subCmd}`) || cmd.includes(`.${command}`)) {
-            return await fn(message);
+    if (command === "emoji") {
+        if (["add", "ad", "create"].includes(subCmd)) {
+            return await emoji.addEmoji(message);
+        } else if (["delete", "delet", "del", "remove", "rm"].includes(subCmd)) {
+            return await emoji.removeEmoji(message);
+        } else if (["edit", "e", "rename", "rn"].includes(subCmd)) {
+            return await emoji.renameEmoji(message);
+        } else if (subCmd === "link") {
+            return await emoji.linkEmoji(message);
+        } else if (["search", "s"].includes(subCmd)) {
+            return await emoji.searchEmojis(message);
         }
+    } else if (["status", "stat"].includes(command)) {
+        return await db.insertStatus(message);
+    } else if (["commands", "command", "comm", "com", "help"].includes(command)) {
+        return await misc.helpCmd(message);
+    } else if (["avatar", "pfp"].includes(command)) {
+        return await misc.avatar(message);
+    } else if (command === "bye") {
+        return await misc.bye(message);
+    } else if (command === "beautiful") {
+        return await imgProcess.beautiful(message);
+    } else if (command === "resize") {
+        return await imgProcess.resizeImg(message);
+    } else if (command === "imgur") {
+        return await imgProcess.imgur(message);
+    } else if (command === "profile") {
+        return await reddit.profile(message);
+    } else if (command === "prefix") {
+        return await db.updatePrefix(message);
+    } else if (command === "con") {
+        return await misc.cmdConsole(message);
+    } else if (command === "qr") {
+        return await imgProcess.qrCode(message);
+    } else if (command === "js") {
+        return await misc.jsEval(message);
+    } else if (command === "link") {
+        return await emoji.linkEmoji(message);
+    } else if (command === "leet") {
+        return await misc.leet(message);
+    } else if (command === "pull") {
+        return await misc.gitPull(message);
+    } else if (command === "someone") {
+        return await misc.pingRandomMembers(message);
+    } else if (command === "yoink") {
+        return await emoji.addEmoji(message);
+    } else if (command === "db") {
+        return await db.runSQL(message);
+    } else if (["wolfram", "wolf"].includes(command)) {
+        return await misc.wolframAlpha(message, command);
+    } else if (["calc", "math"].includes(command)) {
+        return await misc.calc(message);
+    } else if (command === "py") {
+        return await misc.py(message);
+    } else if (["cur", "convert"].includes(command)) {
+        return await misc.convert(message);
+    } else if (command === "urban") {
+        return await misc.urban(message);
+    } else if (command === "sub") {
+        return await reddit.sub(message);
     }
 }
