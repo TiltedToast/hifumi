@@ -83,24 +83,25 @@ async function handleCommand({ command, subCmd, message }: MessageCommandData) {
         case "py":        return misc.py(message);
         case "urban":     return misc.urban(message);
         case "sub":       return reddit.sub(message);
+
         case "emoji":     return handleEmojiCommand({ command, subCmd, message });
 
-        case "wolf":      return misc.wolframAlpha(message, command);
+        case "wolf":
         case "wolfram":   return misc.wolframAlpha(message, command);
 
-        case "commands":  return misc.helpCmd(message);
-        case "command":   return misc.helpCmd(message);
-        case "comm":      return misc.helpCmd(message);
-        case "com":       return misc.helpCmd(message);
+        case "commands":
+        case "command":
+        case "comm":
+        case "com":
         case "help":      return misc.helpCmd(message);
 
-        case "status":    return db.insertStatus(message);
+        case "status":
         case "stat":      return db.insertStatus(message);
 
-        case "avatar":    return misc.avatar(message);
+        case "avatar":
         case "pfp":       return misc.avatar(message);
-        
-        case "calc":      return misc.calc(message);
+
+        case "calc":
         case "math":      return misc.calc(message);
     }
 }
@@ -108,24 +109,24 @@ async function handleCommand({ command, subCmd, message }: MessageCommandData) {
 async function handleEmojiCommand({ subCmd, message }: MessageCommandData) {
     // prettier-ignore
     switch (subCmd) {
-        case "add":    return emoji.addEmoji(message);
-        case "ad":     return emoji.addEmoji(message);
+        case "add":
+        case "ad":
         case "create": return emoji.addEmoji(message);
 
-        case "delete": return emoji.removeEmoji(message);
-        case "delet":  return emoji.removeEmoji(message);
-        case "del":    return emoji.removeEmoji(message);
-        case "remove": return emoji.removeEmoji(message);
+        case "delete":
+        case "delet":
+        case "del":
+        case "remove":
         case "rm":     return emoji.removeEmoji(message);
 
-        case "edit":   return emoji.renameEmoji(message);
-        case "e":      return emoji.renameEmoji(message);
-        case "rename": return emoji.renameEmoji(message);
+        case "edit":
+        case "e":
+        case "rename":
         case "rn":     return emoji.renameEmoji(message);
 
         case "link":   return emoji.linkEmoji(message);
 
-        case "search": return emoji.searchEmojis(message);
+        case "search":
         case "s":      return emoji.searchEmojis(message);
     }
 }

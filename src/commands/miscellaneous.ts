@@ -82,7 +82,7 @@ export async function patUser(interaction: ChatInputCommandInteraction) {
     return await interaction.reply(`$pat ${interaction.options.getUser("user", true).toString()}`);
 }
 
-export async function wolframAlpha(message: Message, command: string) {
+export async function wolframAlpha(message: Message, command: "wolfram" | "wolf") {
     if (!isBotOwner(message.author)) return;
 
     const longAnswer = command === "wolfram";
