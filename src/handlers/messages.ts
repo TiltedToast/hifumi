@@ -89,6 +89,10 @@ async function handleCommand({ command, subCmd, message }: MessageCommandData) {
         case "wolf":
         case "wolfram":   return misc.wolframAlpha(message, command);
 
+        case "cur":
+        case "conv":
+        case "convert":   return misc.convert(message);
+
         case "commands":
         case "command":
         case "comm":
