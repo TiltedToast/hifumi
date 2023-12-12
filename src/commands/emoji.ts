@@ -10,8 +10,7 @@ import {
 } from "discord.js";
 import Fuse from "fuse.js";
 import { readFileSync } from "node:fs";
-import { client, prefixMap } from "../app.js";
-import { DEFAULT_PREFIX, DEV_PREFIX } from "../config.js";
+import { client } from "../app.js";
 import { FileSizeLimit } from "../helpers/types.js";
 import {
     createTemp,
@@ -19,7 +18,6 @@ import {
     extractEmoji,
     getImgType,
     hasPermission,
-    isDev,
     isValidSize,
     resize,
     splitMessage,
@@ -51,12 +49,10 @@ export async function linkEmoji(message: Message) {
     return await message.channel.send(output);
 }
 
-export async function addEmoji(message: Message) {
+export async function addEmoji(message: Message, prefix: string) {
     let name = "",
         emoji: GuildEmoji | undefined,
         url = "";
-
-    const prefix = isDev() ? DEV_PREFIX : prefixMap.get(message.guildId ?? "") ?? DEFAULT_PREFIX;
 
     createTemp();
 
@@ -375,14 +371,12 @@ export async function removeEmoji(message: Message) {
     }
 }
 
-export async function renameEmoji(message: Message): Promise<Message> {
+export async function renameEmoji(message: Message, prefix: string) {
     if (!hasPermission(message.member, PermissionFlagsBits.ManageGuildExpressions)) {
         return message.channel.send(
             'You need the "Manage Expressions" permission to rename emojis!'
         );
     }
-
-    const prefix = isDev() ? DEV_PREFIX : prefixMap.get(message.guildId ?? "") ?? DEFAULT_PREFIX;
 
     try {
         const content = message.content.split(" ");

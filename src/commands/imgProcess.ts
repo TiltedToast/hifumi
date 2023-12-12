@@ -2,15 +2,12 @@ import type { Message } from "discord.js";
 import { readFileSync } from "node:fs";
 import qr from "qrcode";
 import sharp from "sharp";
-import { prefixMap } from "../app.js";
-import { DEFAULT_PREFIX, DEV_PREFIX } from "../config.js";
 import { FileSizeLimit, ImgurResponse, ImgurResponseSchema } from "../helpers/types.js";
 import {
     createTemp,
     downloadURL,
     getImgType,
     getUserObjectPingId,
-    isDev,
     isValidSize,
     resize,
 } from "../helpers/utils.js";
@@ -127,10 +124,8 @@ export async function resizeImg(message: Message, prefix: string) {
     return await message.channel.send({ files: [`./temp/unknown_resized.${imgType}`] });
 }
 
-export async function imgur(message: Message) {
+export async function imgur(message: Message, prefix: string) {
     const content = message.content.split(" ");
-
-    const prefix = isDev() ? DEV_PREFIX : prefixMap.get(message.guildId ?? "") ?? DEFAULT_PREFIX;
 
     if (content.length !== 2 && message.attachments.size === 0) {
         return await message.channel.send(`Usage: \`${prefix}imgur <url>\``);

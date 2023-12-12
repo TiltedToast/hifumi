@@ -2,17 +2,11 @@ import { ChatInputCommandInteraction, EmbedBuilder, Message, TextChannel } from 
 import Snoowrap, { Subreddit } from "snoowrap";
 import type { Timespan } from "snoowrap/dist/objects/Subreddit";
 import strftime from "strftime";
-import { prefixMap } from "../app.js";
-import { DEFAULT_PREFIX, DEV_PREFIX, EMBED_COLOUR, REDDIT_USER_AGENT } from "../config.js";
+import { EMBED_COLOUR, REDDIT_USER_AGENT } from "../config.js";
 import { db, getRandomRedditPosts } from "../db/index.js";
 import { redditPosts } from "../db/schema.js";
 import { InsertRedditPostSchema, NewRedditPost, RedditPost } from "../db/types.js";
-import {
-    isCommandInteraction,
-    isDev,
-    randomElementFromArray,
-    sendOrReply,
-} from "../helpers/utils.js";
+import { isCommandInteraction, randomElementFromArray, sendOrReply } from "../helpers/utils.js";
 
 const { REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET, REDDIT_REFRESH_TOKEN } = process.env;
 const fetch_opts = { headers: { "User-Agent": REDDIT_USER_AGENT } };
@@ -24,10 +18,8 @@ const RedditClient = new Snoowrap({
     refreshToken: REDDIT_REFRESH_TOKEN,
 });
 
-export async function profile(message: Message): Promise<Message> {
+export async function profile(message: Message, prefix: string) {
     const content = message.content.split(" ");
-
-    const prefix = isDev() ? DEV_PREFIX : prefixMap.get(message.guildId ?? "") ?? DEFAULT_PREFIX;
 
     if (content.length !== 2) return message.channel.send(`Usage: \`${prefix}profile <username>\``);
 

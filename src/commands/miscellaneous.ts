@@ -222,7 +222,7 @@ export async function leet(message: Message) {
     await message.channel.send(leetOutput.substring(0, 2000));
 }
 
-export async function helpCmd(input: Message | CommandInteraction) {
+export async function helpCmd(input: Message | CommandInteraction, prefix?: string) {
     const helpMsgArray = await db.select().from(helpMessages).execute();
 
     if (helpMsgArray.length === 0) {
@@ -232,7 +232,7 @@ export async function helpCmd(input: Message | CommandInteraction) {
         );
     }
 
-    const prefix = isDev() ? DEV_PREFIX : prefixMap.get(input.guildId ?? "") ?? DEFAULT_PREFIX;
+    prefix ??= isDev() ? DEV_PREFIX : prefixMap.get(input.guild?.id ?? "") ?? DEFAULT_PREFIX;
 
     const helpMsg = helpMsgArray.map((msg) => `**${prefix}${msg.cmd}** - ${msg.desc}`).join("\n");
 

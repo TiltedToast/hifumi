@@ -68,8 +68,8 @@ async function handleCommand({ command, subCmd, message, prefix }: MessageComman
         case "bye":       return misc.bye(message);
         case "beautiful": return imgProcess.beautiful(message);
         case "resize":    return imgProcess.resizeImg(message, prefix);
-        case "imgur":     return imgProcess.imgur(message);
-        case "profile":   return reddit.profile(message);
+        case "imgur":     return imgProcess.imgur(message, prefix);
+        case "profile":   return reddit.profile(message, prefix);
         case "prefix":    return db.updatePrefix(message);
         case "con":       return misc.cmdConsole(message);
         case "qr":        return imgProcess.qrCode(message);
@@ -78,7 +78,7 @@ async function handleCommand({ command, subCmd, message, prefix }: MessageComman
         case "leet":      return misc.leet(message);
         case "pull":      return misc.gitPull(message);
         case "someone":   return misc.pingRandomMembers(message);
-        case "yoink":     return emoji.addEmoji(message);
+        case "yoink":     return emoji.addEmoji(message, prefix);
         case "db":        return db.runSQL(message);
         case "py":        return misc.py(message);
         case "urban":     return misc.urban(message);
@@ -110,12 +110,12 @@ async function handleCommand({ command, subCmd, message, prefix }: MessageComman
     }
 }
 
-async function handleEmojiCommand({ subCmd, message }: MessageCommandData) {
+async function handleEmojiCommand({ subCmd, message, prefix }: MessageCommandData) {
     // prettier-ignore
     switch (subCmd) {
         case "add":
         case "ad":
-        case "create": return emoji.addEmoji(message);
+        case "create": return emoji.addEmoji(message, prefix);
 
         case "delete":
         case "delet":
@@ -126,7 +126,7 @@ async function handleEmojiCommand({ subCmd, message }: MessageCommandData) {
         case "edit":
         case "e":
         case "rename":
-        case "rn":     return emoji.renameEmoji(message);
+        case "rn":     return emoji.renameEmoji(message, prefix);
 
         case "link":   return emoji.linkEmoji(message);
 
