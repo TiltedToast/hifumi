@@ -48,7 +48,7 @@ export default async function handleMessage(message: Message) {
             await misc.reloadBot(message);
 
         if (lowerCasePrefix === prefix.toLowerCase()) {
-            await handleCommand({ command, subCmd, message });
+            await handleCommand({ command, subCmd, message, prefix });
         }
 
         // Reacting to Miku's emote commands
@@ -62,12 +62,12 @@ export default async function handleMessage(message: Message) {
     }
 }
 
-async function handleCommand({ command, subCmd, message }: MessageCommandData) {
+async function handleCommand({ command, subCmd, message, prefix }: MessageCommandData) {
     // prettier-ignore
     switch (command) {
         case "bye":       return misc.bye(message);
         case "beautiful": return imgProcess.beautiful(message);
-        case "resize":    return imgProcess.resizeImg(message);
+        case "resize":    return imgProcess.resizeImg(message, prefix);
         case "imgur":     return imgProcess.imgur(message);
         case "profile":   return reddit.profile(message);
         case "prefix":    return db.updatePrefix(message);
@@ -84,7 +84,7 @@ async function handleCommand({ command, subCmd, message }: MessageCommandData) {
         case "urban":     return misc.urban(message);
         case "sub":       return reddit.sub(message);
 
-        case "emoji":     return handleEmojiCommand({ command, subCmd, message });
+        case "emoji":     return handleEmojiCommand({ command, subCmd, message, prefix });
 
         case "wolf":
         case "wolfram":   return misc.wolframAlpha(message, command);

@@ -15,8 +15,6 @@ import {
     resize,
 } from "../helpers/utils.js";
 
-const { IMGUR_CLIENT_ID } = process.env;
-
 export async function beautiful(message: Message) {
     createTemp();
     const content = message.content.split(" ");
@@ -44,8 +42,16 @@ export async function beautiful(message: Message) {
         },
     });
 
-    const avatar = await sharp("./temp/avatar_resized.png").toBuffer();
-    const background = await sharp("./src/assets/beautiful_background.png").toBuffer();
+    const avatar = await sharp("./temp/avatar_resized.png").toBuffer().catch(console.error);
+    const background = await sharp("./src/assets/beautiful_background.png")
+        .toBuffer()
+        .catch(console.error);
+
+    if (!avatar || !background) {
+        return await message.channel.send(
+            "I'm sorry, it seems something went wrong generating the image"
+        );
+    }
 
     canvas.composite([
         { input: avatar, top: 35, left: 422 }, // Top pfp
@@ -78,11 +84,9 @@ export async function qrCode(message: Message) {
     return await message.channel.send({ files: [buf] });
 }
 
-export async function resizeImg(message: Message) {
+export async function resizeImg(message: Message, prefix: string) {
     createTemp();
     const content = message.content.split(" ");
-
-    const prefix = isDev() ? DEV_PREFIX : prefixMap.get(message.guildId ?? "") ?? DEFAULT_PREFIX;
 
     // Checks for invalid User input
     if (content.length !== 3 && message.attachments.size === 0) {
@@ -152,7 +156,7 @@ export async function imgur(message: Message) {
 
     const myHeaders = new Headers();
     const formdata = new FormData();
-    myHeaders.append("Authorization", `Client-ID ${IMGUR_CLIENT_ID}`);
+    myHeaders.append("Authorization", `Client-ID ${process.env.IMGUR_CLIENT_ID}`);
 
     const requestOptions: RequestInit = {
         method: "POST",
