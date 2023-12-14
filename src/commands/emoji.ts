@@ -28,7 +28,9 @@ const emojiRegex = new RegExp(/<a?:\w+:\d+>/gi);
 const {
     FailedToResizeAssetBelowTheMinimumSize,
     MaximumNumberOfEmojisReached,
+    MaximumNumberOfAnimatedEmojisReached,
     InvalidFormBodyOrContentType,
+    MaximumNumberOfPremiumEmojisReached,
     UnknownEmoji,
 } = RESTJSONErrorCodes;
 
@@ -51,12 +53,12 @@ export async function linkEmoji(message: Message) {
 
 export async function addEmoji(message: Message, prefix: string) {
     let name = "",
-        emoji: GuildEmoji | undefined,
+        emoji: GuildEmoji,
         url = "";
 
     createTemp();
 
-    // They haven't added "Create Expressions" permission (1 << 43) to the enum yet, hence the magic number
+    // They haven't added the "Create Expressions" permission (1 << 43) to the enum yet, hence the magic number
     if (!hasPermission(message.member, 8796093022208n)) {
         return await message.channel.send(
             'You need the "Create Expressions" permission to add emojis!'
@@ -199,28 +201,28 @@ export async function addEmoji(message: Message, prefix: string) {
         return await handleCreateError(error, message, name);
     }
 
-    const emojiPrefix = emoji?.animated ? "a" : "";
-    const emojiName = `<${emojiPrefix}:${emoji?.name ?? "NameNotFound"}:${emoji?.id}>`;
-
-    // Sends newly created emoji to the channel
-    return await message.channel.send(emojiName);
+    return await message.channel.send(emoji.toString());
 }
 
 async function handleCreateError(error: unknown, message: Message, name: string) {
     let errorMessage: string;
-
     if (error instanceof DiscordAPIError) {
         switch (+error.code) {
             case FailedToResizeAssetBelowTheMinimumSize:
                 errorMessage = `The emoji \`${name}\` does not fit under the size limit!`;
                 break;
             case MaximumNumberOfEmojisReached:
+            case MaximumNumberOfAnimatedEmojisReached:
                 errorMessage = `Could not add \`${name}\`, you've hit the limit!`;
                 break;
             case InvalidFormBodyOrContentType:
                 errorMessage = `Could not add \`${name}\`, the name is invalid!`;
                 break;
+            case MaximumNumberOfPremiumEmojisReached:
+                errorMessage = `Could not add \`${name}\`, you've hit the limit for premium emojis!`;
+                break;
             default:
+                console.log(error);
                 errorMessage =
                     `Could not add \`${name}\`, unknown error! ` +
                     `Error message: ${error.message}`;
