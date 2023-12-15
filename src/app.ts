@@ -1,3 +1,4 @@
+import { existsSync, rmSync } from "node:fs";
 import dedent from "dedent";
 import {
     Client as DiscordClient,
@@ -7,7 +8,6 @@ import {
     TextChannel,
 } from "discord.js";
 import "dotenv/config";
-import { existsSync, rmSync } from "node:fs";
 import strftime from "strftime";
 import { avoidDbSleeping, startStatusLoop } from "./commands/loops.js";
 import { LOG_CHANNEL } from "./config.js";

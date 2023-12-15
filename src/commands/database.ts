@@ -45,7 +45,7 @@ export async function runSQL(message: Message) {
     for (let i = 0; i < values[0].length; i++) {
         const minVal = Math.min(
             MIN_WRAP_LENGTH,
-            Math.max(...values.map((v) => String(v[i]).length))
+            Math.max(...values.map((v) => String(v[i]).length)),
         );
         columns[i] = {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
@@ -72,7 +72,7 @@ export async function runSQL(message: Message) {
     await message.channel.send(
         stringified.startsWith("{") || stringified.startsWith("[")
             ? codeBlock("json", stringified)
-            : codeBlock(stringified)
+            : codeBlock(stringified),
     );
 }
 
@@ -103,7 +103,7 @@ export async function insertStatus(message: Message): Promise<undefined | Messag
 
     if (isDev()) {
         await message.channel.send(
-            "Add your statuses to the main db instead <:emiliaSMH:747132102645907587>"
+            "Add your statuses to the main db instead <:emiliaSMH:747132102645907587>",
         );
     }
 
@@ -127,14 +127,16 @@ export async function insertStatus(message: Message): Promise<undefined | Messag
 
     await message.channel.send("Status added!");
     await message.channel.send(
-        codeBlock("json", JSON.stringify({ ...document, id: query.insertId }, null, 4))
+        codeBlock("json", JSON.stringify({ ...document, id: query.insertId }, null, 4)),
     );
 }
 
 export async function updatePrefix(message: Message) {
     if (
-        !hasPermission(message.member, PermissionFlagsBits.ManageGuild) &&
-        !BOT_OWNERS.includes(message.author.id)
+        !(
+            hasPermission(message.member, PermissionFlagsBits.ManageGuild) ||
+            BOT_OWNERS.includes(message.author.id)
+        )
     ) {
         return message.channel.send("Insufficient permissions!");
     }

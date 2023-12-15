@@ -23,18 +23,14 @@
         "zod-validation-error": "^2.1.0"
     },
     "devDependencies": {
+        "@biomejs/biome": "1.4.1",
         "@types/dedent": "^0.7.2",
         "@types/node": "^20.10.4",
         "@types/qrcode": "^1.5.5",
         "@types/strftime": "^0.9.8",
-        "@typescript-eslint/eslint-plugin": "^6.14.0",
-        "@typescript-eslint/parser": "^6.14.0",
         "drizzle-kit": "^0.20.6",
-        "eslint": "^8.55.0",
-        "eslint-plugin-import": "^2.29.1",
         "husky": "^8.0.3",
         "lint-staged": "^15.2.0",
-        "prettier": "^3.1.1",
         "tsx": "^4.6.2",
         "typescript": "^5.3.3"
     },
@@ -42,10 +38,9 @@
         "start": "tsc && pm2 start ./pm2.config.cjs",
         "stop": "pm2 delete ./pm2.config.cjs",
         "restart": "tsc && pm2 reload ./pm2.config.cjs",
-        "fmt:check": "prettier --config .prettierrc --check .",
-        "fmt:write": "prettier --config .prettierrc --write .",
+        "fmt:write": "biome format . --write",
         "test": "pnpm run /^test:/",
-        "test:lint": "eslint . -c .eslintrc --max-warnings 0",
+        "test:lint": "biome check .",
         "test:build": "tsc",
         "prepare": "husky install",
         "deploy": "tsc && node ./dist/deploy-commands.js",
@@ -54,7 +49,7 @@
         "clear-test-commands": "tsc && node ./dist/deploy-commands.js --guild 655484563077988385 --clear"
     },
     "lint-staged": {
-        "*.{js,ts,json,css,md,yml}": "prettier --config .prettierrc --write"
+        "*.{js,ts,json}": "biome format --write"
     },
     "husky": {
         "hooks": {

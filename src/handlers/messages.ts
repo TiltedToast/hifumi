@@ -1,4 +1,4 @@
-import { type Message } from "discord.js";
+import type { Message } from "discord.js";
 import { botIsLoading, prefixMap } from "../app.js";
 import * as db from "../commands/database.js";
 import * as emoji from "../commands/emoji.js";
@@ -48,7 +48,7 @@ export default async function handleMessage(message: Message) {
             await misc.reloadBot(message);
 
         if (lowerCasePrefix === prefix.toLowerCase()) {
-            await handleCommand({ command, subCmd, message, prefix });
+            handleCommand({ command, subCmd, message, prefix });
         }
 
         // Reacting to Miku's emote commands
@@ -58,79 +58,109 @@ export default async function handleMessage(message: Message) {
         }
         await misc.checkForImgAndCreateThread(message);
     } catch (err: unknown) {
-        await errorLog({ message, errorObject: err as Error });
+        errorLog({ message, errorObject: err as Error });
     }
 }
 
-async function handleCommand({ command, subCmd, message, prefix }: MessageCommandData) {
+function handleCommand({ command, subCmd, message, prefix }: MessageCommandData) {
     // prettier-ignore
     switch (command) {
-        case "bye":       return misc.bye(message);
-        case "beautiful": return imgProcess.beautiful(message);
-        case "resize":    return imgProcess.resizeImg(message, prefix);
-        case "imgur":     return imgProcess.imgur(message, prefix);
-        case "profile":   return reddit.profile(message, prefix);
-        case "prefix":    return db.updatePrefix(message);
-        case "con":       return misc.cmdConsole(message);
-        case "qr":        return imgProcess.qrCode(message);
-        case "js":        return misc.jsEval(message);
-        case "link":      return emoji.linkEmoji(message);
-        case "leet":      return misc.leet(message);
-        case "pull":      return misc.gitPull(message);
-        case "someone":   return misc.pingRandomMembers(message);
-        case "yoink":     return emoji.addEmoji(message, prefix);
-        case "db":        return db.runSQL(message);
-        case "py":        return misc.py(message);
-        case "urban":     return misc.urban(message);
-        case "sub":       return reddit.sub(message);
+        case "bye":
+            return misc.bye(message);
+        case "beautiful":
+            return imgProcess.beautiful(message);
+        case "resize":
+            return imgProcess.resizeImg(message, prefix);
+        case "imgur":
+            return imgProcess.imgur(message, prefix);
+        case "profile":
+            return reddit.profile(message, prefix);
+        case "prefix":
+            return db.updatePrefix(message);
+        case "con":
+            return misc.cmdConsole(message);
+        case "qr":
+            return imgProcess.qrCode(message);
+        case "js":
+            return misc.jsEval(message);
+        case "link":
+            return emoji.linkEmoji(message);
+        case "leet":
+            return misc.leet(message);
+        case "pull":
+            return misc.gitPull(message);
+        case "someone":
+            return misc.pingRandomMembers(message);
+        case "yoink":
+            return emoji.addEmoji(message, prefix);
+        case "db":
+            return db.runSQL(message);
+        case "py":
+            return misc.py(message);
+        case "urban":
+            return misc.urban(message);
+        case "sub":
+            return reddit.sub(message);
 
-        case "emoji":     return handleEmojiCommand({ command, subCmd, message, prefix });
+        case "emoji":
+            return handleEmojiCommand({ command, subCmd, message, prefix });
 
         case "wolf":
-        case "wolfram":   return misc.wolframAlpha(message, command);
+        case "wolfram":
+            return misc.wolframAlpha(message, command);
 
         case "cur":
         case "conv":
-        case "convert":   return misc.convert(message);
+        case "convert":
+            return misc.convert(message);
 
         case "commands":
         case "command":
         case "comm":
         case "com":
-        case "help":      return misc.helpCmd(message);
+        case "help":
+            return misc.helpCmd(message);
 
         case "status":
-        case "stat":      return db.insertStatus(message);
+        case "stat":
+            return db.insertStatus(message);
 
         case "avatar":
-        case "pfp":       return misc.avatar(message);
+        case "pfp":
+            return misc.avatar(message);
 
         case "calc":
-        case "math":      return misc.calc(message);
+        case "math":
+            return misc.calc(message);
     }
 }
 
-async function handleEmojiCommand({ subCmd, message, prefix }: MessageCommandData) {
+function handleEmojiCommand({ subCmd, message, prefix }: MessageCommandData) {
     // prettier-ignore
     switch (subCmd) {
         case "add":
         case "ad":
-        case "create": return emoji.addEmoji(message, prefix);
+        case "create":
+            return emoji.addEmoji(message, prefix);
 
         case "delete":
         case "delet":
         case "del":
         case "remove":
-        case "rm":     return emoji.removeEmoji(message);
+        case "rm":
+            return emoji.removeEmoji(message);
 
         case "edit":
         case "e":
         case "rename":
-        case "rn":     return emoji.renameEmoji(message, prefix);
+        case "rn":
+            return emoji.renameEmoji(message, prefix);
 
-        case "link":   return emoji.linkEmoji(message);
+        case "link":
+            return emoji.linkEmoji(message);
 
         case "search":
-        case "s":      return emoji.searchEmojis(message);
+        case "s":
+            return emoji.searchEmojis(message);
     }
 }

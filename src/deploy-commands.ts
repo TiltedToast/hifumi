@@ -4,7 +4,7 @@ import { DEV_COMMAND_POSTFIX } from "./config.js";
 
 if (!process.env["BOT_ID"]) throw new Error("You must provide a BOT_ID env variable");
 
-let guildId;
+let guildId: string | undefined = undefined;
 const clear = process.argv.includes("--clear");
 
 const idx = process.argv.indexOf("--guild");
@@ -17,7 +17,7 @@ let commands = [
         .setName("pat")
         .setDescription("Pats a user")
         .addUserOption((option) =>
-            option.setName("user").setDescription("The user to pat").setRequired(true)
+            option.setName("user").setDescription("The user to pat").setRequired(true),
         ),
 
     new SlashCommandBuilder().setName("help").setDescription("Shows a list of commands"),
@@ -29,46 +29,46 @@ let commands = [
             option
                 .setName("subreddit")
                 .setDescription("The subreddit to search in")
-                .setRequired(true)
+                .setRequired(true),
         )
         .addBooleanOption((option) =>
             option
                 .setName("nsfw")
                 .setDescription("Whether to fetch only NSFW posts")
-                .setRequired(false)
+                .setRequired(false),
         )
         .addBooleanOption((option) =>
-            option.setName("force").setDescription("Force fetch posts").setRequired(false)
+            option.setName("force").setDescription("Force fetch posts").setRequired(false),
         ),
 
     new SlashCommandBuilder()
         .setName("urban")
         .setDescription("Searches for a term on Urban Dictionary")
         .addStringOption((option) =>
-            option.setName("term").setDescription("The term to search for").setRequired(false)
+            option.setName("term").setDescription("The term to search for").setRequired(false),
         )
         .addBooleanOption((option) =>
             option
                 .setName("random")
                 .setDescription("Whether to search for random terms")
-                .setRequired(false)
+                .setRequired(false),
         ),
 
     new SlashCommandBuilder()
         .setName("convert")
         .setDescription("Converts from one currency to another")
         .addStringOption((option) =>
-            option.setName("from").setDescription("The currency to convert from").setRequired(true)
+            option.setName("from").setDescription("The currency to convert from").setRequired(true),
         )
         .addStringOption((option) =>
-            option.setName("to").setDescription("The currency to convert to").setRequired(true)
+            option.setName("to").setDescription("The currency to convert to").setRequired(true),
         )
         .addNumberOption((option) =>
             option
                 .setName("amount")
                 .setDescription("The amount to convert")
                 .setRequired(false)
-                .setMinValue(Number.MIN_VALUE)
+                .setMinValue(Number.MIN_VALUE),
         ),
 ].map((command) => command.toJSON());
 

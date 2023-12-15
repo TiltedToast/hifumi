@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import {
     DiscordAPIError,
     GuildEmoji,
@@ -9,7 +10,6 @@ import {
     StickerFormatType,
 } from "discord.js";
 import Fuse from "fuse.js";
-import { readFileSync } from "node:fs";
 import { client } from "../app.js";
 import { FileSizeLimit } from "../helpers/types.js";
 import {
@@ -52,16 +52,16 @@ export async function linkEmoji(message: Message) {
 }
 
 export async function addEmoji(message: Message, prefix: string) {
-    let name = "",
-        emoji: GuildEmoji,
-        url = "";
+    let name = "";
+    let emoji: GuildEmoji;
+    let url = "";
 
     createTemp();
 
     // They haven't added the "Create Expressions" permission (1 << 43) to the enum yet, hence the magic number
     if (!hasPermission(message.member, 8796093022208n)) {
         return await message.channel.send(
-            'You need the "Create Expressions" permission to add emojis!'
+            'You need the "Create Expressions" permission to add emojis!',
         );
     }
     const content = message.content.split(" ").filter(Boolean);
@@ -70,21 +70,22 @@ export async function addEmoji(message: Message, prefix: string) {
         const repliedMsg = message.channel.messages.resolve(message.reference?.messageId ?? "");
         if (!repliedMsg)
             return await message.channel.send(
-                "Could not find message to grab emojis/stickers from!"
+                "Could not find message to grab emojis/stickers from!",
             );
 
         const emojis = repliedMsg.content.match(emojiRegex);
         const stickers = repliedMsg.stickers;
         if (!emojis && stickers.size === 0)
             return await message.channel.send(
-                "The message must contain at least one emoji/sticker!"
+                "The message must contain at least one emoji/sticker!",
             );
 
         if (emojis?.length) {
             const emojiStringOutput = await bulkAddEmojis(message, emojis);
             if (!emojiStringOutput) return;
             return await message.channel.send(emojiStringOutput);
-        } else if (stickers.size > 0) {
+        }
+        if (stickers.size > 0) {
             return await addStickers(repliedMsg);
         }
     }
@@ -118,9 +119,11 @@ export async function addEmoji(message: Message, prefix: string) {
 
     if (content.length <= 2 && message.attachments.size === 0) {
         return await message.channel.send(`Usage: \`${prefix}emoji add <name> <url/emoji>\``);
-    } else if (content.length === 2 && message.attachments.size > 0) {
+    }
+    if (content.length === 2 && message.attachments.size > 0) {
         return await message.channel.send("You have to specify a name!");
-    } else if (content.length === 3 && content[2].startsWith("http")) {
+    }
+    if (content.length === 3 && content[2].startsWith("http")) {
         return await message.channel.send("You have to specify a name!");
     }
 
@@ -149,14 +152,14 @@ export async function addEmoji(message: Message, prefix: string) {
     const isValidURL = urlPattern.test(source);
 
     // Matches the source string against a url regex and sets the url variable
-    if (!isValidURL && !source.startsWith("<") && message.attachments.size === 0) {
+    if (!(isValidURL || source.startsWith("<")) && message.attachments.size === 0) {
         return message.channel.send("Invalid source url!");
-    } else if (source.startsWith("<")) {
+    }
+    if (source.startsWith("<")) {
         url = extractEmoji(source);
     } else if (isValidURL) {
         url = source;
     } else if (message.attachments.size > 0) {
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         url = message.attachments.first()!.url;
     }
 
@@ -248,7 +251,7 @@ async function addStickers(message: Message) {
 
         if (format === StickerFormatType.Lottie) {
             await message.channel.send(
-                `\`${name}\` is a Lottie sticker. I cannot add those yet unfortunately`
+                `\`${name}\` is a Lottie sticker. I cannot add those yet unfortunately`,
             );
             continue;
         }
@@ -262,7 +265,6 @@ async function addStickers(message: Message) {
             addedStickers.push(newSticker);
         } catch (_) {
             await message.channel.send(`Could not add ${name}, something went wrong`);
-            continue;
         }
     }
     if (!addedStickers.length) return;
@@ -314,7 +316,7 @@ async function bulkAddEmojis(message: Message, emojis: RegExpMatchArray) {
         }
         if (emoji === undefined) {
             await message.channel.send(
-                "Couldn't create emoji, Discord might be having issues with their API!"
+                "Couldn't create emoji, Discord might be having issues with their API!",
             );
             continue;
         }
@@ -333,13 +335,13 @@ async function bulkAddEmojis(message: Message, emojis: RegExpMatchArray) {
 export async function removeEmoji(message: Message) {
     if (!hasPermission(message.member, PermissionFlagsBits.ManageGuildExpressions)) {
         return await message.channel.send(
-            'You need the "Manage Expressions" permission to remove emojis'
+            'You need the "Manage Expressions" permission to remove emojis',
         );
     }
 
     const emojiStrings = message.content.match(emojiRegex);
     if (!emojiStrings || emojiStrings.length === 0) {
-        return await message.channel.send(`You need to provide at least one emoji to remove`);
+        return await message.channel.send("You need to provide at least one emoji to remove");
     }
 
     const emojiIds = emojiStrings.map((emoji) => extractEmoji(emoji, true));
@@ -351,7 +353,7 @@ export async function removeEmoji(message: Message) {
             if (!emoji) continue;
             const deletedEmoji = await emoji.delete();
             await message.channel.send(
-                `Successfully deleted \`${deletedEmoji.name ?? "Name not found"}\``
+                `Successfully deleted \`${deletedEmoji.name ?? "Name not found"}\``,
             );
         } catch (error) {
             if (error instanceof DiscordAPIError) {
@@ -367,7 +369,6 @@ export async function removeEmoji(message: Message) {
                         break;
                 }
                 await message.channel.send(errorMessage);
-                continue;
             }
         }
     }
@@ -376,7 +377,7 @@ export async function removeEmoji(message: Message) {
 export async function renameEmoji(message: Message, prefix: string) {
     if (!hasPermission(message.member, PermissionFlagsBits.ManageGuildExpressions)) {
         return message.channel.send(
-            'You need the "Manage Expressions" permission to rename emojis!'
+            'You need the "Manage Expressions" permission to rename emojis!',
         );
     }
 
@@ -384,7 +385,7 @@ export async function renameEmoji(message: Message, prefix: string) {
         const content = message.content.split(" ").filter(Boolean);
         if (content.length !== 4)
             return await message.channel.send(
-                `Usage: \`${prefix}emoji rename <new name> <emoji>\``
+                `Usage: \`${prefix}emoji rename <new name> <emoji>\``,
             );
 
         const newName = content[2];
@@ -393,12 +394,12 @@ export async function renameEmoji(message: Message, prefix: string) {
         const guildEmojis = message.guild?.emojis.cache;
         const emoji = guildEmojis?.find((emoji) => emoji.id === emojiId);
 
-        if (!emoji) return message.channel.send(`Emoji not found!`);
+        if (!emoji) return message.channel.send("Emoji not found!");
 
         const oldName = Object.assign({}, emoji).name;
         await emoji.edit({ name: newName });
         return message.channel.send(
-            `Emoji successfully renamed from \`${oldName ?? "NameNotFound"}\` to \`${newName}\`!`
+            `Emoji successfully renamed from \`${oldName ?? "NameNotFound"}\` to \`${newName}\`!`,
         );
     } catch (err) {
         return await message.channel.send(`Usage: \`${prefix}emoji rename <new name> <emoji>\``);

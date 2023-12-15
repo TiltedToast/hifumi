@@ -25,7 +25,7 @@ export async function startCatFactLoop(channel: TextChannel) {
 
         const json = (await response.json().catch(console.error)) as CatFactResponse;
 
-        if (!json || !CatFactResponseSchema.safeParse(json).success) {
+        if (!(json && CatFactResponseSchema.safeParse(json).success)) {
             await channel.send("Error parsing cat fact response");
             await sleep();
             continue;

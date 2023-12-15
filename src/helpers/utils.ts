@@ -1,3 +1,5 @@
+import { existsSync, mkdirSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { resolve } from "node:path";
 import dedent from "dedent";
 import {
     BaseMessageOptions,
@@ -11,8 +13,6 @@ import {
     TextChannel,
     User,
 } from "discord.js";
-import { existsSync, mkdirSync, rmSync, statSync, writeFileSync } from "node:fs";
-import { resolve } from "node:path";
 import sharp from "sharp";
 import strftime from "strftime";
 import { client } from "../app.js";
@@ -29,7 +29,7 @@ import type {
 } from "./types.js";
 
 export function isCommandInteraction(
-    input: Message | CommandInteraction
+    input: Message | CommandInteraction,
 ): input is CommandInteraction {
     return input instanceof CommandInteraction;
 }
@@ -46,20 +46,21 @@ export function isMessage(input: Message | CommandInteraction): input is Message
 export async function sendOrReply(
     input: Message | CommandInteraction,
     message: string | BaseMessageOptions,
-    ephemeral = false
+    ephemeral = false,
 ) {
     if (input instanceof Message) {
         return await input.channel.send(message);
     }
     if (input.deferred) {
         return await input.editReply(message);
-    } else if (input.isRepliable() && typeof message === "string") {
-        return await input.reply({ content: message, ephemeral });
-    } else if (input.isRepliable() && !ephemeral) {
-        return await input.reply(message);
-    } else {
-        return await input.channel?.send(message);
     }
+    if (input.isRepliable() && typeof message === "string") {
+        return await input.reply({ content: message, ephemeral });
+    }
+    if (input.isRepliable() && !ephemeral) {
+        return await input.reply(message);
+    }
+    return await input.channel?.send(message);
 }
 
 export function splitMessage(content: string, maxLength = 2000, delim = " "): string[] {
@@ -87,17 +88,15 @@ function getEmbedIndex(arr: EmbedMetadata[], target: EmbedMetadata): number {
     return arr.findIndex(
         (elem) =>
             elem.embed.toJSON().description?.replaceAll(/[\n\r\s]+/gi, "") ===
-            target.embed.toJSON().description?.replaceAll(/[\n\r\s]+/gi, "")
+            target.embed.toJSON().description?.replaceAll(/[\n\r\s]+/gi, ""),
     );
 }
 
 export function clientNoPermissions(message: Message, guildClient?: GuildMember): boolean {
     if (!guildClient) return false;
-    return (
-        !guildClient
-            .permissionsIn(message.channel.id)
-            .has(PermissionsBitField.Flags.SendMessages) ||
-        !guildClient.permissionsIn(message.channel.id).has(PermissionsBitField.Flags.ViewChannel)
+    return !(
+        guildClient.permissionsIn(message.channel.id).has(PermissionsBitField.Flags.SendMessages) &&
+        guildClient.permissionsIn(message.channel.id).has(PermissionsBitField.Flags.ViewChannel)
     );
 }
 
@@ -167,7 +166,7 @@ export async function updateEmbed(options: UpdateEmbedOptions) {
  */
 export function hasPermission(
     member: GuildMember | null,
-    permission: PermissionResolvable
+    permission: PermissionResolvable,
 ): boolean {
     if (!member) return false;
     return member.permissions.has(permission);
@@ -181,11 +180,10 @@ export async function resize(options: ResizeOptions) {
     const { fileLocation, width, saveLocation } = options;
     if (fileLocation.endsWith(".gif")) {
         return await execPromise(
-            `gifsicle --resize-width ${width} ${fileLocation} -o ${saveLocation}`
+            `gifsicle --resize-width ${width} ${fileLocation} -o ${saveLocation}`,
         );
-    } else {
-        return await sharp(fileLocation).resize(width).toFile(saveLocation);
     }
+    return await sharp(fileLocation).resize(width).toFile(saveLocation);
 }
 
 /**
@@ -214,7 +212,8 @@ export async function getUserObjectPingId(message: Message): Promise<User | unde
     const pingOrIdString = content[1];
 
     try {
-        if (!isNaN(parseInt(pingOrIdString))) user = await client.users.fetch(pingOrIdString);
+        if (!Number.isNaN(parseInt(pingOrIdString)))
+            user = await client.users.fetch(pingOrIdString);
         if (!user && pingOrIdString.startsWith("<")) user = message.mentions.users.first();
         return user ? user : undefined;
     } catch (err) {
@@ -247,7 +246,7 @@ export function randomIntFromRange(min: number, max: number): number {
  * @param message The Message object passed on each command execution
  * @param errorObject The error object that is passed to the command through try/catch
  */
-export async function errorLog({ message, errorObject }: ErrorLogOptions) {
+export function errorLog({ message, errorObject }: ErrorLogOptions) {
     const currentTime = strftime("%d/%m/%Y %H:%M:%S");
     let channel: Channel | undefined;
     let errorMessage: string;
@@ -366,9 +365,9 @@ export async function downloadURL(url: string, saveLocation: string) {
  */
 export function getImgType(url: string) {
     if (url.includes(".png") || url.includes(".webp")) return "png";
-    else if (url.includes(".jpeg") || url.includes(".jpg")) return "jpeg";
-    else if (url.includes(".gif")) return "gif";
-    else if (url.includes(".svg")) return "svg";
+    if (url.includes(".jpeg") || url.includes(".jpg")) return "jpeg";
+    if (url.includes(".gif")) return "gif";
+    if (url.includes(".svg")) return "svg";
     return undefined;
 }
 

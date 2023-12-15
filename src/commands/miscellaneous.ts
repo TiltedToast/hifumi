@@ -1,3 +1,5 @@
+import { exec } from "node:child_process";
+import { promisify } from "node:util";
 import dedent from "dedent";
 import {
     ActionRowBuilder,
@@ -12,8 +14,6 @@ import {
     codeBlock,
 } from "discord.js";
 import { all, create } from "mathjs";
-import { exec } from "node:child_process";
-import { promisify } from "node:util";
 import { client, prefixMap } from "../app.js";
 import {
     BOT_NAME,
@@ -68,14 +68,26 @@ const mathEvaluate = math.evaluate;
  */
 math.import(
     {
-        import:     () => { throw new Error("Function import is disabled") },
-        createUnit: () => { throw new Error("Function createUnit is disabled") },
-        evaluate:   () => { throw new Error("Function evaluate is disabled") },
-        parse:      () => { throw new Error("Function parse is disabled") },
-        simplify:   () => { throw new Error("Function simplify is disabled") },
-        derivative: () => { throw new Error("Function derivative is disabled") },
+        import: () => {
+            throw new Error("Function import is disabled");
+        },
+        createUnit: () => {
+            throw new Error("Function createUnit is disabled");
+        },
+        evaluate: () => {
+            throw new Error("Function evaluate is disabled");
+        },
+        parse: () => {
+            throw new Error("Function parse is disabled");
+        },
+        simplify: () => {
+            throw new Error("Function simplify is disabled");
+        },
+        derivative: () => {
+            throw new Error("Function derivative is disabled");
+        },
     },
-    { override: true }
+    { override: true },
 );
 
 export async function patUser(interaction: ChatInputCommandInteraction) {
@@ -93,12 +105,9 @@ export async function wolframAlpha(message: Message, command: "wolfram" | "wolf"
 
     const endpoint = longAnswer ? "/v2/simple" : "/v1/result";
 
-    const url =
-        `http://api.wolframalpha.com${endpoint}?appid=` +
-        WOLFRAM_ALPHA_APP_ID +
-        `&i=${encodeURIComponent(query)}` +
-        `&background=181A1F&foreground=white` +
-        "&fontsize=30&units=metric&maxwidth=1500&output=json";
+    const url = `http://api.wolframalpha.com${endpoint}?appid=${WOLFRAM_ALPHA_APP_ID}&i=${encodeURIComponent(
+        query,
+    )}&background=181A1F&foreground=white&fontsize=30&units=metric&maxwidth=1500&output=json`;
 
     const response = await fetch(url).catch(console.error);
 
@@ -106,7 +115,7 @@ export async function wolframAlpha(message: Message, command: "wolfram" | "wolf"
 
     if (!response.ok) {
         return await message.channel.send(
-            `Something went wrong! HTTP ${response.status} ${response.statusText}`
+            `Something went wrong! HTTP ${response.status} ${response.statusText}`,
         );
     }
 
@@ -159,7 +168,7 @@ export async function pingRandomMembers(message: Message) {
     }
 
     const amountInput = +message.content.split(" ")[1];
-    const amount = isNaN(amountInput) ? 1 : amountInput;
+    const amount = Number.isNaN(amountInput) ? 1 : amountInput;
 
     const members = await message.guild.members.fetch();
 
@@ -188,7 +197,7 @@ export async function reactToMiku(message: Message, reactCmd: string) {
     for (const item of cmdAliases) {
         if (item.alias === reactCmd) {
             const msg = randomElementFromArray(
-                reactMsgs.filter((x) => x.command === item.command).map((x) => x.reaction)
+                reactMsgs.filter((x) => x.command === item.command).map((x) => x.reaction),
             ).replace("{0}", message.member?.displayName ?? message.author.username);
             await sleep(1000);
             return await message.channel.send(msg);
@@ -228,7 +237,7 @@ export async function helpCmd(input: Message | CommandInteraction, prefix?: stri
     if (helpMsgArray.length === 0) {
         return await sendOrReply(
             input,
-            "Seems there aren't any help messages saved in the database"
+            "Seems there aren't any help messages saved in the database",
         );
     }
 
@@ -291,7 +300,7 @@ export async function calc(message: Message) {
 }
 
 export async function jsEval(message: Message, mode?: "math") {
-    if (!isBotOwner(message.author) && !mode) return;
+    if (!(isBotOwner(message.author) || mode)) return;
     let rslt: string;
 
     // This is to be able to use all the functions inside the below eval function
@@ -362,7 +371,7 @@ export async function convert(input: ChatInputCommandInteraction | Message) {
         const content = input.content.split(" ").filter(Boolean);
         if (content.length < 3) return await input.channel.send("Not enough arguments!");
 
-        if (isNaN(+content[1])) {
+        if (Number.isNaN(+content[1])) {
             amount = 1;
             base_currency = content[1].toUpperCase();
             target_currency = content[2].toUpperCase();
@@ -373,13 +382,13 @@ export async function convert(input: ChatInputCommandInteraction | Message) {
         }
     }
     const codesResp = await fetch(
-        `https://v6.exchangerate-api.com/v6/${EXCHANGE_API_KEY}/codes`
+        `https://v6.exchangerate-api.com/v6/${EXCHANGE_API_KEY}/codes`,
     ).catch(console.error);
 
     if (!codesResp) {
         return await sendOrReply(
             input,
-            "Something went wrong while fetching the currencies! API is probably down or something"
+            "Something went wrong while fetching the currencies! API is probably down or something",
         );
     }
 
@@ -388,14 +397,14 @@ export async function convert(input: ChatInputCommandInteraction | Message) {
     if (!supportedResult) {
         return await sendOrReply(
             input,
-            "Something went really wrong, API didn't send JSON as a response. Probably best to try again later"
+            "Something went really wrong, API didn't send JSON as a response. Probably best to try again later",
         );
     }
 
     if (!SupportedCodesSchema.safeParse(supportedResult).success) {
         return await sendOrReply(
             input,
-            "Something went wrong while fetching the supported currencies! Please try again later"
+            "Something went wrong while fetching the supported currencies! Please try again later",
         );
     }
 
@@ -423,12 +432,12 @@ export async function convert(input: ChatInputCommandInteraction | Message) {
         currencies[code] = name;
     }
 
-    if (!(base_currency in currencies) || !(target_currency in currencies)) {
+    if (!(base_currency in currencies && target_currency in currencies)) {
         return await sendOrReply(
             input,
-            `Invalid currency codes!\nCheck ` +
-                `<https://www.exchangerate-api.com/docs/supported-currencies> ` +
-                `for a list of supported currencies`
+            "Invalid currency codes!\nCheck " +
+                "<https://www.exchangerate-api.com/docs/supported-currencies> " +
+                "for a list of supported currencies",
         );
     }
     // Checks for possible pointless conversions
@@ -438,8 +447,7 @@ export async function convert(input: ChatInputCommandInteraction | Message) {
     if (amount === 0) return await sendOrReply(input, "Zero will obviously stay 0!");
 
     const response = await fetch(
-        `https://v6.exchangerate-api.com/v6/` +
-            `${EXCHANGE_API_KEY}/pair/${base_currency}/${target_currency}/${amount}`
+        `https://v6.exchangerate-api.com/v6/${EXCHANGE_API_KEY}/pair/${base_currency}/${target_currency}/${amount}`,
     );
 
     const result = (await response.json().catch(console.error)) as PairConversionResponse;
@@ -447,7 +455,7 @@ export async function convert(input: ChatInputCommandInteraction | Message) {
     if (!result) {
         return await sendOrReply(
             input,
-            "Something went really wrong, API didn't send JSON as a response. Probably best to try again later"
+            "Something went really wrong, API didn't send JSON as a response. Probably best to try again later",
         );
     }
 
@@ -521,14 +529,14 @@ export async function urban(input: ChatInputCommandInteraction | Message) {
         return await sendOrReply(
             input,
             "You have to provide a search term or use the random flag",
-            true
+            true,
         );
     }
 
     if (isCommandInteraction(input)) await input.deferReply();
 
     const url = random
-        ? `https://api.urbandictionary.com/v0/random`
+        ? "https://api.urbandictionary.com/v0/random"
         : `https://api.urbandictionary.com/v0/define?term=${query}`;
 
     const response = await fetch(url).catch(console.error);
@@ -536,7 +544,7 @@ export async function urban(input: ChatInputCommandInteraction | Message) {
     if (!response) {
         return await sendOrReply(
             input,
-            "Something went wrong while fetching the definitions! API is probably down or something"
+            "Something went wrong while fetching the definitions! API is probably down or something",
         );
     }
 
@@ -549,7 +557,7 @@ export async function urban(input: ChatInputCommandInteraction | Message) {
     if (!result) {
         return await sendOrReply(
             input,
-            "Something went really wrong, API didn't send JSON. Probably best to try again later"
+            "Something went really wrong, API didn't send JSON. Probably best to try again later",
         );
     }
 
@@ -569,7 +577,7 @@ export async function urban(input: ChatInputCommandInteraction | Message) {
 
     const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
         new ButtonBuilder().setCustomId("prevUrban").setLabel("PREV").setStyle(ButtonStyle.Primary),
-        new ButtonBuilder().setCustomId("nextUrban").setLabel("NEXT").setStyle(ButtonStyle.Primary)
+        new ButtonBuilder().setCustomId("nextUrban").setLabel("NEXT").setStyle(ButtonStyle.Primary),
     );
 
     return await sendOrReply(input, {

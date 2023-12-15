@@ -25,22 +25,22 @@ export const IMAGE_THREAD_CHANNELS = [
 
 // prettier-ignore
 const envVariables = z.object({
-    BOT_TOKEN:            z.string().min(1, "You must provide a Discord Bot Token"),
-    EXCHANGE_API_KEY:     z.string().min(1, "You must provide an API key for currency conversion"),
-    IMGUR_CLIENT_ID:      z.string().min(1, "You must provide an Imgur Client Id"),
-    IMGUR_CLIENT_SECRET:  z.string().min(1, "You must provide an Imgur Client Secret"),
-    REDDIT_CLIENT_ID:     z.string().min(1, "You must provide a Reddit Client Id"),
+    BOT_TOKEN: z.string().min(1, "You must provide a Discord Bot Token"),
+    EXCHANGE_API_KEY: z.string().min(1, "You must provide an API key for currency conversion"),
+    IMGUR_CLIENT_ID: z.string().min(1, "You must provide an Imgur Client Id"),
+    IMGUR_CLIENT_SECRET: z.string().min(1, "You must provide an Imgur Client Secret"),
+    REDDIT_CLIENT_ID: z.string().min(1, "You must provide a Reddit Client Id"),
     REDDIT_CLIENT_SECRET: z.string().min(1, "You must provide a Reddit Client Secret"),
     REDDIT_REFRESH_TOKEN: z.string().min(1, "You must provide a Reddit Refresh Token"),
-    PLANETSCALE_URL:      z.string().min(1, "You must provide a PlanetScale Database URL"),
+    PLANETSCALE_URL: z.string().min(1, "You must provide a PlanetScale Database URL"),
     WOLFRAM_ALPHA_APP_ID: z.string().min(1, "You must provide a Wolfram|Alpha App ID"),
-    DEV_MODE:             z.enum(["true", "false"]),
+    DEV_MODE: z.enum(["true", "false"]),
 });
 
-// This is a hacky way to check if we're imported by deploy-commands.ts
-// If we are, we don't want to parse the environment variables
-// Cause this crashes Github Actions and I don't want to deal with it
 if (!/deploy-commands\.(ts|js)$/.test(process.argv[1])) {
+    // This is a hacky way to check if we're imported by deploy-commands.ts
+    // If we are, we don't want to parse the environment variables
+    // Cause this crashes Github Actions and I don't want to deal with it
     envVariables.parseAsync(process.env).catch((e) => {
         const validationError = fromZodError(e as z.ZodError, {
             issueSeparator: "\n",
