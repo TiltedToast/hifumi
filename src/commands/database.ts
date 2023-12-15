@@ -37,7 +37,6 @@ export async function runSQL(message: Message) {
     const data = result.rows;
 
     const keys = Object.keys(data[0]);
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     const values = data.map((obj) => Object.values(obj));
 
     const columns = {} as { [key: number]: { width: number } };
@@ -48,7 +47,6 @@ export async function runSQL(message: Message) {
             Math.max(...values.map((v) => String(v[i]).length)),
         );
         columns[i] = {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             width: minVal >= keys[i].length ? minVal : keys[i].length,
         };
     }

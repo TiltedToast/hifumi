@@ -264,7 +264,6 @@ export function errorLog({ message, errorObject }: ErrorLogOptions) {
 
     const commandUsed =
         message.content.substring(0, 500) +
-        // eslint-disable-next-line @typescript-eslint/prefer-string-starts-ends-with
         (message.content.substring(0, 500) !== message.content ? " ..." : "");
 
     const errorMessageWithoutStack = dedent`

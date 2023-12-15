@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unnecessary-condition */
 import type { Client, TextChannel } from "discord.js";
 import { statusArr } from "../app.js";
 import { db } from "../db/index.js";

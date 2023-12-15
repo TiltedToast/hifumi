@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-empty-interface */
-/* eslint-disable @typescript-eslint/no-namespace */
 import { z } from "zod";
 import { fromZodError } from "zod-validation-error";
 
@@ -23,18 +21,18 @@ export const IMAGE_THREAD_CHANNELS = [
     "1164282173403185262",
 ];
 
-// prettier-ignore
+// biome-ignore format: is nicer this way okay
 const envVariables = z.object({
-    BOT_TOKEN: z.string().min(1, "You must provide a Discord Bot Token"),
-    EXCHANGE_API_KEY: z.string().min(1, "You must provide an API key for currency conversion"),
-    IMGUR_CLIENT_ID: z.string().min(1, "You must provide an Imgur Client Id"),
-    IMGUR_CLIENT_SECRET: z.string().min(1, "You must provide an Imgur Client Secret"),
-    REDDIT_CLIENT_ID: z.string().min(1, "You must provide a Reddit Client Id"),
+    BOT_TOKEN:            z.string().min(1, "You must provide a Discord Bot Token"),
+    EXCHANGE_API_KEY:     z.string().min(1, "You must provide an API key for currency conversion"),
+    IMGUR_CLIENT_ID:      z.string().min(1, "You must provide an Imgur Client Id"),
+    IMGUR_CLIENT_SECRET:  z.string().min(1, "You must provide an Imgur Client Secret"),
+    REDDIT_CLIENT_ID:     z.string().min(1, "You must provide a Reddit Client Id"),
     REDDIT_CLIENT_SECRET: z.string().min(1, "You must provide a Reddit Client Secret"),
     REDDIT_REFRESH_TOKEN: z.string().min(1, "You must provide a Reddit Refresh Token"),
-    PLANETSCALE_URL: z.string().min(1, "You must provide a PlanetScale Database URL"),
+    PLANETSCALE_URL:      z.string().min(1, "You must provide a PlanetScale Database URL"),
     WOLFRAM_ALPHA_APP_ID: z.string().min(1, "You must provide a Wolfram|Alpha App ID"),
-    DEV_MODE: z.enum(["true", "false"]),
+    DEV_MODE:             z.enum(["true", "false"]),
 });
 
 if (!/deploy-commands\.(ts|js)$/.test(process.argv[1])) {

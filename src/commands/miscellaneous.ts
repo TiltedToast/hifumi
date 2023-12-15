@@ -59,10 +59,9 @@ export const execPromise = promisify(exec);
 export const urbanEmbeds: EmbedMetadata[] = [];
 const math = create(all);
 
-// eslint-disable-next-line @typescript-eslint/unbound-method
 const mathEvaluate = math.evaluate;
 
-// prettier-ignore
+// biome-ignore format: is nicer this way okay
 /**
  * Disables all the functions that could be used to do malicious stuff
  */
