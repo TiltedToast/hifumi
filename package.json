@@ -42,6 +42,7 @@
         "test": "pnpm run /^test:/",
         "test:lint": "biome check .",
         "test:build": "tsc",
+        "fix": "biome check --apply .",
         "prepare": "husky install",
         "deploy": "tsc && node ./dist/deploy-commands.js",
         "db:push": "drizzle-kit push:mysql --config ./src/db/drizzle.config.ts",
@@ -49,7 +50,7 @@
         "clear-test-commands": "tsc && node ./dist/deploy-commands.js --guild 655484563077988385 --clear"
     },
     "lint-staged": {
-        "*.{js,ts,json}": "biome format --write"
+        "*.{js,ts}": "biome format --write"
     },
     "husky": {
         "hooks": {

@@ -43,7 +43,8 @@
         "indentStyle": "space"
     },
     "files": {
-        "ignore": ["dist", "node_modules", ".vscode", ".husky"]
+        "ignore": ["dist", "node_modules", ".vscode", ".husky"],
+        "ignoreUnknown": true
     },
     "javascript": {
         "formatter": {
@@ -58,7 +59,8 @@
             "lineWidth": 100,
             "enabled": true,
             "indentStyle": "space",
-            "lineEnding": "lf"
+            "lineEnding": "lf",
+            "indentWidth": 4
         }
     }
 }
