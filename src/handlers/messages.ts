@@ -18,7 +18,7 @@ export default async function handleMessage(message: Message) {
         // Permission check for the channel which the message was sent in to avoid breaking the bot
         if (message.author.bot || clientNoPermissions(message, guildClient) || botIsLoading) return;
 
-        const content = message.content.split(" ").filter(Boolean);
+        const content = message.content.split(" ");
 
         // React-Command check for reacting to Miku's emote commands
         const reactCmd = content[0].slice(1);
@@ -58,7 +58,7 @@ export default async function handleMessage(message: Message) {
         }
         await misc.checkForImgAndCreateThread(message);
     } catch (err: unknown) {
-        errorLog({ message, errorObject: err as Error });
+        await errorLog({ message, errorObject: err as Error });
     }
 }
 
