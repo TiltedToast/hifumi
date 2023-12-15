@@ -44,7 +44,7 @@ export default async function handleInteraction(interaction: Interaction) {
 
         if (!interaction.isChatInputCommand()) return;
         await channel.send(
-            codeBlock("js", `${error as string}`) + `\n${userMention(BOT_OWNERS[0])}`,
+            codeBlock("js", `${error as string}`) + `\n${userMention(BOT_OWNERS[0])}`
         );
     }
 }
@@ -87,7 +87,7 @@ for (const [cmd, fn] of commands) devCommands.set(`${cmd}${DEV_COMMAND_POSTFIX}`
 
 async function handleCommandInteraction(
     interaction: ChatInputCommandInteraction,
-    subcommand: string | null,
+    subcommand: string | null
 ) {
     const commandsToCheck = isDev() ? devCommands : commands;
     for (const [cmd, fn] of commandsToCheck) {

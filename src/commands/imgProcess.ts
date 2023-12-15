@@ -46,7 +46,7 @@ export async function beautiful(message: Message) {
 
     if (!(avatar && background)) {
         return await message.channel.send(
-            "I'm sorry, it seems something went wrong generating the image",
+            "I'm sorry, it seems something went wrong generating the image"
         );
     }
 
@@ -60,7 +60,7 @@ export async function beautiful(message: Message) {
 
     if (!imgBuf)
         return await message.channel.send(
-            "I'm sorry, it seems something went wrong generating the image",
+            "I'm sorry, it seems something went wrong generating the image"
         );
 
     return await message.channel.send({ files: [imgBuf] });
@@ -187,29 +187,29 @@ export async function imgur(message: Message, prefix: string) {
         formdata.append("image", contents);
 
         const response = await fetch("https://api.imgur.com/3/image", requestOptions).catch(
-            console.error,
+            console.error
         );
 
         if (!response)
             return await message.channel.send(
-                "Failed to upload the image. Something must've gone really wrong for this to happen",
+                "Failed to upload the image. Something must've gone really wrong for this to happen"
             );
         const result = (await response.json().catch(console.error)) as ImgurResponse;
 
         if (!result) {
             return await message.channel.send(
-                "Imgur API returned an invalid response. Maybe try again later?",
+                "Imgur API returned an invalid response. Maybe try again later?"
             );
         }
 
         if (!response.ok)
             return message.channel.send(
-                `Failed to upload image: ${result.data.error?.message ?? "Unknown Error"}`,
+                `Failed to upload image: ${result.data.error?.message ?? "Unknown Error"}`
             );
 
         if (!ImgurResponseSchema.safeParse(result).success) {
             return await message.channel.send(
-                "Something went wrong with the API, maybe try again later",
+                "Something went wrong with the API, maybe try again later"
             );
         }
 
@@ -219,29 +219,29 @@ export async function imgur(message: Message, prefix: string) {
         formdata.append("image", source);
 
         const response = await fetch("https://api.imgur.com/3/image", requestOptions).catch(
-            console.error,
+            console.error
         );
 
         if (!response)
             return await message.channel.send(
-                "Failed to upload the image. Something must've gone really wrong for this to happen",
+                "Failed to upload the image. Something must've gone really wrong for this to happen"
             );
         const result = (await response.json().catch(console.error)) as ImgurResponse;
 
         if (!result) {
             return await message.channel.send(
-                "Imgur API returned an invalid response. Maybe try again later?",
+                "Imgur API returned an invalid response. Maybe try again later?"
             );
         }
 
         if (!response.ok)
             return message.channel.send(
-                `Failed to upload image: ${result.data.error?.message ?? "Unknown Error"}`,
+                `Failed to upload image: ${result.data.error?.message ?? "Unknown Error"}`
             );
 
         if (!ImgurResponseSchema.safeParse(result).success) {
             return await message.channel.send(
-                "Something went wrong with the API, maybe try again later",
+                "Something went wrong with the API, maybe try again later"
             );
         }
 

@@ -30,7 +30,7 @@ export const errorLogs = mysqlTable(
                 columns: [table.id],
             }),
         };
-    },
+    }
 );
 
 export const helpMessages = mysqlTable(
@@ -44,7 +44,7 @@ export const helpMessages = mysqlTable(
         return {
             pk: primaryKey({ columns: [table.id] }),
         };
-    },
+    }
 );
 
 export const leet = mysqlTable(
@@ -58,7 +58,7 @@ export const leet = mysqlTable(
         return {
             pk: primaryKey({ columns: [table.id] }),
         };
-    },
+    }
 );
 
 export const mikuCommandAliases = mysqlTable(
@@ -72,7 +72,7 @@ export const mikuCommandAliases = mysqlTable(
         return {
             pk: primaryKey({ columns: [table.id] }),
         };
-    },
+    }
 );
 
 export const mikuReactions = mysqlTable(
@@ -86,7 +86,7 @@ export const mikuReactions = mysqlTable(
         return {
             pk: primaryKey({ columns: [table.id] }),
         };
-    },
+    }
 );
 
 export const prefixes = mysqlTable(
@@ -101,7 +101,7 @@ export const prefixes = mysqlTable(
             serverId: uniqueIndex("server_id").on(table.serverId),
             pk: primaryKey({ columns: [table.id] }),
         };
-    },
+    }
 );
 
 export const redditPosts = mysqlTable(
@@ -119,7 +119,7 @@ export const redditPosts = mysqlTable(
             subredditIdx: index("subreddit_idx").on(table.subreddit),
             pk: primaryKey({ columns: [table.id] }),
         };
-    },
+    }
 );
 
 export const statuses = mysqlTable(
@@ -139,5 +139,5 @@ export const statuses = mysqlTable(
                 columns: [table.type, table.status],
             }),
         };
-    },
+    }
 );

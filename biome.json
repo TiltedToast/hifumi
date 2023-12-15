@@ -49,7 +49,8 @@
         "formatter": {
             "lineEnding": "lf",
             "indentWidth": 4,
-            "semicolons": "always"
+            "semicolons": "always",
+            "trailingComma": "es5"
         }
     },
     "json": {

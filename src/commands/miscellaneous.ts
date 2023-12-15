@@ -105,7 +105,7 @@ export async function wolframAlpha(message: Message, command: "wolfram" | "wolf"
     const endpoint = longAnswer ? "/v2/simple" : "/v1/result";
 
     const url = `http://api.wolframalpha.com${endpoint}?appid=${WOLFRAM_ALPHA_APP_ID}&i=${encodeURIComponent(
-        query,
+        query
     )}&background=181A1F&foreground=white&fontsize=30&units=metric&maxwidth=1500&output=json`;
 
     const response = await fetch(url).catch(console.error);
@@ -114,7 +114,7 @@ export async function wolframAlpha(message: Message, command: "wolfram" | "wolf"
 
     if (!response.ok) {
         return await message.channel.send(
-            `Something went wrong! HTTP ${response.status} ${response.statusText}`,
+            `Something went wrong! HTTP ${response.status} ${response.statusText}`
         );
     }
 
@@ -196,7 +196,7 @@ export async function reactToMiku(message: Message, reactCmd: string) {
     for (const item of cmdAliases) {
         if (item.alias === reactCmd) {
             const msg = randomElementFromArray(
-                reactMsgs.filter((x) => x.command === item.command).map((x) => x.reaction),
+                reactMsgs.filter((x) => x.command === item.command).map((x) => x.reaction)
             ).replace("{0}", message.member?.displayName ?? message.author.username);
             await sleep(1000);
             return await message.channel.send(msg);
@@ -236,7 +236,7 @@ export async function helpCmd(input: Message | CommandInteraction, prefix?: stri
     if (helpMsgArray.length === 0) {
         return await sendOrReply(
             input,
-            "Seems there aren't any help messages saved in the database",
+            "Seems there aren't any help messages saved in the database"
         );
     }
 
@@ -381,13 +381,13 @@ export async function convert(input: ChatInputCommandInteraction | Message) {
         }
     }
     const codesResp = await fetch(
-        `https://v6.exchangerate-api.com/v6/${EXCHANGE_API_KEY}/codes`,
+        `https://v6.exchangerate-api.com/v6/${EXCHANGE_API_KEY}/codes`
     ).catch(console.error);
 
     if (!codesResp) {
         return await sendOrReply(
             input,
-            "Something went wrong while fetching the currencies! API is probably down or something",
+            "Something went wrong while fetching the currencies! API is probably down or something"
         );
     }
 
@@ -396,14 +396,14 @@ export async function convert(input: ChatInputCommandInteraction | Message) {
     if (!supportedResult) {
         return await sendOrReply(
             input,
-            "Something went really wrong, API didn't send JSON as a response. Probably best to try again later",
+            "Something went really wrong, API didn't send JSON as a response. Probably best to try again later"
         );
     }
 
     if (!SupportedCodesSchema.safeParse(supportedResult).success) {
         return await sendOrReply(
             input,
-            "Something went wrong while fetching the supported currencies! Please try again later",
+            "Something went wrong while fetching the supported currencies! Please try again later"
         );
     }
 
@@ -436,7 +436,7 @@ export async function convert(input: ChatInputCommandInteraction | Message) {
             input,
             "Invalid currency codes!\nCheck " +
                 "<https://www.exchangerate-api.com/docs/supported-currencies> " +
-                "for a list of supported currencies",
+                "for a list of supported currencies"
         );
     }
     // Checks for possible pointless conversions
@@ -446,7 +446,7 @@ export async function convert(input: ChatInputCommandInteraction | Message) {
     if (amount === 0) return await sendOrReply(input, "Zero will obviously stay 0!");
 
     const response = await fetch(
-        `https://v6.exchangerate-api.com/v6/${EXCHANGE_API_KEY}/pair/${base_currency}/${target_currency}/${amount}`,
+        `https://v6.exchangerate-api.com/v6/${EXCHANGE_API_KEY}/pair/${base_currency}/${target_currency}/${amount}`
     );
 
     const result = (await response.json().catch(console.error)) as PairConversionResponse;
@@ -454,7 +454,7 @@ export async function convert(input: ChatInputCommandInteraction | Message) {
     if (!result) {
         return await sendOrReply(
             input,
-            "Something went really wrong, API didn't send JSON as a response. Probably best to try again later",
+            "Something went really wrong, API didn't send JSON as a response. Probably best to try again later"
         );
     }
 
@@ -528,7 +528,7 @@ export async function urban(input: ChatInputCommandInteraction | Message) {
         return await sendOrReply(
             input,
             "You have to provide a search term or use the random flag",
-            true,
+            true
         );
     }
 
@@ -543,7 +543,7 @@ export async function urban(input: ChatInputCommandInteraction | Message) {
     if (!response) {
         return await sendOrReply(
             input,
-            "Something went wrong while fetching the definitions! API is probably down or something",
+            "Something went wrong while fetching the definitions! API is probably down or something"
         );
     }
 
@@ -556,7 +556,7 @@ export async function urban(input: ChatInputCommandInteraction | Message) {
     if (!result) {
         return await sendOrReply(
             input,
-            "Something went really wrong, API didn't send JSON. Probably best to try again later",
+            "Something went really wrong, API didn't send JSON. Probably best to try again later"
         );
     }
 
@@ -576,7 +576,7 @@ export async function urban(input: ChatInputCommandInteraction | Message) {
 
     const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
         new ButtonBuilder().setCustomId("prevUrban").setLabel("PREV").setStyle(ButtonStyle.Primary),
-        new ButtonBuilder().setCustomId("nextUrban").setLabel("NEXT").setStyle(ButtonStyle.Primary),
+        new ButtonBuilder().setCustomId("nextUrban").setLabel("NEXT").setStyle(ButtonStyle.Primary)
     );
 
     return await sendOrReply(input, {

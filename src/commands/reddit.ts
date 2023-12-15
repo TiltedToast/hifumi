@@ -28,7 +28,7 @@ export async function profile(message: Message, prefix: string) {
     const userName = content[1].toLowerCase();
     const response = await fetch(
         `https://www.reddit.com/user/${userName}/about.json`,
-        fetch_opts,
+        fetch_opts
     ).catch(console.error);
 
     if (!response) {
@@ -86,13 +86,13 @@ export async function sub(input: ChatInputCommandInteraction | Message) {
     // Check if the subreddit exists
     const response = await fetch(
         `https://www.reddit.com/r/${subreddit}/about.json`,
-        fetch_opts,
+        fetch_opts
     ).catch(console.error);
 
     if (!response) {
         return await sendOrReply(
             input,
-            `Couldn't grab subreddit info, Reddit's API is probably down so try again later`,
+            `Couldn't grab subreddit info, Reddit's API is probably down so try again later`
         );
     }
 
@@ -105,7 +105,7 @@ export async function sub(input: ChatInputCommandInteraction | Message) {
     if (!json) {
         return await sendOrReply(
             input,
-            `Reddit returned an invalid response, probably something broke with their API.\nHTTP ${response.status}: ${response.statusText}`,
+            `Reddit returned an invalid response, probably something broke with their API.\nHTTP ${response.status}: ${response.statusText}`
         );
     }
 
@@ -133,7 +133,7 @@ export async function sub(input: ChatInputCommandInteraction | Message) {
             posts.push(...(await fetchSubmissions(subreddit, input)));
         } else if (!posts.length) {
             await input.channel?.send(
-                "Fetching images for the first time, this might take a while...",
+                "Fetching images for the first time, this might take a while..."
             );
             posts.push(...(await fetchSubmissions(subreddit, input)));
         }
@@ -202,7 +202,7 @@ function parseSubFlags(input: ChatInputCommandInteraction | Message): {
 async function fetchSubmissions(
     subreddit: string,
     input: ChatInputCommandInteraction | Message,
-    limit = 100,
+    limit = 100
 ): Promise<RedditPost[]> {
     const posts = new Array<NewRedditPost>();
 

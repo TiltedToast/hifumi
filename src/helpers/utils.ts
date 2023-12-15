@@ -29,7 +29,7 @@ import type {
 } from "./types.js";
 
 export function isCommandInteraction(
-    input: Message | CommandInteraction,
+    input: Message | CommandInteraction
 ): input is CommandInteraction {
     return input instanceof CommandInteraction;
 }
@@ -46,7 +46,7 @@ export function isMessage(input: Message | CommandInteraction): input is Message
 export async function sendOrReply(
     input: Message | CommandInteraction,
     message: string | BaseMessageOptions,
-    ephemeral = false,
+    ephemeral = false
 ) {
     if (input instanceof Message) {
         return await input.channel.send(message);
@@ -88,7 +88,7 @@ function getEmbedIndex(arr: EmbedMetadata[], target: EmbedMetadata): number {
     return arr.findIndex(
         (elem) =>
             elem.embed.toJSON().description?.replaceAll(/[\n\r\s]+/gi, "") ===
-            target.embed.toJSON().description?.replaceAll(/[\n\r\s]+/gi, ""),
+            target.embed.toJSON().description?.replaceAll(/[\n\r\s]+/gi, "")
     );
 }
 
@@ -166,7 +166,7 @@ export async function updateEmbed(options: UpdateEmbedOptions) {
  */
 export function hasPermission(
     member: GuildMember | null,
-    permission: PermissionResolvable,
+    permission: PermissionResolvable
 ): boolean {
     if (!member) return false;
     return member.permissions.has(permission);
@@ -180,7 +180,7 @@ export async function resize(options: ResizeOptions) {
     const { fileLocation, width, saveLocation } = options;
     if (fileLocation.endsWith(".gif")) {
         return await execPromise(
-            `gifsicle --resize-width ${width} ${fileLocation} -o ${saveLocation}`,
+            `gifsicle --resize-width ${width} ${fileLocation} -o ${saveLocation}`
         );
     }
     return await sharp(fileLocation).resize(width).toFile(saveLocation);
