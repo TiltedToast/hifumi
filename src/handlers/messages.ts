@@ -18,11 +18,12 @@ export default async function handleMessage(message: Message) {
         // Permission check for the channel which the message was sent in to avoid breaking the bot
         if (message.author.bot || clientNoPermissions(message, guildClient) || botIsLoading) return;
 
-        const content = message.content.split(" ");
+        const content = message.content.split(" ").filter(Boolean);
+        const len = content.length;
 
         // React-Command check for reacting to Miku's emote commands
-        const reactCmd = content[0].slice(1);
-        const subCmd = content[1];
+        const reactCmd = len >= 1 ? content[0].slice(1) : "";
+        const subCmd = len >= 2 ? content[1] : "";
 
         // Adds a default prefix to the db if it doesn't exist
         if (message.guild && !prefixMap.has(message.guild.id) && !isDev()) {
@@ -39,8 +40,9 @@ export default async function handleMessage(message: Message) {
             ? DEV_PREFIX
             : prefixMap.get(message.guild?.id ?? "") ?? DEFAULT_PREFIX;
 
-        const command = content[0].slice(prefix.length).toLowerCase();
-        const lowerCasePrefix = content[0].substring(0, prefix.length).toLowerCase();
+        const command = len >= 1 ? content[0].slice(prefix.length).toLowerCase() : "";
+        const lowerCasePrefix =
+            len >= 1 ? content[0].substring(0, prefix.length).toLowerCase() : "";
 
         if (message.content.toLowerCase().startsWith(`${RELOAD_PREFIX}~~~`) && !isDev())
             await misc.reloadBot(message);
