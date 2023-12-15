@@ -14,7 +14,7 @@ import {
 
 export async function beautiful(message: Message) {
     createTemp();
-    const content = message.content.split(" ");
+    const content = message.content.split(" ").filter(Boolean);
 
     const user = content.length === 1 ? message.author : await getUserObjectPingId(message);
     if (!user) return await message.channel.send("Couldn't find the specified User");
@@ -67,7 +67,7 @@ export async function beautiful(message: Message) {
 }
 
 export async function qrCode(message: Message) {
-    const content = message.content.split(" ");
+    const content = message.content.split(" ").filter(Boolean);
     if (content.length === 1) return await message.channel.send("Missing argument!");
 
     createTemp();
@@ -83,7 +83,7 @@ export async function qrCode(message: Message) {
 
 export async function resizeImg(message: Message, prefix: string) {
     createTemp();
-    const content = message.content.split(" ");
+    const content = message.content.split(" ").filter(Boolean);
 
     // Checks for invalid User input
     if (content.length !== 3 && message.attachments.size === 0) {
@@ -125,7 +125,7 @@ export async function resizeImg(message: Message, prefix: string) {
 }
 
 export async function imgur(message: Message, prefix: string) {
-    const content = message.content.split(" ");
+    const content = message.content.split(" ").filter(Boolean);
 
     if (content.length !== 2 && message.attachments.size === 0) {
         return await message.channel.send(`Usage: \`${prefix}imgur <url>\``);

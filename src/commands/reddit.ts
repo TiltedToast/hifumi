@@ -19,7 +19,7 @@ const RedditClient = new Snoowrap({
 });
 
 export async function profile(message: Message, prefix: string) {
-    const content = message.content.split(" ");
+    const content = message.content.split(" ").filter(Boolean);
 
     if (content.length !== 2) return message.channel.send(`Usage: \`${prefix}profile <username>\``);
 
@@ -76,7 +76,7 @@ export async function sub(input: ChatInputCommandInteraction | Message) {
     if (isCommandInteraction(input)) {
         subreddit = input.options.getString("subreddit", true).toLowerCase();
     } else {
-        const content = input.content.split(" ");
+        const content = input.content.split(" ").filter(Boolean);
         if (content.length === 1)
             return await sendOrReply(input, "You have to specify a subreddit");
         subreddit = content[1].toLowerCase();
@@ -179,7 +179,7 @@ function parseSubFlags(input: ChatInputCommandInteraction | Message): {
             force = true;
         }
     } else {
-        const content = input.content.split(" ");
+        const content = input.content.split(" ").filter(Boolean);
         if (content.includes("nsfw")) {
             isNSFW = true;
             isSFW = false;

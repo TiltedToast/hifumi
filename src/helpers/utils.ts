@@ -210,7 +210,7 @@ export function sleep(ms: number) {
  */
 export async function getUserObjectPingId(message: Message): Promise<User | undefined> {
     let user: User | undefined;
-    const content = message.content.split(" ");
+    const content = message.content.split(" ").filter(Boolean);
     const pingOrIdString = content[1];
 
     try {

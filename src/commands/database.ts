@@ -79,7 +79,7 @@ export async function runSQL(message: Message) {
 export async function insertStatus(message: Message): Promise<undefined | Message> {
     if (!isBotOwner(message.author)) return;
 
-    const content = message.content.split(" ");
+    const content = message.content.split(" ").filter(Boolean);
 
     if (content.length < 3) return await message.channel.send("Invalid syntax!");
 
@@ -139,7 +139,7 @@ export async function updatePrefix(message: Message) {
         return message.channel.send("Insufficient permissions!");
     }
 
-    const content = message.content.split(" ");
+    const content = message.content.split(" ").filter(Boolean);
 
     // Syntax check as well as avoiding cluttering the database with long impractical prefixes
     if (content.length !== 2) return await message.channel.send("Invalid syntax");

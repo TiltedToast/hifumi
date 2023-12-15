@@ -197,7 +197,7 @@ export async function reactToMiku(message: Message, reactCmd: string) {
 }
 
 export async function leet(message: Message) {
-    const inputWords = message.content.split(" ").slice(1);
+    const inputWords = message.content.split(" ").filter(Boolean).slice(1);
     const leetDoc = await db.select().from(leetTable).execute();
 
     const document = {} as Record<string, string[]>;
@@ -264,8 +264,8 @@ export async function cmdConsole(message: Message, cmd?: string, python = false)
     const command = cmd
         ? cmd
         : python
-        ? `${pythonCmd} -c "print(${input.replaceAll('"', '\\"')})"`
-        : input;
+          ? `${pythonCmd} -c "print(${input.replaceAll('"', '\\"')})"`
+          : input;
     try {
         const { stdout, stderr } = await execPromise(command);
         if (stderr) await message.channel.send(codeBlock(stderr));
@@ -299,7 +299,7 @@ export async function jsEval(message: Message, mode?: "math") {
     const tools = await import("../helpers/utils.js");
     await tools.sleep(1);
 
-    const content = message.content.split(" ");
+    const content = message.content.split(" ").filter(Boolean);
 
     if (content.length === 1) {
         return await message.channel.send("You have to type **SOMETHING** at least");
@@ -324,7 +324,7 @@ export async function jsEval(message: Message, mode?: "math") {
 }
 
 export async function avatar(message: Message) {
-    const content = message.content.split(" ");
+    const content = message.content.split(" ").filter(Boolean);
 
     const user = content.length === 1 ? message.author : await getUserObjectPingId(message);
 
@@ -359,7 +359,7 @@ export async function convert(input: ChatInputCommandInteraction | Message) {
         base_currency = input.options.getString("from", true).toUpperCase();
         target_currency = input.options.getString("to", true).toUpperCase();
     } else {
-        const content = input.content.split(" ");
+        const content = input.content.split(" ").filter(Boolean);
         if (content.length < 3) return await input.channel.send("Not enough arguments!");
 
         if (isNaN(+content[1])) {
@@ -512,7 +512,7 @@ export async function urban(input: ChatInputCommandInteraction | Message) {
         query = (input.options.getString("term", false) ?? "").toLowerCase();
         random = input.options.getBoolean("random", false) ?? false;
     } else {
-        const content = input.content.split(" ");
+        const content = input.content.split(" ").filter(Boolean);
         query = content.slice(1).join(" ").toLowerCase();
         random = content[1] === "random";
     }

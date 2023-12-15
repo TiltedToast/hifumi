@@ -64,7 +64,7 @@ export async function addEmoji(message: Message, prefix: string) {
             'You need the "Create Expressions" permission to add emojis!'
         );
     }
-    const content = message.content.split(" ");
+    const content = message.content.split(" ").filter(Boolean);
 
     if (message.type === MessageType.Reply) {
         const repliedMsg = message.channel.messages.resolve(message.reference?.messageId ?? "");
@@ -381,7 +381,7 @@ export async function renameEmoji(message: Message, prefix: string) {
     }
 
     try {
-        const content = message.content.split(" ");
+        const content = message.content.split(" ").filter(Boolean);
         if (content.length !== 4)
             return await message.channel.send(
                 `Usage: \`${prefix}emoji rename <new name> <emoji>\``
@@ -406,7 +406,7 @@ export async function renameEmoji(message: Message, prefix: string) {
 }
 
 export async function searchEmojis(message: Message) {
-    const content = message.content.split(" ");
+    const content = message.content.split(" ").filter(Boolean);
     if (content.length <= 2) {
         return await message.channel.send("Please provide a search term!");
     }
