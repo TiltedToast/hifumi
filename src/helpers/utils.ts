@@ -17,7 +17,7 @@ import sharp from "sharp";
 import strftime from "strftime";
 import { client } from "../app.js";
 import { execPromise } from "../commands/miscellaneous.js";
-import { BOT_OWNERS, DEV_CHANNELS, LOG_CHANNEL } from "../config.js";
+import { BOT_OWNERS, DEV_CHANNELS, LOG_CHANNEL, OWNER_NAME } from "../config.js";
 import { db } from "../db/index.js";
 import { errorLogs } from "../db/schema.js";
 import type {
@@ -134,7 +134,6 @@ export function setEmbedArr<T>(args: UpdateEmbedArrParams<T>): void {
 }
 
 export async function updateEmbed(options: UpdateEmbedOptions) {
-    let newEmbed: EmbedMetadata;
     const { interaction, embedArray, prevButtonId, nextButtonId, user } = options;
 
     const activeIndex = getEmbedIndex(embedArray, {
@@ -148,13 +147,17 @@ export async function updateEmbed(options: UpdateEmbedOptions) {
             ephemeral: true,
         });
     }
-    if (activeIndex === 0 && interaction.customId === prevButtonId) {
-        newEmbed = embedArray[embedArray.length - 1];
-    } else if (activeIndex === embedArray.length - 1 && interaction.customId === nextButtonId) {
-        newEmbed = embedArray[0];
-    } else {
-        newEmbed = embedArray[activeIndex + (interaction.customId === prevButtonId ? -1 : 1)];
+
+    const step = { [prevButtonId]: -1, [nextButtonId]: 1 }[interaction.customId];
+    if (!step) {
+        return interaction.reply({
+            content: `Invalid button for some reason. Something must've gone VERY wrong, please let my owner ${OWNER_NAME} know about this if you can`,
+            ephemeral: true,
+        });
     }
+    // -1 % 10 = -1 (Why are you like this JS)
+    const newEmbed = embedArray.at((activeIndex + step) % embedArray.length) as EmbedMetadata;
+
     return await interaction.update({ embeds: [newEmbed.embed] });
 }
 
