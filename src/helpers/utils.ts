@@ -57,7 +57,9 @@ export async function sendOrReply(
     if (input.isRepliable() && typeof message === "string") {
         return await input.reply({ content: message, ephemeral });
     }
-
+    if (input.isRepliable()) {
+        return await input.reply(message);
+    }
     return await input.channel?.send(message);
 }
 
