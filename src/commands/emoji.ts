@@ -225,7 +225,7 @@ async function handleCreateError(error: unknown, message: Message, name: string)
                 errorMessage = `Could not add \`${name}\`, you've hit the limit for premium emojis!`;
                 break;
             default:
-                console.log(error);
+                console.error(error);
                 errorMessage =
                     `Could not add \`${name}\`, unknown error! ` +
                     `Error message: ${error.message}`;

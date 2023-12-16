@@ -156,7 +156,8 @@ export async function updatePrefix(message: Message) {
     const serverId = message.guild.id;
     try {
         await updatePrefixDB(serverId, content[1]);
-    } catch (_) {
+    } catch (e) {
+        console.error(e);
         return await message.channel.send("Couldn't update prefix, maybe try again later");
     }
     prefixMap.set(serverId, content[1]);
