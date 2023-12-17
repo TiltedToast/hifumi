@@ -1,4 +1,3 @@
-import { existsSync, rmSync } from "node:fs";
 import dedent from "dedent";
 import {
     Client as DiscordClient,
@@ -8,6 +7,7 @@ import {
     TextChannel,
 } from "discord.js";
 import "dotenv/config";
+import { existsSync, rmSync } from "node:fs";
 import strftime from "strftime";
 import { avoidDbSleeping, startStatusLoop } from "./commands/loops.js";
 import { LOG_CHANNEL } from "./config.js";
@@ -89,6 +89,7 @@ if (process.platform === "win32") {
 
 // Graceful Shutdown on Ctrl + C / Docker stop
 for (const signal of stopSignals) {
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
     process.on(signal, async () => {
         await client.destroy();
         console.log("Closed Discord connection");

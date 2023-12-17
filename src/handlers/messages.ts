@@ -50,7 +50,7 @@ export default async function handleMessage(message: Message) {
             await misc.reloadBot(message);
 
         if (lowerCasePrefix === prefix.toLowerCase()) {
-            handleCommand({ command, subCmd, message, prefix });
+            void handleCommand({ command, subCmd, message, prefix });
         }
 
         // Reacting to Miku's emote commands
@@ -65,7 +65,7 @@ export default async function handleMessage(message: Message) {
 }
 
 function handleCommand({ command, subCmd, message, prefix }: MessageCommandData) {
-    // biome-ignore format: is nicer this way okay
+    // prettier-ignore
     switch (command) {
         case "bye":       return misc.bye(message);
         case "beautiful": return imgProcess.beautiful(message);
@@ -113,7 +113,7 @@ function handleCommand({ command, subCmd, message, prefix }: MessageCommandData)
 }
 
 function handleEmojiCommand({ subCmd, message, prefix }: MessageCommandData) {
-    // biome-ignore format: is nicer this way okay
+    // prettier-ignore
     switch (subCmd) {
         case "add":
         case "ad":

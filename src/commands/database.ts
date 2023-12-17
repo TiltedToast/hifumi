@@ -37,6 +37,7 @@ export async function runSQL(message: Message) {
     const data = result.rows;
 
     const keys = Object.keys(data[0]);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     const values = data.map((obj) => Object.values(obj));
 
     const columns = {} as { [key: number]: { width: number } };

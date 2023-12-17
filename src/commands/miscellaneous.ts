@@ -1,5 +1,3 @@
-import { exec } from "node:child_process";
-import { promisify } from "node:util";
 import dedent from "dedent";
 import {
     ActionRowBuilder,
@@ -14,6 +12,8 @@ import {
     codeBlock,
 } from "discord.js";
 import { all, create } from "mathjs";
+import { exec } from "node:child_process";
+import { promisify } from "node:util";
 import { client, prefixMap } from "../app.js";
 import {
     BOT_NAME,
@@ -59,9 +59,9 @@ export const execPromise = promisify(exec);
 export const urbanEmbeds: EmbedMetadata[] = [];
 const math = create(all);
 
+// eslint-disable-next-line @typescript-eslint/unbound-method
 const mathEvaluate = math.evaluate;
 
-// biome-ignore format: is nicer this way okay
 /**
  * Disables all the functions that could be used to do malicious stuff
  */
@@ -86,7 +86,7 @@ math.import(
             throw new Error("Function derivative is disabled");
         },
     },
-    { override: true },
+    { override: true }
 );
 
 export async function patUser(interaction: ChatInputCommandInteraction) {
@@ -272,8 +272,8 @@ export async function cmdConsole(message: Message, cmd?: string, python = false)
     const command = cmd
         ? cmd
         : python
-          ? `${pythonCmd} -c "print(${input.replaceAll('"', '\\"')})"`
-          : input;
+        ? `${pythonCmd} -c "print(${input.replaceAll('"', '\\"')})"`
+        : input;
     try {
         const { stdout, stderr } = await execPromise(command);
         if (stderr) await message.channel.send(codeBlock(stderr));

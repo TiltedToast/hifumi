@@ -21,7 +21,7 @@ export const IMAGE_THREAD_CHANNELS = [
     "1164282173403185262",
 ];
 
-// biome-ignore format: is nicer this way okay
+// prettier-ignore
 const envVariables = z.object({
     BOT_TOKEN:            z.string().min(1, "You must provide a Discord Bot Token"),
     EXCHANGE_API_KEY:     z.string().min(1, "You must provide an API key for currency conversion"),
@@ -53,6 +53,7 @@ if (!/deploy-commands\.(ts|js)$/.test(process.argv[1])) {
 }
 
 declare global {
+    // eslint-disable-next-line @typescript-eslint/no-namespace
     namespace NodeJS {
         interface ProcessEnv extends z.infer<typeof envVariables> {}
     }

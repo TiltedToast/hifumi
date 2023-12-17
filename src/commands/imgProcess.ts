@@ -1,5 +1,5 @@
-import { readFileSync } from "node:fs";
 import type { Message } from "discord.js";
+import { readFileSync } from "node:fs";
 import qr from "qrcode";
 import sharp from "sharp";
 import { FileSizeLimit, ImgurResponse, ImgurResponseSchema } from "../helpers/types.js";

@@ -1,5 +1,3 @@
-import { existsSync, mkdirSync, rmSync, statSync, writeFileSync } from "node:fs";
-import { resolve } from "node:path";
 import dedent from "dedent";
 import {
     BaseMessageOptions,
@@ -13,6 +11,8 @@ import {
     TextChannel,
     User,
 } from "discord.js";
+import { existsSync, mkdirSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { resolve } from "node:path";
 import sharp from "sharp";
 import strftime from "strftime";
 import { client } from "../app.js";
