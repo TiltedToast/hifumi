@@ -44,7 +44,7 @@
         "fmt:check": "prettier --config .prettierrc --check .",
         "fmt:write": "prettier --config .prettierrc --write .",
         "test": "pnpm run /^test:/",
-        "test:lint": "eslint . -c .eslintrc --max-warnings 0",
+        "test:lint": "eslint . -c .eslintrc --max-warnings 0 --cache",
         "test:build": "tsc",
         "prepare": "husky install",
         "deploy": "tsc && node ./dist/deploy-commands.js",
