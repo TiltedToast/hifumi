@@ -1,5 +1,5 @@
 import { ChatInputCommandInteraction, EmbedBuilder, Message, TextChannel } from "discord.js";
-import Snoowrap, { Subreddit } from "snoowrap";
+import Snoowrap from "snoowrap";
 import type { Timespan } from "snoowrap/dist/objects/Subreddit.js";
 import strftime from "strftime";
 import { EMBED_COLOUR, REDDIT_USER_AGENT } from "../config.js";
@@ -8,14 +8,13 @@ import { redditPosts } from "../db/schema.js";
 import { InsertRedditPostSchema, type NewRedditPost, type RedditPost } from "../db/types.js";
 import { isCommandInteraction, randomElementFromArray, sendOrReply } from "../helpers/utils.js";
 
-const { REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET, REDDIT_REFRESH_TOKEN } = process.env;
 const fetch_opts = { headers: { "User-Agent": REDDIT_USER_AGENT } };
 
 const RedditClient = new Snoowrap({
     userAgent: REDDIT_USER_AGENT,
-    clientId: REDDIT_CLIENT_ID,
-    clientSecret: REDDIT_CLIENT_SECRET,
-    refreshToken: REDDIT_REFRESH_TOKEN,
+    clientId: process.env.REDDIT_CLIENT_ID,
+    clientSecret: process.env.REDDIT_CLIENT_SECRET,
+    refreshToken: process.env.REDDIT_REFRESH_TOKEN,
 });
 
 export async function profile(message: Message, prefix: string) {
@@ -97,7 +96,7 @@ export async function sub(input: ChatInputCommandInteraction | Message) {
     }
 
     const json = (await response.json().catch(console.error)) as {
-        data: Subreddit;
+        data: Snoowrap.Subreddit;
         reason?: string;
         kind: string;
     };
