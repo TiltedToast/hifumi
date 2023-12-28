@@ -44,7 +44,7 @@
         "fmt:check": "prettier --config .prettierrc --check .",
         "fmt:write": "prettier --config .prettierrc --write .",
         "test": "pnpm run /^test:/",
-        "test:lint": "pnpm lint-staged",
+        "test:lint": "eslint . -c .eslintrc --max-warnings 0",
         "test:build": "tsc",
         "prepare": "husky install",
         "deploy": "tsc && node ./dist/deploy-commands.js",
@@ -53,10 +53,6 @@
         "clear-test-commands": "tsc && node ./dist/deploy-commands.js --guild 655484563077988385 --clear"
     },
     "lint-staged": {
-        "*.{js,ts}": [
-            "prettier --config .prettierrc --write",
-            "eslint -c .eslintrc --max-warnings 0 --fix"
-        ],
-        "*.{json,css,md,yml}": "prettier --config .prettierrc --write"
+        "*.{js,ts,json,css,md,yml}": "prettier --config .prettierrc --write"
     }
 }
