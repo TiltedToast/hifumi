@@ -1,7 +1,7 @@
 import {
     ButtonInteraction,
     ChatInputCommandInteraction,
-    Interaction,
+    type Interaction,
     codeBlock,
     userMention,
 } from "discord.js";

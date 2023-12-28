@@ -31,14 +31,14 @@ import {
     mikuReactions,
 } from "../db/schema.js";
 import {
-    EmbedMetadata,
-    PairConversionResponse,
     PairConversionResponseSchema,
-    SupportedCodesResponse,
     SupportedCodesSchema,
-    UrbanEntry,
-    UrbanResponse,
     UrbanResponseSchema,
+    type EmbedMetadata,
+    type PairConversionResponse,
+    type SupportedCodesResponse,
+    type UrbanEntry,
+    type UrbanResponse,
 } from "../helpers/types.js";
 import {
     getUserObjectPingId,

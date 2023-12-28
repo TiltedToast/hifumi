@@ -2,7 +2,7 @@ import type { Message } from "discord.js";
 import { readFileSync } from "node:fs";
 import qr from "qrcode";
 import sharp from "sharp";
-import { FileSizeLimit, ImgurResponse, ImgurResponseSchema } from "../helpers/types.js";
+import { FileSizeLimit, type ImgurResponse, ImgurResponseSchema } from "../helpers/types.js";
 import {
     createTemp,
     downloadURL,

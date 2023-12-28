@@ -14,7 +14,9 @@
         "noImplicitOverride": true,
         "noPropertyAccessFromIndexSignature": true,
         "skipLibCheck": true,
-        "alwaysStrict": true
+        "alwaysStrict": true,
+        "verbatimModuleSyntax": true,
+        "incremental": true
     },
     "include": ["**/*.ts", "pm2.config.cjs"],
     "exclude": ["node_modules", "dist"]

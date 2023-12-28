@@ -1,12 +1,12 @@
 import dedent from "dedent";
 import {
-    BaseMessageOptions,
-    Channel,
+    type BaseMessageOptions,
+    type Channel,
     CommandInteraction,
     GuildMember,
     Message,
     MessageType,
-    PermissionResolvable,
+    type PermissionResolvable,
     PermissionsBitField,
     TextChannel,
     User,

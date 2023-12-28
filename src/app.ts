@@ -3,7 +3,7 @@ import {
     Client as DiscordClient,
     GatewayIntentBits,
     Partials,
-    Snowflake,
+    type Snowflake,
     TextChannel,
 } from "discord.js";
 import "dotenv/config";

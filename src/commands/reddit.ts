@@ -5,7 +5,7 @@ import strftime from "strftime";
 import { EMBED_COLOUR, REDDIT_USER_AGENT } from "../config.js";
 import { db, getRandomRedditPosts } from "../db/index.js";
 import { redditPosts } from "../db/schema.js";
-import { InsertRedditPostSchema, NewRedditPost, RedditPost } from "../db/types.js";
+import { InsertRedditPostSchema, type NewRedditPost, type RedditPost } from "../db/types.js";
 import { isCommandInteraction, randomElementFromArray, sendOrReply } from "../helpers/utils.js";
 
 const { REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET, REDDIT_REFRESH_TOKEN } = process.env;

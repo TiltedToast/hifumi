@@ -4,7 +4,7 @@ import { eq, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/planetscale-serverless";
 import * as schema from "./schema.js";
 import { prefixes, redditPosts } from "./schema.js";
-import { RedditPost } from "./types.js";
+import { type RedditPost } from "./types.js";
 
 const { PLANETSCALE_URL, DEV_MODE } = process.env;
 

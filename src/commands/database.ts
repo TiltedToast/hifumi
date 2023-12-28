@@ -6,7 +6,7 @@ import { prefixMap, statusArr } from "../app.js";
 import { BOT_OWNERS } from "../config.js";
 import { PSConnection, db, updatePrefix as updatePrefixDB } from "../db/index.js";
 import { statuses } from "../db/schema.js";
-import { InsertStatusSchema, Status } from "../db/types.js";
+import { InsertStatusSchema, type Status } from "../db/types.js";
 import { hasPermission, isBotOwner, isDev } from "../helpers/utils.js";
 
 const MIN_WRAP_LENGTH = 30;

@@ -2,7 +2,7 @@ import type { Client, TextChannel } from "discord.js";
 import { statusArr } from "../app.js";
 import { db } from "../db/index.js";
 import { errorLogs } from "../db/schema.js";
-import { CatFactResponse, CatFactResponseSchema, StatusType } from "../helpers/types.js";
+import { type CatFactResponse, CatFactResponseSchema, StatusType } from "../helpers/types.js";
 import {
     isDev,
     randomElementFromArray,
