@@ -261,8 +261,6 @@ async function isValidSubmission(submission: Snoowrap.Submission): Promise<boole
 
     const regex = /^https:\/\/i\.imgur\.com\/([\w\d]+)\./;
 
-    if (!submission.url.includes("i.imgur.com")) return false;
-
     const id = submission.url.match(regex)?.[1];
     if (!id) return false;
 
