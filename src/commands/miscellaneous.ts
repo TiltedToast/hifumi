@@ -351,10 +351,6 @@ export async function avatar(message: Message) {
 }
 
 export async function convert(input: ChatInputCommandInteraction | Message) {
-    if (isCommandInteraction(input)) {
-        await input.deferReply();
-    }
-
     const currencies = {} as Record<string, string>;
 
     let amount: number;

@@ -67,9 +67,8 @@ export async function sub(input: ChatInputCommandInteraction | Message) {
 
     // Check if command has been run in a channel marked as NSFW to avoid potential NSFW posts in non-NSFW channels
     if (isNSFW && !(input.channel as TextChannel).nsfw)
-        return await sendOrReply(input, "You have to be in a NSFW channel for this", true);
+        return await sendOrReply(input, "You have to be in a NSFW channel for this");
 
-    if (isCommandInteraction(input)) await input.deferReply();
     let subreddit: string;
 
     if (isCommandInteraction(input)) {
@@ -122,6 +121,8 @@ export async function sub(input: ChatInputCommandInteraction | Message) {
     if (!response.ok) {
         return await sendOrReply(input, `Reddit's API might be having issues, try again later`);
     }
+
+    if (isCommandInteraction(input)) await input.deferReply();
 
     const posts = await getRandomRedditPosts(subreddit);
 

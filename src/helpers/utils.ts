@@ -1,15 +1,15 @@
 import dedent from "dedent";
 import {
-    type BaseMessageOptions,
-    type Channel,
     CommandInteraction,
     GuildMember,
     Message,
     MessageType,
-    type PermissionResolvable,
     PermissionsBitField,
     TextChannel,
     User,
+    type BaseMessageOptions,
+    type Channel,
+    type PermissionResolvable,
 } from "discord.js";
 import { existsSync, mkdirSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
@@ -42,11 +42,12 @@ export function isMessage(input: Message | CommandInteraction): input is Message
  * Send a message if the input is a message, or reply if the input is a command interaction
  * @param input Message or CommandInteraction
  * @param message Whatever you want to send or reply with
+ * @param ephemeral Whether or not the message should be ephemeral (only visible to the user who invoked the command, this is true by default and only for command interactions)
  */
 export async function sendOrReply(
     input: Message | CommandInteraction,
     message: string | BaseMessageOptions,
-    ephemeral = false
+    ephemeral = true
 ) {
     if (input instanceof Message) {
         return await input.channel.send(message);
