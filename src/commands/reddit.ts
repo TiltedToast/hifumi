@@ -65,12 +65,11 @@ function buildProfileEmbed(userName: string) {
 export async function sub(input: ChatInputCommandInteraction | Message) {
     const { isSFW, isNSFW, force } = parseSubFlags(input);
 
-    if (isCommandInteraction(input)) await input.deferReply();
-
     // Check if command has been run in a channel marked as NSFW to avoid potential NSFW posts in non-NSFW channels
     if (isNSFW && !(input.channel as TextChannel).nsfw)
-        return await sendOrReply(input, "You have to be in a NSFW channel for this");
+        return await sendOrReply(input, "You have to be in a NSFW channel for this", true);
 
+    if (isCommandInteraction(input)) await input.deferReply();
     let subreddit: string;
 
     if (isCommandInteraction(input)) {
