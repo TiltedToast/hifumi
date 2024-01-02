@@ -420,7 +420,7 @@ export async function searchEmojis(message: Message) {
         return await message.channel.send("You need to be in a server to use this command!");
     }
 
-    const emojiStrings = Array.from(emojis.map((x) => x.toString()));
+    const emojiStrings = Array.from(emojis.map((x) => x.toString().replace("_", x.name ?? "")));
 
     const fuse = new Fuse(emojiStrings, {
         shouldSort: true,
