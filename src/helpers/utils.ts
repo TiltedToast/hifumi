@@ -11,6 +11,7 @@ import {
     type Channel,
     type PermissionResolvable,
 } from "discord.js";
+import gifsicle from "gifsicle";
 import { existsSync, mkdirSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import sharp from "sharp";
@@ -184,7 +185,7 @@ export async function resize(options: ResizeOptions) {
     const { fileLocation, width, saveLocation } = options;
     if (fileLocation.endsWith(".gif")) {
         return await execPromise(
-            `gifsicle --resize-width ${width} ${fileLocation} -o ${saveLocation}`
+            `${gifsicle} --resize-width ${width} ${fileLocation} -o ${saveLocation}`
         );
     }
     return await sharp(fileLocation).resize(width).toFile(saveLocation);
