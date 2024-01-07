@@ -94,6 +94,10 @@ export async function resizeImg(message: Message, prefix: string) {
     }
 
     const width = parseInt(content[1]);
+
+    if (isNaN(width) || width <= 0) return await message.channel.send("Invalid width!");
+    if (width > 10000) return await message.channel.send("Width too large!");
+
     const source = message.attachments.size > 0 ? message.attachments.first()?.url : content[2];
 
     if (!source) return await message.channel.send("Invalid URL!");
