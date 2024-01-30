@@ -1,7 +1,6 @@
 import type { Message } from "discord.js";
 import { readFileSync } from "node:fs";
 import qr from "qrcode";
-import sharp from "sharp";
 import { FileSizeLimit, type ImgurResponse, ImgurResponseSchema } from "../helpers/types.js";
 import {
     createTemp,
@@ -11,6 +10,7 @@ import {
     isValidSize,
     resize,
 } from "../helpers/utils.js";
+import Jimp from "jimp";
 
 export async function beautiful(message: Message) {
     createTemp();
@@ -30,40 +30,38 @@ export async function beautiful(message: Message) {
         saveLocation: "./temp/avatar_resized.png",
     });
 
-    const canvas = sharp({
-        create: {
-            width: 640,
-            height: 674,
-            channels: 4,
-            background: { r: 0, g: 0, b: 0, alpha: 0 },
-        },
-    });
+    const canvas = new Jimp(640, 674);
 
-    const avatar = await sharp("./temp/avatar_resized.png").toBuffer().catch(console.error);
-    const background = await sharp("./src/assets/beautiful_background.png")
-        .toBuffer()
-        .catch(console.error);
+    const background = await Jimp.read("./src/assets/beautiful_background.png").catch(
+        console.error
+    );
 
-    if (!(avatar && background)) {
+    if (!background) {
         return await message.channel.send(
             "I'm sorry, it seems something went wrong generating the image"
         );
     }
 
-    canvas.composite([
-        { input: avatar, top: 35, left: 422 }, // Top pfp
-        { input: avatar, top: 377, left: 430 }, // Bottom pfp
-        { input: background, top: 0, left: 0 }, // Background
-    ]);
+    const avatar = await Jimp.read("./temp/avatar_resized.png").catch(console.error);
 
-    const imgBuf = await canvas.png().toBuffer().catch(console.error);
+    if (!avatar) {
+        return await message.channel.send(
+            "I'm sorry, it seems something went wrong generating the image"
+        );
+    }
 
-    if (!imgBuf)
+    canvas.composite(avatar, 422, 35); // Top pfp
+    canvas.composite(avatar, 430, 377); // Bottom pfp
+    canvas.composite(background, 0, 0); // Background
+
+    const buf = await canvas.getBufferAsync(Jimp.MIME_PNG).catch(console.error);
+
+    if (!buf)
         return await message.channel.send(
             "I'm sorry, it seems something went wrong generating the image"
         );
 
-    return await message.channel.send({ files: [imgBuf] });
+    return await message.channel.send({ files: [buf] });
 }
 
 export async function qrCode(message: Message) {

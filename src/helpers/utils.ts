@@ -11,13 +11,12 @@ import {
     type Channel,
     type PermissionResolvable,
 } from "discord.js";
-import gifsicle from "gifsicle";
+import Jimp from "jimp";
 import { existsSync, mkdirSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
-import sharp from "sharp";
 import strftime from "strftime";
+import { table } from "table";
 import { client } from "../app.js";
-import { execPromise } from "../commands/miscellaneous.js";
 import { BOT_OWNERS, DEV_CHANNELS, LOG_CHANNEL, OWNER_NAME } from "../config.js";
 import { db } from "../db/index.js";
 import { errorLogs } from "../db/schema.js";
@@ -28,6 +27,34 @@ import type {
     UpdateEmbedArrParams,
     UpdateEmbedOptions,
 } from "./types.js";
+import { execPromise } from "../commands/miscellaneous.js";
+import gifsicle from "gifsicle";
+
+export function formatTable<K extends string | number | symbol, V>(rows: Record<K, V>[]): string {
+    const MIN_WRAP_LENGTH = 30;
+
+    const keys = Object.keys(rows[0]);
+    const values = rows.map((obj) => Object.values(obj));
+
+    const columns = {} as { [key: number]: { width: number } };
+
+    for (let i = 0; i < values[0].length; i++) {
+        const minVal = Math.min(
+            MIN_WRAP_LENGTH,
+            Math.max(...values.map((v) => String(v[i]).length))
+        );
+        columns[i] = {
+            width: minVal >= keys[i].length ? minVal : keys[i].length,
+        };
+    }
+
+    return table([keys, ...values], {
+        columnDefault: {
+            wrapWord: true,
+        },
+        columns,
+    });
+}
 
 export function isCommandInteraction(
     input: Message | CommandInteraction
@@ -188,7 +215,13 @@ export async function resize(options: ResizeOptions) {
             `${gifsicle} --resize-width ${width} ${fileLocation} -o ${saveLocation}`
         );
     }
-    return await sharp(fileLocation).resize(width).toFile(saveLocation);
+
+    const img = await Jimp.read(fileLocation);
+    // prettier-ignore
+    await img
+        .resize(width, Jimp.AUTO)
+        .writeAsync(saveLocation)
+        .catch(console.error);
 }
 
 /**
