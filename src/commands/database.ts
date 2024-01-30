@@ -1,15 +1,12 @@
 import { DatabaseError } from "@planetscale/database";
 import { Message, PermissionFlagsBits, codeBlock } from "discord.js";
-import { table } from "table";
 import { fromZodError } from "zod-validation-error";
 import { prefixMap, statusArr } from "../app.js";
 import { BOT_OWNERS } from "../config.js";
 import { PSConnection, db, updatePrefix as updatePrefixDB } from "../db/index.js";
 import { statuses } from "../db/schema.js";
 import { InsertStatusSchema, type Status } from "../db/types.js";
-import { hasPermission, isBotOwner, isDev } from "../helpers/utils.js";
-
-const MIN_WRAP_LENGTH = 30;
+import { formatTable, hasPermission, isBotOwner, isDev } from "../helpers/utils.js";
 
 export async function runSQL(message: Message) {
     if (!isBotOwner(message.author)) return;
@@ -34,29 +31,7 @@ export async function runSQL(message: Message) {
         return await message.channel.send(codeBlock("json", JSON.stringify(result, null, 2)));
     }
 
-    const data = result.rows;
-
-    const keys = Object.keys(data[0]);
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-    const values = data.map((obj) => Object.values(obj));
-
-    const columns = {} as { [key: number]: { width: number } };
-
-    for (let i = 0; i < values[0].length; i++) {
-        const minVal = Math.min(
-            MIN_WRAP_LENGTH,
-            Math.max(...values.map((v) => String(v[i]).length))
-        );
-        columns[i] = {
-            width: minVal >= keys[i].length ? minVal : keys[i].length,
-        };
-    }
-    let stringified = table([keys, ...values], {
-        columnDefault: {
-            wrapWord: true,
-        },
-        columns,
-    });
+    let stringified = formatTable(result.rows);
 
     // If the nice table is too long, just send the raw JSON
     if (stringified.length > 2000) {
@@ -124,10 +99,13 @@ export async function insertStatus(message: Message): Promise<undefined | Messag
 
     statusArr.push(document);
 
+    const formattedDoc = formatTable([{ ...document, id: query.insertId }]);
+
     await message.channel.send("Status added!");
-    await message.channel.send(
-        codeBlock("json", JSON.stringify({ ...document, id: query.insertId }, null, 4))
-    );
+    await message.channel.send(codeBlock(formattedDoc));
+    // await message.channel.send(
+    //     codeBlock("json", JSON.stringify(, null, 4))
+    // );
 }
 
 export async function updatePrefix(message: Message) {
