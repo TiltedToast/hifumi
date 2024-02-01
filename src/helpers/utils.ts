@@ -11,24 +11,23 @@ import {
     type Channel,
     type PermissionResolvable,
 } from "discord.js";
-import Jimp from "jimp";
+import gifsicle from "gifsicle";
 import { existsSync, mkdirSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
+import sharp from "sharp";
 import strftime from "strftime";
 import { table } from "table";
-import { client } from "../app.js";
-import { BOT_OWNERS, DEV_CHANNELS, LOG_CHANNEL, OWNER_NAME } from "../config.js";
-import { db } from "../db/index.js";
-import { errorLogs } from "../db/schema.js";
+import { client } from "../app.ts";
+import { BOT_OWNERS, DEV_CHANNELS, LOG_CHANNEL, OWNER_NAME } from "../config.ts";
+import { db } from "../db/index.ts";
+import { errorLogs } from "../db/schema.ts";
 import type {
     EmbedMetadata,
     ErrorLogOptions,
     ResizeOptions,
     UpdateEmbedArrParams,
     UpdateEmbedOptions,
-} from "./types.js";
-import { execPromise } from "../commands/miscellaneous.js";
-import gifsicle from "gifsicle";
+} from "./types.ts";
 
 export function formatTable<K extends string | number | symbol, V>(rows: Record<K, V>[]): string {
     const MIN_WRAP_LENGTH = 30;
@@ -209,19 +208,18 @@ export function hasPermission(
  * @param options An object containing the file location, width, and save location
  */
 export async function resize(options: ResizeOptions) {
-    const { fileLocation, width, saveLocation } = options;
-    if (fileLocation.endsWith(".gif")) {
-        return await execPromise(
-            `${gifsicle} --resize-width ${width} ${fileLocation} -o ${saveLocation}`
-        );
+    const { fileLocation, width, saveLocation, animated } = options;
+    if (animated) {
+        return await Bun.spawn([
+            gifsicle,
+            "--resize-width",
+            width.toString(),
+            fileLocation,
+            "-o",
+            saveLocation,
+        ]).exited;
     }
-
-    const img = await Jimp.read(fileLocation);
-    // prettier-ignore
-    await img
-        .resize(width, Jimp.AUTO)
-        .writeAsync(saveLocation)
-        .catch(console.error);
+    return await sharp(fileLocation).resize(width).toFile(saveLocation).catch(console.error);
 }
 
 /**

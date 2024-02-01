@@ -9,14 +9,14 @@ import {
 import "dotenv/config";
 import { existsSync, rmSync } from "node:fs";
 import strftime from "strftime";
-import { avoidDbSleeping, startStatusLoop } from "./commands/loops.js";
-import { LOG_CHANNEL } from "./config.js";
-import { db } from "./db/index.js";
-import { prefixes, statuses } from "./db/schema.js";
-import type { Status } from "./db/types.js";
-import handleInteraction from "./handlers/interactions.js";
-import handleMessage from "./handlers/messages.js";
-import { isDev } from "./helpers/utils.js";
+import { avoidDbSleeping, startStatusLoop } from "./commands/loops.ts";
+import { LOG_CHANNEL } from "./config.ts";
+import { db } from "./db/index.ts";
+import { prefixes, statuses } from "./db/schema.ts";
+import type { Status } from "./db/types.ts";
+import handleInteraction from "./handlers/interactions.ts";
+import handleMessage from "./handlers/messages.ts";
+import { isDev } from "./helpers/utils.ts";
 
 const startTime = Date.now();
 

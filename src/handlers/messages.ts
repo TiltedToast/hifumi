@@ -1,16 +1,16 @@
 import type { Message } from "discord.js";
-import { botIsLoading, prefixMap } from "../app.js";
-import * as db from "../commands/database.js";
-import * as emoji from "../commands/emoji.js";
-import * as imgProcess from "../commands/imgProcess.js";
-import * as misc from "../commands/miscellaneous.js";
-import * as reddit from "../commands/reddit.js";
-import { db as DBConn } from "../db/index.js";
+import { botIsLoading, prefixMap } from "../app.ts";
+import * as db from "../commands/database.ts";
+import * as emoji from "../commands/emoji.ts";
+import * as imgProcess from "../commands/imgProcess.ts";
+import * as misc from "../commands/miscellaneous.ts";
+import * as reddit from "../commands/reddit.ts";
+import { db as DBConn } from "../db/index.ts";
 
-import { DEFAULT_PREFIX, DEV_PREFIX, RELOAD_PREFIX } from "../config.js";
-import { prefixes } from "../db/schema.js";
-import type { MessageCommandData } from "../helpers/types.js";
-import { clientNoPermissions, errorLog, isDev, isMikuTrigger } from "../helpers/utils.js";
+import { DEFAULT_PREFIX, DEV_PREFIX, RELOAD_PREFIX } from "../config.ts";
+import { prefixes } from "../db/schema.ts";
+import type { MessageCommandData } from "../helpers/types.ts";
+import { clientNoPermissions, errorLog, isDev, isMikuTrigger } from "../helpers/utils.ts";
 
 export default async function handleMessage(message: Message) {
     const guildClient = await message.guild?.members.fetchMe();

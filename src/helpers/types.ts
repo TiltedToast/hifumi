@@ -127,6 +127,7 @@ export type MessageCommandData = {
 };
 
 export type ResizeOptions = {
+    animated: boolean;
     fileLocation: string;
     width: number;
     saveLocation: string;

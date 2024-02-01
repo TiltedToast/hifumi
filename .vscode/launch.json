@@ -2,12 +2,19 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "type": "node-terminal",
-            "name": "Start",
+            "type": "bun",
             "request": "launch",
-            "command": "tsx ./src/app.ts",
-            "cwd": "${workspaceFolder}"
-            // "preLaunchTask": "npm: deploy-dev",
+            "name": "Start",
+            "program": "${workspaceFolder}/src/app.ts",
+            "args": [],
+            "cwd": "${workspaceFolder}",
+            "env": {},
+            "strictEnv": false,
+            "watchMode": true,
+            "stopOnEntry": false,
+            "noDebug": false,
+            "runtime": "bun",
+            "runtimeArgs": []
         }
     ]
 }

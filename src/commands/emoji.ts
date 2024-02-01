@@ -10,8 +10,8 @@ import {
 } from "discord.js";
 import Fuse from "fuse.js";
 import { readFileSync } from "node:fs";
-import { client } from "../app.js";
-import { FileSizeLimit } from "../helpers/types.js";
+import { client } from "../app.ts";
+import { FileSizeLimit } from "../helpers/types.ts";
 import {
     createTemp,
     downloadURL,
@@ -21,7 +21,7 @@ import {
     isValidSize,
     resize,
     splitMessage,
-} from "../helpers/utils.js";
+} from "../helpers/utils.ts";
 
 const emojiRegex = new RegExp(/<a?:\w+:\d+>/gi);
 
@@ -174,11 +174,24 @@ export async function addEmoji(message: Message, prefix: string) {
     // Resizes image, checks size again and creates emoji
     try {
         if (!isValidSize(`./temp/unknown.${imgType}`, FileSizeLimit.DiscordEmoji)) {
-            await resize({
+            const code = await resize({
                 fileLocation: `./temp/unknown.${imgType}`,
                 width: 128,
                 saveLocation: `./temp/unknown_resized.${imgType}`,
+                animated: imgType === "gif",
             });
+
+            if (code === undefined) {
+                return message.channel.send(
+                    "Something went wrong while resizing the image, please try again!"
+                );
+            }
+
+            if (typeof code === "number" && code !== 0) {
+                return message.channel.send(
+                    "Something went wrong while resizing the image, please try again!"
+                );
+            }
 
             if (!isValidSize(`./temp/unknown_resized.${imgType}`, FileSizeLimit.DiscordEmoji)) {
                 return message.channel.send("File too large for Discord, even after resizing!");

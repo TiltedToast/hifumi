@@ -5,17 +5,17 @@ import {
     codeBlock,
     userMention,
 } from "discord.js";
-import { client } from "../app.js";
-import { convert, helpCmd, patUser, urban, urbanEmbeds } from "../commands/miscellaneous.js";
-import { sub } from "../commands/reddit.js";
+import { client } from "../app.ts";
+import { convert, helpCmd, patUser, urban, urbanEmbeds } from "../commands/miscellaneous.ts";
+import { sub } from "../commands/reddit.ts";
 import {
     BOT_OWNERS,
     DEV_CHANNELS,
     DEV_COMMAND_POSTFIX,
     LOG_CHANNEL,
     OWNER_NAME,
-} from "../config.js";
-import { isDev, updateEmbed } from "../helpers/utils.js";
+} from "../config.ts";
+import { isDev, updateEmbed } from "../helpers/utils.ts";
 
 export default async function handleInteraction(interaction: Interaction) {
     try {

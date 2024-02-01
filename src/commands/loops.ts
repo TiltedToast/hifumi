@@ -1,14 +1,14 @@
 import type { Client, TextChannel } from "discord.js";
-import { statusArr } from "../app.js";
-import { db } from "../db/index.js";
-import { errorLogs } from "../db/schema.js";
-import { type CatFactResponse, CatFactResponseSchema, StatusType } from "../helpers/types.js";
+import { statusArr } from "../app.ts";
+import { db } from "../db/index.ts";
+import { errorLogs } from "../db/schema.ts";
+import { CatFactResponseSchema, StatusType, type CatFactResponse } from "../helpers/types.ts";
 import {
     isDev,
     randomElementFromArray,
     randomIntFromRange,
     sleep as utilSleep,
-} from "../helpers/utils.js";
+} from "../helpers/utils.ts";
 
 export async function startCatFactLoop(channel: TextChannel) {
     const sleep = async () => await utilSleep(randomIntFromRange(54000000, 86400000)); // 15h-24h

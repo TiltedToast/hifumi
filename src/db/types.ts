@@ -1,7 +1,7 @@
 import { type InferSelectModel } from "drizzle-orm";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
-import * as schema from "./schema.js";
+import * as schema from "./schema.ts";
 
 export type ErrorLog = InferSelectModel<typeof schema.errorLogs>;
 export type HelpMessage = InferSelectModel<typeof schema.helpMessages>;

@@ -2,11 +2,11 @@ import { ChatInputCommandInteraction, EmbedBuilder, Message, TextChannel } from 
 import Snoowrap from "snoowrap";
 import type { Timespan } from "snoowrap/dist/objects/Subreddit.js";
 import strftime from "strftime";
-import { EMBED_COLOUR, REDDIT_USER_AGENT } from "../config.js";
-import { db, getRandomRedditPosts } from "../db/index.js";
-import { redditPosts } from "../db/schema.js";
-import { InsertRedditPostSchema, type NewRedditPost, type RedditPost } from "../db/types.js";
-import { isCommandInteraction, randomElementFromArray, sendOrReply } from "../helpers/utils.js";
+import { EMBED_COLOUR, REDDIT_USER_AGENT } from "../config.ts";
+import { db, getRandomRedditPosts } from "../db/index.ts";
+import { redditPosts } from "../db/schema.ts";
+import { InsertRedditPostSchema, type NewRedditPost, type RedditPost } from "../db/types.ts";
+import { isCommandInteraction, randomElementFromArray, sendOrReply } from "../helpers/utils.ts";
 
 const fetch_opts = { headers: { "User-Agent": REDDIT_USER_AGENT } };
 

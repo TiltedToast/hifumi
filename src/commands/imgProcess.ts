@@ -1,7 +1,8 @@
 import type { Message } from "discord.js";
 import { readFileSync } from "node:fs";
 import qr from "qrcode";
-import { FileSizeLimit, type ImgurResponse, ImgurResponseSchema } from "../helpers/types.js";
+import sharp from "sharp";
+import { FileSizeLimit, ImgurResponseSchema, type ImgurResponse } from "../helpers/types.ts";
 import {
     createTemp,
     downloadURL,
@@ -9,8 +10,7 @@ import {
     getUserObjectPingId,
     isValidSize,
     resize,
-} from "../helpers/utils.js";
-import Jimp from "jimp";
+} from "../helpers/utils.ts";
 
 export async function beautiful(message: Message) {
     createTemp();
@@ -24,41 +24,50 @@ export async function beautiful(message: Message) {
     const fetchErrorMsg = await downloadURL(avatarUrl, "./temp/avatar.png");
     if (fetchErrorMsg) return await message.channel.send(fetchErrorMsg);
 
-    await resize({
+    const outputInfo = await resize({
         fileLocation: "./temp/avatar.png",
         width: 180,
         saveLocation: "./temp/avatar_resized.png",
+        animated: false,
     });
 
-    const canvas = new Jimp(640, 674);
-
-    const background = await Jimp.read("./src/assets/beautiful_background.png").catch(
-        console.error
-    );
-
-    if (!background) {
+    if (outputInfo === undefined) {
         return await message.channel.send(
-            "I'm sorry, it seems something went wrong generating the image"
+            "I'm sorry, failed to resize the pfp. Maybe try again later?"
         );
     }
 
-    const avatar = await Jimp.read("./temp/avatar_resized.png").catch(console.error);
+    const canvas = sharp({
+        create: {
+            width: 640,
+            height: 674,
+            channels: 4,
+            background: { r: 0, g: 0, b: 0, alpha: 0 },
+        },
+    });
 
-    if (!avatar) {
+    const avatar = await sharp("./temp/avatar_resized.png").toBuffer().catch(console.error);
+    const background = await sharp("./src/assets/beautiful_background.png")
+        .toBuffer()
+        .catch(console.error);
+
+    if (!avatar || !background) {
         return await message.channel.send(
-            "I'm sorry, it seems something went wrong generating the image"
+            "I'm sorry, failed to load some of the images. Maybe try again later?"
         );
     }
 
-    canvas.composite(avatar, 422, 35); // Top pfp
-    canvas.composite(avatar, 430, 377); // Bottom pfp
-    canvas.composite(background, 0, 0); // Background
+    canvas.composite([
+        { input: avatar, top: 35, left: 422 }, // Top pfp
+        { input: avatar, top: 377, left: 430 }, // Bottom pfp
+        { input: background, top: 0, left: 0 }, // Background
+    ]);
 
-    const buf = await canvas.getBufferAsync(Jimp.MIME_PNG).catch(console.error);
+    const buf = await canvas.png().toBuffer().catch(console.error);
 
     if (!buf)
         return await message.channel.send(
-            "I'm sorry, it seems something went wrong generating the image"
+            "I'm sorry, failed to create the image. Maybe try again later?"
         );
 
     return await message.channel.send({ files: [buf] });
@@ -114,11 +123,24 @@ export async function resizeImg(message: Message, prefix: string) {
     const fetchErrorMsg = await downloadURL(source, `./temp/unknown.${imgType}`);
     if (fetchErrorMsg) return await message.channel.send(fetchErrorMsg);
 
-    await resize({
+    const output = await resize({
         fileLocation: `./temp/unknown.${imgType}`,
         width,
         saveLocation: `./temp/unknown_resized.${imgType}`,
+        animated: imgType === "gif",
     });
+
+    if (output === undefined) {
+        return await message.channel.send(
+            "I'm sorry, failed to resize the image. Maybe try again later?"
+        );
+    }
+
+    if (typeof output === "number" && output !== 0) {
+        return await message.channel.send(
+            "I'm sorry, failed to resize the image. Maybe try again later?"
+        );
+    }
 
     if (!isValidSize(`./temp/unknown_resized.${imgType}`, FileSizeLimit.DiscordFile)) {
         return await message.channel.send("File too large for Discord!");

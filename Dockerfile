@@ -1,14 +1,13 @@
-FROM node:lts
-
-RUN corepack enable && corepack prepare pnpm@latest --activate
+FROM oven/bun:latest
 
 WORKDIR /hifumi
 ENV DOCKER true
 COPY . .
 
-RUN pnpm install \
-    && ./node_modules/.bin/tsc
+RUN apt-get update && \
+    apt-get install -y git &&  \
+    bun install
 
 STOPSIGNAL SIGINT
 
-CMD [ "node", "./dist/app.js" ]
+CMD [ "bun", "./src/app.ts" ]

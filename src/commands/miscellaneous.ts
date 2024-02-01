@@ -14,7 +14,7 @@ import {
 import { all, create } from "mathjs";
 import { exec } from "node:child_process";
 import { promisify } from "node:util";
-import { client, prefixMap } from "../app.js";
+import { client, prefixMap } from "../app.ts";
 import {
     BOT_NAME,
     DEFAULT_PREFIX,
@@ -22,14 +22,14 @@ import {
     EMBED_COLOUR,
     IMAGE_THREAD_CHANNELS,
     OWNER_NAME,
-} from "../config.js";
-import { db } from "../db/index.js";
+} from "../config.ts";
+import { db } from "../db/index.ts";
 import {
     helpMessages,
     leet as leetTable,
     mikuCommandAliases,
     mikuReactions,
-} from "../db/schema.js";
+} from "../db/schema.ts";
 import {
     PairConversionResponseSchema,
     SupportedCodesSchema,
@@ -39,7 +39,7 @@ import {
     type SupportedCodesResponse,
     type UrbanEntry,
     type UrbanResponse,
-} from "../helpers/types.js";
+} from "../helpers/types.ts";
 import {
     getUserObjectPingId,
     hasPermission,
@@ -51,7 +51,7 @@ import {
     setEmbedArr,
     sleep,
     writeUpdateFile,
-} from "../helpers/utils.js";
+} from "../helpers/utils.ts";
 
 const { WOLFRAM_ALPHA_APP_ID, EXCHANGE_API_KEY } = process.env;
 

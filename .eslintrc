@@ -21,5 +21,5 @@
         "@typescript-eslint/consistent-type-definitions": "off",
         "@typescript-eslint/no-unsafe-enum-comparison": "off"
     },
-    "ignorePatterns": ["dist", "node_modules"]
+    "ignorePatterns": ["dist", "node_modules", "pm2.config.cjs"]
 }

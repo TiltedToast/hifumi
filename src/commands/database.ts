@@ -1,12 +1,12 @@
 import { DatabaseError } from "@planetscale/database";
 import { Message, PermissionFlagsBits, codeBlock } from "discord.js";
 import { fromZodError } from "zod-validation-error";
-import { prefixMap, statusArr } from "../app.js";
-import { BOT_OWNERS } from "../config.js";
-import { PSConnection, db, updatePrefix as updatePrefixDB } from "../db/index.js";
-import { statuses } from "../db/schema.js";
-import { InsertStatusSchema, type Status } from "../db/types.js";
-import { formatTable, hasPermission, isBotOwner, isDev } from "../helpers/utils.js";
+import { prefixMap, statusArr } from "../app.ts";
+import { BOT_OWNERS } from "../config.ts";
+import { PSConnection, db, updatePrefix as updatePrefixDB } from "../db/index.ts";
+import { statuses } from "../db/schema.ts";
+import { InsertStatusSchema, type Status } from "../db/types.ts";
+import { formatTable, hasPermission, isBotOwner, isDev } from "../helpers/utils.ts";
 
 export async function runSQL(message: Message) {
     if (!isBotOwner(message.author)) return;
