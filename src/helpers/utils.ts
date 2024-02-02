@@ -13,6 +13,7 @@ import {
 } from "discord.js";
 import gifsicle from "gifsicle";
 import { existsSync, mkdirSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { exists, mkdir, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import sharp from "sharp";
 import strftime from "strftime";
@@ -105,11 +106,11 @@ export function splitMessage(content: string, maxLength = 2000, delim = " "): st
     return chunks;
 }
 
-export function writeUpdateFile() {
-    if (!existsSync("./temp")) {
-        mkdirSync("./temp");
+export async function writeUpdateFile() {
+    if (!(await exists("./temp"))) {
+        await mkdir("./temp");
     }
-    writeFileSync("./temp/update.txt", Date.now().toString());
+    await writeFile("./temp/update.txt", Date.now().toString());
 }
 
 function getEmbedIndex(arr: EmbedMetadata[], target: EmbedMetadata): number {

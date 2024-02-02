@@ -7,7 +7,7 @@ import {
     TextChannel,
 } from "discord.js";
 import "dotenv/config";
-import { existsSync, rmSync } from "node:fs";
+import { exists, rm } from "node:fs/promises";
 import strftime from "strftime";
 import { avoidDbSleeping, startStatusLoop } from "./commands/loops.ts";
 import { LOG_CHANNEL } from "./config.ts";
@@ -64,7 +64,7 @@ client.once("ready", async () => {
     // startCatFactLoop(catFactChannel);
 
     if (isDev()) return;
-    if (existsSync("./temp/update.txt")) return rmSync("./temp/update.txt");
+    if (await exists("./temp/update.txt")) return await rm("./temp/update.txt");
 
     await logChannel.send(dedent`
         Logged in as:

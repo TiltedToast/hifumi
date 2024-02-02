@@ -272,8 +272,8 @@ export async function cmdConsole(message: Message, cmd?: string, python = false)
     const command = cmd
         ? cmd
         : python
-        ? `${pythonCmd} -c "print(${input.replaceAll('"', '\\"')})"`
-        : input;
+          ? `${pythonCmd} -c "print(${input.replaceAll('"', '\\"')})"`
+          : input;
     try {
         const { stdout, stderr } = await execPromise(command);
         if (stderr) await message.channel.send(codeBlock(stderr));
@@ -289,9 +289,10 @@ export async function cmdConsole(message: Message, cmd?: string, python = false)
 
 export async function reloadBot(message: Message) {
     if (!isBotOwner(message.author)) return;
-    writeUpdateFile();
-    exec("pnpm run restart");
+    await writeUpdateFile();
+    exec("bun run restart");
     await message.channel.send("Reload successful!");
+    process.exit(0);
 }
 
 export async function calc(message: Message) {
@@ -610,5 +611,6 @@ export async function bye(message: Message) {
     // Closes the MongoDB connection and stops the running daemon via pm2
     await message.channel.send("Bai baaaaaaaai!!");
     await client.destroy();
-    exec("pm2 delete hifumi");
+    exec("bun run stop");
+    process.exit(0);
 }
