@@ -23,7 +23,7 @@
         "zod-validation-error": "3.0.0"
     },
     "devDependencies": {
-        "@types/bun": "^1.0.4",
+        "@types/bun": "latest",
         "@types/dedent": "^0.7.2",
         "@types/gifsicle": "^5.2.2",
         "@types/qrcode": "^1.5.5",

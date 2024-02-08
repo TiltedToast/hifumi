@@ -12,8 +12,7 @@ import {
     type PermissionResolvable,
 } from "discord.js";
 import gifsicle from "gifsicle";
-import { existsSync, mkdirSync, rmSync, statSync, writeFileSync } from "node:fs";
-import { exists, mkdir, writeFile } from "node:fs/promises";
+import { existsSync, mkdirSync, rmSync, statSync } from "node:fs";
 import { resolve } from "node:path";
 import sharp from "sharp";
 import strftime from "strftime";
@@ -107,10 +106,7 @@ export function splitMessage(content: string, maxLength = 2000, delim = " "): st
 }
 
 export async function writeUpdateFile() {
-    if (!(await exists("./temp"))) {
-        await mkdir("./temp");
-    }
-    await writeFile("./temp/update.txt", Date.now().toString());
+    await Bun.write("./temp/update.txt", Date.now().toString());
 }
 
 function getEmbedIndex(arr: EmbedMetadata[], target: EmbedMetadata): number {
@@ -391,7 +387,7 @@ export async function downloadURL(url: string, saveLocation: string) {
     const buffer = await response.arrayBuffer().catch(console.error);
 
     if (!buffer) return "Failed to extract contents from response";
-    return writeFileSync(absSaveLocation, new Uint8Array(buffer));
+    await Bun.write(absSaveLocation, new Uint8Array(buffer));
 }
 
 /**

@@ -50,7 +50,7 @@ export default async function handleMessage(message: Message) {
             await misc.reloadBot(message);
 
         if (lowerCasePrefix === prefix.toLowerCase()) {
-            void handleCommand({ command, subCmd, message, prefix });
+            await handleCommand({ command, subCmd, message, prefix });
         }
 
         // Reacting to Miku's emote commands
@@ -64,7 +64,7 @@ export default async function handleMessage(message: Message) {
     }
 }
 
-function handleCommand({ command, subCmd, message, prefix }: MessageCommandData) {
+async function handleCommand({ command, subCmd, message, prefix }: MessageCommandData) {
     // prettier-ignore
     switch (command) {
         case "bye":       return misc.bye(message);
