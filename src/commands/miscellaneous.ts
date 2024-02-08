@@ -14,7 +14,6 @@ import {
 import { all, create } from "mathjs";
 import { exec } from "node:child_process";
 import { promisify } from "node:util";
-import { client, prefixMap } from "../app.ts";
 import {
     BOT_NAME,
     DEFAULT_PREFIX,
@@ -52,6 +51,7 @@ import {
     sleep,
     writeUpdateFile,
 } from "../helpers/utils.ts";
+import { prefixMap } from "../handlers/prefixes.ts";
 
 const { WOLFRAM_ALPHA_APP_ID, EXCHANGE_API_KEY } = process.env;
 
@@ -614,7 +614,7 @@ export async function bye(message: Message) {
 
     // Closes the MongoDB connection and stops the running daemon via pm2
     await message.channel.send("Bai baaaaaaaai!!");
-    await client.destroy();
+    await message.client.destroy();
     exec("bun run stop");
     process.exit(0);
 }

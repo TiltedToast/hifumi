@@ -19,7 +19,6 @@ import os from "os";
 import sharp from "sharp";
 import strftime from "strftime";
 import { table } from "table";
-import { client } from "../app.ts";
 import { BOT_OWNERS, DEV_CHANNELS, LOG_CHANNEL, OWNER_NAME } from "../config.ts";
 import { db } from "../db/index.ts";
 import { errorLogs } from "../db/schema.ts";
@@ -136,14 +135,17 @@ export function isBotOwner(user: User): boolean {
 }
 
 export function isMikuTrigger(message: Message, reactCmd: string): boolean {
-    if (!client.user) return false;
+    if (!message.client.user) return false;
     if (message.content.startsWith(`$${reactCmd}`) && message.type === MessageType.Reply) {
         const repliedMsg = message.channel.messages.resolve(message.reference?.messageId ?? "");
         if (!repliedMsg) return false;
-        if (repliedMsg.author.id === client.user.id) return true;
+        if (repliedMsg.author.id === message.client.user.id) return true;
     }
 
-    return message.content.startsWith(`$${reactCmd}`) && message.content.includes(client.user.id);
+    return (
+        message.content.startsWith(`$${reactCmd}`) &&
+        message.content.includes(message.client.user.id)
+    );
 }
 
 export function setEmbedArr<T>(args: UpdateEmbedArrParams<T>): void {
@@ -248,7 +250,7 @@ export async function getUserObjectPingId(message: Message): Promise<User | unde
 
     try {
         if (!Number.isNaN(parseInt(pingOrIdString)))
-            user = await client.users.fetch(pingOrIdString);
+            user = await message.client.users.fetch(pingOrIdString);
         if (!user && pingOrIdString.startsWith("<")) user = message.mentions.users.first();
         return user ? user : undefined;
     } catch (err) {
@@ -285,17 +287,6 @@ export function errorLog({ message, errorObject }: ErrorLogOptions) {
     const currentTime = strftime("%d/%m/%Y %H:%M:%S");
     let channel: Channel | undefined;
     let errorMessage: string;
-
-    if (message === undefined) {
-        channel = client.channels.cache.get(LOG_CHANNEL) as TextChannel;
-        errorMessage = dedent`
-        Unhandled Rejection
-
-        ${errorObject.stack ?? "Stack missing"}
-
-        <@${BOT_OWNERS[0]}>`;
-        return channel.send(errorMessage);
-    }
 
     const commandUsed =
         message.content.substring(0, 500) +
@@ -351,7 +342,7 @@ export function errorLog({ message, errorObject }: ErrorLogOptions) {
     if (DEV_CHANNELS.includes(message.channel.id)) {
         channel = message.channel;
     } else {
-        channel = client.channels.cache.get(LOG_CHANNEL);
+        channel = message.client.channels.cache.get(LOG_CHANNEL);
     }
     return (channel as TextChannel).send(errorMessage);
 }

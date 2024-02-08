@@ -1,26 +1,19 @@
 import dedent from "dedent";
-import {
-    Client as DiscordClient,
-    GatewayIntentBits,
-    Partials,
-    type Snowflake,
-    TextChannel,
-} from "discord.js";
+import { Client, GatewayIntentBits, Partials, TextChannel } from "discord.js";
 import "dotenv/config";
 import { existsSync, rmSync } from "node:fs";
 import strftime from "strftime";
-import { avoidDbSleeping, startStatusLoop } from "./commands/loops.ts";
+import { avoidDbSleeping } from "./commands/loops.ts";
 import { LOG_CHANNEL } from "./config.ts";
-import { db } from "./db/index.ts";
-import { prefixes, statuses } from "./db/schema.ts";
-import type { Status } from "./db/types.ts";
 import handleInteraction from "./handlers/interactions.ts";
 import handleMessage from "./handlers/messages.ts";
+import * as prefixHandler from "./handlers/prefixes.ts";
+import * as statusHandler from "./handlers/statuses.ts";
 import { isDev } from "./helpers/utils.ts";
 
 const startTime = Date.now();
 
-export const client = new DiscordClient({
+const client = new Client({
     intents: [
         GatewayIntentBits.Guilds,
         GatewayIntentBits.GuildMembers,
@@ -32,9 +25,6 @@ export const client = new DiscordClient({
     ],
     partials: [Partials.Channel],
 });
-export const prefixMap = new Map<Snowflake, string>();
-export let statusArr: Status[] = [];
-export let botIsLoading = true;
 
 client.once("ready", async () => {
     const time = strftime("%d/%m/%Y %H:%M:%S");
@@ -49,15 +39,10 @@ client.once("ready", async () => {
     console.log("------------------");
 
     // Puts all statuses into an array to avoid reading the database on every status change
-    statusArr = await db.select().from(statuses);
-
-    if (statusArr.length) startStatusLoop(client).catch(console.error);
+    statusHandler.init(client).catch(console.error);
+    prefixHandler.init().catch(console.error);
+    prefixHandler.setLoading();
     avoidDbSleeping().catch(console.error);
-
-    for (const prefixDoc of await db.select().from(prefixes)) {
-        prefixMap.set(prefixDoc.serverId, prefixDoc.prefix);
-    }
-    botIsLoading = false;
 
     const logChannel = client.channels.cache.get(LOG_CHANNEL) as TextChannel;
     // const catFactChannel = client.channels.cache.get(CAT_FACT_CHANNEL) as TextChannel;

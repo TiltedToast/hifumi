@@ -1,14 +1,8 @@
-import type { Client, TextChannel } from "discord.js";
-import { statusArr } from "../app.ts";
+import type { TextChannel } from "discord.js";
 import { db } from "../db/index.ts";
 import { errorLogs } from "../db/schema.ts";
-import { CatFactResponseSchema, StatusType, type CatFactResponse } from "../helpers/types.ts";
-import {
-    isDev,
-    randomElementFromArray,
-    randomIntFromRange,
-    sleep as utilSleep,
-} from "../helpers/utils.ts";
+import { CatFactResponseSchema, type CatFactResponse } from "../helpers/types.ts";
+import { isDev, randomIntFromRange, sleep as utilSleep } from "../helpers/utils.ts";
 
 export async function startCatFactLoop(channel: TextChannel) {
     const sleep = async () => await utilSleep(randomIntFromRange(54000000, 86400000)); // 15h-24h
@@ -33,33 +27,6 @@ export async function startCatFactLoop(channel: TextChannel) {
         await channel.send(json.fact);
         await sleep();
     }
-}
-
-/**
- * Starts a loop which periodically changes the status to a random entry in the database
- * @param {Client} client Discord client which is used to access the API
- */
-export async function startStatusLoop(client: Client) {
-    while (true) {
-        const status = setRandomStatus(client);
-        if (!status) break;
-        await utilSleep(randomIntFromRange(300000, 900000)); // 5m-15m
-    }
-}
-
-/**
- * Grabs a random status from the database and sets it as the status of the bot
- * @param client Discord client used to access the API
- */
-function setRandomStatus(client: Client) {
-    if (!client.user) return console.error("Could not set status, client user is undefined");
-    const randStatus = randomElementFromArray(statusArr);
-
-    return client.user.setActivity({
-        name: randStatus.type !== "CUSTOM" ? randStatus.status : "Custom status",
-        state: randStatus.type === "CUSTOM" ? randStatus.status : undefined,
-        type: StatusType[randStatus.type],
-    });
 }
 
 export async function avoidDbSleeping() {

@@ -1,7 +1,8 @@
 import { DatabaseError } from "@planetscale/database";
 import { Message, PermissionFlagsBits, codeBlock } from "discord.js";
 import { fromZodError } from "zod-validation-error";
-import { prefixMap, statusArr } from "../app.ts";
+import { prefixMap } from "../handlers/prefixes.ts";
+import { statusArr } from "../handlers/statuses.ts";
 import { BOT_OWNERS } from "../config.ts";
 import { PSConnection, db, updatePrefix as updatePrefixDB } from "../db/index.ts";
 import { statuses } from "../db/schema.ts";

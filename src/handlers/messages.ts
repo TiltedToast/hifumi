@@ -1,5 +1,4 @@
 import type { Message } from "discord.js";
-import { botIsLoading, prefixMap } from "../app.ts";
 import * as db from "../commands/database.ts";
 import * as emoji from "../commands/emoji.ts";
 import * as imgProcess from "../commands/imgProcess.ts";
@@ -11,6 +10,7 @@ import { DEFAULT_PREFIX, DEV_PREFIX, RELOAD_PREFIX } from "../config.ts";
 import { prefixes } from "../db/schema.ts";
 import type { MessageCommandData } from "../helpers/types.ts";
 import { clientNoPermissions, errorLog, isDev, isMikuTrigger } from "../helpers/utils.ts";
+import { prefixMap, botIsLoading } from "./prefixes.ts";
 
 export default async function handleMessage(message: Message) {
     const guildClient = await message.guild?.members.fetchMe();

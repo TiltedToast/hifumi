@@ -5,7 +5,6 @@ import {
     codeBlock,
     userMention,
 } from "discord.js";
-import { client } from "../app.ts";
 import { convert, helpCmd, patUser, urban, urbanEmbeds } from "../commands/miscellaneous.ts";
 import { sub } from "../commands/reddit.ts";
 import {
@@ -38,7 +37,7 @@ export default async function handleInteraction(interaction: Interaction) {
 
         const channel = DEV_CHANNELS.includes(interaction.channel?.id ?? "")
             ? interaction.channel
-            : await client.channels.fetch(LOG_CHANNEL);
+            : await interaction.client.channels.fetch(LOG_CHANNEL);
 
         if (!channel?.isTextBased()) return;
 

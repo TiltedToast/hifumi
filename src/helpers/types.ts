@@ -90,7 +90,7 @@ export const PairConversionResponseSchema = z.union([
 export type PairConversionResponse = z.infer<typeof PairConversionResponseSchema>;
 
 export type ErrorLogOptions = {
-    message?: Message;
+    message: Message;
     errorObject: Error;
 };
 

@@ -4,8 +4,6 @@
         "lib": ["ESNext"],
         "target": "ESNext",
         "moduleDetection": "force",
-        "outDir": "dist",
-        "rootDir": "src",
         "strict": true,
         "esModuleInterop": true,
         "moduleResolution": "Bundler",

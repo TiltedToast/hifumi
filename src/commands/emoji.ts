@@ -11,7 +11,6 @@ import {
 import Fuse from "fuse.js";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
-import { client } from "../app.ts";
 import { FileSizeLimit } from "../helpers/types.ts";
 import {
     createTemp,
@@ -97,7 +96,7 @@ export async function addEmoji(message: Message, prefix: string) {
         const [channelId, msgId] = matchedArr.slice(1);
 
         try {
-            const ch = await client.channels.fetch(channelId);
+            const ch = await message.client.channels.fetch(channelId);
             if (!ch?.isTextBased()) {
                 return await message.channel.send("Somehow this is not a text channel?");
             }
