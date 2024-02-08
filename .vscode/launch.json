@@ -14,7 +14,8 @@
             "stopOnEntry": false,
             "noDebug": false,
             "runtime": "bun",
-            "runtimeArgs": []
+            "runtimeArgs": [],
+            "internalConsoleOptions": "openOnSessionStart"
         }
     ]
 }
