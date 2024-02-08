@@ -5,5 +5,8 @@
     },
     "[javascript]": {
         "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "yaml.schemas": {
+        "https://json.schemastore.org/github-workflow.json": "${workspaceFolder}/.github/workflows/deploy.yml"
     }
 }

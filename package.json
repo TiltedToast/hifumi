@@ -46,7 +46,7 @@
         "test": "bun run --bun concurrently 'bun:test:*'",
         "test:lint": "eslint . -c .eslintrc --max-warnings 0 --cache",
         "test:build": "tsc",
-        "prepare": "husky install",
+        "prepare": "husky || true",
         "deploy": "bun ./src/deploy-commands.ts",
         "db:push": "drizzle-kit push:mysql --config ./src/db/drizzle.config.ts",
         "deploy-dev": "bun ./src/deploy-commands.ts --guild 655484563077988385",
