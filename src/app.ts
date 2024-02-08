@@ -39,9 +39,10 @@ client.once("ready", async () => {
     console.log("------------------");
 
     // Puts all statuses into an array to avoid reading the database on every status change
-    statusHandler.init(client).catch(console.error);
-    prefixHandler.init().catch(console.error);
-    prefixHandler.setLoading();
+    await statusHandler.init().catch(console.error);
+    statusHandler.startStatusLoop(client).catch(console.error);
+    await prefixHandler.init().catch(console.error);
+    prefixHandler.loadingDone();
     avoidDbSleeping().catch(console.error);
 
     const logChannel = client.channels.cache.get(LOG_CHANNEL) as TextChannel;

@@ -3,10 +3,14 @@ import { db } from "../db/index.ts";
 import { prefixes } from "../db/schema.ts";
 
 export const prefixMap = new Map<Snowflake, string>();
-export let botIsLoading = false;
+let botIsLoading = true;
 
-export function setLoading() {
-    botIsLoading = true;
+export function isLoading() {
+    return botIsLoading;
+}
+
+export function loadingDone() {
+    botIsLoading = false;
 }
 
 export async function init() {

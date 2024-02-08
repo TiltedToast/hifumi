@@ -7,9 +7,8 @@ import { randomIntFromRange, randomElementFromArray, sleep } from "../helpers/ut
 
 export let statusArr: Status[] = [];
 
-export async function init(client: Client) {
+export async function init() {
     statusArr = await db.select().from(statuses);
-    if (statusArr.length) startStatusLoop(client).catch(console.error);
 }
 
 /**
@@ -17,6 +16,7 @@ export async function init(client: Client) {
  * @param {Client} client Discord client which is used to access the API
  */
 export async function startStatusLoop(client: Client) {
+    if (statusArr.length === 0) return;
     while (true) {
         const status = setRandomStatus(client);
         if (!status) break;
