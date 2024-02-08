@@ -9,7 +9,8 @@ import {
     StickerFormatType,
 } from "discord.js";
 import Fuse from "fuse.js";
-import { readFileSync } from "node:fs";
+import { readFile } from "node:fs/promises";
+import path from "node:path";
 import { client } from "../app.ts";
 import { FileSizeLimit } from "../helpers/types.ts";
 import {
@@ -55,8 +56,6 @@ export async function addEmoji(message: Message, prefix: string) {
     let name = "";
     let emoji: GuildEmoji;
     let url = "";
-
-    createTemp();
 
     // They haven't added the "Create Expressions" permission (1 << 43) to the enum yet, hence the magic number
     if (!hasPermission(message.member, 8796093022208n)) {
@@ -164,20 +163,21 @@ export async function addEmoji(message: Message, prefix: string) {
         url = message.attachments.first()!.url;
     }
 
-    createTemp();
+    const temp = await createTemp(message);
+
     const imgType = getImgType(url);
     if (!imgType) return await message.channel.send("Invalid image type!");
 
-    const fetchErrorMsg = await downloadURL(url, `./temp/unknown.${imgType}`);
+    const fetchErrorMsg = await downloadURL(url, `${temp}/unknown.${imgType}`);
     if (fetchErrorMsg) return await message.channel.send(fetchErrorMsg);
 
     // Resizes image, checks size again and creates emoji
     try {
-        if (!isValidSize(`./temp/unknown.${imgType}`, FileSizeLimit.DiscordEmoji)) {
+        if (!isValidSize(`${temp}/unknown.${imgType}`, FileSizeLimit.DiscordEmoji)) {
             const code = await resize({
-                fileLocation: `./temp/unknown.${imgType}`,
+                fileLocation: `${temp}/unknown.${imgType}`,
                 width: 128,
-                saveLocation: `./temp/unknown_resized.${imgType}`,
+                saveLocation: `${temp}/unknown_resized.${imgType}`,
                 animated: imgType === "gif",
             });
 
@@ -193,11 +193,13 @@ export async function addEmoji(message: Message, prefix: string) {
                 );
             }
 
-            if (!isValidSize(`./temp/unknown_resized.${imgType}`, FileSizeLimit.DiscordEmoji)) {
+            if (!isValidSize(`${temp}/unknown_resized.${imgType}`, FileSizeLimit.DiscordEmoji)) {
                 return message.channel.send("File too large for Discord, even after resizing!");
             }
-            if (message.guild === null) return message.channel.send("You can't add emojis to DMs!");
-            const base64 = readFileSync(`./temp/unknown_resized.${imgType}`, {
+            if (message.guild === null) {
+                return message.channel.send("You can't add emojis to DMs!");
+            }
+            const base64 = await readFile(`${temp}/unknown_resized.${imgType}`, {
                 encoding: "base64",
             });
             emoji = await message.guild.emojis.create({
@@ -205,8 +207,10 @@ export async function addEmoji(message: Message, prefix: string) {
                 name,
             });
         } else {
-            if (message.guild === null) return message.channel.send("You can't add emojis to DMs!");
-            const base64 = readFileSync(`./temp/unknown.${imgType}`, {
+            if (message.guild === null) {
+                return message.channel.send("You can't add emojis to DMs!");
+            }
+            const base64 = await readFile(`${temp}/unknown.${imgType}`, {
                 encoding: "base64",
             });
             emoji = await message.guild.emojis.create({
@@ -298,13 +302,15 @@ async function bulkAddEmojis(message: Message, emojis: RegExpMatchArray) {
     let msg: string;
     let emoji: GuildEmoji | undefined;
 
+    const temp = await createTemp(message);
+
     for (const emojiStr of new Set(emojis)) {
         const url = extractEmoji(emojiStr);
         const imgType = getImgType(url);
         if (!imgType) continue;
 
         const name = emojiStr.split(":")[1];
-        const filePath = `temp/${name}.${imgType}`;
+        const filePath = path.join(temp, `${name}.${imgType}`);
 
         const err = await downloadURL(url, filePath);
 
@@ -319,7 +325,7 @@ async function bulkAddEmojis(message: Message, emojis: RegExpMatchArray) {
         }
 
         try {
-            const base64 = readFileSync(filePath, { encoding: "base64" });
+            const base64 = await readFile(filePath, { encoding: "base64" });
             emoji = await message.guild?.emojis.create({
                 attachment: `data:image/${imgType};base64,${base64}`,
                 name,
@@ -343,6 +349,7 @@ async function bulkAddEmojis(message: Message, emojis: RegExpMatchArray) {
 
         output += `${msg}\n`;
     }
+
     return output;
 }
 

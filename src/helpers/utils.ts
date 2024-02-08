@@ -12,8 +12,10 @@ import {
     type PermissionResolvable,
 } from "discord.js";
 import gifsicle from "gifsicle";
-import { existsSync, mkdirSync, rmSync, statSync } from "node:fs";
-import { resolve } from "node:path";
+import { rmSync, statSync } from "node:fs";
+import { mkdir } from "node:fs/promises";
+import path from "node:path";
+import os from "os";
 import sharp from "sharp";
 import strftime from "strftime";
 import { table } from "table";
@@ -106,7 +108,7 @@ export function splitMessage(content: string, maxLength = 2000, delim = " "): st
 }
 
 export async function writeUpdateFile() {
-    await Bun.write("./temp/update.txt", Date.now().toString());
+    await Bun.write("./update.txt", Date.now().toString());
 }
 
 function getEmbedIndex(arr: EmbedMetadata[], target: EmbedMetadata): number {
@@ -360,7 +362,7 @@ export function errorLog({ message, errorObject }: ErrorLogOptions) {
  * @param saveLocation Path to save the file to
  */
 export async function downloadURL(url: string, saveLocation: string) {
-    const absSaveLocation = resolve(saveLocation);
+    const absSaveLocation = path.resolve(saveLocation);
 
     const myHeaders = new Headers({
         "User-Agent": "hifumi-js:v1.0.0:tiltedtoast27@gmail.com",
@@ -387,7 +389,7 @@ export async function downloadURL(url: string, saveLocation: string) {
     const buffer = await response.arrayBuffer().catch(console.error);
 
     if (!buffer) return "Failed to extract contents from response";
-    await Bun.write(absSaveLocation, new Uint8Array(buffer));
+    await Bun.write(absSaveLocation, buffer);
 }
 
 /**
@@ -419,20 +421,29 @@ export function extractEmoji(emojiString: string, IdOnly = false): string {
     return `https://cdn.discordapp.com/emojis/${emojiID}.${extension}`;
 }
 
-/**
- *  Create a temporary directory in the CWD, if it already exists, delete it and create a new one
- * Default to "temp" if no name is provided
- * @param directory Path to the temporary directory you want to create
- */
-export function createTemp(name = "temp"): void {
-    const absPath = resolve(name);
+function deleteTemp(folder: string) {
+    rmSync(folder, { recursive: true, force: true });
+}
 
-    if (existsSync(absPath)) {
-        rmSync(absPath, { recursive: true });
-        mkdirSync(absPath);
-    } else {
-        mkdirSync(absPath);
-    }
+/**
+ * Takes a message object and creates a temporary folder for the message.
+ *
+ * After 1 minute, the folder will be deleted.
+ *
+ * It follows the format of `os.tmpdir()/${message.channel.id}-${message.id}`
+ * @param message The message object
+ * @returns The path to the temporary folder
+ */
+export async function createTemp(message: Message): Promise<string> {
+    const tempFolder = os.tmpdir();
+
+    const tempPath = path.join(tempFolder, `${message.channel.id}-${message.id}`);
+
+    await mkdir(tempPath);
+
+    setTimeout(() => deleteTemp(tempPath), 60 * 1000); // Clean up after 1 minute
+
+    return tempPath;
 }
 
 /**
@@ -440,6 +451,6 @@ export function createTemp(name = "temp"): void {
  * @param fileLocation The location of the file
  * @param size The max size allowed in bytes or one of the presets from {@link FileSizeLimit}
  */
-export function isValidSize(fileLocation: string, size: number): boolean {
+export function isValidSize(fileLocation: string, size: number) {
     return statSync(fileLocation).size <= size;
 }
