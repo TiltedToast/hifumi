@@ -35,7 +35,7 @@ const envVariables = z.object({
     DEV_MODE:             z.enum(["true", "false"]),
 });
 
-if (process.argv.some((arg) => arg.includes("deploy-commands.ts"))) {
+if (!process.argv.some((arg) => arg.includes("deploy-commands.ts"))) {
     // This is a hacky way to check if we're imported by deploy-commands.ts
     // If we are, we don't want to parse the environment variables
     // Cause this crashes Github Actions and I don't want to deal with it
