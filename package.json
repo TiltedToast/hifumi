@@ -20,7 +20,7 @@
         "strftime": "^0.10.2",
         "table": "^6.8.1",
         "zod": "^3.22.4",
-        "zod-validation-error": "3.0.0"
+        "zod-validation-error": "^3.0.0"
     },
     "devDependencies": {
         "@types/bun": "latest",
@@ -28,13 +28,14 @@
         "@types/gifsicle": "^5.2.2",
         "@types/qrcode": "^1.5.5",
         "@types/strftime": "^0.9.8",
-        "@typescript-eslint/eslint-plugin": "^6.20.0",
-        "@typescript-eslint/parser": "^6.20.0",
+        "@typescript-eslint/eslint-plugin": "^7.0.2",
+        "@typescript-eslint/parser": "^7.0.2",
         "concurrently": "^8.2.2",
         "drizzle-kit": "^0.20.13",
         "eslint": "^8.56.0",
-        "husky": "latest",
+        "husky": "^9.0.11",
         "lint-staged": "^15.2.0",
+        "prettier": "^3.2.5",
         "typescript": "^5.3.3"
     },
     "scripts": {
