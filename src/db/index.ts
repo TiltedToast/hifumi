@@ -1,5 +1,4 @@
 import { connect } from "@planetscale/database";
-import "dotenv/config";
 import { eq, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/planetscale-serverless";
 import * as schema from "./schema.ts";

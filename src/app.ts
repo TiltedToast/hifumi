@@ -1,6 +1,5 @@
 import dedent from "dedent";
 import { Client, GatewayIntentBits, Partials, TextChannel } from "discord.js";
-import "dotenv/config";
 import { existsSync, rmSync } from "node:fs";
 import strftime from "strftime";
 import { avoidDbSleeping } from "./commands/loops.ts";

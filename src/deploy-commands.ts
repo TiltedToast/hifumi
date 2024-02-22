@@ -1,5 +1,4 @@
 import { REST, Routes, SlashCommandBuilder } from "discord.js";
-import "dotenv/config";
 import { DEV_COMMAND_POSTFIX } from "./config.ts";
 
 if (!process.env["BOT_ID"]) throw new Error("You must provide a BOT_ID env variable");
