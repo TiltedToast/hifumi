@@ -49,7 +49,7 @@ client.once("ready", async () => {
     // startCatFactLoop(catFactChannel);
 
     if (isDev()) return;
-    if (existsSync("./update.txt")) return rmSync("./update.txt");
+    if (existsSync("/tmp/hifumi_update.txt")) return rmSync("/tmp/hifumi_update.txt");
 
     await logChannel.send(dedent`
         Logged in as:

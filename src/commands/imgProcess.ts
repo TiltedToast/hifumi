@@ -22,8 +22,8 @@ export async function beautiful(message: Message) {
 
     const avatarUrl = user.avatarURL({ size: 4096 }) ?? user.defaultAvatarURL;
 
-    const fetchErrorMsg = await downloadURL(avatarUrl, `${temp}/avatar.png`);
-    if (fetchErrorMsg) return await message.channel.send(fetchErrorMsg);
+    const errorMsg = await downloadURL(avatarUrl, `${temp}/avatar.png`);
+    if (errorMsg) return await message.channel.send(errorMsg);
 
     const outputInfo = await resize({
         fileLocation: `${temp}/avatar.png`,
@@ -120,8 +120,8 @@ export async function resizeImg(message: Message, prefix: string) {
 
     const temp = await createTemp(message);
 
-    const fetchErrorMsg = await downloadURL(source, `${temp}/unknown.${imgType}`);
-    if (fetchErrorMsg) return await message.channel.send(fetchErrorMsg);
+    const errorMsg = await downloadURL(source, `${temp}/unknown.${imgType}`);
+    if (errorMsg) return await message.channel.send(errorMsg);
 
     const output = await resize({
         fileLocation: `${temp}/unknown.${imgType}`,
@@ -199,8 +199,8 @@ export async function imgur(message: Message, prefix: string) {
     if (!response.headers.has("Content-Length")) {
         const temp = await createTemp(message);
 
-        const fetchErrorMsg = await downloadURL(source, `${temp}/unknown.${imgType}`);
-        if (fetchErrorMsg) return await message.channel.send(fetchErrorMsg);
+        const errorMsg = await downloadURL(source, `${temp}/unknown.${imgType}`);
+        if (errorMsg) return await message.channel.send(errorMsg);
 
         if (!isValidSize(`${temp}/unknown.${imgType}`, FileSizeLimit.ImgurFile)) {
             return await message.channel.send("File too large for Imgur! (10MB limit)");

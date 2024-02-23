@@ -107,7 +107,7 @@ export function splitMessage(content: string, maxLength = 2000, delim = " "): st
 }
 
 export async function writeUpdateFile() {
-    await Bun.write("./update.txt", Date.now().toString());
+    await Bun.write("/tmp/hifumi_update.txt", Date.now().toString());
 }
 
 function getEmbedIndex(arr: EmbedMetadata[], target: EmbedMetadata): number {
@@ -185,7 +185,7 @@ export async function updateEmbed(options: UpdateEmbedOptions) {
         });
     }
     // -1 % 10 = -1 (Why are you like this JS)
-    const newEmbed = embedArray.at((activeIndex + step) % embedArray.length) as EmbedMetadata;
+    const newEmbed = embedArray[(activeIndex + step + embedArray.length) % embedArray.length];
 
     return await interaction.update({ embeds: [newEmbed.embed] });
 }
@@ -228,14 +228,6 @@ export async function resize(options: ResizeOptions) {
  */
 export function isDev(): boolean {
     return process.env.DEV_MODE === "true";
-}
-
-/**
- * Create a simple delay
- * @param ms The amount of milliseconds the delay should last for
- */
-export function sleep(ms: number) {
-    return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 /**
@@ -303,14 +295,16 @@ export function errorLog({ message, errorObject }: ErrorLogOptions) {
     const fullErrorMsg = dedent`
         ${errorMessageWithoutStack}
 
-    **${errorObject.stack ?? "Stack missing"}**
+        **${errorObject.stack ?? "Stack missing"}**
 
-    <@${BOT_OWNERS[0]}>`;
+        <@${BOT_OWNERS[0]}>`;
 
     const preCutErrorMessage = fullErrorMsg.substring(0, 1900 - errorMessageWithoutStack.length);
-    const postCutErrorMessage = `${preCutErrorMessage.split("\n").slice(0, -2).join("\n")}**\n\n<@${
-        BOT_OWNERS[0]
-    }>`;
+
+    const postCutErrorMessage = dedent`
+        ${preCutErrorMessage.split("\n").slice(0, -2).join("\n")}**
+
+        <@${BOT_OWNERS[0]}>`;
 
     db.insert(errorLogs)
         .values({

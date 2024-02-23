@@ -1,12 +1,12 @@
 import { DatabaseError } from "@planetscale/database";
 import { Message, PermissionFlagsBits, codeBlock } from "discord.js";
 import { fromZodError } from "zod-validation-error";
-import { prefixMap } from "../handlers/prefixes.ts";
-import { statusArr } from "../handlers/statuses.ts";
 import { BOT_OWNERS } from "../config.ts";
 import { PSConnection, db, updatePrefix as updatePrefixDB } from "../db/index.ts";
 import { statuses } from "../db/schema.ts";
 import { InsertStatusSchema, type Status } from "../db/types.ts";
+import { prefixMap } from "../handlers/prefixes.ts";
+import { statusArr } from "../handlers/statuses.ts";
 import { formatTable, hasPermission, isBotOwner, isDev } from "../helpers/utils.ts";
 
 export async function runSQL(message: Message) {
@@ -92,8 +92,8 @@ export async function insertStatus(message: Message): Promise<undefined | Messag
                 } else {
                     await message.channel.send("Unknown error, check the logs");
                 }
+                console.error(e);
             }
-            console.error(e);
         });
 
     if (!query) return;
@@ -104,9 +104,6 @@ export async function insertStatus(message: Message): Promise<undefined | Messag
 
     await message.channel.send("Status added!");
     await message.channel.send(codeBlock(formattedDoc));
-    // await message.channel.send(
-    //     codeBlock("json", JSON.stringify(, null, 4))
-    // );
 }
 
 export async function updatePrefix(message: Message) {

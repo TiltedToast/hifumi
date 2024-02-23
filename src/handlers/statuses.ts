@@ -3,7 +3,7 @@ import { db } from "../db/index.ts";
 import { statuses } from "../db/schema.ts";
 import type { Client } from "discord.js";
 import { StatusType } from "../helpers/types.ts";
-import { randomIntFromRange, randomElementFromArray, sleep } from "../helpers/utils.ts";
+import { randomIntFromRange, randomElementFromArray } from "../helpers/utils.ts";
 
 export let statusArr: Status[] = [];
 
@@ -20,7 +20,7 @@ export async function startStatusLoop(client: Client) {
     while (true) {
         const status = setRandomStatus(client);
         if (!status) break;
-        await sleep(randomIntFromRange(300000, 900000)); // 5m-15m
+        await Bun.sleep(randomIntFromRange(300000, 900000)); // 5m-15m
     }
 }
 

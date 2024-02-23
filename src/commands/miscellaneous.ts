@@ -48,7 +48,6 @@ import {
     randomElementFromArray,
     sendOrReply,
     setEmbedArr,
-    sleep,
     writeUpdateFile,
 } from "../helpers/utils.ts";
 import { prefixMap } from "../handlers/prefixes.ts";
@@ -198,7 +197,7 @@ export async function reactToMiku(message: Message, reactCmd: string) {
             const msg = randomElementFromArray(
                 reactMsgs.filter((x) => x.command === item.command).map((x) => x.reaction)
             ).replace("{0}", message.member?.displayName ?? message.author.username);
-            await sleep(1000);
+            await Bun.sleep(1000);
             return await message.channel.send(msg);
         }
     }
@@ -309,8 +308,8 @@ export async function jsEval(message: Message, mode?: "math") {
 
     // This is to be able to use all the functions inside the below eval function
     // Sleep call mostly to shut up typescript and eslint
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const tools = await import("../helpers/utils.js");
-    await tools.sleep(1);
 
     const content = message.content.split(" ").filter(Boolean);
 

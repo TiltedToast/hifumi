@@ -167,8 +167,8 @@ export async function addEmoji(message: Message, prefix: string) {
     const imgType = getImgType(url);
     if (!imgType) return await message.channel.send("Invalid image type!");
 
-    const fetchErrorMsg = await downloadURL(url, `${temp}/unknown.${imgType}`);
-    if (fetchErrorMsg) return await message.channel.send(fetchErrorMsg);
+    const errorMsg = await downloadURL(url, `${temp}/unknown.${imgType}`);
+    if (errorMsg) return await message.channel.send(errorMsg);
 
     // Resizes image, checks size again and creates emoji
     try {

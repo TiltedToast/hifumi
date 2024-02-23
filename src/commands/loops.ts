@@ -2,10 +2,10 @@ import type { TextChannel } from "discord.js";
 import { db } from "../db/index.ts";
 import { errorLogs } from "../db/schema.ts";
 import { CatFactResponseSchema, type CatFactResponse } from "../helpers/types.ts";
-import { isDev, randomIntFromRange, sleep as utilSleep } from "../helpers/utils.ts";
+import { isDev, randomIntFromRange } from "../helpers/utils.ts";
 
 export async function startCatFactLoop(channel: TextChannel) {
-    const sleep = async () => await utilSleep(randomIntFromRange(54000000, 86400000)); // 15h-24h
+    const sleep = async () => await Bun.sleep(randomIntFromRange(54000000, 86400000)); // 15h-24h
 
     while (true) {
         const response = await fetch("https://catfact.ninja/fact").catch(console.error);
@@ -41,6 +41,6 @@ export async function avoidDbSleeping() {
             user: "N/A",
         });
 
-        await utilSleep(sixDaysinSeconds * 1000);
+        await Bun.sleep(sixDaysinSeconds * 1000);
     }
 }
