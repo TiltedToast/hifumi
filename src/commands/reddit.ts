@@ -203,7 +203,7 @@ async function fetchSubmissions(
     input: ChatInputCommandInteraction | Message,
     limit = 100
 ): Promise<RedditPost[]> {
-    const posts = new Array<NewRedditPost>();
+    const posts = new Map<string, NewRedditPost>();
 
     const submissionsArray = await getSubmissions(subreddit, limit);
 
@@ -217,24 +217,28 @@ async function fetchSubmissions(
                     permalink: submission.permalink,
                     over_18: submission.over_18,
                 };
-
+                // prettier-ignore
                 if (
-                    !posts.some((x) => x.url === post.url) &&
+                    !posts.has(post.url) &&
                     InsertRedditPostSchema.safeParse(post).success
-                )
-                    posts.push(post);
+                ) {
+                    posts.set(post.url, post);
+                }
             }
         }
     }
 
-    if (posts.length === 0) {
+    if (posts.size === 0) {
         await input.channel?.send("Couldn't find any new images");
         return [];
     }
 
-    await db.insert(redditPosts).values(posts);
-    await input.channel?.send(`Fetched ${posts.length} new images for ${subreddit}`);
-    return posts as RedditPost[];
+    const postsArray = Array.from(posts.values());
+
+    await db.insert(redditPosts).values(postsArray);
+    await input.channel?.send(`Fetched ${posts.size} new images for ${subreddit}`);
+
+    return postsArray as RedditPost[];
 }
 
 function isFulfilled<T>(p: PromiseSettledResult<T>): p is PromiseFulfilledResult<T> {

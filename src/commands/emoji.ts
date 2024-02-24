@@ -158,7 +158,6 @@ export async function addEmoji(message: Message, prefix: string) {
     } else if (isValidURL) {
         url = source;
     } else if (message.attachments.size > 0) {
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         url = message.attachments.first()!.url;
     }
 
