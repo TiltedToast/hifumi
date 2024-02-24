@@ -57,7 +57,7 @@ export async function addEmoji(message: Message, prefix: string) {
     let url = "";
 
     // They haven't added the "Create Expressions" permission (1 << 43) to the enum yet, hence the magic number
-    if (!hasPermission(message.member, 8796093022208n)) {
+    if (!hasPermission(message.member, 1n << 43n)) {
         return await message.channel.send(
             'You need the "Create Expressions" permission to add emojis!'
         );
@@ -72,8 +72,7 @@ export async function addEmoji(message: Message, prefix: string) {
             );
 
         const emojis = repliedMsg.content.match(emojiRegex);
-        const stickers = repliedMsg.stickers;
-        if (!emojis && stickers.size === 0)
+        if (!emojis && repliedMsg.stickers.size === 0)
             return await message.channel.send(
                 "The message must contain at least one emoji/sticker!"
             );
@@ -83,7 +82,7 @@ export async function addEmoji(message: Message, prefix: string) {
             if (!emojiStringOutput) return;
             return await message.channel.send(emojiStringOutput);
         }
-        if (stickers.size > 0) {
+        if (repliedMsg.stickers.size > 0) {
             return await addStickers(repliedMsg);
         }
     }
@@ -118,10 +117,10 @@ export async function addEmoji(message: Message, prefix: string) {
     if (content.length <= 2 && message.attachments.size === 0) {
         return await message.channel.send(`Usage: \`${prefix}emoji add <name> <url/emoji>\``);
     }
-    if (content.length === 2 && message.attachments.size > 0) {
-        return await message.channel.send("You have to specify a name!");
-    }
-    if (content.length === 3 && content[2].startsWith("http")) {
+    if (
+        (content.length === 2 && message.attachments.size > 0) ||
+        (content.length === 3 && content[2].startsWith("http"))
+    ) {
         return await message.channel.send("You have to specify a name!");
     }
 
@@ -140,8 +139,9 @@ export async function addEmoji(message: Message, prefix: string) {
         return message.channel.send(emojiStringOutput);
     }
 
-    if (2 > name.length || name.length > 32)
+    if (2 > name.length || name.length > 32) {
         return message.channel.send("The name must be between 2 and 32 characters long.");
+    }
 
     const source = content.length >= 4 ? content[3] : content[2];
     if (!source) return message.channel.send("You have to provide an image!");
@@ -180,13 +180,7 @@ export async function addEmoji(message: Message, prefix: string) {
                 animated: imgType === "gif",
             });
 
-            if (code === undefined) {
-                return message.channel.send(
-                    "Something went wrong while resizing the image, please try again!"
-                );
-            }
-
-            if (typeof code === "number" && code !== 0) {
+            if (code === undefined || (typeof code === "number" && code !== 0)) {
                 return message.channel.send(
                     "Something went wrong while resizing the image, please try again!"
                 );
@@ -196,7 +190,7 @@ export async function addEmoji(message: Message, prefix: string) {
                 return message.channel.send("File too large for Discord, even after resizing!");
             }
             if (message.guild === null) {
-                return message.channel.send("You can't add emojis to DMs!");
+                return message.channel.send("You have to be in a server to do this!");
             }
             const base64 = await readFile(`${temp}/unknown_resized.${imgType}`, {
                 encoding: "base64",
@@ -207,7 +201,7 @@ export async function addEmoji(message: Message, prefix: string) {
             });
         } else {
             if (message.guild === null) {
-                return message.channel.send("You can't add emojis to DMs!");
+                return message.channel.send("You have to be in a server to do this!");
             }
             const base64 = await readFile(`${temp}/unknown.${imgType}`, {
                 encoding: "base64",

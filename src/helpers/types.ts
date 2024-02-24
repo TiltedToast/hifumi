@@ -5,7 +5,7 @@ export type UpdateEmbedArrParams<T> = {
     result: T[];
     user: User;
     sortKey?: keyof T & string;
-    embedArray: EmbedMetadata[];
+    embedArray: EmbedData[];
     buildEmbedFunc: (item: T, idx: number, arr: T[]) => EmbedBuilder;
 };
 
@@ -36,13 +36,13 @@ export type CatFactResponse = z.infer<typeof CatFactResponseSchema>;
 
 export type UpdateEmbedOptions = {
     interaction: ButtonInteraction;
-    embedArray: EmbedMetadata[];
+    embedArray: EmbedData[];
     prevButtonId: string;
     nextButtonId: string;
     user: User;
 };
 
-export type EmbedMetadata = {
+export type EmbedData = {
     embed: Embed | EmbedBuilder;
     user: User;
 };

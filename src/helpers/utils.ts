@@ -23,7 +23,7 @@ import { BOT_OWNERS, DEV_CHANNELS, LOG_CHANNEL, OWNER_NAME } from "../config.ts"
 import { db } from "../db/index.ts";
 import { errorLogs } from "../db/schema.ts";
 import type {
-    EmbedMetadata,
+    EmbedData,
     ErrorLogOptions,
     ResizeOptions,
     UpdateEmbedArrParams,
@@ -110,11 +110,9 @@ export async function writeUpdateFile() {
     await Bun.write("/tmp/hifumi_update.txt", Date.now().toString());
 }
 
-function getEmbedIndex(arr: EmbedMetadata[], target: EmbedMetadata): number {
+function getEmbedIndex(arr: EmbedData[], target: EmbedData): number {
     return arr.findIndex(
-        (elem) =>
-            elem.embed.toJSON().description?.replaceAll(/[\n\r\s]+/gi, "") ===
-            target.embed.toJSON().description?.replaceAll(/[\n\r\s]+/gi, "")
+        (elem) => elem.embed.toJSON().description === target.embed.toJSON().description
     );
 }
 
@@ -149,13 +147,13 @@ export function isMikuTrigger(message: Message, reactCmd: string): boolean {
 }
 
 export function setEmbedArr<T>(args: UpdateEmbedArrParams<T>): void {
-    const { result, user, sortKey, embedArray, buildEmbedFunc } = args;
+    const { result, user, sortKey, buildEmbedFunc } = args;
 
     if (sortKey) result.sort((a, b) => (b[sortKey] > a[sortKey] ? 1 : -1));
 
-    embedArray.length = 0;
+    args.embedArray.length = 0;
     for (let i = 0; i < result.length; i++) {
-        embedArray.push({
+        args.embedArray.push({
             embed: buildEmbedFunc(result[i], i, result),
             user,
         });
@@ -170,9 +168,16 @@ export async function updateEmbed(options: UpdateEmbedOptions) {
         user,
     });
 
+    if (activeIndex === -1) {
+        return await interaction.reply({
+            content: "Something went wrong, please try again",
+            ephemeral: true,
+        });
+    }
+
     if (interaction.user.id !== embedArray[activeIndex].user.id) {
         return interaction.reply({
-            content: "Run the command yourself to be able to cycle through the results",
+            content: "Only the person who initiated the command can use these buttons, sorry!",
             ephemeral: true,
         });
     }
@@ -184,7 +189,6 @@ export async function updateEmbed(options: UpdateEmbedOptions) {
             ephemeral: true,
         });
     }
-    // -1 % 10 = -1 (Why are you like this JS)
     const newEmbed = embedArray[(activeIndex + step + embedArray.length) % embedArray.length];
 
     return await interaction.update({ embeds: [newEmbed.embed] });
@@ -293,18 +297,18 @@ export function errorLog({ message, errorObject }: ErrorLogOptions) {
         **Error:** ${errorObject.message}`;
 
     const fullErrorMsg = dedent`
-        ${errorMessageWithoutStack}
+    ${errorMessageWithoutStack}
 
-        **${errorObject.stack ?? "Stack missing"}**
+    **${errorObject.stack ?? "Stack missing"}**
 
-        <@${BOT_OWNERS[0]}>`;
+    <@${BOT_OWNERS[0]}>`;
 
     const preCutErrorMessage = fullErrorMsg.substring(0, 1900 - errorMessageWithoutStack.length);
 
     const postCutErrorMessage = dedent`
-        ${preCutErrorMessage.split("\n").slice(0, -2).join("\n")}**
+    ${preCutErrorMessage.split("\n").slice(0, -2).join("\n")}**
 
-        <@${BOT_OWNERS[0]}>`;
+    <@${BOT_OWNERS[0]}>`;
 
     db.insert(errorLogs)
         .values({

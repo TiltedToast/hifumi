@@ -1,9 +1,9 @@
 import {
     ButtonInteraction,
     ChatInputCommandInteraction,
-    type Interaction,
     codeBlock,
     userMention,
+    type Interaction,
 } from "discord.js";
 import { convert, helpCmd, patUser, urban, urbanEmbeds } from "../commands/miscellaneous.ts";
 import { sub } from "../commands/reddit.ts";
@@ -35,7 +35,7 @@ export default async function handleInteraction(interaction: Interaction) {
             }
         }
 
-        const channel = DEV_CHANNELS.includes(interaction.channel?.id ?? "")
+        const channel = DEV_CHANNELS.includes(interaction.channelId ?? "")
             ? interaction.channel
             : await interaction.client.channels.fetch(LOG_CHANNEL);
 
@@ -49,12 +49,13 @@ export default async function handleInteraction(interaction: Interaction) {
 }
 
 async function handleButtonInteraction(interaction: ButtonInteraction) {
-    if (["prevUrban", "nextUrban"].includes(interaction.customId)) {
+    const identifier = `${interaction.user.id}-${interaction.channelId}`;
+    if ([`prevUrban-${identifier}`, `nextUrban-${identifier}`].includes(interaction.customId)) {
         await updateEmbed({
             interaction,
-            embedArray: urbanEmbeds,
-            prevButtonId: "prevUrban",
-            nextButtonId: "nextUrban",
+            embedArray: urbanEmbeds[identifier],
+            prevButtonId: `prevUrban-${identifier}`,
+            nextButtonId: `nextUrban-${identifier}`,
             user: interaction.user,
         });
     }

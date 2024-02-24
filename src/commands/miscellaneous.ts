@@ -29,11 +29,12 @@ import {
     mikuCommandAliases,
     mikuReactions,
 } from "../db/schema.ts";
+import { prefixMap } from "../handlers/prefixes.ts";
 import {
     PairConversionResponseSchema,
     SupportedCodesSchema,
     UrbanResponseSchema,
-    type EmbedMetadata,
+    type EmbedData,
     type PairConversionResponse,
     type SupportedCodesResponse,
     type UrbanEntry,
@@ -50,12 +51,11 @@ import {
     setEmbedArr,
     writeUpdateFile,
 } from "../helpers/utils.ts";
-import { prefixMap } from "../handlers/prefixes.ts";
 
 const { WOLFRAM_ALPHA_APP_ID, EXCHANGE_API_KEY } = process.env;
 
 export const execPromise = promisify(exec);
-export const urbanEmbeds: EmbedMetadata[] = [];
+export const urbanEmbeds: Record<string, EmbedData[]> = {};
 const math = create(all);
 
 // eslint-disable-next-line @typescript-eslint/unbound-method
@@ -566,21 +566,32 @@ export async function urban(input: ChatInputCommandInteraction | Message) {
 
     if (result.list.length === 0) return await sendOrReply(input, "No results found!");
 
+    const user = isCommandInteraction(input) ? input.user : input.author;
+    const identifier = `${user.id}-${input.channelId}`;
+
+    if (!urbanEmbeds[identifier]) urbanEmbeds[identifier] = [];
+
     setEmbedArr({
         result: result.list,
-        user: isCommandInteraction(input) ? input.user : input.author,
+        user,
         sortKey: "thumbs_up",
-        embedArray: urbanEmbeds,
+        embedArray: urbanEmbeds[identifier],
         buildEmbedFunc: buildUrbanEmbed,
     });
 
     const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
-        new ButtonBuilder().setCustomId("prevUrban").setLabel("PREV").setStyle(ButtonStyle.Primary),
-        new ButtonBuilder().setCustomId("nextUrban").setLabel("NEXT").setStyle(ButtonStyle.Primary)
+        new ButtonBuilder()
+            .setCustomId(`prevUrban-${identifier}`)
+            .setLabel("PREV")
+            .setStyle(ButtonStyle.Primary),
+        new ButtonBuilder()
+            .setCustomId(`nextUrban-${identifier}`)
+            .setLabel("NEXT")
+            .setStyle(ButtonStyle.Primary)
     );
 
     return await sendOrReply(input, {
-        embeds: [urbanEmbeds[0].embed],
+        embeds: [urbanEmbeds[identifier][0].embed],
         components: [row],
     });
 }

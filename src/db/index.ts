@@ -34,3 +34,12 @@ export async function getRandomRedditPosts(subreddit: string): Promise<RedditPos
 export async function updatePrefix(serverId: string, prefix: string) {
     await db.update(prefixes).set({ prefix }).where(eq(prefixes.serverId, serverId));
 }
+
+/**
+ * Inserts a new prefix for a server into the database
+ * @param serverId The ID of the server
+ * @param prefix The new prefix
+ */
+export async function insertPrefix(serverId: string, prefix: string) {
+    await db.insert(prefixes).values({ serverId, prefix });
+}

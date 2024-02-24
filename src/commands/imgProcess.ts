@@ -130,13 +130,7 @@ export async function resizeImg(message: Message, prefix: string) {
         animated: imgType === "gif",
     });
 
-    if (output === undefined) {
-        return await message.channel.send(
-            "I'm sorry, failed to resize the image. Maybe try again later?"
-        );
-    }
-
-    if (typeof output === "number" && output !== 0) {
+    if (output === undefined || (typeof output === "number" && output !== 0)) {
         return await message.channel.send(
             "I'm sorry, failed to resize the image. Maybe try again later?"
         );

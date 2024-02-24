@@ -67,7 +67,7 @@ process.on("uncaughtException", console.error);
 // Linux doesn't allow you to listen to SIGKILL
 // This is only useful for development anyway
 // Which happens on Windows
-const stopSignals = ["SIGTERM", "SIGINT"];
+const stopSignals: NodeJS.Signals[] = ["SIGTERM", "SIGINT"];
 if (process.platform === "win32") {
     stopSignals.push("SIGKILL");
 }

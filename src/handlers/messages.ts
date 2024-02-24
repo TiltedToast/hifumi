@@ -4,13 +4,12 @@ import * as emoji from "../commands/emoji.ts";
 import * as imgProcess from "../commands/imgProcess.ts";
 import * as misc from "../commands/miscellaneous.ts";
 import * as reddit from "../commands/reddit.ts";
-import { db as DBConn } from "../db/index.ts";
+import { insertPrefix } from "../db/index.ts";
 
 import { DEFAULT_PREFIX, DEV_PREFIX, RELOAD_PREFIX } from "../config.ts";
-import { prefixes } from "../db/schema.ts";
 import type { MessageCommandData } from "../helpers/types.ts";
 import { clientNoPermissions, errorLog, isDev, isMikuTrigger } from "../helpers/utils.ts";
-import { prefixMap, isLoading } from "./prefixes.ts";
+import { isLoading, prefixMap } from "./prefixes.ts";
 
 export default async function handleMessage(message: Message) {
     const guildClient = await message.guild?.members.fetchMe();
@@ -27,10 +26,7 @@ export default async function handleMessage(message: Message) {
 
         // Adds a default prefix to the db if it doesn't exist
         if (message.guild && !prefixMap.has(message.guild.id) && !isDev()) {
-            await DBConn.insert(prefixes).values({
-                serverId: message.guild.id,
-                prefix: DEFAULT_PREFIX,
-            });
+            await insertPrefix(message.guild.id, DEFAULT_PREFIX);
             prefixMap.set(message.guild.id, DEFAULT_PREFIX);
         }
 
@@ -44,10 +40,12 @@ export default async function handleMessage(message: Message) {
         const lowerCasePrefix =
             len >= 1 ? content[0].substring(0, prefix.length).toLowerCase() : "";
 
-        if (message.content.toLowerCase().startsWith(`${RELOAD_PREFIX}~~~`) && !isDev())
+        if (message.content.toLowerCase().startsWith(`${RELOAD_PREFIX}~~~`) && !isDev()) {
             await misc.reloadBot(message);
-        if (message.content.toLowerCase().startsWith(`${RELOAD_PREFIX}~`) && isDev())
+        }
+        if (message.content.toLowerCase().startsWith(`${RELOAD_PREFIX}~`) && isDev()) {
             await misc.reloadBot(message);
+        }
 
         if (lowerCasePrefix === prefix.toLowerCase()) {
             await handleCommand({ command, subCmd, message, prefix });
