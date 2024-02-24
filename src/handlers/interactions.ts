@@ -49,7 +49,7 @@ export default async function handleInteraction(interaction: Interaction) {
 }
 
 async function handleButtonInteraction(interaction: ButtonInteraction) {
-    const identifier = `${interaction.user.id}-${interaction.channelId}`;
+    const identifier = `${interaction.user.id}-${interaction.channelId}` as const;
     if ([`prevUrban-${identifier}`, `nextUrban-${identifier}`].includes(interaction.customId)) {
         await updateEmbed({
             interaction,

@@ -55,7 +55,7 @@ import {
 const { WOLFRAM_ALPHA_APP_ID, EXCHANGE_API_KEY } = process.env;
 
 export const execPromise = promisify(exec);
-export const urbanEmbeds: Record<string, EmbedData[]> = {};
+export const urbanEmbeds: Record<`${string}-${string}`, EmbedData[]> = {};
 const math = create(all);
 
 // eslint-disable-next-line @typescript-eslint/unbound-method
@@ -567,7 +567,7 @@ export async function urban(input: ChatInputCommandInteraction | Message) {
     if (result.list.length === 0) return await sendOrReply(input, "No results found!");
 
     const user = isCommandInteraction(input) ? input.user : input.author;
-    const identifier = `${user.id}-${input.channelId}`;
+    const identifier = `${user.id}-${input.channelId}` as const;
 
     if (!urbanEmbeds[identifier]) urbanEmbeds[identifier] = [];
 
