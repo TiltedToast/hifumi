@@ -4,7 +4,7 @@ import { fromZodError } from "zod-validation-error";
 import { BOT_OWNERS } from "../config.ts";
 import { PSConnection, db, updatePrefix as updatePrefixDB } from "../db/index.ts";
 import { statuses } from "../db/schema.ts";
-import { InsertStatusSchema, type Status } from "../db/types.ts";
+import { InsertStatusSchema, type NewStatus } from "../db/types.ts";
 import { prefixMap } from "../handlers/prefixes.ts";
 import { statusArr } from "../handlers/statuses.ts";
 import { formatTable, hasPermission, isBotOwner, isDev } from "../helpers/utils.ts";
@@ -61,7 +61,7 @@ export async function insertStatus(message: Message): Promise<undefined | Messag
     const document = {
         type: content[1].toUpperCase(),
         status: content.slice(2).join(" "),
-    } as Status;
+    } as NewStatus;
 
     const result = InsertStatusSchema.safeParse(document);
 
@@ -98,9 +98,14 @@ export async function insertStatus(message: Message): Promise<undefined | Messag
 
     if (!query) return;
 
-    statusArr.push(document);
+    const newStatus = {
+        id: Number(query.insertId),
+        ...document,
+    };
 
-    const formattedDoc = formatTable([{ ...document, id: query.insertId }]);
+    statusArr.push(newStatus);
+
+    const formattedDoc = formatTable([newStatus]);
 
     await message.channel.send("Status added!");
     await message.channel.send(codeBlock(formattedDoc));
