@@ -8,7 +8,7 @@ import handleInteraction from "./handlers/interactions.ts";
 import handleMessage from "./handlers/messages.ts";
 import * as prefixHandler from "./handlers/prefixes.ts";
 import * as statusHandler from "./handlers/statuses.ts";
-import { isDev } from "./helpers/utils.ts";
+import { isDev, wipeTempFolders } from "./helpers/utils.ts";
 
 const startTime = Date.now();
 
@@ -78,6 +78,8 @@ for (const signal of stopSignals) {
     process.on(signal, async () => {
         await client.destroy();
         console.log("Closed Discord connection");
+        await wipeTempFolders();
+        console.log("Deleted temp folders");
         process.exit(0);
     });
 }

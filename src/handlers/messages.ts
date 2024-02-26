@@ -69,7 +69,6 @@ async function handleCommand({ command, subCmd, message, prefix }: MessageComman
         case "beautiful": return imgProcess.beautiful(message);
         case "resize":    return imgProcess.resizeImg(message, prefix);
         case "imgur":     return imgProcess.imgur(message, prefix);
-        case "profile":   return reddit.profile(message, prefix);
         case "prefix":    return db.updatePrefix(message);
         case "con":       return misc.cmdConsole(message);
         case "qr":        return imgProcess.qrCode(message);

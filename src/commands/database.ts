@@ -1,5 +1,5 @@
 import { DatabaseError } from "@planetscale/database";
-import { Message, PermissionFlagsBits, codeBlock } from "discord.js";
+import { ChatInputCommandInteraction, Message, PermissionFlagsBits, codeBlock } from "discord.js";
 import { fromZodError } from "zod-validation-error";
 import { BOT_OWNERS } from "../config.ts";
 import { PSConnection, db, updatePrefix as updatePrefixDB } from "../db/index.ts";
@@ -7,7 +7,14 @@ import { statuses } from "../db/schema.ts";
 import { InsertStatusSchema, type NewStatus } from "../db/types.ts";
 import { prefixMap } from "../handlers/prefixes.ts";
 import { statusArr } from "../handlers/statuses.ts";
-import { formatTable, hasPermission, isBotOwner, isDev } from "../helpers/utils.ts";
+import {
+    formatTable,
+    hasPermission,
+    isBotOwner,
+    isChatInputCommandInteraction,
+    isDev,
+    sendOrReply,
+} from "../helpers/utils.ts";
 
 export async function runSQL(message: Message) {
     if (!isBotOwner(message.author)) return;
@@ -111,37 +118,52 @@ export async function insertStatus(message: Message): Promise<undefined | Messag
     await message.channel.send(codeBlock(formattedDoc));
 }
 
-export async function updatePrefix(message: Message) {
-    if (
-        !(
-            hasPermission(message.member, PermissionFlagsBits.ManageGuild) ||
-            BOT_OWNERS.includes(message.author.id)
-        )
-    ) {
-        return message.channel.send("Insufficient permissions!");
+export async function updatePrefix(input: Message | ChatInputCommandInteraction) {
+    if (isChatInputCommandInteraction(input)) {
+        if (
+            !input.memberPermissions?.has(PermissionFlagsBits.ManageGuild) &&
+            !BOT_OWNERS.includes(input.user.id)
+        ) {
+            return await sendOrReply(input, "Insufficient permissions!", true);
+        }
+    } else {
+        if (
+            !hasPermission(input.member, PermissionFlagsBits.ManageGuild) &&
+            !BOT_OWNERS.includes(input.author.id)
+        ) {
+            return await input.channel.send("Insufficient permissions!");
+        }
     }
 
-    const content = message.content.split(" ").filter(Boolean);
+    let newPrefix: string;
 
-    // Syntax check as well as avoiding cluttering the database with long impractical prefixes
-    if (content.length !== 2) return await message.channel.send("Invalid syntax");
-    if (content[1].length > 255)
-        return await message.channel.send("Your prefix may only be 255 characters long at most");
+    if (isChatInputCommandInteraction(input)) {
+        newPrefix = input.options.getString("prefix", true);
+    } else {
+        const content = input.content.split(" ").filter(Boolean);
+        if (content.length !== 2) return await input.channel.send("Invalid syntax");
+        newPrefix = content[1];
+    }
 
-    if (isDev()) await message.channel.send("Wrong database <:emiliaSMH:747132102645907587>");
+    if (newPrefix.length > 255) {
+        return await sendOrReply(input, "Your prefix may only be 255 characters long at most");
+    }
+
+    if (isDev()) await input.channel?.send("Wrong database <:emiliaSMH:747132102645907587>");
 
     // Finds the guild's document in the database
     // Updates said document with the new prefix
-    if (message.guild === null)
-        return await message.channel.send("This command can only be used in a server!");
+    if (input.guild === null) {
+        return await sendOrReply(input, "This command can only be used in a server!");
+    }
 
-    const serverId = message.guild.id;
+    const serverId = input.guild.id;
     try {
-        await updatePrefixDB(serverId, content[1]);
+        await updatePrefixDB(serverId, newPrefix);
     } catch (e) {
         console.error(e);
-        return await message.channel.send("Couldn't update prefix, maybe try again later");
+        return await sendOrReply(input, "Couldn't update prefix, maybe try again later");
     }
-    prefixMap.set(serverId, content[1]);
-    return await message.channel.send(`Updated prefix for this server to \`${content[1]}\`!`);
+    prefixMap.set(serverId, newPrefix);
+    return await sendOrReply(input, `Updated prefix for this server to \`${newPrefix}\`!`, false);
 }

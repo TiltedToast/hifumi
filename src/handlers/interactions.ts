@@ -5,8 +5,17 @@ import {
     userMention,
     type Interaction,
 } from "discord.js";
-import { convert, helpCmd, patUser, urban, urbanEmbeds } from "../commands/miscellaneous.ts";
+import {
+    avatar,
+    convert,
+    helpCmd,
+    leet,
+    patUser,
+    urban,
+    urbanEmbeds,
+} from "../commands/miscellaneous.ts";
 import { sub } from "../commands/reddit.ts";
+import { beautiful, qrCode } from "../commands/imgProcess.ts";
 import {
     BOT_OWNERS,
     DEV_CHANNELS,
@@ -15,6 +24,7 @@ import {
     OWNER_NAME,
 } from "../config.ts";
 import { isDev, updateEmbed } from "../helpers/utils.ts";
+import { updatePrefix } from "../commands/database.ts";
 
 export default async function handleInteraction(interaction: Interaction) {
     try {
@@ -80,6 +90,11 @@ const commands = new Map<ChatInputCommandName, ChatInputCommandFn>([
     [".sub", sub],
     [".urban", urban],
     [".convert", convert],
+    [".qr", qrCode],
+    [".avatar", avatar],
+    [".leet", leet],
+    [".beautiful", beautiful],
+    [".prefix", updatePrefix],
 ]);
 
 const devCommands = new Map<ChatInputCommandName, ChatInputCommandFn>();

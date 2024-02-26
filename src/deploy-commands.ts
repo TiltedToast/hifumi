@@ -1,4 +1,4 @@
-import { REST, Routes, SlashCommandBuilder } from "discord.js";
+import { PermissionFlagsBits, REST, Routes, SlashCommandBuilder } from "discord.js";
 import { DEV_COMMAND_POSTFIX } from "./config.ts";
 
 if (!process.env["BOT_ID"]) throw new Error("You must provide a BOT_ID env variable");
@@ -69,6 +69,49 @@ let commands = [
                 .setRequired(false)
                 .setMinValue(Number.MIN_VALUE)
         ),
+
+    new SlashCommandBuilder()
+        .setName("qr")
+        .setDescription("Generates a QR code")
+        .addStringOption((option) =>
+            option.setName("data").setDescription("The data to encode").setRequired(true)
+        ),
+
+    new SlashCommandBuilder()
+        .setName("avatar")
+        .setDescription("Gets the avatar of a user")
+        .addUserOption((option) =>
+            option
+                .setName("user")
+                .setDescription("The user to get the avatar of (You if omitted)")
+                .setRequired(false)
+        ),
+
+    new SlashCommandBuilder()
+        .setName("leet")
+        .setDescription("Converts text to leet speak")
+        .addStringOption((option) =>
+            option.setName("input").setDescription("The text to convert").setRequired(true)
+        ),
+
+    new SlashCommandBuilder()
+        .setName("beautiful")
+        .setDescription("Generates a beautiful image")
+        .addUserOption((option) =>
+            option
+                .setName("user")
+                .setDescription("The user to get the avatar of (You if omitted)")
+                .setRequired(false)
+        ),
+
+    new SlashCommandBuilder()
+        .setName("prefix")
+        .setDescription("Updates the prefix for the server")
+        .addStringOption((option) =>
+            option.setName("prefix").setDescription("The new prefix").setRequired(true)
+        )
+        .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild)
+        .setDMPermission(false),
 ].map((command) => command.toJSON());
 
 if (guildId) {

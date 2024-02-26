@@ -1,5 +1,6 @@
 import dedent from "dedent";
 import {
+    ChatInputCommandInteraction,
     CommandInteraction,
     GuildMember,
     Message,
@@ -13,7 +14,7 @@ import {
 } from "discord.js";
 import gifsicle from "gifsicle";
 import { rmSync, statSync } from "node:fs";
-import { mkdir } from "node:fs/promises";
+import { mkdir, readdir, rm } from "node:fs/promises";
 import path from "node:path";
 import os from "os";
 import sharp from "sharp";
@@ -56,10 +57,10 @@ export function formatTable<K extends string | number | symbol, V>(rows: Record<
     });
 }
 
-export function isCommandInteraction(
-    input: Message | CommandInteraction
-): input is CommandInteraction {
-    return input instanceof CommandInteraction;
+export function isChatInputCommandInteraction(
+    input: Message | ChatInputCommandInteraction
+): input is ChatInputCommandInteraction {
+    return input instanceof ChatInputCommandInteraction;
 }
 
 export function isMessage(input: Message | CommandInteraction): input is Message {
@@ -415,24 +416,43 @@ function deleteTemp(folder: string) {
 }
 
 /**
- * Takes a message object and creates a temporary folder for the message.
+ * Takes a Message or Interaction and creates a temporary folder for the message.
  *
- * After 1 minute, the folder will be deleted.
+ * ## **After 1 minute, the folder will be automatically wiped.**
  *
- * It follows the format of `os.tmpdir()/${message.channel.id}-${message.id}`
- * @param message The message object
+ * @param input The Message or Interaction
  * @returns The path to the temporary folder
  */
-export async function createTemp(message: Message): Promise<string> {
+export async function createTemp(input: Message | ChatInputCommandInteraction): Promise<string> {
     const tempFolder = os.tmpdir();
 
-    const tempPath = path.join(tempFolder, `${message.channel.id}-${message.id}`);
+    const tempPath = path.join(
+        tempFolder,
+        `hifumi-${input.channel?.id ?? "NO_CHANNEL"}-${input.id}`
+    );
 
     await mkdir(tempPath);
 
     setTimeout(() => deleteTemp(tempPath), 60 * 1000); // Clean up after 1 minute
 
     return tempPath;
+}
+
+/**
+ * Wipes all temporary folders created by hifumi.
+ *
+ * We don't want to leave any trash behind do we? (If only others did the same...)
+ */
+export async function wipeTempFolders() {
+    const tempFolder = os.tmpdir();
+    const items = await readdir(tempFolder);
+    for (const item of items) {
+        if (item.startsWith("hifumi-"))
+            await rm(path.join(tempFolder, item), {
+                force: true,
+                recursive: true,
+            });
+    }
 }
 
 /**

@@ -1,4 +1,4 @@
-import type { Message } from "discord.js";
+import type { ChatInputCommandInteraction, Message, User } from "discord.js";
 import { readFile } from "node:fs/promises";
 import qr from "qrcode";
 import sharp from "sharp";
@@ -8,22 +8,30 @@ import {
     downloadURL,
     getImgType,
     getUserObjectPingId,
+    isChatInputCommandInteraction,
     isValidSize,
     resize,
+    sendOrReply,
 } from "../helpers/utils.ts";
 
-export async function beautiful(message: Message) {
-    const content = message.content.split(" ").filter(Boolean);
+export async function beautiful(input: Message | ChatInputCommandInteraction) {
+    let user: User;
 
-    const user = content.length === 1 ? message.author : await getUserObjectPingId(message);
-    if (!user) return await message.channel.send("Couldn't find the specified User");
+    if (isChatInputCommandInteraction(input)) {
+        user = input.options.getUser("user") ?? input.user;
+    } else {
+        const content = input.content.split(" ").filter(Boolean);
+        const tmp = content.length === 1 ? input.author : await getUserObjectPingId(input);
+        if (!tmp) return await input.channel.send("Couldn't find the specified User");
+        user = tmp;
+    }
 
-    const temp = await createTemp(message);
+    const temp = await createTemp(input);
 
     const avatarUrl = user.avatarURL({ size: 4096 }) ?? user.defaultAvatarURL;
 
     const errorMsg = await downloadURL(avatarUrl, `${temp}/avatar.png`);
-    if (errorMsg) return await message.channel.send(errorMsg);
+    if (errorMsg) return await sendOrReply(input, errorMsg);
 
     const outputInfo = await resize({
         fileLocation: `${temp}/avatar.png`,
@@ -33,7 +41,8 @@ export async function beautiful(message: Message) {
     });
 
     if (outputInfo === undefined) {
-        return await message.channel.send(
+        return await sendOrReply(
+            input,
             "I'm sorry, failed to resize the pfp. Maybe try again later?"
         );
     }
@@ -53,7 +62,8 @@ export async function beautiful(message: Message) {
         .catch(console.error);
 
     if (!avatar || !background) {
-        return await message.channel.send(
+        return await sendOrReply(
+            input,
             "I'm sorry, failed to load some of the images. Maybe try again later?"
         );
     }
@@ -67,24 +77,29 @@ export async function beautiful(message: Message) {
     const buf = await canvas.png().toBuffer().catch(console.error);
 
     if (!buf)
-        return await message.channel.send(
+        return await sendOrReply(
+            input,
             "I'm sorry, failed to create the image. Maybe try again later?"
         );
 
-    return await message.channel.send({ files: [buf] });
+    return await sendOrReply(input, { files: [buf] }, false);
 }
 
-export async function qrCode(message: Message) {
-    const content = message.content.split(" ").filter(Boolean);
-    if (content.length === 1) return await message.channel.send("Missing argument!");
+export async function qrCode(input: Message | ChatInputCommandInteraction) {
+    let qrText: string;
+    if (isChatInputCommandInteraction(input)) {
+        qrText = input.options.getString("data", true);
+    } else {
+        qrText = input.content;
+    }
 
-    const qrText = content.slice(1).join(" ");
+    if (!qrText.length) return await sendOrReply(input, "Invalid input!");
 
     const buf = await qr.toBuffer(qrText).catch(console.error);
 
-    if (!buf) return await message.channel.send("Data too big to fit into a QR code!");
+    if (!buf) return await sendOrReply(input, "Data too big to fit into a QR code!");
 
-    return await message.channel.send({ files: [buf] });
+    return await sendOrReply(input, { files: [buf] });
 }
 
 export async function resizeImg(message: Message, prefix: string) {

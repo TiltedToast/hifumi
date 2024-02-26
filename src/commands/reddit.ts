@@ -1,12 +1,15 @@
 import { ChatInputCommandInteraction, EmbedBuilder, Message, TextChannel } from "discord.js";
 import Snoowrap from "snoowrap";
 import type { Timespan } from "snoowrap/dist/objects/Subreddit.js";
-import strftime from "strftime";
 import { EMBED_COLOUR, REDDIT_USER_AGENT } from "../config.ts";
 import { db, getRandomRedditPosts } from "../db/index.ts";
 import { redditPosts } from "../db/schema.ts";
 import { InsertRedditPostSchema, type NewRedditPost, type RedditPost } from "../db/types.ts";
-import { isCommandInteraction, randomElementFromArray, sendOrReply } from "../helpers/utils.ts";
+import {
+    isChatInputCommandInteraction,
+    randomElementFromArray,
+    sendOrReply,
+} from "../helpers/utils.ts";
 
 const fetch_opts = { headers: { "User-Agent": REDDIT_USER_AGENT } };
 
@@ -17,51 +20,6 @@ const RedditClient = new Snoowrap({
     refreshToken: process.env.REDDIT_REFRESH_TOKEN,
 });
 
-export async function profile(message: Message, prefix: string) {
-    const content = message.content.split(" ").filter(Boolean);
-
-    if (content.length !== 2) return message.channel.send(`Usage: \`${prefix}profile <username>\``);
-
-    // Make sure the provided username is valid
-    // If it is, create an embed with the user's profile
-    const userName = content[1].toLowerCase();
-    const response = await fetch(
-        `https://www.reddit.com/user/${userName}/about.json`,
-        fetch_opts
-    ).catch(console.error);
-
-    if (!response) {
-        return await message.channel.send(`Reddit's API might be having issues, try again later`);
-    }
-
-    if (response.status === 404) {
-        return await message.channel.send("User not found!");
-    }
-    if (!response.ok) {
-        return await message.channel.send(`Reddit's API might be having issues, try again later`);
-    }
-    const profileEmbed = buildProfileEmbed(userName);
-
-    return await message.channel.send({ embeds: [profileEmbed] });
-}
-
-function buildProfileEmbed(userName: string) {
-    const { created_utc, name, comment_karma, link_karma, icon_img } =
-        RedditClient.getUser(userName);
-
-    const userCreatedDate = strftime("%d/%m/%Y", new Date(created_utc * 1000));
-    const description = `[Link to profile](https://www.reddit.com/user/${name})
-                        Post Karma: ${link_karma}
-                        Comment Karma: ${comment_karma}
-                        Created on: ${userCreatedDate}`;
-
-    return new EmbedBuilder()
-        .setColor(EMBED_COLOUR)
-        .setTitle(`${name}'s profile`)
-        .setDescription(description)
-        .setThumbnail(icon_img);
-}
-
 export async function sub(input: ChatInputCommandInteraction | Message) {
     const { isSFW, isNSFW, force } = parseSubFlags(input);
 
@@ -71,7 +29,7 @@ export async function sub(input: ChatInputCommandInteraction | Message) {
 
     let subreddit: string;
 
-    if (isCommandInteraction(input)) {
+    if (isChatInputCommandInteraction(input)) {
         subreddit = input.options.getString("subreddit", true).toLowerCase();
     } else {
         const content = input.content.split(" ").filter(Boolean);
@@ -122,7 +80,7 @@ export async function sub(input: ChatInputCommandInteraction | Message) {
         return await sendOrReply(input, `Reddit's API might be having issues, try again later`);
     }
 
-    if (isCommandInteraction(input)) await input.deferReply();
+    if (isChatInputCommandInteraction(input)) await input.deferReply();
 
     const posts = await getRandomRedditPosts(subreddit);
 
@@ -171,7 +129,7 @@ function parseSubFlags(input: ChatInputCommandInteraction | Message): {
     let isNSFW = false;
     let force = false;
 
-    if (isCommandInteraction(input)) {
+    if (isChatInputCommandInteraction(input)) {
         if (input.options.getBoolean("nsfw")) {
             isNSFW = true;
             isSFW = false;

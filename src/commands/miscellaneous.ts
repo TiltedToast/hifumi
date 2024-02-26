@@ -9,6 +9,7 @@ import {
     Message,
     PermissionFlagsBits,
     ThreadAutoArchiveDuration,
+    User,
     codeBlock,
 } from "discord.js";
 import { all, create } from "mathjs";
@@ -44,7 +45,7 @@ import {
     getUserObjectPingId,
     hasPermission,
     isBotOwner,
-    isCommandInteraction,
+    isChatInputCommandInteraction,
     isDev,
     randomElementFromArray,
     sendOrReply,
@@ -203,8 +204,15 @@ export async function reactToMiku(message: Message, reactCmd: string) {
     }
 }
 
-export async function leet(message: Message) {
-    const inputWords = message.content.split(" ").filter(Boolean).slice(1);
+export async function leet(input: Message | ChatInputCommandInteraction) {
+    let inputWords: string[];
+
+    if (isChatInputCommandInteraction(input)) {
+        inputWords = input.options.getString("input", true).split(" ");
+    } else {
+        inputWords = input.content.split(" ").slice(1);
+    }
+
     const leetDoc = await db.select().from(leetTable).execute();
 
     const document = {} as Record<string, string[]>;
@@ -226,7 +234,7 @@ export async function leet(message: Message) {
         })
         .join(" ");
 
-    await message.channel.send(leetOutput.substring(0, 2000));
+    await sendOrReply(input, leetOutput.substring(0, 2000), false);
 }
 
 export async function helpCmd(input: Message | CommandInteraction, prefix?: string) {
@@ -335,23 +343,30 @@ export async function jsEval(message: Message, mode?: "math") {
     return await message.channel.send(resultString);
 }
 
-export async function avatar(message: Message) {
-    const content = message.content.split(" ").filter(Boolean);
+export async function avatar(input: Message | ChatInputCommandInteraction) {
+    let user: User;
 
-    const user = content.length === 1 ? message.author : await getUserObjectPingId(message);
+    if (isChatInputCommandInteraction(input)) {
+        user = input.options.getUser("user", false) ?? input.user;
+    } else {
+        const content = input.content.split(" ").filter(Boolean);
+        const tmp = content.length === 1 ? input.author : await getUserObjectPingId(input);
 
-    if (!user) return await message.channel.send("Couldn't find the specified User");
+        if (!tmp) return await sendOrReply(input, "Couldn't find the specified User");
+
+        user = tmp;
+    }
 
     const avatarURL = user.displayAvatarURL({ forceStatic: false, size: 4096 });
 
-    if (!avatarURL) return await message.channel.send("No avatar found!");
+    if (!avatarURL) return await sendOrReply(input, "No avatar found!");
 
     const avatarEmbed = new EmbedBuilder()
         .setColor(EMBED_COLOUR)
         .setTitle(`*${user.displayName}'s Avatar*`)
         .setImage(avatarURL);
 
-    return await message.channel.send({ embeds: [avatarEmbed] });
+    return await sendOrReply(input, { embeds: [avatarEmbed] }, false);
 }
 
 export async function convert(input: ChatInputCommandInteraction | Message) {
@@ -362,7 +377,7 @@ export async function convert(input: ChatInputCommandInteraction | Message) {
     let target_currency: string;
 
     // The API can't seem to handle more than 7 or so decimal places
-    if (isCommandInteraction(input)) {
+    if (isChatInputCommandInteraction(input)) {
         amount = +(input.options.getNumber("amount", false) ?? 1).toFixed(5);
         base_currency = input.options.getString("from", true).toUpperCase();
         target_currency = input.options.getString("to", true).toUpperCase();
@@ -515,7 +530,7 @@ export async function urban(input: ChatInputCommandInteraction | Message) {
     let query: string;
     let random: boolean;
 
-    if (isCommandInteraction(input)) {
+    if (isChatInputCommandInteraction(input)) {
         query = (input.options.getString("term", false) ?? "").toLowerCase();
         random = input.options.getBoolean("random", false) ?? false;
     } else {
@@ -532,7 +547,7 @@ export async function urban(input: ChatInputCommandInteraction | Message) {
         );
     }
 
-    if (isCommandInteraction(input)) await input.deferReply();
+    if (isChatInputCommandInteraction(input)) await input.deferReply();
 
     const url = random
         ? "https://api.urbandictionary.com/v0/random"
@@ -566,7 +581,7 @@ export async function urban(input: ChatInputCommandInteraction | Message) {
 
     if (result.list.length === 0) return await sendOrReply(input, "No results found!");
 
-    const user = isCommandInteraction(input) ? input.user : input.author;
+    const user = isChatInputCommandInteraction(input) ? input.user : input.author;
     const identifier = `${user.id}-${input.channelId}` as const;
 
     if (!urbanEmbeds[identifier]) urbanEmbeds[identifier] = [];
