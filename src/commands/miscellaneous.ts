@@ -214,7 +214,9 @@ export async function leet(input: Message | ChatInputCommandInteraction) {
         inputWords = input.content.split(" ").slice(1);
     }
 
-    assert(inputWords.length > 0, "[leet] No input provided");
+    if (inputWords.length === 0) {
+        return await sendOrReply(input, "You have to provide a string!");
+    }
 
     const leetDoc = await db.select().from(leetTable).execute();
 
