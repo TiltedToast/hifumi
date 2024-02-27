@@ -8,14 +8,16 @@ import { insertPrefix } from "../db/index.ts";
 
 import { DEFAULT_PREFIX, DEV_PREFIX, RELOAD_PREFIX } from "../config.ts";
 import type { MessageCommandData } from "../helpers/types.ts";
-import { clientNoPermissions, errorLog, isDev, isMikuTrigger } from "../helpers/utils.ts";
+import { clientHasPermissions, errorLog, isDev, isMikuTrigger } from "../helpers/utils.ts";
 import { isLoading, prefixMap } from "./prefixes.ts";
 
 export default async function handleMessage(message: Message) {
     const guildClient = await message.guild?.members.fetchMe();
     try {
         // Permission check for the channel which the message was sent in to avoid breaking the bot
-        if (message.author.bot || clientNoPermissions(message, guildClient) || isLoading()) return;
+        if (message.author.bot || !clientHasPermissions(message, guildClient) || isLoading()) {
+            return;
+        }
 
         const content = message.content.split(" ").filter(Boolean);
         const len = content.length;

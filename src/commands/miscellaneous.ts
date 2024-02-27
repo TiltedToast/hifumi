@@ -13,6 +13,7 @@ import {
     codeBlock,
 } from "discord.js";
 import { all, create } from "mathjs";
+import assert from "node:assert/strict";
 import { exec } from "node:child_process";
 import { promisify } from "node:util";
 import {
@@ -213,6 +214,8 @@ export async function leet(input: Message | ChatInputCommandInteraction) {
         inputWords = input.content.split(" ").slice(1);
     }
 
+    assert(inputWords.length > 0, "[leet] No input provided");
+
     const leetDoc = await db.select().from(leetTable).execute();
 
     const document = {} as Record<string, string[]>;
@@ -311,7 +314,7 @@ export async function calc(message: Message) {
 }
 
 export async function jsEval(message: Message, mode?: "math") {
-    if (!(isBotOwner(message.author) || mode)) return;
+    if (!isBotOwner(message.author) && !mode) return;
     let rslt: string;
 
     // This is to be able to use all the functions inside the below eval function
@@ -338,8 +341,9 @@ export async function jsEval(message: Message, mode?: "math") {
 
     const resultString = String(rslt);
 
-    if (resultString === "" || resultString.length > 2000)
+    if (resultString === "" || resultString.length > 2000) {
         return await message.channel.send("Invalid message length for discord!");
+    }
     return await message.channel.send(resultString);
 }
 
@@ -356,6 +360,8 @@ export async function avatar(input: Message | ChatInputCommandInteraction) {
 
         user = tmp;
     }
+
+    assert(user, "[avatar] No user provided");
 
     const avatarURL = user.displayAvatarURL({ forceStatic: false, size: 4096 });
 
@@ -455,10 +461,15 @@ export async function convert(input: ChatInputCommandInteraction | Message) {
         );
     }
     // Checks for possible pointless conversions
-    if (base_currency === target_currency)
+    if (base_currency === target_currency) {
         return await sendOrReply(input, "Your first currency is the same as your second currency!");
-    if (amount < 0) return await sendOrReply(input, "You can't convert a negative amount!");
-    if (amount === 0) return await sendOrReply(input, "Zero will obviously stay 0!");
+    }
+    if (amount < 0) {
+        return await sendOrReply(input, "You can't convert a negative amount!");
+    }
+    if (amount === 0) {
+        return await sendOrReply(input, "Zero will obviously stay 0!");
+    }
 
     const response = await fetch(
         `https://v6.exchangerate-api.com/v6/${EXCHANGE_API_KEY}/pair/${base_currency}/${target_currency}/${amount}`
@@ -539,7 +550,7 @@ export async function urban(input: ChatInputCommandInteraction | Message) {
         random = content[1] === "random";
     }
 
-    if (query.length < 1 && !random) {
+    if (!query.length && !random) {
         return await sendOrReply(
             input,
             "You have to provide a search term or use the random flag",

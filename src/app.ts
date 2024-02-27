@@ -9,6 +9,7 @@ import handleMessage from "./handlers/messages.ts";
 import * as prefixHandler from "./handlers/prefixes.ts";
 import * as statusHandler from "./handlers/statuses.ts";
 import { isDev, wipeTempFolders } from "./helpers/utils.ts";
+import assert from "node:assert/strict";
 
 const startTime = Date.now();
 
@@ -29,7 +30,7 @@ client.once("ready", async () => {
     const time = strftime("%d/%m/%Y %H:%M:%S");
     const doneLoadingTime = Date.now();
 
-    if (!client.user) return;
+    assert(client.user, "Client user is undefined");
 
     console.log(`Started up in ${(doneLoadingTime - startTime) / 1000} seconds on ${time}`);
     console.log("Logged in as:");

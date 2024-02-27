@@ -24,8 +24,9 @@ export async function sub(input: ChatInputCommandInteraction | Message) {
     const { isSFW, isNSFW, force } = parseSubFlags(input);
 
     // Check if command has been run in a channel marked as NSFW to avoid potential NSFW posts in non-NSFW channels
-    if (isNSFW && !(input.channel as TextChannel).nsfw)
+    if (isNSFW && !(input.channel as TextChannel).nsfw) {
         return await sendOrReply(input, "You have to be in a NSFW channel for this");
+    }
 
     let subreddit: string;
 
@@ -33,8 +34,9 @@ export async function sub(input: ChatInputCommandInteraction | Message) {
         subreddit = input.options.getString("subreddit", true).toLowerCase();
     } else {
         const content = input.content.split(" ").filter(Boolean);
-        if (content.length === 1)
+        if (content.length === 1) {
             return await sendOrReply(input, "You have to specify a subreddit");
+        }
         subreddit = content[1].toLowerCase();
     }
 
@@ -47,7 +49,7 @@ export async function sub(input: ChatInputCommandInteraction | Message) {
     if (!response) {
         return await sendOrReply(
             input,
-            `Couldn't grab subreddit info, Reddit's API is probably down so try again later`
+            `Couldn't grab subreddit info, Reddit's API is probably being petty again so try later maybe`
         );
     }
 

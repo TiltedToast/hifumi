@@ -13,13 +13,15 @@ import {
     type PermissionResolvable,
 } from "discord.js";
 import gifsicle from "gifsicle";
-import { rmSync, statSync } from "node:fs";
-import { mkdir, readdir, rm } from "node:fs/promises";
+import assert from "node:assert/strict";
+import { existsSync, rmSync, statSync } from "node:fs";
+import { mkdir, readdir } from "node:fs/promises";
 import path from "node:path";
 import os from "os";
 import sharp from "sharp";
 import strftime from "strftime";
 import { table } from "table";
+import { emojiRegex } from "../commands/emoji.ts";
 import { BOT_OWNERS, DEV_CHANNELS, LOG_CHANNEL, OWNER_NAME } from "../config.ts";
 import { db } from "../db/index.ts";
 import { errorLogs } from "../db/schema.ts";
@@ -33,6 +35,9 @@ import type {
 
 export function formatTable<K extends string | number | symbol, V>(rows: Record<K, V>[]): string {
     const MIN_WRAP_LENGTH = 30;
+
+    assert(rows.length > 0, "Must have at least one row");
+    assert(Object.keys(rows[0]).length > 0, "Must have at least one column");
 
     const keys = Object.keys(rows[0]);
     const values = rows.map((obj) => Object.values(obj));
@@ -94,7 +99,7 @@ export async function sendOrReply(
 }
 
 export function splitMessage(content: string, maxLength = 2000, delim = " "): string[] {
-    const chunks = [];
+    const chunks: string[] = [];
     let currentChunk = "";
     for (const word of content.split(delim)) {
         if (currentChunk.length + word.length + delim.length > maxLength) {
@@ -117,9 +122,9 @@ function getEmbedIndex(arr: EmbedData[], target: EmbedData): number {
     );
 }
 
-export function clientNoPermissions(message: Message, guildClient?: GuildMember): boolean {
+export function clientHasPermissions(message: Message, guildClient?: GuildMember): boolean {
     if (!guildClient) return false;
-    return !(
+    return (
         guildClient.permissionsIn(message.channel.id).has(PermissionsBitField.Flags.SendMessages) &&
         guildClient.permissionsIn(message.channel.id).has(PermissionsBitField.Flags.ViewChannel)
     );
@@ -176,6 +181,8 @@ export async function updateEmbed(options: UpdateEmbedOptions) {
         });
     }
 
+    assert(embedArray.length > 1, "Embed array must have at least two elements");
+
     if (interaction.user.id !== embedArray[activeIndex].user.id) {
         return interaction.reply({
             content: "Only the person who initiated the command can use these buttons, sorry!",
@@ -185,11 +192,14 @@ export async function updateEmbed(options: UpdateEmbedOptions) {
 
     const step = { [prevButtonId]: -1, [nextButtonId]: 1 }[interaction.customId];
     if (!step) {
-        return interaction.reply({
+        await interaction.reply({
             content: `Invalid button for some reason. Something must've gone VERY wrong, please let my owner ${OWNER_NAME} know about this if you can`,
             ephemeral: true,
         });
     }
+
+    assert(step !== undefined, "Step must be defined");
+
     const newEmbed = embedArray[(activeIndex + step + embedArray.length) % embedArray.length];
 
     return await interaction.update({ embeds: [newEmbed.embed] });
@@ -215,8 +225,12 @@ export function hasPermission(
  */
 export async function resize(options: ResizeOptions) {
     const { fileLocation, width, saveLocation, animated } = options;
+
+    assert(width > 0, "Width must be greater than 0");
+    assert(existsSync(fileLocation), "File must exist");
+
     if (animated) {
-        return await Bun.spawn([
+        return Bun.spawn([
             gifsicle,
             "--resize-width",
             width.toString(),
@@ -261,6 +275,7 @@ export async function getUserObjectPingId(message: Message): Promise<User | unde
  * @returns a random element from the array
  */
 export function randomElementFromArray<T>(array: T[]): T {
+    assert(array.length > 0, "Array must have at least one element");
     return array[Math.floor(Math.random() * array.length)];
 }
 
@@ -388,6 +403,7 @@ export async function downloadURL(url: string, saveLocation: string) {
  * @returns The file extension of the image
  */
 export function getImgType(url: string) {
+    assert(url.length > 0, "URL must have at least one character");
     if (url.includes(".png") || url.includes(".webp")) return "png";
     if (url.includes(".jpeg") || url.includes(".jpg")) return "jpeg";
     if (url.includes(".gif")) return "gif";
@@ -402,6 +418,8 @@ export function getImgType(url: string) {
  * @returns The ID or URL of the emoji
  */
 export function extractEmoji(emojiString: string, IdOnly = false): string {
+    assert.match(emojiString, emojiRegex, "Invalid emoji string");
+
     const emojiID = emojiString.split(":")[2].slice(0, -1);
 
     if (IdOnly) return emojiID;
@@ -412,6 +430,7 @@ export function extractEmoji(emojiString: string, IdOnly = false): string {
 }
 
 function deleteTemp(folder: string) {
+    assert(existsSync(folder), "Folder must exist");
     rmSync(folder, { recursive: true, force: true });
 }
 
@@ -447,11 +466,9 @@ export async function wipeTempFolders() {
     const tempFolder = os.tmpdir();
     const items = await readdir(tempFolder);
     for (const item of items) {
-        if (item.startsWith("hifumi-"))
-            await rm(path.join(tempFolder, item), {
-                force: true,
-                recursive: true,
-            });
+        if (item.startsWith("hifumi-")) {
+            deleteTemp(path.join(tempFolder, item));
+        }
     }
 }
 
@@ -461,5 +478,6 @@ export async function wipeTempFolders() {
  * @param size The max size allowed in bytes or one of the presets from {@link FileSizeLimit}
  */
 export function isValidSize(fileLocation: string, size: number) {
+    assert(existsSync(fileLocation), "File must exist");
     return statSync(fileLocation).size <= size;
 }

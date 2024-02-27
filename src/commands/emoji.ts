@@ -23,7 +23,7 @@ import {
     splitMessage,
 } from "../helpers/utils.ts";
 
-const emojiRegex = new RegExp(/<a?:\w+:\d+>/gi);
+export const emojiRegex = new RegExp(/<a?:\w+:\d+>/gi);
 
 const {
     FailedToResizeAssetBelowTheMinimumSize,
