@@ -391,10 +391,21 @@ export async function downloadURL(url: string, saveLocation: string) {
         return `Failed to download <${url}>\n${response.status} ${response.statusText}`;
     }
 
-    const buffer = await response.arrayBuffer().catch(console.error);
+    if (!response.body) return "Failed to extract contents from response";
 
-    if (!buffer) return "Failed to extract contents from response";
-    await Bun.write(absSaveLocation, buffer);
+    try {
+        const writer = Bun.file(absSaveLocation).writer();
+
+        for await (const chunk of response.body) {
+            writer.write(chunk as Uint8Array);
+        }
+
+        await writer.flush();
+        await writer.end();
+    } catch (err) {
+        console.error(err);
+        return `Failed to write to file`;
+    }
 }
 
 /**
