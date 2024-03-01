@@ -433,7 +433,7 @@ export async function searchEmojis(message: Message) {
     }
 
     const emojiStrings = Array.from(
-        emojis.map((x) => x.toString().replace(":_:", `:${x.name}:` ?? ":_:"))
+        emojis.map((x) => x.toString().replace(":_:", x.name ? `:${x.name}:` : ":_:"))
     );
 
     const fuse = new Fuse(emojiStrings, {
