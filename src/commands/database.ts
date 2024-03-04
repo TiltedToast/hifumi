@@ -39,6 +39,8 @@ export async function runSQL(message: Message) {
         return await message.channel.send(codeBlock("json", JSON.stringify(result, null, 2)));
     }
 
+    if (result.rows.length === 0) return await message.channel.send("No results found!");
+
     let stringified = formatTable(result.rows);
 
     // If the nice table is too long, just send the raw JSON
