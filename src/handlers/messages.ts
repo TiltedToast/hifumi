@@ -133,5 +133,9 @@ function handleEmojiCommand({ subCmd, message, prefix }: MessageCommandData) {
 
         case "search":
         case "s":      return emoji.searchEmojis(message);
+
+        case "convert":
+        case "conv":
+        case "gifify": return emoji.pngToGifEmoji(message);
     }
 }

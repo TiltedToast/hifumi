@@ -21,7 +21,6 @@ import os from "os";
 import sharp from "sharp";
 import strftime from "strftime";
 import { table } from "table";
-import { emojiRegex } from "../commands/emoji.ts";
 import { BOT_OWNERS, DEV_CHANNELS, LOG_CHANNEL, OWNER_NAME } from "../config.ts";
 import { db } from "../db/index.ts";
 import { errorLogs } from "../db/schema.ts";
@@ -429,10 +428,7 @@ export function getImgType(url: string) {
  * @returns The ID or URL of the emoji
  */
 export function extractEmoji(emojiString: string, IdOnly = false): string {
-    assert.match(emojiString, emojiRegex, "Invalid emoji string");
-
     const emojiID = emojiString.split(":")[2].slice(0, -1);
-
     if (IdOnly) return emojiID;
 
     const extension = emojiString[1] === "a" ? "gif" : "png";

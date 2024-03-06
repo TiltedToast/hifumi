@@ -9,7 +9,7 @@ import {
     StickerFormatType,
 } from "discord.js";
 import Fuse from "fuse.js";
-import { readFile } from "node:fs/promises";
+import { readFile, copyFile } from "node:fs/promises";
 import path from "node:path";
 import { FileSizeLimit } from "../helpers/types.ts";
 import {
@@ -33,6 +33,135 @@ const {
     MaximumNumberOfPremiumEmojisReached,
     UnknownEmoji,
 } = RESTJSONErrorCodes;
+
+export async function pngToGifEmoji(message: Message) {
+    if (!message.guild) {
+        return await message.channel.send("You have to be in a server to use this command!");
+    }
+
+    if (!hasPermission(message.member, PermissionFlagsBits.ManageGuildExpressions)) {
+        return await message.channel.send(
+            'You need the "Manage Expressions" permission to convert emojis to GIFs!'
+        );
+    }
+
+    const emojis = message.content.match(emojiRegex);
+
+    if (!emojis) return await message.channel.send("You have to specify at least one emoji!");
+
+    const temp = await createTemp(message);
+
+    let output = "";
+
+    for (const emoji of emojis) {
+        const id = extractEmoji(emoji, true);
+        const guildEmoji = await message.guild.emojis.fetch(id).catch(() => null);
+
+        if (!guildEmoji) {
+            await message.channel.send(`\`${emoji.split(":")[1]}\` does not exist in this server`);
+            continue;
+        }
+
+        if (guildEmoji.animated) {
+            await message.channel.send(`\`${guildEmoji.name ?? "NameNotFound"}\` is already a GIF`);
+            continue;
+        }
+
+        const imgType = getImgType(guildEmoji.imageURL());
+        if (!imgType) continue;
+
+        const name = guildEmoji.name ?? "NameNotFound";
+        const frameOnePath = path.join(temp, `${name}-${id}.${imgType}`);
+
+        const err = await downloadURL(guildEmoji.imageURL({ size: 128 }), frameOnePath);
+
+        if (err) {
+            await message.channel.send(`Could not download \`${name}\`, skipping...`);
+            continue;
+        }
+
+        const frameTwoPath = path.join(temp, `${name}-${id}_2.${imgType}`);
+
+        const result = await copyFile(frameOnePath, frameTwoPath).catch((e) => {
+            console.error(e);
+            return null;
+        });
+
+        if (result === null) {
+            await message.channel.send(`Could not copy \`${name}\`, skipping...`);
+            continue;
+        }
+
+        const magickPrefix = process.platform === "win32" ? ["magick", "convert"] : ["convert"];
+
+        const compressCode = await Bun.spawn([
+            ...magickPrefix,
+            frameTwoPath,
+            "-quality",
+            "90",
+            frameTwoPath,
+        ]).exited;
+
+        if (compressCode !== 0) {
+            await message.channel.send(`Could not compress \`${name}\`, skipping...`);
+            continue;
+        }
+
+        const gifPath = path.join(temp, `${name}-${id}.gif`);
+
+        const convertCode = await Bun.spawn([
+            ...magickPrefix,
+            frameOnePath,
+            frameTwoPath,
+            "-delay",
+            "100",
+            gifPath,
+        ]).exited;
+
+        if (convertCode !== 0) {
+            await message.channel.send(`Could not convert \`${name}\`, skipping...`);
+            continue;
+        }
+
+        if (!isValidSize(gifPath, FileSizeLimit.DiscordEmoji)) {
+            const code = await resize({
+                fileLocation: gifPath,
+                width: 128,
+                saveLocation: gifPath,
+                animated: true,
+            });
+
+            if (code === undefined || (typeof code === "number" && code !== 0)) {
+                await message.channel.send(
+                    `Something went wrong while resizing \`${name}\`, skipping...`
+                );
+                continue;
+            }
+
+            if (!isValidSize(gifPath, FileSizeLimit.DiscordEmoji)) {
+                await message.channel.send(
+                    `\`${name}\` too large, even after resizing, skipping...`
+                );
+                continue;
+            }
+        }
+
+        const base64 = await readFile(gifPath, { encoding: "base64" });
+        const newEmoji = await message.guild.emojis.create({
+            attachment: `data:image/gif;base64,${base64}`,
+            name: name,
+        });
+
+        output +=
+            newEmoji.toString().replace(":_:", newEmoji.name ? `:${newEmoji.name}:` : ":_:") + " ";
+
+        if (guildEmoji.deletable) await guildEmoji.delete("Replaced with GIF version");
+    }
+
+    if (output === "") return;
+
+    await message.channel.send({ content: output });
+}
 
 export async function linkEmoji(message: Message) {
     let msgContent = message.content;
