@@ -30,7 +30,8 @@ const envVariables = z.object({
     REDDIT_CLIENT_ID:     z.string().min(1, "You must provide a Reddit Client Id"),
     REDDIT_CLIENT_SECRET: z.string().min(1, "You must provide a Reddit Client Secret"),
     REDDIT_REFRESH_TOKEN: z.string().min(1, "You must provide a Reddit Refresh Token"),
-    PLANETSCALE_URL:      z.string().min(1, "You must provide a PlanetScale Database URL"),
+    TURSO_DATABASE_URL:   z.string().min(1, "You must provide a Turso Database URL"),
+    TURSO_AUTH_TOKEN:     z.string().min(1, "You must provide a Turso Auth Token"),
     WOLFRAM_ALPHA_APP_ID: z.string().min(1, "You must provide a Wolfram|Alpha App ID"),
     DEV_MODE:             z.enum(["true", "false"]),
 });

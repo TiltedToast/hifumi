@@ -3,15 +3,15 @@
     "version": "1.0.0",
     "type": "module",
     "dependencies": {
-        "@planetscale/database": "^1.14.0",
+        "@libsql/client": "^0.5.3",
         "bufferutil": "^4.0.8",
         "dedent": "^1.5.1",
         "discord.js": "^14.14.1",
-        "drizzle-orm": "^0.29.3",
+        "drizzle-orm": "^0.29.5",
         "drizzle-zod": "^0.5.1",
         "fuse.js": "^7.0.0",
         "gifsicle": "^7.0.1",
-        "mathjs": "^12.3.0",
+        "mathjs": "^12.4.0",
         "qrcode": "^1.5.3",
         "sharp": "^0.33.2",
         "snoowrap": "^1.23.0",
@@ -19,7 +19,7 @@
         "table": "^6.8.1",
         "utf-8-validate": "^6.0.3",
         "zod": "^3.22.4",
-        "zod-validation-error": "^3.0.0"
+        "zod-validation-error": "^3.0.3"
     },
     "devDependencies": {
         "@types/bun": "latest",
@@ -35,7 +35,7 @@
         "husky": "^9.0.11",
         "lint-staged": "^15.2.0",
         "prettier": "^3.2.5",
-        "typescript": "^5.3.3"
+        "typescript": "^5.4.2"
     },
     "scripts": {
         "start": "pm2 start ./pm2.config.cjs",
@@ -48,7 +48,9 @@
         "test:build": "tsc",
         "prepare": "husky || true",
         "deploy": "bun ./src/deploy-commands.ts",
-        "db:push": "drizzle-kit push:mysql --config ./src/db/drizzle.config.ts",
+        "db:gen": "drizzle-kit generate:sqlite --config ./src/db/drizzle.config.ts",
+        "db:up": "drizzle-kit up:sqlite --config ./src/db/drizzle.config.ts",
+        "db:push": "drizzle-kit push:sqlite --config ./src/db/drizzle.config.ts",
         "deploy-dev": "bun ./src/deploy-commands.ts --guild 655484563077988385",
         "clear-test-commands": "bun ./src/deploy-commands.ts --guild 655484563077988385 --clear"
     },

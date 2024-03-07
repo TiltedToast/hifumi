@@ -1,8 +1,7 @@
-import { DatabaseError } from "@planetscale/database";
 import { ChatInputCommandInteraction, Message, PermissionFlagsBits, codeBlock } from "discord.js";
 import { fromZodError } from "zod-validation-error";
 import { BOT_OWNERS } from "../config.ts";
-import { PSConnection, db, updatePrefix as updatePrefixDB } from "../db/index.ts";
+import { dbClient, db, updatePrefix as updatePrefixDB } from "../db/index.ts";
 import { statuses } from "../db/schema.ts";
 import { InsertStatusSchema, type NewStatus } from "../db/types.ts";
 import { prefixMap } from "../handlers/prefixes.ts";
@@ -15,6 +14,7 @@ import {
     isDev,
     sendOrReply,
 } from "../helpers/utils.ts";
+import { LibsqlError } from "@libsql/client";
 
 export async function runSQL(message: Message) {
     if (!isBotOwner(message.author)) return;
@@ -22,11 +22,13 @@ export async function runSQL(message: Message) {
 
     if (query.length === 0) return await message.channel.send("You need to provide a query smh");
 
-    const result = await PSConnection.execute(query)
+    const result = await dbClient
+        .execute(query)
         .then((res) => res)
         .catch(async (e) => {
-            if (e instanceof DatabaseError) {
+            if (e instanceof LibsqlError) {
                 await message.channel.send(`Invalid Query\n${e.message}`);
+                return;
             } else {
                 await message.channel.send("Unknown error, check the logs");
             }
@@ -95,20 +97,21 @@ export async function insertStatus(message: Message): Promise<undefined | Messag
         .insert(statuses)
         .values(document)
         .catch(async (e) => {
-            if (e instanceof DatabaseError) {
-                if (e.message.includes("AlreadyExists")) {
+            if (e instanceof LibsqlError) {
+                if (e.message.includes("UNIQUE constraint failed")) {
                     await message.channel.send("Status already exists");
+                    return;
                 } else {
                     await message.channel.send("Unknown error, check the logs");
                 }
-                console.error(e);
             }
+            console.error(e);
         });
 
     if (!query) return;
 
     const newStatus = {
-        id: Number(query.insertId),
+        id: Number(query.lastInsertRowid),
         ...document,
     };
 

@@ -11,3 +11,4 @@ data
 .fleet
 *.tsbuildinfo
 update.txt
+*.db

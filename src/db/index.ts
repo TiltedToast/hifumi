@@ -1,20 +1,20 @@
-import { connect } from "@planetscale/database";
+import { createClient } from "@libsql/client";
 import { eq, sql } from "drizzle-orm";
-import { drizzle } from "drizzle-orm/planetscale-serverless";
+import { drizzle } from "drizzle-orm/libsql";
 import * as schema from "./schema.ts";
 import { prefixes, redditPosts } from "./schema.ts";
 import type { RedditPost } from "./types.ts";
 
-const { PLANETSCALE_URL, DEV_MODE } = process.env;
+const { TURSO_AUTH_TOKEN, TURSO_DATABASE_URL, DEV_MODE } = process.env;
 
-export const PSConnection = connect({ url: PLANETSCALE_URL, fetch });
-export const db = drizzle(PSConnection, { logger: DEV_MODE === "true", schema });
+export const dbClient = createClient({ url: TURSO_DATABASE_URL, authToken: TURSO_AUTH_TOKEN });
+export const db = drizzle(dbClient, { logger: DEV_MODE === "true", schema });
 
 const randomPostQuery = db
     .select()
     .from(redditPosts)
     .where(eq(redditPosts.subreddit, sql.placeholder("subreddit")))
-    .orderBy(sql`RAND()`)
+    .orderBy(sql`RANDOM()`)
     .limit(1)
     .prepare();
 
