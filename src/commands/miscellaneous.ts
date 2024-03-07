@@ -4,7 +4,6 @@ import {
     ButtonBuilder,
     ButtonStyle,
     ChatInputCommandInteraction,
-    CommandInteraction,
     EmbedBuilder,
     Message,
     PermissionFlagsBits,
@@ -242,7 +241,7 @@ export async function leet(input: Message | ChatInputCommandInteraction) {
     await sendOrReply(input, leetOutput.substring(0, 2000), false);
 }
 
-export async function helpCmd(input: Message | CommandInteraction, prefix?: string) {
+export async function helpCmd(input: Message | ChatInputCommandInteraction, prefix?: string) {
     const helpMsgArray = await db.select().from(helpMessages).execute();
 
     if (helpMsgArray.length === 0) {

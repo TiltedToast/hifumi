@@ -95,7 +95,7 @@ export type ErrorLogOptions = {
 };
 
 export const FileSizeLimit = {
-    DiscordFile: 8388608,
+    DiscordFile: 26214400,
     DiscordEmoji: 262144,
     ImgurFile: 10485760,
 } as const;

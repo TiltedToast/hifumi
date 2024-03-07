@@ -1,7 +1,7 @@
+import { LibsqlError } from "@libsql/client";
 import { ChatInputCommandInteraction, Message, PermissionFlagsBits, codeBlock } from "discord.js";
 import { fromZodError } from "zod-validation-error";
-import { BOT_OWNERS } from "../config.ts";
-import { dbClient, db, updatePrefix as updatePrefixDB } from "../db/index.ts";
+import { db, dbClient, updatePrefix as updatePrefixDB } from "../db/index.ts";
 import { statuses } from "../db/schema.ts";
 import { InsertStatusSchema, type NewStatus } from "../db/types.ts";
 import { prefixMap } from "../handlers/prefixes.ts";
@@ -14,7 +14,6 @@ import {
     isDev,
     sendOrReply,
 } from "../helpers/utils.ts";
-import { LibsqlError } from "@libsql/client";
 
 export async function runSQL(message: Message) {
     if (!isBotOwner(message.author)) return;
@@ -127,14 +126,14 @@ export async function updatePrefix(input: Message | ChatInputCommandInteraction)
     if (isChatInputCommandInteraction(input)) {
         if (
             !input.memberPermissions?.has(PermissionFlagsBits.ManageGuild) &&
-            !BOT_OWNERS.includes(input.user.id)
+            !isBotOwner(input.user)
         ) {
             return await sendOrReply(input, "Insufficient permissions!", true);
         }
     } else {
         if (
             !hasPermission(input.member, PermissionFlagsBits.ManageGuild) &&
-            !BOT_OWNERS.includes(input.author.id)
+            !isBotOwner(input.author)
         ) {
             return await input.channel.send("Insufficient permissions!");
         }

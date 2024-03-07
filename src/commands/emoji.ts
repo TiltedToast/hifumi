@@ -295,16 +295,19 @@ export async function addEmoji(message: Message, prefix: string) {
     const imgType = getImgType(url);
     if (!imgType) return await message.channel.send("Invalid image type!");
 
-    const errorMsg = await downloadURL(url, `${temp}/unknown.${imgType}`);
+    const fileLocation = path.join(temp, `unknown.${imgType}`);
+    const resizedLocation = path.join(temp, `unknown_resized.${imgType}`);
+
+    const errorMsg = await downloadURL(url, fileLocation);
     if (errorMsg) return await message.channel.send(errorMsg);
 
     // Resizes image, checks size again and creates emoji
     try {
-        if (!isValidSize(`${temp}/unknown.${imgType}`, FileSizeLimit.DiscordEmoji)) {
+        if (!isValidSize(fileLocation, FileSizeLimit.DiscordEmoji)) {
             const code = await resize({
-                fileLocation: `${temp}/unknown.${imgType}`,
+                fileLocation: fileLocation,
                 width: 128,
-                saveLocation: `${temp}/unknown_resized.${imgType}`,
+                saveLocation: resizedLocation,
                 animated: imgType === "gif",
             });
 
@@ -314,13 +317,13 @@ export async function addEmoji(message: Message, prefix: string) {
                 );
             }
 
-            if (!isValidSize(`${temp}/unknown_resized.${imgType}`, FileSizeLimit.DiscordEmoji)) {
+            if (!isValidSize(resizedLocation, FileSizeLimit.DiscordEmoji)) {
                 return message.channel.send("File too large for Discord, even after resizing!");
             }
             if (message.guild === null) {
                 return message.channel.send("You have to be in a server to do this!");
             }
-            const base64 = await readFile(`${temp}/unknown_resized.${imgType}`, {
+            const base64 = await readFile(resizedLocation, {
                 encoding: "base64",
             });
             emoji = await message.guild.emojis.create({
@@ -331,7 +334,7 @@ export async function addEmoji(message: Message, prefix: string) {
             if (message.guild === null) {
                 return message.channel.send("You have to be in a server to do this!");
             }
-            const base64 = await readFile(`${temp}/unknown.${imgType}`, {
+            const base64 = await readFile(fileLocation, {
                 encoding: "base64",
             });
             emoji = await message.guild.emojis.create({

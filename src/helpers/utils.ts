@@ -1,7 +1,6 @@
 import dedent from "dedent";
 import {
     ChatInputCommandInteraction,
-    CommandInteraction,
     GuildMember,
     Message,
     MessageType,
@@ -67,7 +66,7 @@ export function isChatInputCommandInteraction(
     return input instanceof ChatInputCommandInteraction;
 }
 
-export function isMessage(input: Message | CommandInteraction): input is Message {
+export function isMessage(input: Message | ChatInputCommandInteraction): input is Message {
     return input instanceof Message;
 }
 
@@ -78,7 +77,7 @@ export function isMessage(input: Message | CommandInteraction): input is Message
  * @param ephemeral Whether or not the message should be ephemeral (only visible to the user who invoked the command, this is true by default and only for command interactions)
  */
 export async function sendOrReply(
-    input: Message | CommandInteraction,
+    input: Message | ChatInputCommandInteraction,
     message: string | BaseMessageOptions,
     ephemeral = true
 ) {
@@ -94,7 +93,6 @@ export async function sendOrReply(
     if (input.isRepliable()) {
         return await input.reply({ ...(message as BaseMessageOptions), ephemeral });
     }
-    return await input.channel?.send(message);
 }
 
 export function splitMessage(content: string, maxLength = 2000, delim = " "): string[] {
@@ -192,7 +190,7 @@ export async function updateEmbed(options: UpdateEmbedOptions) {
     const step = { [prevButtonId]: -1, [nextButtonId]: 1 }[interaction.customId];
     if (!step) {
         await interaction.reply({
-            content: `Invalid button for some reason. Something must've gone VERY wrong, please let my owner ${OWNER_NAME} know about this if you can`,
+            content: `Invalid button for some reason. Something must've gone VERY wrong, please let my owner \`${OWNER_NAME}\` know about this if you can`,
             ephemeral: true,
         });
     }
@@ -305,7 +303,7 @@ export function errorLog({ message, errorObject }: ErrorLogOptions) {
 
     const errorMessageWithoutStack = dedent`
         An Error occurred on ${currentTime}
-        **Server:** ${message.guild?.name ?? "Unknown"} - ${message.guild?.id ?? "Unknown"}
+        **Server:** ${message.guild?.name ?? "Unknown"} - ${message.guild?.id ?? "DM"}
         **Room:** ${(message.channel as TextChannel).name} - ${message.channel.id}
         **User:** ${message.author.username} - ${message.author.id}
         **Command used:** ${commandUsed}
