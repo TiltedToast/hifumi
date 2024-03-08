@@ -24,6 +24,7 @@ import {
 } from "../helpers/utils.ts";
 
 export const emojiRegex = new RegExp(/<a?:\w+:\d+>/gi);
+const msgLinkRegex = new RegExp(/https:\/\/discord\.com\/channels\/\d+\/(\d+)\/(\d+)/);
 
 const {
     FailedToResizeAssetBelowTheMinimumSize,
@@ -45,17 +46,34 @@ export async function pngToGifEmoji(message: Message) {
         );
     }
 
+    if (message.type === MessageType.Reply) {
+        const repliedMsg = message.channel.messages.resolve(message.reference?.messageId ?? "");
+        if (!repliedMsg) {
+            return await message.channel.send("Could not find message to grab emojis from!");
+        }
+        const emojis = repliedMsg.content.match(emojiRegex);
+        if (!emojis) {
+            return await message.channel.send("You have to specify at least one emoji!");
+        }
+
+        return convertEmojis(emojis, message);
+    }
+
     const emojis = message.content.match(emojiRegex);
 
     if (!emojis) return await message.channel.send("You have to specify at least one emoji!");
 
+    await convertEmojis(emojis, message);
+}
+
+async function convertEmojis(emojis: RegExpMatchArray, message: Message) {
     const temp = await createTemp(message);
 
     let output = "";
 
     for (const emoji of emojis) {
         const id = extractEmoji(emoji, true);
-        const guildEmoji = await message.guild.emojis.fetch(id).catch(() => null);
+        const guildEmoji = await message.guild!.emojis.fetch(id).catch(() => null);
 
         if (!guildEmoji) {
             await message.channel.send(`\`${emoji.split(":")[1]}\` does not exist in this server`);
@@ -147,7 +165,7 @@ export async function pngToGifEmoji(message: Message) {
         }
 
         const base64 = await readFile(gifPath, { encoding: "base64" });
-        const newEmoji = await message.guild.emojis.create({
+        const newEmoji = await message.guild!.emojis.create({
             attachment: `data:image/gif;base64,${base64}`,
             name: name,
         });
@@ -216,31 +234,33 @@ export async function addEmoji(message: Message, prefix: string) {
         }
     }
 
-    const msgLinkRegexp = new RegExp(/https:\/\/discord\.com\/channels\/\d+\/(\d+)\/(\d+)/);
-
-    const matchedArr = msgLinkRegexp.exec(message.content);
+    const matchedArr = msgLinkRegex.exec(message.content);
 
     if (matchedArr) {
         const [channelId, msgId] = matchedArr.slice(1);
 
-        try {
-            const ch = await message.client.channels.fetch(channelId);
-            if (!ch?.isTextBased()) {
-                return await message.channel.send("Somehow this is not a text channel?");
-            }
+        const channel = await message.client.channels.fetch(channelId).catch(() => null);
 
-            const msg = await ch.messages.fetch(msgId);
-
-            const emojis = msg.content.match(emojiRegex);
-
-            if (emojis === null) return await message.channel.send("No emojis found");
-
-            const emojiStringOutput = await bulkAddEmojis(message, emojis);
-            if (!emojiStringOutput) return;
-            return await message.channel.send(emojiStringOutput);
-        } catch (_) {
+        if (!channel) {
             return await message.channel.send("I probably don't have access to that channel");
         }
+        if (!channel.isTextBased()) {
+            return await message.channel.send("Somehow this is not a text channel?");
+        }
+
+        const msg = await channel.messages.fetch(msgId).catch(() => null);
+
+        if (!msg) {
+            return await message.channel.send("Could not find message to grab emojis from!");
+        }
+
+        const emojis = msg.content.match(emojiRegex);
+
+        if (emojis === null) return await message.channel.send("No emojis found");
+
+        const emojiStringOutput = await bulkAddEmojis(message, emojis);
+        if (!emojiStringOutput) return;
+        return await message.channel.send(emojiStringOutput);
     }
 
     if (content.length <= 2 && message.attachments.size === 0) {
