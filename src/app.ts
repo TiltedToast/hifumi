@@ -10,8 +10,11 @@ import * as prefixHandler from "./handlers/prefixes.ts";
 import * as statusHandler from "./handlers/statuses.ts";
 import { isDev, wipeTempFolders } from "./helpers/utils.ts";
 import assert from "node:assert/strict";
+import { migrateDb } from "./db/index.ts";
 
 const startTime = Date.now();
+
+await migrateDb();
 
 const client = new Client({
     intents: [

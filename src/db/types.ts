@@ -6,8 +6,8 @@ import * as schema from "./schema.ts";
 export type ErrorLog = InferSelectModel<typeof schema.errorLogs>;
 export type HelpMessage = InferSelectModel<typeof schema.helpMessages>;
 export type LeetChar = InferSelectModel<typeof schema.leet>;
-export type MikuCommandAlias = InferSelectModel<typeof schema.mikuCommandAliases>;
-export type MikuReaction = InferSelectModel<typeof schema.mikuReactions>;
+export type AiCommandAlias = InferSelectModel<typeof schema.aiCommandAliases>;
+export type AiReaction = InferSelectModel<typeof schema.aiReactions>;
 export type Prefix = InferSelectModel<typeof schema.prefixes>;
 
 export type Status = z.infer<typeof SelectStatusSchema>;

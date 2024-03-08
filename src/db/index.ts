@@ -4,6 +4,7 @@ import { drizzle } from "drizzle-orm/libsql";
 import * as schema from "./schema.ts";
 import { prefixes, redditPosts } from "./schema.ts";
 import type { RedditPost } from "./types.ts";
+import { migrate } from "drizzle-orm/libsql/migrator";
 
 const { TURSO_AUTH_TOKEN, TURSO_DATABASE_URL, DEV_MODE } = process.env;
 
@@ -42,4 +43,14 @@ export async function updatePrefix(serverId: string, prefix: string) {
  */
 export async function insertPrefix(serverId: string, prefix: string) {
     await db.insert(prefixes).values({ serverId, prefix });
+}
+
+/**
+ * Performs the database migration, if it fails we exit with code 1
+ */
+export async function migrateDb() {
+    await migrate(db, { migrationsFolder: "./src/db/migrations" }).catch((e) => {
+        console.error(e);
+        process.exit(1);
+    });
 }

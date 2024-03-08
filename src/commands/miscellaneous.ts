@@ -24,12 +24,7 @@ import {
     OWNER_NAME,
 } from "../config.ts";
 import { db } from "../db/index.ts";
-import {
-    helpMessages,
-    leet as leetTable,
-    mikuCommandAliases,
-    mikuReactions,
-} from "../db/schema.ts";
+import { aiCommandAliases, aiReactions, helpMessages, leet as leetTable } from "../db/schema.ts";
 import { prefixMap } from "../handlers/prefixes.ts";
 import {
     PairConversionResponseSchema,
@@ -189,9 +184,9 @@ export async function pingRandomMembers(message: Message) {
     return await message.channel.send(outputString);
 }
 
-export async function reactToMiku(message: Message, reactCmd: string) {
-    const reactMsgs = await db.select().from(mikuReactions);
-    const cmdAliases = await db.select().from(mikuCommandAliases);
+export async function reactToAi(message: Message, reactCmd: string) {
+    const reactMsgs = await db.select().from(aiReactions);
+    const cmdAliases = await db.select().from(aiCommandAliases);
 
     for (const item of cmdAliases) {
         if (item.alias === reactCmd) {

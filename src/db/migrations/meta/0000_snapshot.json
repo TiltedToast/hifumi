@@ -137,8 +137,8 @@
             "compositePrimaryKeys": {},
             "uniqueConstraints": {}
         },
-        "miku_command_aliases": {
-            "name": "miku_command_aliases",
+        "ai_command_aliases": {
+            "name": "ai_command_aliases",
             "columns": {
                 "id": {
                     "name": "id",
@@ -167,8 +167,8 @@
             "compositePrimaryKeys": {},
             "uniqueConstraints": {}
         },
-        "miku_reactions": {
-            "name": "miku_reactions",
+        "ai_reactions": {
+            "name": "ai_reactions",
             "columns": {
                 "id": {
                     "name": "id",

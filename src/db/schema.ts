@@ -25,13 +25,13 @@ export const leet = sqliteTable("leet", {
     translated: text("translated", { length: 10 }).notNull(),
 });
 
-export const mikuCommandAliases = sqliteTable("miku_command_aliases", {
+export const aiCommandAliases = sqliteTable("ai_command_aliases", {
     id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
     command: text("command", { length: 255 }).notNull(),
     alias: text("alias", { length: 255 }).notNull(),
 });
 
-export const mikuReactions = sqliteTable("miku_reactions", {
+export const aiReactions = sqliteTable("ai_reactions", {
     id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
     command: text("command", { length: 255 }).notNull(),
     reaction: text("reaction", { length: 255 }).notNull(),

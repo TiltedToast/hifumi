@@ -8,7 +8,7 @@ import { insertPrefix } from "../db/index.ts";
 
 import { DEFAULT_PREFIX, DEV_PREFIX, RELOAD_PREFIX } from "../config.ts";
 import type { MessageCommandData } from "../helpers/types.ts";
-import { clientHasPermissions, errorLog, isDev, isMikuTrigger } from "../helpers/utils.ts";
+import { clientHasPermissions, errorLog, isAiTrigger, isDev } from "../helpers/utils.ts";
 import { isLoading, prefixMap } from "./prefixes.ts";
 
 export default async function handleMessage(message: Message) {
@@ -22,7 +22,7 @@ export default async function handleMessage(message: Message) {
         const content = message.content.split(" ").filter(Boolean);
         const len = content.length;
 
-        // React-Command check for reacting to Miku's emote commands
+        // React-Command check for reacting to Ai's emote commands
         const reactCmd = len >= 1 ? content[0].slice(1) : "";
         const subCmd = len >= 2 ? content[1] : "";
 
@@ -53,10 +53,10 @@ export default async function handleMessage(message: Message) {
             await handleCommand({ command, subCmd, message, prefix });
         }
 
-        // Reacting to Miku's emote commands
+        // Reacting to Ai's emote commands
         // Grabs a random reply from the db and sends it as a message after a fixed delay
-        if (isMikuTrigger(message, reactCmd)) {
-            await misc.reactToMiku(message, reactCmd);
+        if (isAiTrigger(message, reactCmd)) {
+            await misc.reactToAi(message, reactCmd);
         }
         await misc.checkForImgAndCreateThread(message);
     } catch (err: unknown) {

@@ -135,7 +135,7 @@ export function isBotOwner(user: User): boolean {
     return BOT_OWNERS.includes(user.id);
 }
 
-export function isMikuTrigger(message: Message, reactCmd: string): boolean {
+export function isAiTrigger(message: Message, reactCmd: string): boolean {
     if (!message.client.user) return false;
     if (message.content.startsWith(`$${reactCmd}`) && message.type === MessageType.Reply) {
         const repliedMsg = message.channel.messages.resolve(message.reference?.messageId ?? "");
