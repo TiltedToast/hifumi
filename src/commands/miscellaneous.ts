@@ -282,15 +282,21 @@ export async function cmdConsole(message: Message, cmd?: string, python = false)
           : input;
     try {
         const { stdout, stderr } = await execPromise(command);
-        if (stderr) await message.channel.send(codeBlock(stderr));
 
-        const msg = stdout
-            ? stdout.includes("\u001b[")
-                ? codeBlock("ansi", stdout)
-                : codeBlock(stdout)
-            : "Command executed!";
+        if (stderr.length > 2000) {
+            await message.channel.send("Stderr too long!");
+        } else if (stderr.length > 0) {
+            await message.channel.send(codeBlock(stderr));
+        }
 
-        if (msg.length > 2000) return await message.channel.send("Command output too long!");
+        const msg =
+            stdout.length > 0
+                ? stdout.includes("\u001b[")
+                    ? codeBlock("ansi", stdout)
+                    : codeBlock(stdout)
+                : "Command executed!";
+
+        if (msg.length > 2000) return await message.channel.send("Stdout too long!");
         return await message.channel.send(msg);
     } catch (error) {
         return await message.channel.send(codeBlock(error as string));
