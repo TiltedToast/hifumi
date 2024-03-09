@@ -1,3 +1,4 @@
+import { $ } from "bun";
 import dedent from "dedent";
 import {
     ChatInputCommandInteraction,
@@ -20,7 +21,7 @@ import os from "os";
 import sharp from "sharp";
 import strftime from "strftime";
 import { table } from "table";
-import { BOT_OWNERS, DEV_CHANNELS, LOG_CHANNEL, OWNER_NAME } from "../config.ts";
+import { BOT_NAME, BOT_OWNERS, DEV_CHANNELS, LOG_CHANNEL, OWNER_NAME } from "../config.ts";
 import { db } from "../db/index.ts";
 import { errorLogs } from "../db/schema.ts";
 import type {
@@ -83,14 +84,11 @@ export async function sendOrReply(
 ) {
     if (input instanceof Message) {
         return await input.channel.send(message);
-    }
-    if (input.deferred) {
+    } else if (input.deferred) {
         return await input.editReply(message);
-    }
-    if (input.isRepliable() && typeof message === "string") {
+    } else if (input.isRepliable() && typeof message === "string") {
         return await input.reply({ content: message, ephemeral });
-    }
-    if (input.isRepliable()) {
+    } else if (input.isRepliable()) {
         return await input.reply({ ...(message as BaseMessageOptions), ephemeral });
     }
 }
@@ -227,14 +225,9 @@ export async function resize(options: ResizeOptions) {
     assert(existsSync(fileLocation), "File must exist");
 
     if (animated) {
-        return Bun.spawn([
-            gifsicle,
-            "--resize-width",
-            width.toString(),
-            fileLocation,
-            "-o",
-            saveLocation,
-        ]).exited;
+        return $`
+            ${gifsicle} --resize-width ${width} ${fileLocation} -o ${saveLocation}
+        `.catch(console.error);
     }
     return await sharp(fileLocation).resize(width).toFile(saveLocation).catch(console.error);
 }
@@ -452,7 +445,7 @@ export async function createTemp(input: Message | ChatInputCommandInteraction): 
 
     const tempPath = path.join(
         tempFolder,
-        `hifumi-${input.channel?.id ?? "NO_CHANNEL"}-${input.id}`
+        `${BOT_NAME}-${input.channel?.id ?? "NO_CHANNEL"}-${input.id}`
     );
 
     await mkdir(tempPath);

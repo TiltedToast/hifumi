@@ -22,6 +22,7 @@ import {
     resize,
     splitMessage,
 } from "../helpers/utils.ts";
+import { $ } from "bun";
 
 export const emojiRegex = new RegExp(/<a?:\w+:\d+>/gi);
 const msgLinkRegex = new RegExp(/https:\/\/discord\.com\/channels\/\d+\/(\d+)\/(\d+)/);
@@ -110,46 +111,37 @@ async function convertEmojis(emojis: RegExpMatchArray, message: Message) {
             continue;
         }
 
-        const magickPrefix = process.platform === "win32" ? ["magick", "convert"] : ["convert"];
+        const magickPrefix = process.platform === "win32" ? "magick convert" : "convert";
 
-        const compressCode = await Bun.spawn([
-            ...magickPrefix,
-            frameTwoPath,
-            "-quality",
-            "90",
-            frameTwoPath,
-        ]).exited;
+        const compressOutput = await $`
+                ${magickPrefix} ${frameTwoPath} -quality 90 ${frameTwoPath}
+            `.catch(console.error);
 
-        if (compressCode !== 0) {
+        if (!compressOutput) {
             await message.channel.send(`Could not compress \`${name}\`, skipping...`);
             continue;
         }
 
         const gifPath = path.join(temp, `${name}-${id}.gif`);
 
-        const convertCode = await Bun.spawn([
-            ...magickPrefix,
-            frameOnePath,
-            frameTwoPath,
-            "-delay",
-            "100",
-            gifPath,
-        ]).exited;
+        const convertOutput = await $`
+                ${magickPrefix} ${frameOnePath} ${frameTwoPath} -delay 100 ${gifPath}
+            `.catch(console.error);
 
-        if (convertCode !== 0) {
+        if (!convertOutput) {
             await message.channel.send(`Could not convert \`${name}\`, skipping...`);
             continue;
         }
 
         if (!isValidSize(gifPath, FileSizeLimit.DiscordEmoji)) {
-            const code = await resize({
+            const output = await resize({
                 fileLocation: gifPath,
                 width: 128,
                 saveLocation: gifPath,
                 animated: true,
             });
 
-            if (code === undefined || (typeof code === "number" && code !== 0)) {
+            if (!output) {
                 await message.channel.send(
                     `Something went wrong while resizing \`${name}\`, skipping...`
                 );
@@ -324,14 +316,14 @@ export async function addEmoji(message: Message, prefix: string) {
     // Resizes image, checks size again and creates emoji
     try {
         if (!isValidSize(fileLocation, FileSizeLimit.DiscordEmoji)) {
-            const code = await resize({
-                fileLocation: fileLocation,
+            const output = await resize({
+                fileLocation,
                 width: 128,
                 saveLocation: resizedLocation,
                 animated: imgType === "gif",
             });
 
-            if (code === undefined || (typeof code === "number" && code !== 0)) {
+            if (!output) {
                 return message.channel.send(
                     "Something went wrong while resizing the image, please try again!"
                 );

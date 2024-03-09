@@ -28,19 +28,19 @@ export async function beautiful(input: Message | ChatInputCommandInteraction) {
 
     const temp = await createTemp(input);
 
-    const avatarUrl = user.avatarURL({ size: 4096 }) ?? user.defaultAvatarURL;
+    const avatarUrl = user.avatarURL({ size: 4096, forceStatic: true }) ?? user.defaultAvatarURL;
 
     const errorMsg = await downloadURL(avatarUrl, `${temp}/avatar.png`);
     if (errorMsg) return await sendOrReply(input, errorMsg);
 
-    const outputInfo = await resize({
+    const output = await resize({
         fileLocation: `${temp}/avatar.png`,
         width: 180,
         saveLocation: `${temp}/avatar_resized.png`,
         animated: false,
     });
 
-    if (outputInfo === undefined) {
+    if (!output) {
         return await sendOrReply(
             input,
             "I'm sorry, failed to resize the pfp. Maybe try again later?"
@@ -68,8 +68,9 @@ export async function beautiful(input: Message | ChatInputCommandInteraction) {
         );
     }
 
+    // prettier-ignore
     canvas.composite([
-        { input: avatar, top: 35, left: 422 }, // Top pfp
+        { input: avatar, top: 35, left: 422 },  // Top pfp
         { input: avatar, top: 377, left: 430 }, // Bottom pfp
         { input: background, top: 0, left: 0 }, // Background
     ]);
@@ -145,7 +146,7 @@ export async function resizeImg(message: Message, prefix: string) {
         animated: imgType === "gif",
     });
 
-    if (output === undefined || (typeof output === "number" && output !== 0)) {
+    if (!output) {
         return await message.channel.send(
             "I'm sorry, failed to resize the image. Maybe try again later?"
         );
