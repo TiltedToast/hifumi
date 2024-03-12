@@ -21,18 +21,15 @@ export async function runSQL(message: Message) {
 
     if (query.length === 0) return await message.channel.send("You need to provide a query smh");
 
-    const result = await dbClient
-        .execute(query)
-        .then((res) => res)
-        .catch(async (e) => {
-            if (e instanceof LibsqlError) {
-                await message.channel.send(`Invalid Query\n${e.message}`);
-                return;
-            } else {
-                await message.channel.send("Unknown error, check the logs");
-            }
-            console.error(e);
-        });
+    const result = await dbClient.execute(query).catch(async (e) => {
+        if (e instanceof LibsqlError) {
+            await message.channel.send(`Invalid Query\n${e.message}`);
+            return;
+        } else {
+            await message.channel.send("Unknown error, check the logs");
+        }
+        console.error(e);
+    });
 
     if (!result) return;
 
@@ -128,7 +125,7 @@ export async function updatePrefix(input: Message | ChatInputCommandInteraction)
             !input.memberPermissions?.has(PermissionFlagsBits.ManageGuild) &&
             !isBotOwner(input.user)
         ) {
-            return await sendOrReply(input, "Insufficient permissions!", true);
+            return await sendOrReply(input, "Insufficient permissions!");
         }
     } else {
         if (
@@ -162,10 +159,8 @@ export async function updatePrefix(input: Message | ChatInputCommandInteraction)
     }
 
     const serverId = input.guild.id;
-    try {
-        await updatePrefixDB(serverId, newPrefix);
-    } catch (e) {
-        console.error(e);
+    const result = await updatePrefixDB(serverId, newPrefix);
+    if (!result) {
         return await sendOrReply(input, "Couldn't update prefix, maybe try again later");
     }
     prefixMap.set(serverId, newPrefix);

@@ -1,7 +1,6 @@
 import { createClient } from "@libsql/client";
 import { eq, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/libsql";
-import * as schema from "./schema.ts";
 import { prefixes, redditPosts } from "./schema.ts";
 import type { RedditPost } from "./types.ts";
 import { migrate } from "drizzle-orm/libsql/migrator";
@@ -9,7 +8,7 @@ import { migrate } from "drizzle-orm/libsql/migrator";
 const { TURSO_AUTH_TOKEN, TURSO_DATABASE_URL, DEV_MODE } = process.env;
 
 export const dbClient = createClient({ url: TURSO_DATABASE_URL, authToken: TURSO_AUTH_TOKEN });
-export const db = drizzle(dbClient, { logger: DEV_MODE === "true", schema });
+export const db = drizzle(dbClient, { logger: DEV_MODE === "true" });
 
 const randomPostQuery = db
     .select()
@@ -33,7 +32,11 @@ export async function getRandomRedditPosts(subreddit: string): Promise<RedditPos
  * @param prefix The new prefix
  */
 export async function updatePrefix(serverId: string, prefix: string) {
-    await db.update(prefixes).set({ prefix }).where(eq(prefixes.serverId, serverId));
+    return await db
+        .update(prefixes)
+        .set({ prefix })
+        .where(eq(prefixes.serverId, serverId))
+        .catch(console.error);
 }
 
 /**
@@ -42,7 +45,7 @@ export async function updatePrefix(serverId: string, prefix: string) {
  * @param prefix The new prefix
  */
 export async function insertPrefix(serverId: string, prefix: string) {
-    await db.insert(prefixes).values({ serverId, prefix });
+    return await db.insert(prefixes).values({ serverId, prefix }).catch(console.error);
 }
 
 /**

@@ -409,17 +409,19 @@ async function addStickers(message: Message) {
             );
             continue;
         }
-        try {
-            const newSticker = await message.guild.stickers.create({
+        const newSticker = await message.guild.stickers
+            .create({
                 name,
                 file,
                 tags: tags || name,
                 description,
-            });
-            addedStickers.push(newSticker);
-        } catch (_) {
-            await message.channel.send(`Could not add ${name}, something went wrong`);
+            })
+            .catch(console.error);
+
+        if (!newSticker) {
+            return await message.channel.send(`Could not add \`${name}\`, something went wrong`);
         }
+        addedStickers.push(newSticker);
     }
     if (!addedStickers.length) return;
 
@@ -451,7 +453,7 @@ async function bulkAddEmojis(message: Message, emojis: RegExpMatchArray) {
         const err = await downloadURL(url, filePath);
 
         if (err) {
-            await message.channel.send(`Could not download ${name}, skipping`);
+            await message.channel.send(`Could not download ${name}, skipping...`);
             continue;
         }
 
@@ -460,8 +462,14 @@ async function bulkAddEmojis(message: Message, emojis: RegExpMatchArray) {
             continue;
         }
 
+        const base64 = await readFile(filePath, { encoding: "base64" }).catch(() => null);
+
+        if (!base64) {
+            await message.channel.send(`Could not read ${name}, skipping...`);
+            continue;
+        }
+
         try {
-            const base64 = await readFile(filePath, { encoding: "base64" });
             emoji = await message.guild?.emojis.create({
                 attachment: `data:image/${imgType};base64,${base64}`,
                 name,

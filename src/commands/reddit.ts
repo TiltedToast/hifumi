@@ -195,7 +195,12 @@ async function fetchSubmissions(
 
     const postsArray = Array.from(posts.values());
 
-    await db.insert(redditPosts).values(postsArray);
+    const result = await db.insert(redditPosts).values(postsArray).catch(console.error);
+
+    if (!result) {
+        await input.channel?.send("Couldn't save images to the database");
+        return [];
+    }
     await input.channel?.send(`Fetched ${posts.size} new images for ${subreddit}`);
 
     return postsArray as RedditPost[];

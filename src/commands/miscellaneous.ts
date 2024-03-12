@@ -185,8 +185,16 @@ export async function pingRandomMembers(message: Message) {
 }
 
 export async function reactToAi(message: Message, reactCmd: string) {
-    const reactMsgs = await db.select().from(aiReactions);
-    const cmdAliases = await db.select().from(aiCommandAliases);
+    const reactMsgs = await db.select().from(aiReactions).catch(console.error);
+    const cmdAliases = await db.select().from(aiCommandAliases).catch(console.error);
+
+    if (!reactMsgs || !cmdAliases) {
+        return await message.channel.send("Something went wrong fetching the reactions");
+    }
+
+    if (!reactMsgs.length || !cmdAliases.length) {
+        return await message.channel.send("No reactions found in the database");
+    }
 
     for (const item of cmdAliases) {
         if (item.alias === reactCmd) {
@@ -212,7 +220,11 @@ export async function leet(input: Message | ChatInputCommandInteraction) {
         return await sendOrReply(input, "You have to provide a string!");
     }
 
-    const leetDoc = await db.select().from(leetTable).execute();
+    const leetDoc = await db.select().from(leetTable).catch(console.error);
+
+    if (!leetDoc) {
+        return await sendOrReply(input, "Something went wrong fetching the leet table");
+    }
 
     const document = {} as Record<string, string[]>;
 
