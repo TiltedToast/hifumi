@@ -123,7 +123,7 @@ export async function resizeImg(message: Message, prefix: string) {
 
     if (!source) return await message.channel.send("Invalid URL!");
 
-    const urlPattern = new RegExp(/https?:\/\/.*\.(?:jpg|jpeg|png|webp|avif|gif|svg|tiff)/i);
+    const urlPattern = new RegExp(/https?:\/\/.*\.(?:png|jpeg|gif|avif|tiff|webp|svg)/i);
     const isValidURL = urlPattern.test(source);
 
     // Matches URL against a regex pattern and invalidates gif files (they are not supported yet)

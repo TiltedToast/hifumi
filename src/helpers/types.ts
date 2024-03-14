@@ -141,3 +141,5 @@ export const StatusType = {
     COMPETING: ActivityType.Competing,
     CUSTOM: ActivityType.Custom,
 } as const;
+
+export type SupportedStaticImgExts = "png" | "jpeg" | "avif" | "tiff" | "webp" | "svg";

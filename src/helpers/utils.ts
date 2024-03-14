@@ -28,6 +28,7 @@ import type {
     EmbedData,
     ErrorLogOptions,
     ResizeOptions,
+    SupportedStaticImgExts,
     UpdateEmbedArrParams,
     UpdateEmbedOptions,
 } from "./types.ts";
@@ -212,6 +213,26 @@ export function hasPermission(
 ): boolean {
     if (!member) return false;
     return member.permissions.has(permission);
+}
+
+/**
+ * Convert a given file via string to a different file type using sharp
+ * @param file The file we want to convert
+ * @param type The target file extension
+ * @returns The new file path
+ */
+export async function convertStaticImg(file: string, type: SupportedStaticImgExts) {
+    assert(existsSync(file), "File must exist");
+
+    const ext = path.extname(file).toLowerCase();
+
+    if (ext === "") return undefined;
+    if (ext === `.${type}`) return file;
+
+    const newFile = path.join(path.dirname(file), `${path.basename(file, ext)}.${type}`);
+
+    await sharp(file).toFormat(type).toFile(newFile).catch(console.error);
+    return newFile;
 }
 
 /**
@@ -403,11 +424,14 @@ export async function downloadURL(url: string, saveLocation: string) {
  * @param url The URL to whatever image you want to get the extension of
  * @returns The file extension of the image
  */
-export function getImgType(url: string) {
+export function getImgType(url: string): SupportedStaticImgExts | "gif" | undefined {
     assert(url.length > 0, "URL must have at least one character");
-    if (url.includes(".png") || url.includes(".webp")) return "png";
+    if (url.includes(".png")) return "png";
     if (url.includes(".jpeg") || url.includes(".jpg")) return "jpeg";
     if (url.includes(".gif")) return "gif";
+    if (url.includes(".avif")) return "avif";
+    if (url.includes(".tiff")) return "tiff";
+    if (url.includes(".webp")) return "webp";
     if (url.includes(".svg")) return "svg";
     return undefined;
 }

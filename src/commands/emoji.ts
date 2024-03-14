@@ -13,6 +13,7 @@ import { readFile, copyFile } from "node:fs/promises";
 import path from "node:path";
 import { FileSizeLimit } from "../helpers/types.ts";
 import {
+    convertStaticImg,
     createTemp,
     downloadURL,
     extractEmoji,
@@ -287,7 +288,7 @@ export async function addEmoji(message: Message, prefix: string) {
     const source = content.length >= 4 ? content[3] : content[2];
     if (!source) return message.channel.send("You have to provide an image!");
 
-    const urlPattern = new RegExp(/https?:\/\/.*\.(?:png|jpg|jpeg|webp|gif)/i);
+    const urlPattern = new RegExp(/https?:\/\/.*\.(?:png|jpeg|gif|avif|tiff|webp|svg)/i);
     const isValidURL = urlPattern.test(source);
 
     // Matches the source string against a url regex and sets the url variable
@@ -307,11 +308,25 @@ export async function addEmoji(message: Message, prefix: string) {
     const imgType = getImgType(url);
     if (!imgType) return await message.channel.send("Invalid image type!");
 
-    const fileLocation = path.join(temp, `unknown.${imgType}`);
-    const resizedLocation = path.join(temp, `unknown_resized.${imgType}`);
+    let ext = imgType;
+
+    let fileLocation = path.join(temp, `unknown.${imgType}`);
 
     const errorMsg = await downloadURL(url, fileLocation);
     if (errorMsg) return await message.channel.send(errorMsg);
+
+    if (!["png", "jpeg", "gif"].includes(imgType)) {
+        const convertedFile = await convertStaticImg(fileLocation, "png");
+
+        if (!convertedFile) {
+            return message.channel.send("Failed to convert image to PNG!");
+        }
+
+        fileLocation = convertedFile;
+        ext = "png";
+    }
+
+    const resizedLocation = path.join(temp, `unknown_resized.${ext}`);
 
     // Resizes image, checks size again and creates emoji
     try {
@@ -445,7 +460,7 @@ async function bulkAddEmojis(message: Message, emojis: RegExpMatchArray) {
     for (const emojiStr of new Set(emojis)) {
         const url = extractEmoji(emojiStr);
         const imgType = getImgType(url);
-        if (!imgType) continue;
+        if (!imgType || !["png", "gif", "jpeg"].includes(imgType)) continue;
 
         const name = emojiStr.split(":")[1];
         const filePath = path.join(temp, `${name}.${imgType}`);
