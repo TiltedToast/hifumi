@@ -14,7 +14,7 @@ import {
 } from "discord.js";
 import gifsicle from "gifsicle";
 import assert from "node:assert/strict";
-import { existsSync, rmSync, statSync } from "node:fs";
+import { rmSync, statSync } from "node:fs";
 import { mkdir, readdir } from "node:fs/promises";
 import path from "node:path";
 import os from "os";
@@ -222,8 +222,6 @@ export function hasPermission(
  * @returns The new file path
  */
 export async function convertStaticImg(file: string, type: SupportedStaticImgExts) {
-    assert(existsSync(file), "File must exist");
-
     const ext = path.extname(file).toLowerCase();
 
     if (ext === "") return undefined;
@@ -243,7 +241,6 @@ export async function resize(options: ResizeOptions) {
     const { fileLocation, width, saveLocation, animated } = options;
 
     assert(width > 0, "Width must be greater than 0");
-    assert(existsSync(fileLocation), "File must exist");
 
     if (animated) {
         return $`
@@ -452,7 +449,6 @@ export function extractEmoji(emojiString: string, IdOnly = false): string {
 }
 
 function deleteTemp(folder: string) {
-    assert(existsSync(folder), "Folder must exist");
     rmSync(folder, { recursive: true, force: true });
 }
 
@@ -500,6 +496,5 @@ export async function wipeTempFolders() {
  * @param size The max size allowed in bytes or one of the presets from {@link FileSizeLimit}
  */
 export function isValidSize(fileLocation: string, size: number) {
-    assert(existsSync(fileLocation), "File must exist");
     return statSync(fileLocation).size <= size;
 }
