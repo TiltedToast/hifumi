@@ -188,13 +188,14 @@ export async function updateEmbed(options: UpdateEmbedOptions) {
 
     const step = { [prevButtonId]: -1, [nextButtonId]: 1 }[interaction.customId];
     if (!step) {
+        console.error(
+            `Prev: ${prevButtonId} | Next: ${nextButtonId} | CustomID: ${interaction.customId}`
+        );
         return await interaction.reply({
             content: `Invalid button for some reason. Something must've gone VERY wrong, please let my owner \`${OWNER_NAME}\` know about this if you can`,
             ephemeral: true,
         });
     }
-
-    assert(step !== undefined, "Step must be defined");
 
     const newEmbed = embedArray[(activeIndex + step + embedArray.length) % embedArray.length];
 
