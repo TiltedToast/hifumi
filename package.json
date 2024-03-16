@@ -22,13 +22,13 @@
         "zod-validation-error": "^3.0.3"
     },
     "devDependencies": {
-        "@types/bun": "latest",
         "@types/dedent": "^0.7.2",
         "@types/gifsicle": "^5.2.2",
         "@types/qrcode": "^1.5.5",
         "@types/strftime": "^0.9.8",
         "@typescript-eslint/eslint-plugin": "^7.0.2",
         "@typescript-eslint/parser": "^7.0.2",
+        "bun-types": "^1.0.31",
         "concurrently": "^8.2.2",
         "drizzle-kit": "^0.20.13",
         "eslint": "^8.56.0",
