@@ -1,3 +1,4 @@
+import "@total-typescript/ts-reset";
 import dedent from "dedent";
 import { Client, GatewayIntentBits, Partials, TextChannel } from "discord.js";
 import { existsSync, rmSync } from "node:fs";

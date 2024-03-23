@@ -1,15 +1,21 @@
 import { z } from "zod";
 import { fromZodError } from "zod-validation-error";
 
-// First one is the one that gets pinged in the event of an error
-export const BOT_OWNERS = ["258993932262834188", "207505077013839883"];
+export const BOT_OWNERS = {
+    primary: "258993932262834188",
+    secondary: ["207505077013839883"],
+} as const;
 export const OWNER_NAME = "@toast.dll";
 export const BOT_NAME = "Hifumi";
 export const DEFAULT_PREFIX = "h!";
 export const DEV_PREFIX = "h?";
 export const RELOAD_PREFIX = "hr"; // this should always be lowercase
 export const EMBED_COLOUR = "#CE3A9B";
-export const DEV_CHANNELS = ["655484859405303809", "551588329003548683", "922679249058553857"];
+export const DEV_CHANNELS = [
+    "655484859405303809",
+    "551588329003548683",
+    "922679249058553857",
+] as const;
 export const LOG_CHANNEL = "655484804405657642";
 export const CAT_FACT_CHANNEL = "655484859405303809";
 export const DEV_COMMAND_POSTFIX = "-dev";
@@ -19,7 +25,7 @@ export const IMAGE_THREAD_CHANNELS = [
     "1059120608593584258",
     "1164282153396351097",
     "1164282173403185262",
-];
+] as const;
 
 // prettier-ignore
 const envVariables = z.object({

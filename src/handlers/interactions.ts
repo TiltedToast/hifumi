@@ -5,6 +5,8 @@ import {
     userMention,
     type Interaction,
 } from "discord.js";
+import { updatePrefix } from "../commands/database.ts";
+import { beautiful, qrCode } from "../commands/imgProcess.ts";
 import {
     avatar,
     convert,
@@ -15,7 +17,6 @@ import {
     urbanEmbeds,
 } from "../commands/miscellaneous.ts";
 import { sub } from "../commands/reddit.ts";
-import { beautiful, qrCode } from "../commands/imgProcess.ts";
 import {
     BOT_OWNERS,
     DEV_CHANNELS,
@@ -24,7 +25,6 @@ import {
     OWNER_NAME,
 } from "../config.ts";
 import { isDev, updateEmbed } from "../helpers/utils.ts";
-import { updatePrefix } from "../commands/database.ts";
 
 export default async function handleInteraction(interaction: Interaction) {
     try {
@@ -53,7 +53,7 @@ export default async function handleInteraction(interaction: Interaction) {
 
         if (!interaction.isChatInputCommand()) return;
         await channel.send(
-            codeBlock("js", `${error as string}`) + `\n${userMention(BOT_OWNERS[0])}`
+            codeBlock("js", `${error as string}`) + `\n${userMention(BOT_OWNERS.primary)}`
         );
     }
 }

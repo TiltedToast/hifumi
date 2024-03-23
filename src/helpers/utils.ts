@@ -8,6 +8,7 @@ import {
     PermissionsBitField,
     TextChannel,
     User,
+    userMention,
     type BaseMessageOptions,
     type Channel,
     type PermissionResolvable,
@@ -131,7 +132,7 @@ export function insideDocker(): boolean {
 }
 
 export function isBotOwner(user: User): boolean {
-    return BOT_OWNERS.includes(user.id);
+    return user.id === BOT_OWNERS.primary || BOT_OWNERS.secondary.includes(user.id);
 }
 
 export function isAiTrigger(message: Message, reactCmd: string): boolean {
@@ -326,14 +327,14 @@ export function errorLog({ message, errorObject }: ErrorLogOptions) {
 
     **${errorObject.stack ?? "Stack missing"}**
 
-    <@${BOT_OWNERS[0]}>`;
+    ${userMention(BOT_OWNERS.primary)}`;
 
     const preCutErrorMessage = fullErrorMsg.substring(0, 1900 - errorMessageWithoutStack.length);
 
     const postCutErrorMessage = dedent`
     ${preCutErrorMessage.split("\n").slice(0, -2).join("\n")}**
 
-    <@${BOT_OWNERS[0]}>`;
+    ${userMention(BOT_OWNERS.primary)}`;
 
     db.insert(errorLogs)
         .values({
@@ -355,7 +356,7 @@ export function errorLog({ message, errorObject }: ErrorLogOptions) {
         errorMessage = dedent`
             An Error occurred on ${currentTime}
             Check console for full error (2000 character limit)
-            <@${BOT_OWNERS[0]}>`;
+            ${userMention(BOT_OWNERS.primary)}`;
     } else {
         errorMessage = postCutErrorMessage;
     }
