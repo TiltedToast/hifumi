@@ -109,10 +109,17 @@ export async function sendOrReply(
     }
 }
 
-export function splitMessage(content: string, maxLength = 2000, delim = " "): string[] {
+/**
+ * Splits a message into an array of messages
+ * @param message The message to split
+ * @param maxLength The maximum length of each message (default is 2000)
+ * @param delim The delimiter to split the message by (default is a space)
+ * @returns An array of messages
+ */
+export function splitMessage(message: string, maxLength = 2000, delim = " "): string[] {
     const chunks: string[] = [];
     let currentChunk = "";
-    for (const word of content.split(delim)) {
+    for (const word of message.split(delim)) {
         if (currentChunk.length + word.length + delim.length > maxLength) {
             chunks.push(currentChunk);
             currentChunk = "";
@@ -252,6 +259,7 @@ export async function convertStaticImg(file: string, type: SupportedStaticImgExt
 /**
  * Takes the file path of an image/gif and resizes it
  * @param options An object containing the file location, width, and save location
+ * @throws {Error} Width must be greater than 0
  */
 export async function resize(options: ResizeOptions) {
     const { fileLocation, width, saveLocation, animated } = options;
