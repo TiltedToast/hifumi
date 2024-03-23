@@ -54,7 +54,7 @@ export async function sub(input: ChatInputCommandInteraction | Message) {
     }
 
     const json = (await response.json().catch(console.error)) as {
-        data: Snoowrap.Subreddit;
+        data: { over18: boolean; permalink: string };
         reason?: string;
         kind: string;
     };

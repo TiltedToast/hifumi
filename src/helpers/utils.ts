@@ -57,7 +57,7 @@ export function formatTable<K extends string | number | symbol, V>(rows: Record<
     const keys = Object.keys(rows[0]);
     const values = rows.map((obj) => Object.values(obj));
 
-    const columns = {} as { [key: number]: { width: number } };
+    const columns = {} as Record<number, { width: number }>;
 
     for (let i = 0; i < values[0].length; i++) {
         const minVal = Math.min(
