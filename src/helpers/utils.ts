@@ -34,6 +34,20 @@ import type {
     UpdateEmbedOptions,
 } from "./types.ts";
 
+/**
+ * Formats a table from an array of objects
+ * @param rows An array of objects to format into a table
+ * @returns A string containing the formatted table
+ * @throws {Error} Must have at least one row and one column
+ * @example
+ * ```ts
+ * const rows = [
+ *   { name: "John", age: 25 },
+ *   { name: "Jane", age: 30 },
+ * ];
+ * console.log(formatTable(rows));
+ * ```
+ */
 export function formatTable<K extends string | number | symbol, V>(rows: Record<K, V>[]): string {
     const MIN_WRAP_LENGTH = 30;
 
@@ -283,6 +297,7 @@ export async function getUserObjectPingId(message: Message): Promise<User | unde
  * Takes an array and returns a random element from it.
  * @param array The input array
  * @returns a random element from the array
+ * @throws {Error} Array must have at least one element
  */
 export function randomElementFromArray<T>(array: T[]): T {
     assert(array.length > 0, "Array must have at least one element");
@@ -422,6 +437,12 @@ export async function downloadURL(url: string, saveLocation: string) {
  * Takes an image URL and returns the file extension
  * @param url The URL to whatever image you want to get the extension of
  * @returns The file extension of the image
+ * @throws {Error} URL must not be empty
+ * @example
+ * ```ts
+ * const url = "https://example.com/image.png";
+ * console.log(getImgType(url)); // "png"
+ * ```
  */
 export function getImgType(url: string): SupportedStaticImgExts | "gif" | undefined {
     assert(url.length > 0, "URL must have at least one character");
