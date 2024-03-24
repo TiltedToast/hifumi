@@ -15,14 +15,20 @@ import {
 } from "discord.js";
 import gifsicle from "gifsicle";
 import assert from "node:assert/strict";
-import { rmSync, statSync } from "node:fs";
-import { mkdir, readdir } from "node:fs/promises";
+import { mkdirSync, readdirSync, rmSync, statSync } from "node:fs";
 import path from "node:path";
 import os from "os";
 import sharp from "sharp";
 import strftime from "strftime";
 import { table } from "table";
-import { BOT_NAME, BOT_OWNERS, DEV_CHANNELS, LOG_CHANNEL, OWNER_NAME } from "../config.ts";
+import {
+    BOT_NAME,
+    BOT_OWNERS,
+    DEV_CHANNELS,
+    LOG_CHANNEL,
+    OWNER_NAME,
+    USER_AGENT,
+} from "../config.ts";
 import { db } from "../db/index.ts";
 import { errorLogs } from "../db/schema.ts";
 import type {
@@ -200,7 +206,7 @@ export async function updateEmbed(options: UpdateEmbedOptions) {
         });
     }
 
-    assert(embedArray.length > 1, "Embed array must have at least two elements");
+    assert(embedArray.length >= 1, "Embed array must have at least one element");
 
     if (interaction.user.id !== embedArray[activeIndex].user.id) {
         return interaction.reply({
@@ -404,7 +410,7 @@ export async function downloadURL(url: string, saveLocation: string) {
     const absSaveLocation = path.resolve(saveLocation);
 
     const myHeaders = new Headers({
-        "User-Agent": "hifumi-js:v1.0.0:tiltedtoast27@gmail.com",
+        "User-Agent": USER_AGENT,
     });
 
     // Pixiv will only allow you to download images if you have a referer header
@@ -493,10 +499,7 @@ function deleteTemp(folder: string) {
  * @param timeoutSecs The time in seconds after which the folder will be deleted
  * @returns The path to the temporary folder
  */
-export async function createTemp(
-    input: Message | ChatInputCommandInteraction,
-    timeoutSecs = 60
-): Promise<string> {
+export function createTemp(input: Message | ChatInputCommandInteraction, timeoutSecs = 60): string {
     const tempFolder = os.tmpdir();
 
     const tempPath = path.join(
@@ -504,7 +507,7 @@ export async function createTemp(
         `${BOT_NAME}-${input.channel?.id ?? "NO_CHANNEL"}-${input.id}`
     );
 
-    await mkdir(tempPath);
+    mkdirSync(tempPath);
 
     setTimeout(() => deleteTemp(tempPath), timeoutSecs * 1000);
 
@@ -516,9 +519,9 @@ export async function createTemp(
  *
  * We don't want to leave any trash behind do we? (If only others did the same...)
  */
-export async function wipeTempFolders() {
+export function wipeTempFolders() {
     const tempFolder = os.tmpdir();
-    const items = await readdir(tempFolder);
+    const items = readdirSync(tempFolder);
     for (const item of items) {
         if (item.startsWith(`${BOT_NAME}-`)) {
             deleteTemp(path.join(tempFolder, item));

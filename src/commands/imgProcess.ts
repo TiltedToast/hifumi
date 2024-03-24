@@ -26,7 +26,7 @@ export async function beautiful(input: Message | ChatInputCommandInteraction) {
         user = tmp;
     }
 
-    const temp = await createTemp(input);
+    const temp = createTemp(input);
 
     const avatarUrl = user.avatarURL({ size: 4096, forceStatic: true }) ?? user.defaultAvatarURL;
 
@@ -134,7 +134,7 @@ export async function resizeImg(message: Message, prefix: string) {
     const imgType = getImgType(source);
     if (!imgType) return await message.channel.send("Invalid image type!");
 
-    const temp = await createTemp(message);
+    const temp = createTemp(message);
 
     const errorMsg = await downloadURL(source, `${temp}/unknown.${imgType}`);
     if (errorMsg) return await message.channel.send(errorMsg);
@@ -207,7 +207,7 @@ export async function imgur(message: Message, prefix: string) {
     const contentLength = response.headers.get("Content-Length");
 
     if (!response.headers.has("Content-Length")) {
-        const temp = await createTemp(message);
+        const temp = createTemp(message);
 
         const errorMsg = await downloadURL(source, `${temp}/unknown.${imgType}`);
         if (errorMsg) return await message.channel.send(errorMsg);

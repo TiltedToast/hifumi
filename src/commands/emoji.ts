@@ -1,3 +1,4 @@
+import { $ } from "bun";
 import {
     DiscordAPIError,
     GuildEmoji,
@@ -9,7 +10,7 @@ import {
     StickerFormatType,
 } from "discord.js";
 import Fuse from "fuse.js";
-import { readFile, copyFile } from "node:fs/promises";
+import { copyFile, readFile } from "node:fs/promises";
 import path from "node:path";
 import { FileSizeLimit } from "../helpers/types.ts";
 import {
@@ -23,7 +24,6 @@ import {
     resize,
     splitMessage,
 } from "../helpers/utils.ts";
-import { $ } from "bun";
 
 export const emojiRegex = new RegExp(/<a?:\w+:\d+>/gi);
 const msgLinkRegex = new RegExp(/https:\/\/discord\.com\/channels\/\d+\/(\d+)\/(\d+)/);
@@ -69,7 +69,7 @@ export async function pngToGifEmoji(message: Message) {
 }
 
 async function convertEmojis(emojis: RegExpMatchArray, message: Message) {
-    const temp = await createTemp(message);
+    const temp = createTemp(message);
 
     let output = "";
 
@@ -163,8 +163,8 @@ async function convertEmojis(emojis: RegExpMatchArray, message: Message) {
             name: name,
         });
 
-        output +=
-            newEmoji.toString().replace(":_:", newEmoji.name ? `:${newEmoji.name}:` : ":_:") + " ";
+        // prettier-ignore
+        output += newEmoji.toString().replace(":_:", newEmoji.name ? `:${newEmoji.name}:` : ":_:") + " ";
 
         if (guildEmoji.deletable) await guildEmoji.delete("Replaced with GIF version");
     }
@@ -179,8 +179,9 @@ export async function linkEmoji(message: Message) {
 
     if (message.type === MessageType.Reply) {
         const repliedMsg = message.channel.messages.resolve(message.reference?.messageId ?? "");
-        if (!repliedMsg)
+        if (!repliedMsg) {
             return await message.channel.send("Could not find message to grab emojis from!");
+        }
         msgContent = repliedMsg.content;
     }
 
@@ -220,11 +221,12 @@ export async function addEmoji(message: Message, prefix: string) {
         if (emojis?.length) {
             const emojiStringOutput = await bulkAddEmojis(message, emojis);
             if (!emojiStringOutput) return;
-            return await message.channel.send(emojiStringOutput);
+            await message.channel.send(emojiStringOutput);
         }
         if (repliedMsg.stickers.size > 0) {
-            return await addStickers(repliedMsg);
+            await addStickers(repliedMsg);
         }
+        return;
     }
 
     const matchedArr = msgLinkRegex.exec(message.content);
@@ -303,7 +305,7 @@ export async function addEmoji(message: Message, prefix: string) {
         url = message.attachments.first()!.url;
     }
 
-    const temp = await createTemp(message);
+    const temp = createTemp(message);
 
     const imgType = getImgType(url);
     if (!imgType) return await message.channel.send("Invalid image type!");
@@ -455,7 +457,7 @@ async function bulkAddEmojis(message: Message, emojis: RegExpMatchArray) {
     let msg: string;
     let emoji: GuildEmoji | undefined;
 
-    const temp = await createTemp(message);
+    const temp = createTemp(message);
 
     for (const emojiStr of new Set(emojis)) {
         const url = extractEmoji(emojiStr);
