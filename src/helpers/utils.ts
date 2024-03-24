@@ -485,14 +485,17 @@ function deleteTemp(folder: string) {
 }
 
 /**
- * Takes a Message or Interaction and creates a temporary folder for the message.
+ * Takes a Message or Interaction and creates a temporary folder for it.
  *
- * ## **After 1 minute, the folder will be automatically wiped.**
+ * ## **After the given timeout, the folder will be automatically wiped. Defaults to 1 minute.**
  *
  * @param input The Message or Interaction
  * @returns The path to the temporary folder
  */
-export async function createTemp(input: Message | ChatInputCommandInteraction): Promise<string> {
+export async function createTemp(
+    input: Message | ChatInputCommandInteraction,
+    timeoutMs = 60000
+): Promise<string> {
     const tempFolder = os.tmpdir();
 
     const tempPath = path.join(
@@ -502,7 +505,7 @@ export async function createTemp(input: Message | ChatInputCommandInteraction): 
 
     await mkdir(tempPath);
 
-    setTimeout(() => deleteTemp(tempPath), 60 * 1000); // Clean up after 1 minute
+    setTimeout(() => deleteTemp(tempPath), timeoutMs);
 
     return tempPath;
 }
