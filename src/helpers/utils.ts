@@ -490,11 +490,12 @@ function deleteTemp(folder: string) {
  * ## **After the given timeout, the folder will be automatically wiped. Defaults to 1 minute.**
  *
  * @param input The Message or Interaction
+ * @param timeoutSecs The time in seconds after which the folder will be deleted
  * @returns The path to the temporary folder
  */
 export async function createTemp(
     input: Message | ChatInputCommandInteraction,
-    timeoutMs = 60000
+    timeoutSecs = 60
 ): Promise<string> {
     const tempFolder = os.tmpdir();
 
@@ -505,7 +506,7 @@ export async function createTemp(
 
     await mkdir(tempPath);
 
-    setTimeout(() => deleteTemp(tempPath), timeoutMs);
+    setTimeout(() => deleteTemp(tempPath), timeoutSecs * 1000);
 
     return tempPath;
 }
@@ -519,7 +520,7 @@ export async function wipeTempFolders() {
     const tempFolder = os.tmpdir();
     const items = await readdir(tempFolder);
     for (const item of items) {
-        if (item.startsWith("hifumi-")) {
+        if (item.startsWith(`${BOT_NAME}-`)) {
             deleteTemp(path.join(tempFolder, item));
         }
     }
