@@ -11,7 +11,7 @@ import { EMBED_COLOUR, REDDIT_USER_AGENT } from "../config.ts";
 import { db, existsPost, getRandomRedditPost } from "../db/index.ts";
 import { redditPosts } from "../db/schema.ts";
 import { InsertRedditPostSchema, type NewRedditPost, type RedditPost } from "../db/types.ts";
-import { SubredditInfoSchema } from "../helpers/types.ts";
+import { SubredditInfoSchema, type SubredditInfo } from "../helpers/types.ts";
 import {
     isChatInputCommandInteraction,
     randomElementFromArray,
@@ -67,11 +67,7 @@ export async function sub(input: ChatInputCommandInteraction | Message) {
         );
     }
 
-    const json = (await response.json().catch(console.error)) as {
-        data: { over18: boolean };
-        reason?: string;
-        kind: string;
-    };
+    const json = (await response.json().catch(console.error)) as SubredditInfo;
 
     if (!SubredditInfoSchema.safeParse(json).success || !json) {
         return await sendOrReply(
@@ -129,12 +125,10 @@ export async function sub(input: ChatInputCommandInteraction | Message) {
 
     if (isChatInputCommandInteraction(input)) {
         await input.editReply({ embeds: [imgEmbed] });
+    } else if (msg && msg.editable) {
+        await msg.edit({ embeds: [imgEmbed] });
     } else {
-        if (msg && msg.editable) {
-            await msg.edit({ embeds: [imgEmbed] });
-        } else {
-            await input.channel?.send({ embeds: [imgEmbed] });
-        }
+        await input.channel?.send({ embeds: [imgEmbed] });
     }
 }
 
@@ -174,7 +168,8 @@ function parseSubFlags(input: ChatInputCommandInteraction | Message): {
     // prettier-ignore
     if (
         (input.channel as TextChannel).nsfw ||
-        input.channel?.type === ChannelType.DM) {
+        input.channel?.type === ChannelType.DM
+    ) {
         isNSFW = true;
     }
 
@@ -245,12 +240,10 @@ async function notifyUser(
 ): Promise<Message> {
     if (isChatInputCommandInteraction(input)) {
         return await input.editReply(payload);
+    } else if (message && message.editable) {
+        return await message.edit(payload);
     } else {
-        if (message && message.editable) {
-            return await message.edit(payload);
-        } else {
-            return await input.channel?.send(payload);
-        }
+        return await input.channel?.send(payload);
     }
 }
 
