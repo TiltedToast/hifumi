@@ -1,6 +1,16 @@
 import { ActivityType, ButtonInteraction, Embed, EmbedBuilder, Message, User } from "discord.js";
 import { z } from "zod";
 
+export const SubredditInfoSchema = z.object({
+    data: z.object({
+        over18: z.boolean(),
+    }),
+    reason: z.string().optional(),
+    kind: z.string(),
+});
+
+export type SubredditInfo = z.infer<typeof SubredditInfoSchema>;
+
 export type UpdateEmbedArrParams<T> = {
     result: T[];
     user: User;

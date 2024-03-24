@@ -1,0 +1,1 @@
+CREATE INDEX IF NOT EXISTS `url_idx` ON `reddit_posts` (`url`);

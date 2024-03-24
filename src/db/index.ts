@@ -1,9 +1,9 @@
 import { createClient } from "@libsql/client";
 import { eq, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/libsql";
-import { prefixes, redditPosts } from "./schema.ts";
-import type { RedditPost } from "./types.ts";
 import { migrate } from "drizzle-orm/libsql/migrator";
+import { prefixes, redditPosts } from "./schema.ts";
+import type { NewRedditPost, RedditPost } from "./types.ts";
 
 const { TURSO_AUTH_TOKEN, TURSO_DATABASE_URL, DEV_MODE } = process.env;
 
@@ -18,11 +18,22 @@ const randomPostQuery = db
     .limit(1)
     .prepare();
 
+export async function existsPost(post: NewRedditPost): Promise<boolean> {
+    return (
+        (
+            await db
+                .select({ url: redditPosts.url })
+                .from(redditPosts)
+                .where(eq(redditPosts.url, post.url))
+        ).length > 0
+    );
+}
+
 /**
  * Queries the database for random posts from a subreddit. Defaults to 1 post.
  * @returns Random post from the specified subreddit or an empty array if no posts were found
  */
-export async function getRandomRedditPosts(subreddit: string): Promise<RedditPost[]> {
+export async function getRandomRedditPost(subreddit: string): Promise<RedditPost[]> {
     return await randomPostQuery.execute({ subreddit });
 }
 

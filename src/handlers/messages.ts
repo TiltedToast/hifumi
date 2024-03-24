@@ -12,10 +12,9 @@ import { clientHasPermissions, errorLog, isAiTrigger, isDev } from "../helpers/u
 import { isLoading, prefixMap } from "./prefixes.ts";
 
 export default async function handleMessage(message: Message) {
-    const guildClient = await message.guild?.members.fetchMe();
     try {
         // Permission check for the channel which the message was sent in to avoid breaking the bot
-        if (message.author.bot || !clientHasPermissions(message, guildClient) || isLoading()) {
+        if (message.author.bot || !(await clientHasPermissions(message)) || isLoading()) {
             return;
         }
 

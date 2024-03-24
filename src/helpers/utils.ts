@@ -140,8 +140,9 @@ function getEmbedIndex(arr: EmbedData[], target: EmbedData): number {
     );
 }
 
-export function clientHasPermissions(message: Message, guildClient?: GuildMember): boolean {
-    if (!guildClient) return false;
+export async function clientHasPermissions(message: Message): Promise<boolean> {
+    const guildClient = await message.guild?.members.fetchMe();
+    if (!guildClient) return true;
     return (
         guildClient.permissionsIn(message.channel.id).has(PermissionsBitField.Flags.SendMessages) &&
         guildClient.permissionsIn(message.channel.id).has(PermissionsBitField.Flags.ViewChannel)

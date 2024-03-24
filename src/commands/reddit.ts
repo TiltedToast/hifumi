@@ -1,10 +1,17 @@
-import { ChatInputCommandInteraction, EmbedBuilder, Message, TextChannel } from "discord.js";
+import {
+    ChannelType,
+    ChatInputCommandInteraction,
+    EmbedBuilder,
+    Message,
+    TextChannel,
+} from "discord.js";
 import Snoowrap from "snoowrap";
 import type { Timespan } from "snoowrap/dist/objects/Subreddit.js";
 import { EMBED_COLOUR, REDDIT_USER_AGENT } from "../config.ts";
-import { db, getRandomRedditPosts } from "../db/index.ts";
+import { db, existsPost, getRandomRedditPost } from "../db/index.ts";
 import { redditPosts } from "../db/schema.ts";
 import { InsertRedditPostSchema, type NewRedditPost, type RedditPost } from "../db/types.ts";
+import { SubredditInfoSchema } from "../helpers/types.ts";
 import {
     isChatInputCommandInteraction,
     randomElementFromArray,
@@ -21,10 +28,17 @@ const RedditClient = new Snoowrap({
 });
 
 export async function sub(input: ChatInputCommandInteraction | Message) {
+    if (isChatInputCommandInteraction(input)) await input.deferReply({ ephemeral: true });
+
     const { isSFW, isNSFW, force } = parseSubFlags(input);
 
-    // Check if command has been run in a channel marked as NSFW to avoid potential NSFW posts in non-NSFW channels
-    if (isNSFW && !(input.channel as TextChannel).nsfw) {
+    let msg: Message | null = null;
+
+    if (
+        isNSFW &&
+        (input.channel as TextChannel).type !== ChannelType.GuildText &&
+        input.channel?.type !== ChannelType.DM
+    ) {
         return await sendOrReply(input, "You have to be in a NSFW channel for this");
     }
 
@@ -54,12 +68,12 @@ export async function sub(input: ChatInputCommandInteraction | Message) {
     }
 
     const json = (await response.json().catch(console.error)) as {
-        data: { over18: boolean; permalink: string };
+        data: { over18: boolean };
         reason?: string;
         kind: string;
     };
 
-    if (!json) {
+    if (!SubredditInfoSchema.safeParse(json).success || !json) {
         return await sendOrReply(
             input,
             `Reddit returned an invalid response, probably something broke with their API.\nHTTP ${response.status}: ${response.statusText}`
@@ -82,26 +96,26 @@ export async function sub(input: ChatInputCommandInteraction | Message) {
         return await sendOrReply(input, `Reddit's API might be having issues, try again later`);
     }
 
-    if (isChatInputCommandInteraction(input)) await input.deferReply();
-
-    const posts = await getRandomRedditPosts(subreddit);
+    const posts = await getRandomRedditPost(subreddit);
 
     try {
         if (force) {
-            await input.channel?.send("Force fetching images, this might take a while...");
-            posts.push(...(await fetchSubmissions(subreddit, input)));
+            msg = await notifyUser(input, msg, "Force fetching images, this might take a while...");
+            posts.push(...(await fetchSubmissions(subreddit, input, msg)));
         } else if (!posts.length) {
-            await input.channel?.send(
+            msg = await notifyUser(
+                input,
+                msg,
                 "Fetching images for the first time, this might take a while..."
             );
-            posts.push(...(await fetchSubmissions(subreddit, input)));
+            posts.push(...(await fetchSubmissions(subreddit, input, msg)));
         }
     } catch (error) {
         console.error(error);
         return await sendOrReply(input, `Reddit's API might be having issues, try again later`);
     }
 
-    const filtered_posts = isNSFW && !isSFW ? posts.filter((x) => !!x.over_18) : posts;
+    const filtered_posts = isNSFW && !isSFW ? posts.filter((x) => x.over_18) : posts;
 
     if (filtered_posts.length === 0) return await sendOrReply(input, "No images found!");
 
@@ -113,7 +127,15 @@ export async function sub(input: ChatInputCommandInteraction | Message) {
         .setURL(`https://reddit.com${permalink}`)
         .setImage(url);
 
-    return await sendOrReply(input, { embeds: [imgEmbed] });
+    if (isChatInputCommandInteraction(input)) {
+        await input.editReply({ embeds: [imgEmbed] });
+    } else {
+        if (msg && msg.editable) {
+            await msg.edit({ embeds: [imgEmbed] });
+        } else {
+            await input.channel?.send({ embeds: [imgEmbed] });
+        }
+    }
 }
 
 /**
@@ -135,7 +157,8 @@ function parseSubFlags(input: ChatInputCommandInteraction | Message): {
         if (input.options.getBoolean("nsfw")) {
             isNSFW = true;
             isSFW = false;
-        } else if (input.options.getBoolean("force")) {
+        }
+        if (input.options.getBoolean("force")) {
             force = true;
         }
     } else {
@@ -143,11 +166,17 @@ function parseSubFlags(input: ChatInputCommandInteraction | Message): {
         if (content.includes("nsfw")) {
             isNSFW = true;
             isSFW = false;
-        } else if (content.includes("force")) {
+        }
+        if (content.includes("force")) {
             force = true;
         }
     }
-    if ((input.channel as TextChannel).nsfw) isNSFW = true;
+    // prettier-ignore
+    if (
+        (input.channel as TextChannel).nsfw ||
+        input.channel?.type === ChannelType.DM) {
+        isNSFW = true;
+    }
 
     return { isSFW, isNSFW, force };
 }
@@ -161,6 +190,7 @@ function parseSubFlags(input: ChatInputCommandInteraction | Message): {
 async function fetchSubmissions(
     subreddit: string,
     input: ChatInputCommandInteraction | Message,
+    msg: Message | null = null,
     limit = 100
 ): Promise<RedditPost[]> {
     const posts = new Map<string, NewRedditPost>();
@@ -180,7 +210,8 @@ async function fetchSubmissions(
                 // prettier-ignore
                 if (
                     !posts.has(post.url) &&
-                    InsertRedditPostSchema.safeParse(post).success
+                    InsertRedditPostSchema.safeParse(post).success &&
+                    !await existsPost(post)
                 ) {
                     posts.set(post.url, post);
                 }
@@ -189,7 +220,7 @@ async function fetchSubmissions(
     }
 
     if (posts.size === 0) {
-        await input.channel?.send("Couldn't find any new images");
+        msg = await notifyUser(input, msg, "Couldn't find any new images");
         return [];
     }
 
@@ -198,12 +229,29 @@ async function fetchSubmissions(
     const result = await db.insert(redditPosts).values(postsArray).catch(console.error);
 
     if (!result) {
-        await input.channel?.send("Couldn't save images to the database");
+        msg = await notifyUser(input, msg, "Couldn't save images to the database");
         return [];
     }
-    await input.channel?.send(`Fetched ${posts.size} new images for ${subreddit}`);
+
+    await notifyUser(input, msg, `Fetched ${posts.size} new images for ${subreddit}`);
 
     return postsArray as RedditPost[];
+}
+
+async function notifyUser(
+    input: ChatInputCommandInteraction | Message,
+    message: Message | null,
+    payload: string
+): Promise<Message> {
+    if (isChatInputCommandInteraction(input)) {
+        return await input.editReply(payload);
+    } else {
+        if (message && message.editable) {
+            return await message.edit(payload);
+        } else {
+            return await input.channel?.send(payload);
+        }
+    }
 }
 
 function isFulfilled<T>(p: PromiseSettledResult<T>): p is PromiseFulfilledResult<T> {

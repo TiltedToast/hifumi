@@ -56,6 +56,7 @@ export const redditPosts = sqliteTable(
     (table) => {
         return {
             subredditIdx: index("subreddit_idx").on(table.subreddit),
+            urlIdx: index("url_idx").on(table.url),
         };
     }
 );

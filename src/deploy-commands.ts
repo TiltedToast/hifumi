@@ -114,7 +114,7 @@ let commands = [
         .setDMPermission(false),
 ].map((command) => command.toJSON());
 
-if (guildId) {
+if (process.env.DEV_MODE === "true") {
     commands = commands.map((command) => {
         command.name = `${command.name}${DEV_COMMAND_POSTFIX}`;
         command.description = `${command.description} (dev)`;
