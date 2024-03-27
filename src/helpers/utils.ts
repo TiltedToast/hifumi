@@ -274,7 +274,7 @@ export async function resize(options: ResizeOptions) {
     assert(width > 0, "Width must be greater than 0");
 
     if (animated) {
-        return $`
+        return await $`
             ${gifsicle} --resize-width ${width} ${fileLocation} -o ${saveLocation}
         `.catch(console.error);
     }
