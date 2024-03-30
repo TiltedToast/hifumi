@@ -118,7 +118,7 @@ async function convertEmojis(emojis: RegExpMatchArray, message: Message) {
                 ${magickPrefix} ${frameTwoPath} -quality 90 ${frameTwoPath}
             `.catch(console.error);
 
-        if (!compressOutput) {
+        if (!compressOutput || compressOutput.exitCode !== 0) {
             await message.channel.send(`Could not compress \`${name}\`, skipping...`);
             continue;
         }
@@ -129,7 +129,7 @@ async function convertEmojis(emojis: RegExpMatchArray, message: Message) {
                 ${magickPrefix} ${frameOnePath} ${frameTwoPath} -delay 100 ${gifPath}
             `.catch(console.error);
 
-        if (!convertOutput) {
+        if (!convertOutput || convertOutput.exitCode !== 0) {
             await message.channel.send(`Could not convert \`${name}\`, skipping...`);
             continue;
         }
@@ -142,7 +142,7 @@ async function convertEmojis(emojis: RegExpMatchArray, message: Message) {
                 animated: true,
             });
 
-            if (!output) {
+            if (!output || ("exitCode" in output && output.exitCode !== 0)) {
                 await message.channel.send(
                     `Something went wrong while resizing \`${name}\`, skipping...`
                 );
@@ -340,7 +340,7 @@ export async function addEmoji(message: Message, prefix: string) {
                 animated: imgType === "gif",
             });
 
-            if (!output) {
+            if (!output || ("exitCode" in output && output.exitCode !== 0)) {
                 return message.channel.send(
                     "Something went wrong while resizing the image, please try again!"
                 );

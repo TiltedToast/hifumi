@@ -40,7 +40,7 @@ export async function beautiful(input: Message | ChatInputCommandInteraction) {
         animated: false,
     });
 
-    if (!output) {
+    if (!output || ("exitCode" in output && output.exitCode !== 0)) {
         return await sendOrReply(
             input,
             "I'm sorry, failed to resize the pfp. Maybe try again later?"
@@ -146,7 +146,7 @@ export async function resizeImg(message: Message, prefix: string) {
         animated: imgType === "gif",
     });
 
-    if (!output) {
+    if (!output || ("exitCode" in output && output.exitCode !== 0)) {
         return await message.channel.send(
             "I'm sorry, failed to resize the image. Maybe try again later?"
         );
