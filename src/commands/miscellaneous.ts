@@ -11,7 +11,7 @@ import {
     User,
     codeBlock,
 } from "discord.js";
-import { all, create } from "mathjs";
+import { all, create, type FactoryFunctionMap } from "mathjs";
 import assert from "node:assert/strict";
 import { exec } from "node:child_process";
 import { promisify } from "node:util";
@@ -52,7 +52,7 @@ const { WOLFRAM_ALPHA_APP_ID, EXCHANGE_API_KEY } = process.env;
 
 export const execPromise = promisify(exec);
 export const urbanEmbeds: Record<`${string}-${string}`, EmbedData[]> = {};
-const math = create(all);
+const math = create(all as FactoryFunctionMap);
 
 // eslint-disable-next-line @typescript-eslint/unbound-method
 const mathEvaluate = math.evaluate;
@@ -150,8 +150,8 @@ export async function pingRandomMembers(message: Message) {
         return;
     }
 
-    const amountInput = +message.content.split(" ")[1];
-    const amount = Number.isNaN(amountInput) ? 1 : amountInput;
+    const amountInput = Number(message.content.split(" ")[1]);
+    const amount = isNaN(amountInput) ? 1 : amountInput;
 
     const members = await message.guild.members.fetch();
 
@@ -219,7 +219,7 @@ export async function leet(input: Message | ChatInputCommandInteraction) {
 
     for (const char of leetDoc) {
         if (!(char.source in document)) document[char.source] = [];
-        document[char.source].push(char.translated);
+        document[char.source]!.push(char.translated);
     }
 
     const leetOutput = inputWords
@@ -227,7 +227,7 @@ export async function leet(input: Message | ChatInputCommandInteraction) {
             return word
                 .split("")
                 .map((char) => {
-                    if (char in document) return randomElementFromArray(document[char]);
+                    if (char in document) return randomElementFromArray(document[char]!);
                     return char;
                 })
                 .join("");
@@ -394,14 +394,14 @@ export async function convert(input: ChatInputCommandInteraction | Message) {
         const content = input.content.split(" ").filter(Boolean);
         if (content.length < 3) return await input.channel.send("Not enough arguments!");
 
-        if (Number.isNaN(+content[1])) {
+        if (Number.isNaN(+content[1]!)) {
             amount = 1;
-            base_currency = content[1].toUpperCase();
-            target_currency = content[2].toUpperCase();
+            base_currency = content[1]!.toUpperCase();
+            target_currency = content[2]!.toUpperCase();
         } else {
-            amount = +(+content[1]).toFixed(5);
-            base_currency = content[2].toUpperCase();
-            target_currency = content[3].toUpperCase();
+            amount = +(+content[1]!).toFixed(5);
+            base_currency = content[2]!.toUpperCase();
+            target_currency = content[3]!.toUpperCase();
         }
     }
     const codesResp = await fetch(
@@ -604,7 +604,7 @@ export async function urban(input: ChatInputCommandInteraction | Message) {
         result: result.list,
         user,
         sortKey: "thumbs_up",
-        embedArray: urbanEmbeds[identifier],
+        embedArray: urbanEmbeds[identifier]!,
         buildEmbedFunc: buildUrbanEmbed,
     });
 
@@ -620,7 +620,7 @@ export async function urban(input: ChatInputCommandInteraction | Message) {
     );
 
     return await sendOrReply(input, {
-        embeds: [urbanEmbeds[identifier][0].embed],
+        embeds: [urbanEmbeds[identifier]![0]!.embed],
         components: [row],
     });
 }

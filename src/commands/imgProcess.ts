@@ -114,7 +114,7 @@ export async function resizeImg(message: Message, prefix: string) {
         return await message.channel.send("You have to provide the width!");
     }
 
-    const width = parseInt(content[1]);
+    const width = Math.floor(Number(content[1]));
 
     if (isNaN(width) || width <= 0) return await message.channel.send("Invalid width!");
     if (width > 5000) return await message.channel.send("Width too large!");

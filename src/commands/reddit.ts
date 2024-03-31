@@ -51,7 +51,7 @@ export async function sub(input: ChatInputCommandInteraction | Message) {
         if (content.length === 1) {
             return await sendOrReply(input, "You have to specify a subreddit");
         }
-        subreddit = content[1].toLowerCase();
+        subreddit = content[1]!.toLowerCase();
     }
 
     // Check if the subreddit exists

@@ -58,20 +58,20 @@ export function formatTable<K extends string | number | symbol, V>(rows: Record<
     const MIN_WRAP_LENGTH = 30;
 
     assert(rows.length > 0, "Must have at least one row");
-    assert(Object.keys(rows[0]).length > 0, "Must have at least one column");
+    assert(Object.keys(rows[0]!).length > 0, "Must have at least one column");
 
-    const keys = Object.keys(rows[0]);
+    const keys = Object.keys(rows[0]!);
     const values = rows.map((obj) => Object.values(obj));
 
     const columns = {} as Record<number, { width: number }>;
 
-    for (let i = 0; i < values[0].length; i++) {
+    for (let i = 0; i < values[0]!.length; i++) {
         const minVal = Math.min(
             MIN_WRAP_LENGTH,
             Math.max(...values.map((v) => String(v[i]).length))
         );
         columns[i] = {
-            width: minVal >= keys[i].length ? minVal : keys[i].length,
+            width: minVal >= keys[i]!.length ? minVal : keys[i]!.length,
         };
     }
 
@@ -185,7 +185,7 @@ export function setEmbedArr<T>(args: UpdateEmbedArrParams<T>): void {
     args.embedArray.length = 0;
     for (let i = 0; i < result.length; i++) {
         args.embedArray.push({
-            embed: buildEmbedFunc(result[i], i, result),
+            embed: buildEmbedFunc(result[i]!, i, result),
             user,
         });
     }
@@ -195,7 +195,7 @@ export async function updateEmbed(options: UpdateEmbedOptions) {
     const { interaction, embedArray, prevButtonId, nextButtonId, user } = options;
 
     const activeIndex = getEmbedIndex(embedArray, {
-        embed: interaction.message.embeds[0],
+        embed: interaction.message.embeds[0]!,
         user,
     });
 
@@ -208,7 +208,7 @@ export async function updateEmbed(options: UpdateEmbedOptions) {
 
     assert(embedArray.length >= 1, "Embed array must have at least one element");
 
-    if (interaction.user.id !== embedArray[activeIndex].user.id) {
+    if (interaction.user.id !== embedArray[activeIndex]!.user.id) {
         return interaction.reply({
             content: "Only the person who initiated the command can use these buttons, sorry!",
             ephemeral: true,
@@ -228,7 +228,7 @@ export async function updateEmbed(options: UpdateEmbedOptions) {
 
     const newEmbed = embedArray[(activeIndex + step + embedArray.length) % embedArray.length];
 
-    return await interaction.update({ embeds: [newEmbed.embed] });
+    return await interaction.update({ embeds: [newEmbed!.embed] });
 }
 
 /**
@@ -293,10 +293,10 @@ export function isDev(): boolean {
  * @param message Discord message object
  * @returns The user object
  */
-export async function getUserObjectPingId(message: Message): Promise<User | undefined> {
+export async function getUserObjectPingId(message: Message, idx = 1): Promise<User | undefined> {
     let user: User | undefined;
     const content = message.content.split(" ").filter(Boolean);
-    const pingOrIdString = content[1];
+    const pingOrIdString = content[idx]!;
 
     try {
         if (!Number.isNaN(parseInt(pingOrIdString)))
@@ -316,7 +316,7 @@ export async function getUserObjectPingId(message: Message): Promise<User | unde
  */
 export function randomElementFromArray<T>(array: T[]): T {
     assert(array.length > 0, "Array must have at least one element");
-    return array[Math.floor(Math.random() * array.length)];
+    return array[Math.floor(Math.random() * array.length)]!;
 }
 
 /**
@@ -478,12 +478,12 @@ export function getImgType(url: string): SupportedStaticImgExts | "gif" | undefi
  * @returns The ID or URL of the emoji
  */
 export function extractEmoji(emojiString: string, IdOnly = false): string {
-    const emojiID = emojiString.split(":")[2].slice(0, -1);
-    if (IdOnly) return emojiID;
+    const emojiId = emojiString.split(":")[2]!.slice(0, -1);
+    if (IdOnly) return emojiId;
 
     const extension = emojiString[1] === "a" ? "gif" : "png";
 
-    return `https://cdn.discordapp.com/emojis/${emojiID}.${extension}`;
+    return `https://cdn.discordapp.com/emojis/${emojiId}.${extension}`;
 }
 
 function deleteTemp(folder: string) {

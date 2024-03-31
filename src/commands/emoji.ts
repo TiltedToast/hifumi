@@ -232,7 +232,7 @@ export async function addEmoji(message: Message, prefix: string) {
     const matchedArr = msgLinkRegex.exec(message.content);
 
     if (matchedArr) {
-        const [channelId, msgId] = matchedArr.slice(1);
+        const [channelId, msgId] = matchedArr.slice(1) as [string, string];
 
         const channel = await message.client.channels.fetch(channelId).catch(() => null);
 
@@ -263,16 +263,16 @@ export async function addEmoji(message: Message, prefix: string) {
     }
     if (
         (content.length === 2 && message.attachments.size > 0) ||
-        (content.length === 3 && content[2].startsWith("http"))
+        (content.length === 3 && content[2]!.startsWith("http"))
     ) {
         return await message.channel.send("You have to specify a name!");
     }
 
     // Sets name based on whether the user provided an emoji or not
-    if (content[2].startsWith("<") && content[2].endsWith(">")) {
-        name = content[2].split(":")[1];
+    if (content[2]!.startsWith("<") && content[2]!.endsWith(">")) {
+        name = content[2]!.split(":")[1]!;
     } else {
-        name = content[2];
+        name = content[2]!;
     }
 
     const emojis = message.content.match(emojiRegex);
@@ -464,7 +464,7 @@ async function bulkAddEmojis(message: Message, emojis: RegExpMatchArray) {
         const imgType = getImgType(url);
         if (!imgType || !["png", "gif", "jpeg"].includes(imgType)) continue;
 
-        const name = emojiStr.split(":")[1];
+        const name = emojiStr.split(":")[1]!;
         const filePath = path.join(temp, `${name}.${imgType}`);
 
         const err = await downloadURL(url, filePath);
@@ -570,8 +570,8 @@ export async function renameEmoji(message: Message, prefix: string) {
                 `Usage: \`${prefix}emoji rename <new name> <emoji>\``
             );
 
-        const newName = content[2];
-        const emojiString = content[3];
+        const newName = content[2]!;
+        const emojiString = content[3]!;
         const emojiId = extractEmoji(emojiString, true);
         const guildEmojis = message.guild?.emojis.cache;
         const emoji = guildEmojis?.find((emoji) => emoji.id === emojiId);
@@ -594,7 +594,7 @@ export async function searchEmojis(message: Message) {
         return await message.channel.send("Please provide a search term!");
     }
 
-    const searchTerm = content[2].toLowerCase();
+    const searchTerm = content[2]!.toLowerCase();
     const emojis = await message.guild?.emojis.fetch();
 
     if (!emojis) {

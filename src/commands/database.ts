@@ -66,7 +66,7 @@ export async function insertStatus(message: Message): Promise<undefined | Messag
     if (content.length < 3) return await message.channel.send("Invalid syntax!");
 
     const document = {
-        type: content[1].toUpperCase(),
+        type: content[1]!.toUpperCase(),
         status: content.slice(2).join(" "),
     } as NewStatus;
 
@@ -143,7 +143,7 @@ export async function updatePrefix(input: Message | ChatInputCommandInteraction)
     } else {
         const content = input.content.split(" ").filter(Boolean);
         if (content.length !== 2) return await input.channel.send("Invalid syntax");
-        newPrefix = content[1];
+        newPrefix = content[1]!;
     }
 
     if (newPrefix.length > 255) {

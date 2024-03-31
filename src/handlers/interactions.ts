@@ -63,7 +63,7 @@ async function handleButtonInteraction(interaction: ButtonInteraction) {
     if ([`prevUrban-${identifier}`, `nextUrban-${identifier}`].includes(interaction.customId)) {
         await updateEmbed({
             interaction,
-            embedArray: urbanEmbeds[identifier],
+            embedArray: urbanEmbeds[identifier]!,
             prevButtonId: `prevUrban-${identifier}`,
             nextButtonId: `nextUrban-${identifier}`,
             user: interaction.user,
