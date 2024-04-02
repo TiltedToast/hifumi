@@ -204,7 +204,6 @@ async function fetchSubmissions(
                 };
                 // prettier-ignore
                 if (
-                    !posts.has(post.url) &&
                     InsertRedditPostSchema.safeParse(post).success &&
                     !await existsPost(post)
                 ) {
