@@ -82,9 +82,13 @@ export async function wolframAlpha(message: Message, command: "wolfram" | "wolf"
 
     const longAnswer = command === "wolfram";
 
-    const query = message.content.split(" ").slice(1).join(" ");
+    let query = message.content.split(" ").slice(1).join(" ");
 
     if (!query) return await message.channel.send("No query provided!");
+
+    if (!query.includes("\\`")) {
+        query = query.replace("`", "");
+    }
 
     const endpoint = longAnswer ? "/v2/simple" : "/v1/result";
 
