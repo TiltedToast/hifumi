@@ -92,10 +92,18 @@ export async function wolframAlpha(message: Message, command: "wolfram" | "wolf"
 
     const endpoint = longAnswer ? "/v2/simple" : "/v1/result";
 
-    const url = `http://api.wolframalpha.com${endpoint}?appid=${WOLFRAM_ALPHA_APP_ID}&i=${encodeURIComponent(
-        query
-    )}&background=181A1F&foreground=white&fontsize=30&units=metric&maxwidth=1500&output=json`;
+    const url = new URL(`http://api.wolframalpha.com${endpoint}`);
 
+    url.searchParams.append("appid", WOLFRAM_ALPHA_APP_ID);
+    url.searchParams.append("i", query);
+    url.searchParams.append("background", "181A1F");
+    url.searchParams.append("foreground", "white");
+    url.searchParams.append("fontsize", "30");
+    url.searchParams.append("units", "metric");
+    url.searchParams.append("maxwidth", "1500");
+    url.searchParams.append("output", "json");
+
+    // @ts-expect-error It's too dumb to realise that the URL is valid
     const response = await fetch(url).catch(console.error);
 
     if (!response) return await message.channel.send("Fetch failed, not sure why");
