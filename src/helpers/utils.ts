@@ -149,7 +149,7 @@ export function splitMessage(message: string, maxLength = 2000, delim = " "): st
 }
 
 export async function writeUpdateFile() {
-    await Bun.write("/tmp/hifumi_update.txt", Date.now().toString());
+    await Bun.write(`/tmp/${BOT_NAME}_update.txt`, Date.now().toString());
 }
 
 function getEmbedIndex(arr: EmbedData[], target: EmbedData): number {
