@@ -527,7 +527,7 @@ export function createTemp(input: Message | ChatInputCommandInteraction, timeout
 }
 
 /**
- * Wipes all temporary folders created by hifumi.
+ * Wipes all temporary folders created during runtime.
  *
  * We don't want to leave any trash behind do we? (If only others did the same...)
  */
