@@ -2,6 +2,7 @@ import { $ } from "bun";
 import dedent from "dedent";
 import {
     ChatInputCommandInteraction,
+    Client,
     GuildMember,
     Message,
     MessageType,
@@ -21,6 +22,7 @@ import os from "os";
 import sharp from "sharp";
 import strftime from "strftime";
 import { table } from "table";
+import { avoidDbSleeping } from "../commands/loops.ts";
 import {
     BOT_NAME,
     BOT_OWNERS,
@@ -31,6 +33,8 @@ import {
 } from "../config.ts";
 import { db } from "../db/index.ts";
 import { errorLogs } from "../db/schema.ts";
+import * as prefixHandler from "../handlers/prefixes.ts";
+import * as statusHandler from "../handlers/statuses.ts";
 import type {
     EmbedData,
     ErrorLogOptions,
@@ -39,6 +43,14 @@ import type {
     UpdateEmbedArrParams,
     UpdateEmbedOptions,
 } from "./types.ts";
+
+export async function initialise(client: Client) {
+    await statusHandler.init().catch(console.error);
+    statusHandler.startStatusLoop(client).catch(console.error);
+    await prefixHandler.init().catch(console.error);
+    prefixHandler.loadingDone();
+    avoidDbSleeping().catch(console.error);
+}
 
 /**
  * Formats a table from an array of objects

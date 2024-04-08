@@ -3,15 +3,13 @@ import dedent from "dedent";
 import { Client, GatewayIntentBits, Partials, TextChannel } from "discord.js";
 import { existsSync, rmSync } from "node:fs";
 import strftime from "strftime";
-import { avoidDbSleeping } from "./commands/loops.ts";
-import { LOG_CHANNEL } from "./config.ts";
+import { BOT_NAME, LOG_CHANNEL } from "./config.ts";
 import handleInteraction from "./handlers/interactions.ts";
 import handleMessage from "./handlers/messages.ts";
-import * as prefixHandler from "./handlers/prefixes.ts";
-import * as statusHandler from "./handlers/statuses.ts";
-import { isDev, wipeTempFolders } from "./helpers/utils.ts";
+
 import assert from "node:assert/strict";
 import { migrateDb } from "./db/index.ts";
+import { initialise, isDev, wipeTempFolders } from "./helpers/utils.ts";
 
 const startTime = Date.now();
 
@@ -30,35 +28,33 @@ const client = new Client({
     partials: [Partials.Channel],
 });
 
-client.once("ready", async () => {
+client.once("ready", async (c) => {
     const time = strftime("%d/%m/%Y %H:%M:%S");
     const doneLoadingTime = Date.now();
 
-    assert(client.user, "Client user is undefined");
+    assert(c.user, "Client user is undefined");
 
     console.log(`Started up in ${(doneLoadingTime - startTime) / 1000} seconds on ${time}`);
     console.log("Logged in as:");
-    console.log(client.user.username);
-    console.log(client.user.id);
+    console.log(c.user.username);
+    console.log(c.user.id);
     console.log("------------------");
 
-    // Puts all statuses into an array to avoid reading the database on every status change
-    await statusHandler.init().catch(console.error);
-    statusHandler.startStatusLoop(client).catch(console.error);
-    await prefixHandler.init().catch(console.error);
-    prefixHandler.loadingDone();
-    avoidDbSleeping().catch(console.error);
+    // Initialise handlers, statuses, etc
+    await initialise(c);
 
-    const logChannel = client.channels.cache.get(LOG_CHANNEL) as TextChannel;
-    // const catFactChannel = client.channels.cache.get(CAT_FACT_CHANNEL) as TextChannel;
+    const logChannel = c.channels.cache.get(LOG_CHANNEL) as TextChannel;
+    // const catFactChannel = c.channels.cache.get(CAT_FACT_CHANNEL) as TextChannel;
     // startCatFactLoop(catFactChannel);
 
     if (isDev()) return;
-    if (existsSync("/tmp/hifumi_update.txt")) return rmSync("/tmp/hifumi_update.txt");
+    if (existsSync(`/tmp/${BOT_NAME}_update.txt`)) {
+        return rmSync(`/tmp/${BOT_NAME}_update.txt`);
+    }
 
     await logChannel.send(dedent`
         Logged in as:
-        ${client.user.username}
+        ${c.user.username}
         Time: ${time}
         --------------------------
         `);
