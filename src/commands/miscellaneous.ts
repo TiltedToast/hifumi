@@ -4,6 +4,7 @@ import {
     ButtonBuilder,
     ButtonStyle,
     ChatInputCommandInteraction,
+    Client,
     EmbedBuilder,
     Message,
     PermissionFlagsBits,
@@ -346,7 +347,7 @@ export async function jsEval(message: Message, mode?: "math") {
     const command = message.content.split(" ").slice(1).join(" ");
     try {
         if (mode === "math") rslt = mathEvaluate(command) as string;
-        else rslt = (await eval(command)) as string;
+        else rslt = await asyncEval(command, message.client);
     } catch (error) {
         return await message.channel.send(codeBlock(error as string));
     }
@@ -360,6 +361,13 @@ export async function jsEval(message: Message, mode?: "math") {
         return await message.channel.send("Invalid message length for discord!");
     }
     return await message.channel.send(resultString);
+}
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export async function asyncEval(command: string, client: Client): Promise<string> {
+    const code = `(async () => { return (${command}) })()`;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    return await eval(code);
 }
 
 export async function avatar(input: Message | ChatInputCommandInteraction) {
