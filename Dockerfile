@@ -1,13 +1,19 @@
+FROM oven/bun:latest AS build
+
+WORKDIR /build
+COPY . .
+
+RUN apt update
+RUN apt install -y git
+RUN apt install -y imagemagick
+RUN bun install
+
 FROM oven/bun:latest
 
 WORKDIR /hifumi
 ENV DOCKER true
-COPY . .
 
-RUN apt-get update && \
-    apt-get install -y git &&  \
-    apt-get install -y imagemagick && \
-    bun install
+COPY --from=build /build .
 
 STOPSIGNAL SIGINT
 
