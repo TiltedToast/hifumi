@@ -20,7 +20,8 @@
         "no-constant-condition": "off",
         "@typescript-eslint/consistent-type-definitions": "off",
         "@typescript-eslint/no-unsafe-enum-comparison": "off",
-        "@typescript-eslint/no-non-null-assertion": "off"
+        "@typescript-eslint/no-non-null-assertion": "off",
+        "@typescript-eslint/no-unused-vars": "off"
     },
     "ignorePatterns": ["dist", "node_modules", "pm2.config.cjs"]
 }

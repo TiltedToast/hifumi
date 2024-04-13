@@ -333,11 +333,6 @@ export async function jsEval(message: Message, mode?: "math") {
     if (!isBotOwner(message.author) && !mode) return;
     let rslt: string;
 
-    // This is to be able to use all the functions inside the below eval function
-    // Sleep call mostly to shut up typescript and eslint
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const tools = await import("../helpers/utils.js");
-
     const content = message.content.split(" ").filter(Boolean);
 
     if (content.length === 1) {
@@ -363,8 +358,8 @@ export async function jsEval(message: Message, mode?: "math") {
     return await message.channel.send(resultString);
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function asyncEval(command: string, client: Client): Promise<string> {
+    const tools = await import("../helpers/utils.js");
     const code = `(async () => { return (${command}) })()`;
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return await eval(code);
@@ -384,7 +379,7 @@ export async function avatar(input: Message | ChatInputCommandInteraction) {
         user = tmp;
     }
 
-    assert(user, "[avatar] No user provided");
+    assert(user, "No user provided");
 
     const avatarURL = user.displayAvatarURL({ forceStatic: false, size: 4096 });
 
