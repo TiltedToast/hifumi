@@ -17,10 +17,10 @@ import {
     convertStaticImg,
     createTemp,
     downloadURL,
-    extractEmoji,
     getImgType,
     hasPermission,
     isValidSize,
+    parseEmoji,
     resize,
     splitMessage,
 } from "../helpers/utils.ts";
@@ -36,6 +36,8 @@ const {
     MaximumNumberOfPremiumEmojisReached,
     UnknownEmoji,
 } = RESTJSONErrorCodes;
+
+const fixToString = (e: GuildEmoji) => e.toString().replace(":_:", e.name ? `:${e.name}:` : ":_:");
 
 export async function pngToGifEmoji(message: Message) {
     if (!message.guild) {
@@ -74,30 +76,28 @@ async function convertEmojis(emojis: RegExpMatchArray, message: Message) {
     let output = "";
 
     for (const emoji of emojis) {
-        const id = extractEmoji(emoji, true);
-        const guildEmoji = await message.guild!.emojis.fetch(id).catch(() => null);
+        const parsed = parseEmoji(emoji);
+        const guildEmoji = await message.guild!.emojis.fetch(parsed.id).catch(() => null);
 
         if (guildEmoji?.animated) {
             await message.channel.send(`\`${guildEmoji.name ?? "NameNotFound"}\` is already a GIF`);
             continue;
         }
 
-        const url = guildEmoji ? guildEmoji.imageURL({ size: 128 }) : extractEmoji(emoji);
+        const url = guildEmoji ? guildEmoji.imageURL({ size: 128 }) : parsed.url;
 
         const imgType = getImgType(url);
         if (!imgType) continue;
 
-        const name = guildEmoji ? guildEmoji.name ?? "NameNotFound" : emoji.split(":")[1]!;
-        const frameOnePath = path.join(temp, `${name}-${id}.${imgType}`);
+        const name = guildEmoji ? guildEmoji.name ?? "NameNotFound" : parsed.name;
+        const frameOnePath = path.join(temp, `${name}-${parsed.id}.${imgType}`);
 
-        const err = await downloadURL(url, frameOnePath);
-
-        if (err) {
+        if (await downloadURL(url, frameOnePath)) {
             await message.channel.send(`Could not download \`${name}\`, skipping...`);
             continue;
         }
 
-        const frameTwoPath = path.join(temp, `${name}-${id}_2.${imgType}`);
+        const frameTwoPath = path.join(temp, `${name}-${parsed.id}_2.${imgType}`);
 
         const result = await copyFile(frameOnePath, frameTwoPath).catch((e) => {
             console.error(e);
@@ -120,7 +120,7 @@ async function convertEmojis(emojis: RegExpMatchArray, message: Message) {
             continue;
         }
 
-        const gifPath = path.join(temp, `${name}-${id}.gif`);
+        const gifPath = path.join(temp, `${name}-${parsed.id}.gif`);
 
         const convertOutput = await $`
                 ${magickPrefix} ${frameOnePath} ${frameTwoPath} -delay 100 ${gifPath}
@@ -157,11 +157,11 @@ async function convertEmojis(emojis: RegExpMatchArray, message: Message) {
         const base64 = await readFile(gifPath, { encoding: "base64" });
         const newEmoji = await message.guild!.emojis.create({
             attachment: `data:image/gif;base64,${base64}`,
-            name: name,
+            name,
         });
 
         // prettier-ignore
-        output += newEmoji.toString().replace(":_:", newEmoji.name ? `:${newEmoji.name}:` : ":_:") + " ";
+        output += fixToString(newEmoji) + " ";
 
         if (guildEmoji?.deletable) await guildEmoji.delete("Replaced with GIF version");
     }
@@ -185,7 +185,7 @@ export async function linkEmoji(message: Message) {
     const emojis = msgContent.match(emojiRegex);
     if (!emojis) return await message.channel.send("You have to specify at least one emoji!");
 
-    const output = emojis.map((emoji) => extractEmoji(emoji)).join("\n");
+    const output = emojis.map((emoji) => parseEmoji(emoji).url).join("\n");
     return await message.channel.send(output);
 }
 
@@ -295,7 +295,7 @@ export async function addEmoji(message: Message, prefix: string) {
         return message.channel.send("Invalid source url!");
     }
     if (source.startsWith("<")) {
-        url = extractEmoji(source);
+        url = parseEmoji(source).url;
     } else if (isValidURL) {
         url = source;
     } else if (message.attachments.size > 0) {
@@ -457,7 +457,7 @@ async function bulkAddEmojis(message: Message, emojis: RegExpMatchArray) {
     const temp = createTemp(message);
 
     for (const emojiStr of new Set(emojis)) {
-        const url = extractEmoji(emojiStr);
+        const url = parseEmoji(emojiStr).url;
         const imgType = getImgType(url);
         if (!imgType || !["png", "gif", "jpeg"].includes(imgType)) continue;
 
@@ -523,7 +523,7 @@ export async function removeEmoji(message: Message) {
         return await message.channel.send("You need to provide at least one emoji to remove");
     }
 
-    const emojiIds = emojiStrings.map((emoji) => extractEmoji(emoji, true));
+    const emojiIds = emojiStrings.map((emoji) => parseEmoji(emoji).id);
 
     for (const id of new Set(emojiIds)) {
         const emojiStr = emojiStrings[emojiIds.indexOf(id)];
@@ -569,7 +569,7 @@ export async function renameEmoji(message: Message, prefix: string) {
 
         const newName = content[2]!;
         const emojiString = content[3]!;
-        const emojiId = extractEmoji(emojiString, true);
+        const emojiId = parseEmoji(emojiString).id;
         const guildEmojis = message.guild?.emojis.cache;
         const emoji = guildEmojis?.find((emoji) => emoji.id === emojiId);
 
@@ -598,9 +598,7 @@ export async function searchEmojis(message: Message) {
         return await message.channel.send("You need to be in a server to use this command!");
     }
 
-    const emojiStrings = Array.from(
-        emojis.map((x) => x.toString().replace(":_:", x.name ? `:${x.name}:` : ":_:"))
-    );
+    const emojiStrings = Array.from(emojis.map(fixToString));
 
     const fuse = new Fuse(emojiStrings, {
         shouldSort: true,

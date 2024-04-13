@@ -38,6 +38,7 @@ import * as statusHandler from "../handlers/statuses.ts";
 import type {
     EmbedData,
     ErrorLogOptions,
+    ParsedEmoji,
     ResizeOptions,
     SupportedStaticImgExts,
     UpdateEmbedArrParams,
@@ -484,18 +485,22 @@ export function getImgType(url: string): SupportedStaticImgExts | "gif" | undefi
 }
 
 /**
- * Takes the raw string of a discord Emoji and either returns the ID or the url
+ * Takes the raw string of a discord Emoji and parses it into an object
  * @param emojiString The emoji string
- * @param IdOnly Whether or not you only want the ID or the URL
- * @returns The ID or URL of the emoji
+ * @returns The parsed emoji
  */
-export function extractEmoji(emojiString: string, IdOnly = false): string {
-    const emojiId = emojiString.split(":")[2]!.slice(0, -1);
-    if (IdOnly) return emojiId;
+export function parseEmoji(emojiString: string): ParsedEmoji {
+    const id = emojiString.split(":")[2]!.slice(0, -1);
+    const name = emojiString.split(":")[1]!;
 
     const extension = emojiString[1] === "a" ? "gif" : "png";
 
-    return `https://cdn.discordapp.com/emojis/${emojiId}.${extension}`;
+    return {
+        name,
+        id,
+        animated: extension === "gif",
+        url: `https://cdn.discordapp.com/emojis/${id}.${extension}`,
+    };
 }
 
 function deleteTemp(folder: string) {

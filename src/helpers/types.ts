@@ -153,3 +153,10 @@ export const StatusType = {
 } as const;
 
 export type SupportedStaticImgExts = "png" | "jpeg" | "avif" | "tiff" | "webp" | "svg";
+
+export type ParsedEmoji = {
+    name: string;
+    id: string;
+    animated: boolean;
+    url: string;
+};
