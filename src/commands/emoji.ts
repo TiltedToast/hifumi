@@ -77,23 +77,20 @@ async function convertEmojis(emojis: RegExpMatchArray, message: Message) {
         const id = extractEmoji(emoji, true);
         const guildEmoji = await message.guild!.emojis.fetch(id).catch(() => null);
 
-        if (!guildEmoji) {
-            await message.channel.send(`\`${emoji.split(":")[1]}\` does not exist in this server`);
-            continue;
-        }
-
-        if (guildEmoji.animated) {
+        if (guildEmoji?.animated) {
             await message.channel.send(`\`${guildEmoji.name ?? "NameNotFound"}\` is already a GIF`);
             continue;
         }
 
-        const imgType = getImgType(guildEmoji.imageURL());
+        const url = guildEmoji ? guildEmoji.imageURL({ size: 128 }) : extractEmoji(emoji);
+
+        const imgType = getImgType(url);
         if (!imgType) continue;
 
-        const name = guildEmoji.name ?? "NameNotFound";
+        const name = guildEmoji ? guildEmoji.name ?? "NameNotFound" : emoji.split(":")[1]!;
         const frameOnePath = path.join(temp, `${name}-${id}.${imgType}`);
 
-        const err = await downloadURL(guildEmoji.imageURL({ size: 128 }), frameOnePath);
+        const err = await downloadURL(url, frameOnePath);
 
         if (err) {
             await message.channel.send(`Could not download \`${name}\`, skipping...`);
@@ -166,7 +163,7 @@ async function convertEmojis(emojis: RegExpMatchArray, message: Message) {
         // prettier-ignore
         output += newEmoji.toString().replace(":_:", newEmoji.name ? `:${newEmoji.name}:` : ":_:") + " ";
 
-        if (guildEmoji.deletable) await guildEmoji.delete("Replaced with GIF version");
+        if (guildEmoji?.deletable) await guildEmoji.delete("Replaced with GIF version");
     }
 
     if (output === "") return;
