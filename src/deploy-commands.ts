@@ -105,13 +105,13 @@ let commands = [
         ),
 
     new SlashCommandBuilder()
+        .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild)
+        .setDMPermission(false)
         .setName("prefix")
         .setDescription("Updates the prefix for the server")
         .addStringOption((option) =>
             option.setName("prefix").setDescription("The new prefix").setRequired(true)
-        )
-        .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild)
-        .setDMPermission(false),
+        ),
 ].map((command) => command.toJSON());
 
 if (process.env.DEV_MODE === "true") {

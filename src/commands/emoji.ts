@@ -37,8 +37,6 @@ const {
     UnknownEmoji,
 } = RESTJSONErrorCodes;
 
-const fixToString = (e: GuildEmoji) => e.toString().replace(":_:", e.name ? `:${e.name}:` : ":_:");
-
 export async function pngToGifEmoji(message: Message) {
     if (!message.guild) {
         return await message.channel.send("You have to be in a server to use this command!");
@@ -155,13 +153,19 @@ async function convertEmojis(emojis: RegExpMatchArray, message: Message) {
         }
 
         const base64 = await readFile(gifPath, { encoding: "base64" });
-        const newEmoji = await message.guild!.emojis.create({
-            attachment: `data:image/gif;base64,${base64}`,
-            name,
-        });
+        const newEmoji = await message
+            .guild!.emojis.create({
+                attachment: `data:image/gif;base64,${base64}`,
+                name,
+            })
+            .catch(console.error);
 
-        // prettier-ignore
-        output += fixToString(newEmoji) + " ";
+        if (!newEmoji) {
+            await message.channel.send(`Could not create \`${name}\`, skipping...`);
+            continue;
+        }
+
+        output += newEmoji.toString() + " ";
 
         if (guildEmoji?.deletable) await guildEmoji.delete("Replaced with GIF version");
     }
@@ -598,7 +602,7 @@ export async function searchEmojis(message: Message) {
         return await message.channel.send("You need to be in a server to use this command!");
     }
 
-    const emojiStrings = Array.from(emojis.map(fixToString));
+    const emojiStrings = Array.from(emojis.map((x) => x.toString()));
 
     const fuse = new Fuse(emojiStrings, {
         shouldSort: true,

@@ -11,6 +11,8 @@ import assert from "node:assert/strict";
 import { migrateDb } from "./db/index.ts";
 import { initialise, isDev, wipeTempFolders } from "./helpers/utils.ts";
 
+/* eslint-disable @typescript-eslint/no-misused-promises */
+
 const startTime = Date.now();
 
 await migrateDb();
@@ -75,7 +77,6 @@ if (process.platform === "win32") {
 
 // Graceful Shutdown on Ctrl + C / Docker stop
 for (const signal of stopSignals) {
-    // eslint-disable-next-line @typescript-eslint/no-misused-promises
     process.on(signal, async () => {
         await client.destroy();
         console.log("Closed Discord connection");
