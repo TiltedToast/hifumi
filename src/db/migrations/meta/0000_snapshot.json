@@ -1,8 +1,6 @@
 {
-    "version": "5",
+    "version": "6",
     "dialect": "sqlite",
-    "id": "38fae9a0-87b8-443b-92f6-73ed640fde6f",
-    "prevId": "00000000-0000-0000-0000-000000000000",
     "tables": {
         "error_logs": {
             "name": "error_logs",
@@ -334,8 +332,9 @@
     },
     "enums": {},
     "_meta": {
-        "schemas": {},
         "tables": {},
         "columns": {}
-    }
+    },
+    "id": "38fae9a0-87b8-443b-92f6-73ed640fde6f",
+    "prevId": "00000000-0000-0000-0000-000000000000"
 }
