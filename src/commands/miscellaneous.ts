@@ -613,13 +613,13 @@ export async function urban(input: ChatInputCommandInteraction | Message) {
     const user = isChatInputCommandInteraction(input) ? input.user : input.author;
     const identifier = `${user.id}-${input.channelId}` as const;
 
-    if (!urbanEmbeds[identifier]) urbanEmbeds[identifier] = [];
+    urbanEmbeds[identifier] ??= [];
 
     setEmbedArr({
         result: result.list,
         user,
         sortKey: "thumbs_up",
-        embedArray: urbanEmbeds[identifier]!,
+        embedArray: urbanEmbeds[identifier],
         buildEmbedFunc: buildUrbanEmbed,
     });
 
@@ -635,7 +635,7 @@ export async function urban(input: ChatInputCommandInteraction | Message) {
     );
 
     return await sendOrReply(input, {
-        embeds: [urbanEmbeds[identifier]![0]!.embed],
+        embeds: [urbanEmbeds[identifier][0]!.embed],
         components: [row],
     });
 }

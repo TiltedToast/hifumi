@@ -246,10 +246,6 @@ async function notifyUser(
     }
 }
 
-function isFulfilled<T>(p: PromiseSettledResult<T>): p is PromiseFulfilledResult<T> {
-    return p.status === "fulfilled";
-}
-
 async function getSubmissions(subreddit: string, limit: number) {
     const timeSpans: Timespan[] = ["hour", "day", "week", "month", "year", "all"];
     const subredditObject = RedditClient.getSubreddit(subreddit);
@@ -261,7 +257,7 @@ async function getSubmissions(subreddit: string, limit: number) {
         subredditObject.getNew({ limit }),
         subredditObject.getRising({ limit }),
         ...topSubmissions,
-    ]).then((results) => results.filter(isFulfilled).map((p) => p.value));
+    ]).then((results) => results.filter((p) => p.status === "fulfilled").map((p) => p.value));
 }
 
 async function isValidSubmission(submission: Snoowrap.Submission): Promise<boolean> {
