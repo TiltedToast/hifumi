@@ -58,6 +58,18 @@ if (!process.argv.some((arg) => arg.includes("deploy-commands.ts"))) {
         console.error(validationError.message);
         process.exit(1);
     });
+
+    if (Bun.which("gifsicle") === null) {
+        console.error("gifsicle is not installed, please install it and try again");
+        process.exit(1);
+    }
+
+    const magickCommand = process.platform === "win32" ? "magick" : "convert";
+
+    if (Bun.which(magickCommand) === null) {
+        console.error(`ImageMagick is not installed, please install it and try again`);
+        process.exit(1);
+    }
 }
 
 declare global {

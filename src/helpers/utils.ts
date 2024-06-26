@@ -14,7 +14,6 @@ import {
     type Channel,
     type PermissionResolvable,
 } from "discord.js";
-import gifsicle from "gifsicle";
 import assert from "node:assert/strict";
 import { mkdirSync, readdirSync, rmSync, statSync } from "node:fs";
 import path from "node:path";
@@ -288,7 +287,7 @@ export async function resize(options: ResizeOptions) {
 
     if (animated) {
         return await $`
-            ${gifsicle} --resize-width ${width} ${fileLocation} -o ${saveLocation}
+            gifsicle --resize-width ${width} ${fileLocation} -o ${saveLocation} --colors 256
         `.catch(console.error);
     }
     return await sharp(fileLocation).resize(width).toFile(saveLocation).catch(console.error);
