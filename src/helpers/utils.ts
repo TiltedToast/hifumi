@@ -421,16 +421,16 @@ export function errorLog({ message, errorObject }: ErrorLogOptions) {
 export async function downloadURL(url: string, saveLocation: string) {
     const absSaveLocation = path.resolve(saveLocation);
 
-    const myHeaders = new Headers({
+    const headers = new Headers({
         "User-Agent": USER_AGENT,
     });
 
     // Pixiv will only allow you to download images if you have a referer header
-    if (url.includes("pximg")) myHeaders.append("Referer", "https://www.pixiv.net/");
+    if (url.includes("pximg")) headers.append("Referer", "https://www.pixiv.net/");
 
     const requestOptions: RequestInit = {
         method: "GET",
-        headers: myHeaders,
+        headers,
         redirect: "follow",
     };
 

@@ -75,7 +75,7 @@ async function convertEmojis(emojis: RegExpMatchArray, message: Message) {
 
     for (const emoji of emojis) {
         const parsed = parseEmoji(emoji);
-        const guildEmoji = await message.guild!.emojis.fetch(parsed.id).catch(() => null);
+        const guildEmoji = await message.guild?.emojis.fetch(parsed.id).catch(() => null);
 
         if (guildEmoji?.animated) {
             await message.channel.send(`\`${guildEmoji.name ?? "NameNotFound"}\` is already a GIF`);
