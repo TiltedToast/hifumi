@@ -120,10 +120,12 @@ export async function sendOrReply(
         return await input.channel.send(message);
     } else if (input.deferred) {
         return await input.editReply(message);
-    } else if (input.isRepliable() && typeof message === "string") {
-        return await input.reply({ content: message, ephemeral });
     } else if (input.isRepliable()) {
-        return await input.reply({ ...(message as BaseMessageOptions), ephemeral });
+        if (typeof message === "string") {
+            return await input.reply({ content: message, ephemeral });
+        } else {
+            return await input.reply({ ...message, ephemeral });
+        }
     }
 }
 
