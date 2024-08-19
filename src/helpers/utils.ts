@@ -1,23 +1,22 @@
 import { $ } from "bun";
-import dedent from "./dedent.ts";
 import {
+    type BaseMessageOptions,
+    type Channel,
     ChatInputCommandInteraction,
     type Client,
     type GuildMember,
     Message,
     MessageType,
+    type PermissionResolvable,
     PermissionsBitField,
     type TextChannel,
     type User,
     userMention,
-    type BaseMessageOptions,
-    type Channel,
-    type PermissionResolvable,
 } from "discord.js";
 import assert from "node:assert/strict";
 import { mkdirSync, readdirSync, rmSync, statSync } from "node:fs";
-import path from "node:path";
 import os from "node:os";
+import path from "node:path";
 import sharp from "sharp";
 import strftime from "strftime";
 import { table } from "table";
@@ -34,6 +33,7 @@ import { db } from "../db/index.ts";
 import { errorLogs } from "../db/schema.ts";
 import * as prefixHandler from "../handlers/prefixes.ts";
 import * as statusHandler from "../handlers/statuses.ts";
+import dedent from "./dedent.ts";
 import type {
     EmbedData,
     ErrorLogOptions,
@@ -314,7 +314,7 @@ export async function getUserObjectPingId(message: Message, idx = 1): Promise<Us
     const pingOrIdString = content[idx]!;
 
     try {
-        if (!Number.isNaN(parseInt(pingOrIdString)))
+        if (!Number.isNaN(Number.parseInt(pingOrIdString)))
             user = await message.client.users.fetch(pingOrIdString);
         if (!user && pingOrIdString.startsWith("<")) user = message.mentions.users.first();
         return user ? user : undefined;
@@ -459,7 +459,7 @@ export async function downloadURL(url: string, saveLocation: string) {
         await writer.end();
     } catch (err) {
         console.error(err);
-        return `Failed to write to file`;
+        return "Failed to write to file";
     }
 }
 

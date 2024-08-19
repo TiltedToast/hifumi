@@ -1,12 +1,12 @@
 import { $ } from "bun";
 import {
     DiscordAPIError,
-    GuildEmoji,
-    Message,
+    type GuildEmoji,
+    type Message,
     MessageType,
     PermissionFlagsBits,
     RESTJSONErrorCodes,
-    Sticker,
+    type Sticker,
     StickerFormatType,
 } from "discord.js";
 import Fuse from "fuse.js";
@@ -165,7 +165,7 @@ async function convertEmojis(emojis: RegExpMatchArray, message: Message) {
             continue;
         }
 
-        output += newEmoji.toString() + " ";
+        output += `${newEmoji.toString()} `;
 
         if (guildEmoji?.deletable) await guildEmoji.delete("Replaced with GIF version");
     }

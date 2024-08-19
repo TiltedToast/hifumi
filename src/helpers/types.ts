@@ -1,4 +1,11 @@
-import { ActivityType, ButtonInteraction, Embed, EmbedBuilder, Message, User } from "discord.js";
+import {
+    ActivityType,
+    type ButtonInteraction,
+    type Embed,
+    type EmbedBuilder,
+    type Message,
+    type User,
+} from "discord.js";
 import { z } from "zod";
 
 export const SubredditInfoSchema = z.object({

@@ -1,6 +1,6 @@
 import {
-    ButtonInteraction,
-    ChatInputCommandInteraction,
+    type ButtonInteraction,
+    type ChatInputCommandInteraction,
     codeBlock,
     userMention,
     type Interaction,
@@ -53,7 +53,7 @@ export default async function handleInteraction(interaction: Interaction) {
 
         if (!interaction.isChatInputCommand()) return;
         await channel.send(
-            codeBlock("js", `${error as string}`) + `\n${userMention(BOT_OWNERS.primary)}`
+            `${codeBlock("js", `${error as string}`)}\n${userMention(BOT_OWNERS.primary)}`
         );
     }
 }

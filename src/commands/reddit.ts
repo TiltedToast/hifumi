@@ -1,9 +1,9 @@
 import {
     ChannelType,
-    ChatInputCommandInteraction,
+    type ChatInputCommandInteraction,
     EmbedBuilder,
-    Message,
-    TextChannel,
+    type Message,
+    type TextChannel,
 } from "discord.js";
 import Snoowrap from "snoowrap";
 import type { Timespan } from "snoowrap/dist/objects/Subreddit.js";
@@ -53,7 +53,6 @@ export async function sub(input: ChatInputCommandInteraction | Message) {
     } else {
         // @ts-expect-error
         const content = input.content.split(" ").filter(Boolean);
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         if (content.length === 1) {
             return await sendOrReply(input, "You have to specify a subreddit");
         }
@@ -135,10 +134,8 @@ export async function sub(input: ChatInputCommandInteraction | Message) {
 
     if (isChatInputCommandInteraction(input)) {
         // @ts-expect-error
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         await input.editReply({ embeds: [imgEmbed] });
-        // @ts-expect-error
-    } else if (msg && msg.editable) {
+    } else if (msg?.editable) {
         // @ts-expect-error
         await msg.edit({ embeds: [imgEmbed] });
     } else {
@@ -253,11 +250,11 @@ async function notifyUser(
 ): Promise<Message> {
     if (isChatInputCommandInteraction(input)) {
         return await input.editReply(payload);
-    } else if (message && message.editable) {
-        return await message.edit(payload);
-    } else {
-        return await input.channel?.send(payload);
     }
+    if (message?.editable) {
+        return await message.edit(payload);
+    }
+    return await input.channel?.send(payload);
 }
 
 async function getSubmissions(subreddit: string, limit: number) {

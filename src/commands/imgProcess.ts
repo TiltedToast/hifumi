@@ -116,7 +116,7 @@ export async function resizeImg(message: Message, prefix: string) {
 
     const width = Math.floor(Number(content[1]));
 
-    if (isNaN(width) || width <= 0) return await message.channel.send("Invalid width!");
+    if (Number.isNaN(width) || width <= 0) return await message.channel.send("Invalid width!");
     if (width > 5000) return await message.channel.send("Width too large!");
 
     const source = message.attachments.size > 0 ? message.attachments.first()?.url : content[2];
@@ -251,7 +251,7 @@ export async function imgur(message: Message, prefix: string) {
 
         return await message.channel.send(result.data.link);
     }
-    if (contentLength !== null && parseInt(contentLength) <= FileSizeLimit.ImgurFile) {
+    if (contentLength !== null && Number.parseInt(contentLength) <= FileSizeLimit.ImgurFile) {
         formdata.append("image", source);
 
         const response = await fetch("https://api.imgur.com/3/image", requestOptions).catch(

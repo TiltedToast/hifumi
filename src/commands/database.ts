@@ -1,5 +1,10 @@
 import { LibsqlError } from "@libsql/client";
-import { ChatInputCommandInteraction, Message, PermissionFlagsBits, codeBlock } from "discord.js";
+import {
+    type ChatInputCommandInteraction,
+    type Message,
+    PermissionFlagsBits,
+    codeBlock,
+} from "discord.js";
 import { fromZodError } from "zod-validation-error";
 import { db, dbClient, updatePrefix as updatePrefixDB } from "../db/index.ts";
 import { statuses } from "../db/schema.ts";
@@ -25,9 +30,8 @@ export async function runSQL(message: Message) {
         if (e instanceof LibsqlError) {
             await message.channel.send(`Invalid Query\n${e.message}`);
             return;
-        } else {
-            await message.channel.send("Unknown error, check the logs");
         }
+        await message.channel.send("Unknown error, check the logs");
         console.error(e);
     });
 
@@ -97,9 +101,8 @@ export async function insertStatus(message: Message): Promise<undefined | Messag
                 if (e.message.includes("UNIQUE constraint failed")) {
                     await message.channel.send("Status already exists");
                     return;
-                } else {
-                    await message.channel.send("Unknown error, check the logs");
                 }
+                await message.channel.send("Unknown error, check the logs");
             }
             console.error(e);
         });

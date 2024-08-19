@@ -3,13 +3,13 @@ import {
     ActionRowBuilder,
     ButtonBuilder,
     ButtonStyle,
-    ChatInputCommandInteraction,
-    Client,
+    type ChatInputCommandInteraction,
+    type Client,
     EmbedBuilder,
-    Message,
+    type Message,
     PermissionFlagsBits,
     ThreadAutoArchiveDuration,
-    User,
+    type User,
     codeBlock,
 } from "discord.js";
 import { all, create, type FactoryFunctionMap } from "mathjs";
@@ -163,7 +163,7 @@ export async function pingRandomMembers(message: Message) {
     }
 
     const amountInput = Number(message.content.split(" ")[1]);
-    const amount = isNaN(amountInput) ? 1 : amountInput;
+    const amount = Number.isNaN(amountInput) ? 1 : amountInput;
 
     const members = await message.guild.members.fetch();
 
