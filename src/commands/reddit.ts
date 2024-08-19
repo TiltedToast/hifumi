@@ -27,10 +27,12 @@ const RedditClient = new Snoowrap({
     refreshToken: process.env.REDDIT_REFRESH_TOKEN,
 });
 
+// eslint-disable-next-line @typescript-eslint/no-unsafe-call
 export async function sub(input: ChatInputCommandInteraction | Message) {
     return sendOrReply(input, "This command is disabled for now, sorry!");
 
     // @ts-expect-error
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     if (isChatInputCommandInteraction(input)) await input.deferReply({ ephemeral: true });
 
     const { isSFW, isNSFW, force } = parseSubFlags(input);
@@ -49,13 +51,17 @@ export async function sub(input: ChatInputCommandInteraction | Message) {
 
     if (isChatInputCommandInteraction(input)) {
         // @ts-expect-error
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
         subreddit = input.options.getString("subreddit", true).toLowerCase();
     } else {
         // @ts-expect-error
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
         const content = input.content.split(" ").filter(Boolean);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         if (content.length === 1) {
             return await sendOrReply(input, "You have to specify a subreddit");
         }
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
         subreddit = content[1]!.toLowerCase();
     }
 
@@ -73,6 +79,7 @@ export async function sub(input: ChatInputCommandInteraction | Message) {
     }
 
     // @ts-expect-error
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     const json = (await response.json().catch(console.error)) as SubredditInfo;
 
     if (!SubredditInfoSchema.safeParse(json).success || !json) {
@@ -134,6 +141,7 @@ export async function sub(input: ChatInputCommandInteraction | Message) {
 
     if (isChatInputCommandInteraction(input)) {
         // @ts-expect-error
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         await input.editReply({ embeds: [imgEmbed] });
         // @ts-expect-error
     } else if (msg && msg.editable) {

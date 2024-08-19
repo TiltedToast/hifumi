@@ -20,7 +20,8 @@
         "alwaysStrict": true,
         "verbatimModuleSyntax": true,
         "incremental": true,
-        "noUncheckedIndexedAccess": true
+        "noUncheckedIndexedAccess": true,
+        "allowUnreachableCode": true
     },
     "include": ["**/*.ts"],
     "exclude": ["node_modules", "dist"]
