@@ -1,4 +1,4 @@
-import dedent from "dedent";
+import dedent from "../helpers/dedent.ts";
 import {
     ActionRowBuilder,
     ButtonBuilder,
@@ -260,7 +260,7 @@ export async function helpCmd(input: Message | ChatInputCommandInteraction, pref
         );
     }
 
-    prefix ??= isDev() ? DEV_PREFIX : prefixMap.get(input.guild?.id ?? "") ?? DEFAULT_PREFIX;
+    prefix ??= isDev() ? DEV_PREFIX : (prefixMap.get(input.guild?.id ?? "") ?? DEFAULT_PREFIX);
 
     const helpMsg = helpMsgArray.map((msg) => `**${prefix}${msg.cmd}** - ${msg.desc}`).join("\n");
 

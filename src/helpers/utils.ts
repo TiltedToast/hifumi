@@ -1,5 +1,5 @@
 import { $ } from "bun";
-import dedent from "dedent";
+import dedent from "./dedent.ts";
 import {
     ChatInputCommandInteraction,
     Client,

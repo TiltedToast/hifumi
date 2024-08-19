@@ -1,5 +1,5 @@
 import "@total-typescript/ts-reset";
-import dedent from "dedent";
+import dedent from "./helpers/dedent.ts";
 import { Client, GatewayIntentBits, Partials, TextChannel } from "discord.js";
 import { existsSync, rmSync } from "node:fs";
 import strftime from "strftime";
