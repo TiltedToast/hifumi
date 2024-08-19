@@ -27,12 +27,10 @@ const RedditClient = new Snoowrap({
     refreshToken: process.env.REDDIT_REFRESH_TOKEN,
 });
 
-// eslint-disable-next-line @typescript-eslint/no-unsafe-call
 export async function sub(input: ChatInputCommandInteraction | Message) {
     return sendOrReply(input, "This command is disabled for now, sorry!");
 
     // @ts-expect-error
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     if (isChatInputCommandInteraction(input)) await input.deferReply({ ephemeral: true });
 
     const { isSFW, isNSFW, force } = parseSubFlags(input);
@@ -51,17 +49,14 @@ export async function sub(input: ChatInputCommandInteraction | Message) {
 
     if (isChatInputCommandInteraction(input)) {
         // @ts-expect-error
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
         subreddit = input.options.getString("subreddit", true).toLowerCase();
     } else {
         // @ts-expect-error
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
         const content = input.content.split(" ").filter(Boolean);
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         if (content.length === 1) {
             return await sendOrReply(input, "You have to specify a subreddit");
         }
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
         subreddit = content[1]!.toLowerCase();
     }
 
@@ -79,7 +74,6 @@ export async function sub(input: ChatInputCommandInteraction | Message) {
     }
 
     // @ts-expect-error
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     const json = (await response.json().catch(console.error)) as SubredditInfo;
 
     if (!SubredditInfoSchema.safeParse(json).success || !json) {
@@ -186,10 +180,7 @@ function parseSubFlags(input: ChatInputCommandInteraction | Message): {
         }
     }
     // prettier-ignore
-    if (
-        (input.channel as TextChannel).nsfw ||
-        input.channel?.type === ChannelType.DM
-    ) {
+    if ((input.channel as TextChannel).nsfw || input.channel?.type === ChannelType.DM) {
         isNSFW = true;
     }
 
@@ -223,10 +214,7 @@ async function fetchSubmissions(
                     over_18: submission.over_18,
                 };
                 // prettier-ignore
-                if (
-                    InsertRedditPostSchema.safeParse(post).success &&
-                    !await existsPost(post)
-                ) {
+                if (InsertRedditPostSchema.safeParse(post).success && !(await existsPost(post))) {
                     posts.set(post.url, post);
                 }
             }

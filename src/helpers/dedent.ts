@@ -43,7 +43,6 @@ function createDedent(options: DedentOptions) {
             result += next;
 
             if (i < values.length) {
-                // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
                 result += values[i];
             }
         }

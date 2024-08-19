@@ -55,7 +55,6 @@ export const execPromise = promisify(exec);
 export const urbanEmbeds: Record<`${string}-${string}`, EmbedData[]> = {};
 const math = create(all as FactoryFunctionMap);
 
-// eslint-disable-next-line @typescript-eslint/unbound-method
 const mathEvaluate = math.evaluate;
 
 /**
@@ -64,12 +63,24 @@ const mathEvaluate = math.evaluate;
 // prettier-ignore
 math.import(
     {
-        parse:      () => { throw new Error("Function parse is disabled"); },
-        import:     () => { throw new Error("Function import is disabled"); },
-        evaluate:   () => { throw new Error("Function evaluate is disabled"); },
-        simplify:   () => { throw new Error("Function simplify is disabled"); },
-        createUnit: () => { throw new Error("Function createUnit is disabled"); },
-        derivative: () => { throw new Error("Function derivative is disabled"); },
+        parse: () => {
+            throw new Error("Function parse is disabled");
+        },
+        import: () => {
+            throw new Error("Function import is disabled");
+        },
+        evaluate: () => {
+            throw new Error("Function evaluate is disabled");
+        },
+        simplify: () => {
+            throw new Error("Function simplify is disabled");
+        },
+        createUnit: () => {
+            throw new Error("Function createUnit is disabled");
+        },
+        derivative: () => {
+            throw new Error("Function derivative is disabled");
+        },
     },
     { override: true }
 );
@@ -260,7 +271,7 @@ export async function helpCmd(input: Message | ChatInputCommandInteraction, pref
         );
     }
 
-    prefix ??= isDev() ? DEV_PREFIX : (prefixMap.get(input.guild?.id ?? "") ?? DEFAULT_PREFIX);
+    prefix ??= isDev() ? DEV_PREFIX : prefixMap.get(input.guild?.id ?? "") ?? DEFAULT_PREFIX;
 
     const helpMsg = helpMsgArray.map((msg) => `**${prefix}${msg.cmd}** - ${msg.desc}`).join("\n");
 
@@ -361,7 +372,6 @@ export async function jsEval(message: Message, mode?: "math") {
 export async function asyncEval(command: string, client: Client): Promise<string> {
     const tools = await import("../helpers/utils.js");
     const code = `(async () => { return (${command}) })()`;
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return await eval(code);
 }
 

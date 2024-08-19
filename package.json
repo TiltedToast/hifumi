@@ -20,15 +20,13 @@
         "zod-validation-error": "^3.3.1"
     },
     "devDependencies": {
+        "@biomejs/biome": "1.8.3",
         "@total-typescript/ts-reset": "^0.5.1",
         "@types/qrcode": "^1.5.5",
         "@types/strftime": "^0.9.8",
-        "@typescript-eslint/eslint-plugin": "^7.18.0",
-        "@typescript-eslint/parser": "^7.18.0",
         "bun-types": "^1.1.24",
         "concurrently": "^8.2.2",
         "drizzle-kit": "^0.24.0",
-        "eslint": "^8.57.0",
         "husky": "^9.1.4",
         "lint-staged": "^15.2.9",
         "prettier": "^3.3.3",
@@ -38,10 +36,10 @@
         "start": "pm2 start ./pm2.config.cjs",
         "stop": "pm2 delete ./pm2.config.cjs",
         "restart": "pm2 reload ./pm2.config.cjs",
-        "fmt:check": "prettier --config .prettierrc --check .",
-        "fmt:write": "prettier --config .prettierrc --write .",
+        "fmt:check": "biome format",
+        "fmt:write": "biome format --write",
         "test": "bun run --bun concurrently 'bun:test:*'",
-        "test:lint": "eslint . -c .eslintrc --max-warnings 0 --cache",
+        "test:lint": "biome lint --error-on-warnings",
         "test:build": "tsc",
         "prepare": "husky || true",
         "deploy": "bun ./src/deploy-commands.ts",
@@ -52,6 +50,6 @@
         "clear-test-commands": "bun ./src/deploy-commands.ts --guild 655484563077988385 --clear"
     },
     "lint-staged": {
-        "*.{js,ts,json,css,md,yml}": "prettier --config .prettierrc --write"
+        "*.{js,ts,json,css,md,yml}": "biome format --write"
     }
 }

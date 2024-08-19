@@ -2,13 +2,13 @@ import { $ } from "bun";
 import dedent from "./dedent.ts";
 import {
     ChatInputCommandInteraction,
-    Client,
-    GuildMember,
+    type Client,
+    type GuildMember,
     Message,
     MessageType,
     PermissionsBitField,
-    TextChannel,
-    User,
+    type TextChannel,
+    type User,
     userMention,
     type BaseMessageOptions,
     type Channel,
@@ -17,7 +17,7 @@ import {
 import assert from "node:assert/strict";
 import { mkdirSync, readdirSync, rmSync, statSync } from "node:fs";
 import path from "node:path";
-import os from "os";
+import os from "node:os";
 import sharp from "sharp";
 import strftime from "strftime";
 import { table } from "table";
@@ -118,14 +118,15 @@ export async function sendOrReply(
 ) {
     if (input instanceof Message) {
         return await input.channel.send(message);
-    } else if (input.deferred) {
+    }
+    if (input.deferred) {
         return await input.editReply(message);
-    } else if (input.isRepliable()) {
+    }
+    if (input.isRepliable()) {
         if (typeof message === "string") {
             return await input.reply({ content: message, ephemeral });
-        } else {
-            return await input.reply({ ...message, ephemeral });
         }
+        return await input.reply({ ...message, ephemeral });
     }
 }
 

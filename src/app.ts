@@ -1,17 +1,15 @@
 import "@total-typescript/ts-reset";
-import dedent from "./helpers/dedent.ts";
-import { Client, GatewayIntentBits, Partials, TextChannel } from "discord.js";
+import { Client, GatewayIntentBits, Partials, type TextChannel } from "discord.js";
 import { existsSync, rmSync } from "node:fs";
 import strftime from "strftime";
 import { BOT_NAME, LOG_CHANNEL } from "./config.ts";
 import handleInteraction from "./handlers/interactions.ts";
 import handleMessage from "./handlers/messages.ts";
+import dedent from "./helpers/dedent.ts";
 
 import assert from "node:assert/strict";
 import { migrateDb } from "./db/index.ts";
 import { initialise, isDev, wipeTempFolders } from "./helpers/utils.ts";
-
-/* eslint-disable @typescript-eslint/no-misused-promises */
 
 const startTime = Date.now();
 

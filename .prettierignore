@@ -1,4 +1,0 @@
-**/node_modules
-**/dist
-**/.devcontainer
-pnpm-lock.yaml
