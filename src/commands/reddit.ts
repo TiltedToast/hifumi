@@ -179,8 +179,11 @@ function parseSubFlags(input: ChatInputCommandInteraction | Message): {
             force = true;
         }
     }
-    // prettier-ignore
-    if ((input.channel as TextChannel).nsfw || input.channel?.type === ChannelType.DM) {
+    // biome-ignore format: this is easier to read
+    if (
+        (input.channel as TextChannel).nsfw ||
+        input.channel?.type === ChannelType.DM
+    ) {
         isNSFW = true;
     }
 
@@ -213,8 +216,11 @@ async function fetchSubmissions(
                     permalink: submission.permalink,
                     over_18: submission.over_18,
                 };
-                // prettier-ignore
-                if (InsertRedditPostSchema.safeParse(post).success && !(await existsPost(post))) {
+                // biome-ignore format: this is easier to follow
+                if (
+                    InsertRedditPostSchema.safeParse(post).success &&
+                    !await existsPost(post)
+                ) {
                     posts.set(post.url, post);
                 }
             }

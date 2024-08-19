@@ -60,27 +60,15 @@ const mathEvaluate = math.evaluate;
 /**
  * Disables all the functions that could be used to do malicious stuff
  */
-// prettier-ignore
+// biome-ignore format: this is nicer
 math.import(
     {
-        parse: () => {
-            throw new Error("Function parse is disabled");
-        },
-        import: () => {
-            throw new Error("Function import is disabled");
-        },
-        evaluate: () => {
-            throw new Error("Function evaluate is disabled");
-        },
-        simplify: () => {
-            throw new Error("Function simplify is disabled");
-        },
-        createUnit: () => {
-            throw new Error("Function createUnit is disabled");
-        },
-        derivative: () => {
-            throw new Error("Function derivative is disabled");
-        },
+        parse:      () => { throw new Error("Function parse is disabled"); },
+        import:     () => { throw new Error("Function import is disabled"); },
+        evaluate:   () => { throw new Error("Function evaluate is disabled"); },
+        simplify:   () => { throw new Error("Function simplify is disabled"); },
+        createUnit: () => { throw new Error("Function createUnit is disabled"); },
+        derivative: () => { throw new Error("Function derivative is disabled"); },
     },
     { override: true }
 );

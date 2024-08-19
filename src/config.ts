@@ -28,19 +28,19 @@ export const IMAGE_THREAD_CHANNELS = [
 ] as const;
 export const USER_AGENT = `${BOT_NAME}:v1.0.0:tiltedtoast27@gmail.com`;
 
-// prettier-ignore
+// biome-ignore format: this is nicer
 const envVariables = z.object({
-    BOT_TOKEN: z.string().min(1, "You must provide a Discord Bot Token"),
-    EXCHANGE_API_KEY: z.string().min(1, "You must provide an API key for currency conversion"),
-    IMGUR_CLIENT_ID: z.string().min(1, "You must provide an Imgur Client Id"),
-    IMGUR_CLIENT_SECRET: z.string().min(1, "You must provide an Imgur Client Secret"),
-    REDDIT_CLIENT_ID: z.string().min(1, "You must provide a Reddit Client Id"),
+    BOT_TOKEN:            z.string().min(1, "You must provide a Discord Bot Token"),
+    EXCHANGE_API_KEY:     z.string().min(1, "You must provide an API key for currency conversion"),
+    IMGUR_CLIENT_ID:      z.string().min(1, "You must provide an Imgur Client Id"),
+    IMGUR_CLIENT_SECRET:  z.string().min(1, "You must provide an Imgur Client Secret"),
+    REDDIT_CLIENT_ID:     z.string().min(1, "You must provide a Reddit Client Id"),
     REDDIT_CLIENT_SECRET: z.string().min(1, "You must provide a Reddit Client Secret"),
     REDDIT_REFRESH_TOKEN: z.string().min(1, "You must provide a Reddit Refresh Token"),
-    TURSO_DATABASE_URL: z.string().min(1, "You must provide a Turso Database URL"),
-    TURSO_AUTH_TOKEN: z.string().min(1, "You must provide a Turso Auth Token"),
+    TURSO_DATABASE_URL:   z.string().min(1, "You must provide a Turso Database URL"),
+    TURSO_AUTH_TOKEN:     z.string().min(1, "You must provide a Turso Auth Token"),
     WOLFRAM_ALPHA_APP_ID: z.string().min(1, "You must provide a Wolfram|Alpha App ID"),
-    DEV_MODE: z.enum(["true", "false"]),
+    DEV_MODE:             z.enum(["true", "false"]),
 });
 
 if (!process.argv.some((arg) => arg.includes("deploy-commands.ts"))) {

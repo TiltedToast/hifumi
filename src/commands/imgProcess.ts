@@ -68,11 +68,11 @@ export async function beautiful(input: Message | ChatInputCommandInteraction) {
         );
     }
 
-    // prettier-ignore
+    // biome-ignore format: this is nicer
     canvas.composite([
-        { input: avatar, top: 35, left: 422 }, // Top pfp
-        { input: avatar, top: 377, left: 430 }, // Bottom pfp
-        { input: background, top: 0, left: 0 }, // Background
+        { input: avatar,     top: 35,  left: 422 }, // Top pfp
+        { input: avatar,     top: 377, left: 430 }, // Bottom pfp
+        { input: background, top: 0,   left: 0 },   // Background
     ]);
 
     const buf = await canvas.png().toBuffer().catch(console.error);
