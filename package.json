@@ -51,5 +51,6 @@
     },
     "lint-staged": {
         "*.{js,ts,json,css,md,yml}": "biome format --write"
-    }
+    },
+    "trustedDependencies": ["@biomejs/biome", "sharp", "utf-8-validate"]
 }
