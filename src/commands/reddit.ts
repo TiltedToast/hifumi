@@ -28,6 +28,9 @@ const RedditClient = new Snoowrap({
 });
 
 export async function sub(input: ChatInputCommandInteraction | Message) {
+    return sendOrReply(input, "This command is disabled for now, sorry!");
+
+    // @ts-expect-error
     if (isChatInputCommandInteraction(input)) await input.deferReply({ ephemeral: true });
 
     const { isSFW, isNSFW, force } = parseSubFlags(input);
@@ -45,8 +48,10 @@ export async function sub(input: ChatInputCommandInteraction | Message) {
     let subreddit: string;
 
     if (isChatInputCommandInteraction(input)) {
+        // @ts-expect-error
         subreddit = input.options.getString("subreddit", true).toLowerCase();
     } else {
+        // @ts-expect-error
         const content = input.content.split(" ").filter(Boolean);
         if (content.length === 1) {
             return await sendOrReply(input, "You have to specify a subreddit");
@@ -67,11 +72,13 @@ export async function sub(input: ChatInputCommandInteraction | Message) {
         );
     }
 
+    // @ts-expect-error
     const json = (await response.json().catch(console.error)) as SubredditInfo;
 
     if (!SubredditInfoSchema.safeParse(json).success || !json) {
         return await sendOrReply(
             input,
+            // @ts-expect-error
             `Reddit returned an invalid response, probably something broke with their API.\nHTTP ${response.status}: ${response.statusText}`
         );
     }
@@ -84,10 +91,12 @@ export async function sub(input: ChatInputCommandInteraction | Message) {
         return await sendOrReply(input, `Subreddit not found! Reason: ${json.reason}`);
     }
 
+    // @ts-expect-error
     if (response.status === 404 || json.kind !== "t5") {
         return await sendOrReply(input, "Subreddit not found");
     }
 
+    // @ts-expect-error
     if (!response.ok) {
         return await sendOrReply(input, `Reddit's API might be having issues, try again later`);
     }
@@ -124,8 +133,11 @@ export async function sub(input: ChatInputCommandInteraction | Message) {
         .setImage(url);
 
     if (isChatInputCommandInteraction(input)) {
+        // @ts-expect-error
         await input.editReply({ embeds: [imgEmbed] });
+        // @ts-expect-error
     } else if (msg && msg.editable) {
+        // @ts-expect-error
         await msg.edit({ embeds: [imgEmbed] });
     } else {
         await input.channel?.send({ embeds: [imgEmbed] });
