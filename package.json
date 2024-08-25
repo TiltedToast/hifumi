@@ -21,13 +21,13 @@
     },
     "devDependencies": {
         "@biomejs/biome": "1.8.3",
-        "@total-typescript/ts-reset": "^0.5.1",
+        "@total-typescript/ts-reset": "^0.6.0",
         "@types/qrcode": "^1.5.5",
         "@types/strftime": "^0.9.8",
-        "bun-types": "^1.1.24",
+        "bun-types": "^1.1.26",
         "concurrently": "^8.2.2",
-        "drizzle-kit": "^0.24.0",
-        "husky": "^9.1.4",
+        "drizzle-kit": "^0.24.1",
+        "husky": "^9.1.5",
         "lint-staged": "^15.2.9",
         "prettier": "^3.3.3",
         "typescript": "^5.5.4"
