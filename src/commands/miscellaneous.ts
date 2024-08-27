@@ -141,7 +141,7 @@ export async function checkForImgAndCreateThread(message: Message) {
         return await message.delete();
     }
 
-    if (message.attachments.size === 0) return;
+    if (message.attachments.size === 0 || message.thread) return;
 
     return await message.startThread({
         name: message.author.username,
