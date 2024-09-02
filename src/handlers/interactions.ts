@@ -4,6 +4,7 @@ import {
     codeBlock,
     userMention,
     type Interaction,
+    PartialGroupDMChannel,
 } from "discord.js";
 import { updatePrefix } from "../commands/database.ts";
 import { beautiful, qrCode } from "../commands/imgProcess.ts";
@@ -49,7 +50,7 @@ export default async function handleInteraction(interaction: Interaction) {
             ? interaction.channel
             : await interaction.client.channels.fetch(LOG_CHANNEL);
 
-        if (!channel?.isTextBased()) return;
+        if (!channel?.isTextBased() || channel instanceof PartialGroupDMChannel) return;
 
         if (!interaction.isChatInputCommand()) return;
         await channel.send(

@@ -37,6 +37,7 @@ import dedent from "./dedent.ts";
 import type {
     EmbedData,
     ErrorLogOptions,
+    NarrowedMessage,
     ParsedEmoji,
     ResizeOptions,
     SupportedStaticImgExts,
@@ -96,12 +97,14 @@ export function formatTable<K extends string | number | symbol, V>(rows: Record<
 }
 
 export function isChatInputCommandInteraction(
-    input: Message | ChatInputCommandInteraction
+    input: NarrowedMessage | ChatInputCommandInteraction
 ): input is ChatInputCommandInteraction {
     return input instanceof ChatInputCommandInteraction;
 }
 
-export function isMessage(input: Message | ChatInputCommandInteraction): input is Message {
+export function isMessage(
+    input: NarrowedMessage | ChatInputCommandInteraction
+): input is NarrowedMessage {
     return input instanceof Message;
 }
 
@@ -112,11 +115,11 @@ export function isMessage(input: Message | ChatInputCommandInteraction): input i
  * @param ephemeral Whether or not the message should be ephemeral (only visible to the user who invoked the command, this is true by default and only for command interactions)
  */
 export async function sendOrReply(
-    input: Message | ChatInputCommandInteraction,
+    input: NarrowedMessage | ChatInputCommandInteraction,
     message: string | BaseMessageOptions,
     ephemeral = true
 ) {
-    if (input instanceof Message) {
+    if ("reactions" in input) {
         return await input.channel.send(message);
     }
     if (input.deferred) {
@@ -178,7 +181,7 @@ export function isBotOwner(user: User): boolean {
     return user.id === BOT_OWNERS.primary || BOT_OWNERS.secondary.includes(user.id);
 }
 
-export function isAiTrigger(message: Message, reactCmd: string): boolean {
+export function isAiTrigger(message: NarrowedMessage, reactCmd: string): boolean {
     if (!message.client.user) return false;
     if (message.content.startsWith(`$${reactCmd}`) && message.type === MessageType.Reply) {
         const repliedMsg = message.channel.messages.resolve(message.reference?.messageId ?? "");
@@ -308,7 +311,10 @@ export function isDev(): boolean {
  * @param message Discord message object
  * @returns The user object
  */
-export async function getUserObjectPingId(message: Message, idx = 1): Promise<User | undefined> {
+export async function getUserObjectPingId(
+    message: NarrowedMessage,
+    idx = 1
+): Promise<User | undefined> {
     let user: User | undefined;
     const content = message.content.split(" ").filter(Boolean);
     const pingOrIdString = content[idx]!;
@@ -518,7 +524,10 @@ function deleteTemp(folder: string) {
  * @param timeoutSecs The time in seconds after which the folder will be deleted
  * @returns The path to the temporary folder
  */
-export function createTemp(input: Message | ChatInputCommandInteraction, timeoutSecs = 60): string {
+export function createTemp(
+    input: NarrowedMessage | ChatInputCommandInteraction,
+    timeoutSecs = 60
+): string {
     const tempFolder = os.tmpdir();
 
     const tempPath = path.join(

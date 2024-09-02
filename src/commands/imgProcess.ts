@@ -1,8 +1,13 @@
-import type { ChatInputCommandInteraction, Message, User } from "discord.js";
+import type { ChatInputCommandInteraction, User } from "discord.js";
 import { readFile } from "node:fs/promises";
 import qr from "qrcode";
 import sharp from "sharp";
-import { FileSizeLimit, ImgurResponseSchema, type ImgurResponse } from "../helpers/types.ts";
+import {
+    FileSizeLimit,
+    type ImgurResponse,
+    ImgurResponseSchema,
+    type NarrowedMessage,
+} from "../helpers/types.ts";
 import {
     createTemp,
     downloadURL,
@@ -14,7 +19,7 @@ import {
     sendOrReply,
 } from "../helpers/utils.ts";
 
-export async function beautiful(input: Message | ChatInputCommandInteraction) {
+export async function beautiful(input: NarrowedMessage | ChatInputCommandInteraction) {
     let user: User;
 
     if (isChatInputCommandInteraction(input)) {
@@ -86,7 +91,7 @@ export async function beautiful(input: Message | ChatInputCommandInteraction) {
     return await sendOrReply(input, { files: [buf] }, false);
 }
 
-export async function qrCode(input: Message | ChatInputCommandInteraction) {
+export async function qrCode(input: NarrowedMessage | ChatInputCommandInteraction) {
     let qrText: string;
     if (isChatInputCommandInteraction(input)) {
         qrText = input.options.getString("data", true);
@@ -103,7 +108,7 @@ export async function qrCode(input: Message | ChatInputCommandInteraction) {
     return await sendOrReply(input, { files: [buf] });
 }
 
-export async function resizeImg(message: Message, prefix: string) {
+export async function resizeImg(message: NarrowedMessage, prefix: string) {
     const content = message.content.split(" ").filter(Boolean);
 
     // Checks for invalid User input
@@ -159,7 +164,7 @@ export async function resizeImg(message: Message, prefix: string) {
     await message.channel.send({ files: [`${temp}/unknown_resized.${imgType}`] });
 }
 
-export async function imgur(message: Message, prefix: string) {
+export async function imgur(message: NarrowedMessage, prefix: string) {
     const content = message.content.split(" ").filter(Boolean);
 
     if (content.length !== 2 && message.attachments.size === 0) {

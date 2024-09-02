@@ -1,4 +1,3 @@
-import type { Message } from "discord.js";
 import * as db from "../commands/database.ts";
 import * as emoji from "../commands/emoji.ts";
 import * as imgProcess from "../commands/imgProcess.ts";
@@ -6,17 +5,25 @@ import * as misc from "../commands/miscellaneous.ts";
 import * as reddit from "../commands/reddit.ts";
 import { insertPrefix } from "../db/index.ts";
 
+import { DMChannel, type Message } from "discord.js";
 import { DEFAULT_PREFIX, DEV_PREFIX, RELOAD_PREFIX } from "../config.ts";
-import type { MessageCommandData } from "../helpers/types.ts";
+import type { MessageCommandData, NarrowedMessage } from "../helpers/types.ts";
 import { clientHasPermissions, errorLog, isAiTrigger, isDev } from "../helpers/utils.ts";
 import { isLoading, prefixMap } from "./prefixes.ts";
 
-export default async function handleMessage(message: Message) {
+export default async function handleMessage(originalMessage: Message) {
     try {
         // Permission check for the channel which the message was sent in to avoid breaking the bot
-        if (message.author.bot || !(await clientHasPermissions(message)) || isLoading()) {
+        if (
+            originalMessage.author.bot ||
+            !(await clientHasPermissions(originalMessage)) ||
+            isLoading() ||
+            (originalMessage.channel.isDMBased() && !(originalMessage.channel instanceof DMChannel))
+        ) {
             return;
         }
+
+        const message = originalMessage as NarrowedMessage;
 
         const content = message.content.split(" ").filter(Boolean);
         const len = content.length;
@@ -59,7 +66,7 @@ export default async function handleMessage(message: Message) {
         }
         await misc.checkForImgAndCreateThread(message);
     } catch (err: unknown) {
-        await errorLog({ message, errorObject: err as Error });
+        await errorLog({ message: originalMessage, errorObject: err as Error });
     }
 }
 

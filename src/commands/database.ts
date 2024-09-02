@@ -2,6 +2,7 @@ import { LibsqlError } from "@libsql/client";
 import {
     type ChatInputCommandInteraction,
     type Message,
+    PartialGroupDMChannel,
     PermissionFlagsBits,
     codeBlock,
 } from "discord.js";
@@ -11,6 +12,7 @@ import { statuses } from "../db/schema.ts";
 import { InsertStatusSchema, type NewStatus } from "../db/types.ts";
 import { prefixMap } from "../handlers/prefixes.ts";
 import { statusArr } from "../handlers/statuses.ts";
+import type { NarrowedMessage } from "../helpers/types.ts";
 import {
     formatTable,
     hasPermission,
@@ -20,8 +22,9 @@ import {
     sendOrReply,
 } from "../helpers/utils.ts";
 
-export async function runSQL(message: Message) {
+export async function runSQL(message: NarrowedMessage) {
     if (!isBotOwner(message.author)) return;
+
     const query = message.content.split(" ").slice(1).join(" ");
 
     if (query.length === 0) return await message.channel.send("You need to provide a query smh");
@@ -62,7 +65,7 @@ export async function runSQL(message: Message) {
     );
 }
 
-export async function insertStatus(message: Message): Promise<undefined | Message> {
+export async function insertStatus(message: NarrowedMessage): Promise<undefined | Message> {
     if (!isBotOwner(message.author)) return;
 
     const content = message.content.split(" ").filter(Boolean);
@@ -122,7 +125,7 @@ export async function insertStatus(message: Message): Promise<undefined | Messag
     await message.channel.send(codeBlock(formattedDoc));
 }
 
-export async function updatePrefix(input: Message | ChatInputCommandInteraction) {
+export async function updatePrefix(input: NarrowedMessage | ChatInputCommandInteraction) {
     if (isChatInputCommandInteraction(input)) {
         if (
             !input.memberPermissions?.has(PermissionFlagsBits.ManageGuild) &&
@@ -153,13 +156,13 @@ export async function updatePrefix(input: Message | ChatInputCommandInteraction)
         return await sendOrReply(input, "Your prefix may only be 255 characters long at most");
     }
 
-    if (isDev()) await input.channel?.send("Wrong database <:emiliaSMH:747132102645907587>");
-
     // Finds the guild's document in the database
     // Updates said document with the new prefix
-    if (input.guild === null) {
+    if (input.guild === null || input.channel instanceof PartialGroupDMChannel) {
         return await sendOrReply(input, "This command can only be used in a server!");
     }
+
+    if (isDev()) await input.channel?.send("Wrong database <:emiliaSMH:747132102645907587>");
 
     const serverId = input.guild.id;
     const result = await updatePrefixDB(serverId, newPrefix);

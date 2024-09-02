@@ -2,7 +2,6 @@ import {
     ChannelType,
     type ChatInputCommandInteraction,
     EmbedBuilder,
-    type Message,
     type TextChannel,
 } from "discord.js";
 import Snoowrap from "snoowrap";
@@ -11,7 +10,7 @@ import { EMBED_COLOUR, REDDIT_USER_AGENT } from "../config.ts";
 import { db, existsPost, getRandomRedditPost } from "../db/index.ts";
 import { redditPosts } from "../db/schema.ts";
 import { InsertRedditPostSchema, type NewRedditPost, type RedditPost } from "../db/types.ts";
-import { SubredditInfoSchema, type SubredditInfo } from "../helpers/types.ts";
+import { type NarrowedMessage, type SubredditInfo, SubredditInfoSchema } from "../helpers/types.ts";
 import {
     isChatInputCommandInteraction,
     randomElementFromArray,
@@ -27,7 +26,7 @@ const RedditClient = new Snoowrap({
     refreshToken: process.env.REDDIT_REFRESH_TOKEN,
 });
 
-export async function sub(input: ChatInputCommandInteraction | Message) {
+export async function sub(input: ChatInputCommandInteraction | NarrowedMessage) {
     return sendOrReply(input, "This command is disabled for now, sorry!");
 
     // @ts-expect-error
@@ -35,7 +34,7 @@ export async function sub(input: ChatInputCommandInteraction | Message) {
 
     const { isSFW, isNSFW, force } = parseSubFlags(input);
 
-    let msg: Message | null = null;
+    let msg: NarrowedMessage | null = null;
 
     if (
         isNSFW &&
@@ -139,7 +138,7 @@ export async function sub(input: ChatInputCommandInteraction | Message) {
         // @ts-expect-error
         await msg.edit({ embeds: [imgEmbed] });
     } else {
-        await input.channel?.send({ embeds: [imgEmbed] });
+        await (input.channel as TextChannel)?.send({ embeds: [imgEmbed] });
     }
 }
 
@@ -149,7 +148,7 @@ export async function sub(input: ChatInputCommandInteraction | Message) {
  * @returns An array containing a boolean that indicated whether
  * to fetch NSFW posts or not and a boolean that indicates whether to force fetch posts or not
  */
-function parseSubFlags(input: ChatInputCommandInteraction | Message): {
+function parseSubFlags(input: ChatInputCommandInteraction | NarrowedMessage): {
     isSFW: boolean;
     isNSFW: boolean;
     force: boolean;
@@ -195,8 +194,8 @@ function parseSubFlags(input: ChatInputCommandInteraction | Message): {
  */
 async function fetchSubmissions(
     subreddit: string,
-    input: ChatInputCommandInteraction | Message,
-    msg: Message | null = null,
+    input: ChatInputCommandInteraction | NarrowedMessage,
+    msg: NarrowedMessage | null = null,
     limit = 100
 ): Promise<RedditPost[]> {
     const posts = new Map<string, NewRedditPost>();
@@ -244,17 +243,17 @@ async function fetchSubmissions(
 }
 
 async function notifyUser(
-    input: ChatInputCommandInteraction | Message,
-    message: Message | null,
+    input: ChatInputCommandInteraction | NarrowedMessage,
+    message: NarrowedMessage | null,
     payload: string
-): Promise<Message> {
+): Promise<NarrowedMessage> {
     if (isChatInputCommandInteraction(input)) {
-        return await input.editReply(payload);
+        return (await input.editReply(payload)) as NarrowedMessage;
     }
     if (message?.editable) {
         return await message.edit(payload);
     }
-    return await input.channel?.send(payload);
+    return (await input.channel?.send(payload)) as NarrowedMessage;
 }
 
 async function getSubmissions(subreddit: string, limit: number) {

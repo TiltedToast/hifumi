@@ -1,4 +1,3 @@
-import dedent from "../helpers/dedent.ts";
 import {
     ActionRowBuilder,
     ButtonBuilder,
@@ -6,13 +5,12 @@ import {
     type ChatInputCommandInteraction,
     type Client,
     EmbedBuilder,
-    type Message,
     PermissionFlagsBits,
     ThreadAutoArchiveDuration,
     type User,
     codeBlock,
 } from "discord.js";
-import { all, create, type FactoryFunctionMap } from "mathjs";
+import { type FactoryFunctionMap, all, create } from "mathjs";
 import assert from "node:assert/strict";
 import { exec } from "node:child_process";
 import { promisify } from "node:util";
@@ -27,15 +25,17 @@ import {
 import { db } from "../db/index.ts";
 import { aiCommandAliases, aiReactions, helpMessages, leet as leetTable } from "../db/schema.ts";
 import { prefixMap } from "../handlers/prefixes.ts";
+import dedent from "../helpers/dedent.ts";
 import {
-    PairConversionResponseSchema,
-    SupportedCodesSchema,
-    UrbanResponseSchema,
     type EmbedData,
+    type NarrowedMessage,
     type PairConversionResponse,
+    PairConversionResponseSchema,
     type SupportedCodesResponse,
+    SupportedCodesSchema,
     type UrbanEntry,
     type UrbanResponse,
+    UrbanResponseSchema,
 } from "../helpers/types.ts";
 import {
     getUserObjectPingId,
@@ -77,7 +77,7 @@ export async function patUser(interaction: ChatInputCommandInteraction) {
     return await interaction.reply(`$pat ${interaction.options.getUser("user", true).toString()}`);
 }
 
-export async function wolframAlpha(message: Message, command: "wolfram" | "wolf") {
+export async function wolframAlpha(message: NarrowedMessage, command: "wolfram" | "wolf") {
     if (!isBotOwner(message.author)) return;
 
     const longAnswer = command === "wolfram";
@@ -129,7 +129,7 @@ export async function wolframAlpha(message: Message, command: "wolfram" | "wolf"
     return await message.channel.send(codeBlock(answer));
 }
 
-export async function checkForImgAndCreateThread(message: Message) {
+export async function checkForImgAndCreateThread(message: NarrowedMessage) {
     if (!IMAGE_THREAD_CHANNELS.includes(message.channel.id)) {
         return;
     }
@@ -150,7 +150,7 @@ export async function checkForImgAndCreateThread(message: Message) {
     });
 }
 
-export async function pingRandomMembers(message: Message) {
+export async function pingRandomMembers(message: NarrowedMessage) {
     if (message.guild === null) return;
 
     if (
@@ -185,7 +185,7 @@ export async function pingRandomMembers(message: Message) {
     return await message.channel.send(outputString);
 }
 
-export async function reactToAi(message: Message, reactCmd: string) {
+export async function reactToAi(message: NarrowedMessage, reactCmd: string) {
     const reactMsgs = await db.select().from(aiReactions).catch(console.error);
     const cmdAliases = await db.select().from(aiCommandAliases).catch(console.error);
 
@@ -208,7 +208,7 @@ export async function reactToAi(message: Message, reactCmd: string) {
     }
 }
 
-export async function leet(input: Message | ChatInputCommandInteraction) {
+export async function leet(input: NarrowedMessage | ChatInputCommandInteraction) {
     let inputWords: string[];
 
     if (isChatInputCommandInteraction(input)) {
@@ -249,7 +249,10 @@ export async function leet(input: Message | ChatInputCommandInteraction) {
     await sendOrReply(input, leetOutput.substring(0, 2000), false);
 }
 
-export async function helpCmd(input: Message | ChatInputCommandInteraction, prefix?: string) {
+export async function helpCmd(
+    input: NarrowedMessage | ChatInputCommandInteraction,
+    prefix?: string
+) {
     const helpMsgArray = await db.select().from(helpMessages).execute();
 
     if (helpMsgArray.length === 0) {
@@ -271,17 +274,17 @@ export async function helpCmd(input: Message | ChatInputCommandInteraction, pref
     return await sendOrReply(input, { embeds: [helpEmbed] });
 }
 
-export async function gitPull(message: Message) {
+export async function gitPull(message: NarrowedMessage) {
     if (!isBotOwner(message.author)) return;
     await cmdConsole(message, "git pull");
     await reloadBot(message);
 }
 
-export async function py(message: Message) {
+export async function py(message: NarrowedMessage) {
     return await cmdConsole(message, undefined, true);
 }
 
-export async function cmdConsole(message: Message, cmd?: string, python = false) {
+export async function cmdConsole(message: NarrowedMessage, cmd?: string, python = false) {
     if (!isBotOwner(message.author)) return;
     // Creates a new string with the message content without the command
     // And runs it in a new shell process
@@ -316,7 +319,7 @@ export async function cmdConsole(message: Message, cmd?: string, python = false)
     }
 }
 
-export async function reloadBot(message: Message) {
+export async function reloadBot(message: NarrowedMessage) {
     if (!isBotOwner(message.author)) return;
     await writeUpdateFile();
     exec("bun run restart");
@@ -324,11 +327,11 @@ export async function reloadBot(message: Message) {
     process.exit(0);
 }
 
-export async function calc(message: Message) {
+export async function calc(message: NarrowedMessage) {
     return await jsEval(message, "math");
 }
 
-export async function jsEval(message: Message, mode?: "math") {
+export async function jsEval(message: NarrowedMessage, mode?: "math") {
     if (!isBotOwner(message.author) && !mode) return;
     let rslt: string;
 
@@ -363,7 +366,7 @@ export async function asyncEval(command: string, client: Client): Promise<string
     return await eval(code);
 }
 
-export async function avatar(input: Message | ChatInputCommandInteraction) {
+export async function avatar(input: NarrowedMessage | ChatInputCommandInteraction) {
     let user: User;
 
     if (isChatInputCommandInteraction(input)) {
@@ -391,7 +394,7 @@ export async function avatar(input: Message | ChatInputCommandInteraction) {
     return await sendOrReply(input, { embeds: [avatarEmbed] }, false);
 }
 
-export async function convert(input: ChatInputCommandInteraction | Message) {
+export async function convert(input: ChatInputCommandInteraction | NarrowedMessage) {
     const currencies = {} as Record<string, string>;
 
     let amount: number;
@@ -553,7 +556,7 @@ export async function convert(input: ChatInputCommandInteraction | Message) {
     return await sendOrReply(input, { embeds: [convertEmbed] });
 }
 
-export async function urban(input: ChatInputCommandInteraction | Message) {
+export async function urban(input: ChatInputCommandInteraction | NarrowedMessage) {
     let query: string;
     let random: boolean;
 
@@ -661,7 +664,7 @@ function buildUrbanEmbed(resultEntry: UrbanEntry, index: number, array: UrbanEnt
         });
 }
 
-export async function bye(message: Message) {
+export async function bye(message: NarrowedMessage) {
     if (!isBotOwner(message.author)) return;
 
     // Closes the MongoDB connection and stops the running daemon via pm2

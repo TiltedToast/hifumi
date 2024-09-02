@@ -4,9 +4,14 @@ import {
     type Embed,
     type EmbedBuilder,
     type Message,
+    type PartialGroupDMChannel,
     type User,
 } from "discord.js";
 import { z } from "zod";
+
+export type NarrowedMessage = Omit<Message, "channel"> & {
+    channel: Exclude<Message["channel"], PartialGroupDMChannel>;
+};
 
 export const SubredditInfoSchema = z.object({
     data: z.object({
@@ -139,7 +144,7 @@ export type ImgurResponse = z.infer<typeof ImgurResponseSchema>;
 export type MessageCommandData = {
     command: string;
     subCmd: string;
-    message: Message;
+    message: NarrowedMessage;
     prefix: string;
 };
 

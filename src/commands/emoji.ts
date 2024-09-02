@@ -2,7 +2,6 @@ import { $ } from "bun";
 import {
     DiscordAPIError,
     type GuildEmoji,
-    type Message,
     MessageType,
     PermissionFlagsBits,
     RESTJSONErrorCodes,
@@ -12,7 +11,7 @@ import {
 import Fuse from "fuse.js";
 import { copyFile, readFile } from "node:fs/promises";
 import path from "node:path";
-import { FileSizeLimit } from "../helpers/types.ts";
+import { FileSizeLimit, type NarrowedMessage } from "../helpers/types.ts";
 import {
     convertStaticImg,
     createTemp,
@@ -37,7 +36,7 @@ const {
     UnknownEmoji,
 } = RESTJSONErrorCodes;
 
-export async function pngToGifEmoji(message: Message) {
+export async function pngToGifEmoji(message: NarrowedMessage) {
     if (!message.guild) {
         return await message.channel.send("You have to be in a server to use this command!");
     }
@@ -68,7 +67,7 @@ export async function pngToGifEmoji(message: Message) {
     await convertEmojis(emojis, message);
 }
 
-async function convertEmojis(emojis: RegExpMatchArray, message: Message) {
+async function convertEmojis(emojis: RegExpMatchArray, message: NarrowedMessage) {
     const temp = createTemp(message);
 
     let output = "";
@@ -175,7 +174,7 @@ async function convertEmojis(emojis: RegExpMatchArray, message: Message) {
     await message.channel.send({ content: output });
 }
 
-export async function linkEmoji(message: Message) {
+export async function linkEmoji(message: NarrowedMessage) {
     let msgContent = message.content;
 
     if (message.type === MessageType.Reply) {
@@ -193,7 +192,7 @@ export async function linkEmoji(message: Message) {
     return await message.channel.send(output);
 }
 
-export async function addEmoji(message: Message, prefix: string) {
+export async function addEmoji(message: NarrowedMessage, prefix: string) {
     let name = "";
     let emoji: GuildEmoji;
     let url = "";
@@ -225,7 +224,7 @@ export async function addEmoji(message: Message, prefix: string) {
             await message.channel.send(emojiStringOutput);
         }
         if (repliedMsg.stickers.size > 0) {
-            await addStickers(repliedMsg);
+            await addStickers(repliedMsg as NarrowedMessage);
         }
         return;
     }
@@ -379,7 +378,7 @@ export async function addEmoji(message: Message, prefix: string) {
     return await message.channel.send(emoji.toString());
 }
 
-async function handleCreateError(error: unknown, message: Message, name: string) {
+async function handleCreateError(error: unknown, message: NarrowedMessage, name: string) {
     let errorMessage: string;
     if (error instanceof DiscordAPIError) {
         switch (+error.code) {
@@ -407,7 +406,7 @@ async function handleCreateError(error: unknown, message: Message, name: string)
     }
 }
 
-async function addStickers(message: Message) {
+async function addStickers(message: NarrowedMessage) {
     const stickers = message.stickers;
     const addedStickers: Sticker[] = [];
 
@@ -453,7 +452,7 @@ async function addStickers(message: Message) {
  * @returns A string containing the newly added emojis
  *
  */
-async function bulkAddEmojis(message: Message, emojis: RegExpMatchArray) {
+async function bulkAddEmojis(message: NarrowedMessage, emojis: RegExpMatchArray) {
     let output = "";
     let msg: string;
     let emoji: GuildEmoji | undefined;
@@ -515,7 +514,7 @@ async function bulkAddEmojis(message: Message, emojis: RegExpMatchArray) {
     return output;
 }
 
-export async function removeEmoji(message: Message) {
+export async function removeEmoji(message: NarrowedMessage) {
     if (!hasPermission(message.member, PermissionFlagsBits.ManageGuildExpressions)) {
         return await message.channel.send(
             'You need the "Manage Expressions" permission to remove emojis'
@@ -557,7 +556,7 @@ export async function removeEmoji(message: Message) {
     }
 }
 
-export async function renameEmoji(message: Message, prefix: string) {
+export async function renameEmoji(message: NarrowedMessage, prefix: string) {
     if (!hasPermission(message.member, PermissionFlagsBits.ManageGuildExpressions)) {
         return message.channel.send(
             'You need the "Manage Expressions" permission to rename emojis!'
@@ -589,7 +588,7 @@ export async function renameEmoji(message: Message, prefix: string) {
     }
 }
 
-export async function searchEmojis(message: Message) {
+export async function searchEmojis(message: NarrowedMessage) {
     const content = message.content.split(" ").filter(Boolean);
     if (content.length <= 2) {
         return await message.channel.send("Please provide a search term!");
