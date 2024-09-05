@@ -92,7 +92,7 @@ const commands = new Map<ChatInputCommandName, ChatInputCommandFn>([
     [".urban", urban],
     [".convert", convert],
     [".qr", qrCode],
-    [".avatar", avatar],
+    [".pfp", avatar],
     [".leet", leet],
     [".beautiful", beautiful],
     [".prefix", updatePrefix],

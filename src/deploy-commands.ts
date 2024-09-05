@@ -1,4 +1,11 @@
-import { PermissionFlagsBits, REST, Routes, SlashCommandBuilder } from "discord.js";
+import {
+    ApplicationIntegrationType,
+    InteractionContextType,
+    PermissionFlagsBits,
+    REST,
+    Routes,
+    SlashCommandBuilder,
+} from "discord.js";
 import { DEV_COMMAND_POSTFIX } from "./config.ts";
 
 if (!process.env["BOT_ID"]) throw new Error("You must provide a BOT_ID env variable");
@@ -17,9 +24,22 @@ let commands = [
         .setDescription("Pats a user")
         .addUserOption((option) =>
             option.setName("user").setDescription("The user to pat").setRequired(true)
-        ),
+        )
+        .setIntegrationTypes(ApplicationIntegrationType.GuildInstall)
+        .setContexts(InteractionContextType.Guild),
 
-    new SlashCommandBuilder().setName("help").setDescription("Shows a list of commands"),
+    new SlashCommandBuilder()
+        .setName("help")
+        .setDescription("Shows a list of commands")
+        .setIntegrationTypes(
+            ApplicationIntegrationType.GuildInstall,
+            ApplicationIntegrationType.UserInstall
+        )
+        .setContexts(
+            InteractionContextType.Guild,
+            InteractionContextType.BotDM,
+            InteractionContextType.PrivateChannel
+        ),
 
     new SlashCommandBuilder()
         .setName("sub")
@@ -38,6 +58,15 @@ let commands = [
         )
         .addBooleanOption((option) =>
             option.setName("force").setDescription("Force fetch posts").setRequired(false)
+        )
+        .setIntegrationTypes(
+            ApplicationIntegrationType.GuildInstall,
+            ApplicationIntegrationType.UserInstall
+        )
+        .setContexts(
+            InteractionContextType.Guild,
+            InteractionContextType.BotDM,
+            InteractionContextType.PrivateChannel
         ),
 
     new SlashCommandBuilder()
@@ -51,6 +80,15 @@ let commands = [
                 .setName("random")
                 .setDescription("Whether to search for random terms")
                 .setRequired(false)
+        )
+        .setIntegrationTypes(
+            ApplicationIntegrationType.GuildInstall,
+            ApplicationIntegrationType.UserInstall
+        )
+        .setContexts(
+            InteractionContextType.Guild,
+            InteractionContextType.BotDM,
+            InteractionContextType.PrivateChannel
         ),
 
     new SlashCommandBuilder()
@@ -68,6 +106,15 @@ let commands = [
                 .setDescription("The amount to convert")
                 .setRequired(false)
                 .setMinValue(Number.MIN_VALUE)
+        )
+        .setIntegrationTypes(
+            ApplicationIntegrationType.GuildInstall,
+            ApplicationIntegrationType.UserInstall
+        )
+        .setContexts(
+            InteractionContextType.Guild,
+            InteractionContextType.BotDM,
+            InteractionContextType.PrivateChannel
         ),
 
     new SlashCommandBuilder()
@@ -75,16 +122,34 @@ let commands = [
         .setDescription("Generates a QR code")
         .addStringOption((option) =>
             option.setName("data").setDescription("The data to encode").setRequired(true)
+        )
+        .setIntegrationTypes(
+            ApplicationIntegrationType.GuildInstall,
+            ApplicationIntegrationType.UserInstall
+        )
+        .setContexts(
+            InteractionContextType.Guild,
+            InteractionContextType.BotDM,
+            InteractionContextType.PrivateChannel
         ),
 
     new SlashCommandBuilder()
-        .setName("avatar")
+        .setName("pfp")
         .setDescription("Gets the avatar of a user")
         .addUserOption((option) =>
             option
                 .setName("user")
                 .setDescription("The user to get the avatar of (You if omitted)")
                 .setRequired(false)
+        )
+        .setIntegrationTypes(
+            ApplicationIntegrationType.GuildInstall,
+            ApplicationIntegrationType.UserInstall
+        )
+        .setContexts(
+            InteractionContextType.Guild,
+            InteractionContextType.BotDM,
+            InteractionContextType.PrivateChannel
         ),
 
     new SlashCommandBuilder()
@@ -92,6 +157,15 @@ let commands = [
         .setDescription("Converts text to leet speak")
         .addStringOption((option) =>
             option.setName("input").setDescription("The text to convert").setRequired(true)
+        )
+        .setIntegrationTypes(
+            ApplicationIntegrationType.GuildInstall,
+            ApplicationIntegrationType.UserInstall
+        )
+        .setContexts(
+            InteractionContextType.Guild,
+            InteractionContextType.BotDM,
+            InteractionContextType.PrivateChannel
         ),
 
     new SlashCommandBuilder()
@@ -102,16 +176,26 @@ let commands = [
                 .setName("user")
                 .setDescription("The user to get the avatar of (You if omitted)")
                 .setRequired(false)
+        )
+        .setIntegrationTypes(
+            ApplicationIntegrationType.GuildInstall,
+            ApplicationIntegrationType.UserInstall
+        )
+        .setContexts(
+            InteractionContextType.Guild,
+            InteractionContextType.BotDM,
+            InteractionContextType.PrivateChannel
         ),
 
     new SlashCommandBuilder()
         .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild)
-        .setDMPermission(false)
         .setName("prefix")
         .setDescription("Updates the prefix for the server")
         .addStringOption((option) =>
             option.setName("prefix").setDescription("The new prefix").setRequired(true)
-        ),
+        )
+        .setContexts(InteractionContextType.Guild)
+        .setIntegrationTypes(ApplicationIntegrationType.GuildInstall),
 ].map((command) => command.toJSON());
 
 if (process.env.DEV_MODE === "true") {

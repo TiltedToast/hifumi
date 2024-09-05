@@ -391,7 +391,7 @@ export async function avatar(input: NarrowedMessage | ChatInputCommandInteractio
         .setTitle(`*${user.displayName}'s Avatar*`)
         .setImage(avatarURL);
 
-    return await sendOrReply(input, { embeds: [avatarEmbed] }, false);
+    return await sendOrReply(input, { embeds: [avatarEmbed] });
 }
 
 export async function convert(input: ChatInputCommandInteraction | NarrowedMessage) {
