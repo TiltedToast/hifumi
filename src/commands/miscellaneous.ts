@@ -294,7 +294,7 @@ export async function cmdConsole(message: NarrowedMessage, cmd?: string, python 
     const command = cmd
         ? cmd
         : python
-          ? `${pythonCmd} -c "print(${input.replaceAll('"', '\\"')})"`
+          ? `${pythonCmd} -c "from math import *; print(${input.replaceAll('"', '\\"')})"`
           : input;
     try {
         const { stdout, stderr } = await execPromise(command);
