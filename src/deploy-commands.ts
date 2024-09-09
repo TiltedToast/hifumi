@@ -1,5 +1,7 @@
 import {
+    ApplicationCommandType,
     ApplicationIntegrationType,
+    ContextMenuCommandBuilder,
     InteractionContextType,
     PermissionFlagsBits,
     REST,
@@ -152,6 +154,19 @@ let commands = [
             InteractionContextType.PrivateChannel
         ),
 
+    new ContextMenuCommandBuilder()
+        .setName("Show Avatar")
+        .setType(ApplicationCommandType.User)
+        .setContexts(
+            InteractionContextType.Guild,
+            InteractionContextType.BotDM,
+            InteractionContextType.PrivateChannel
+        )
+        .setIntegrationTypes(
+            ApplicationIntegrationType.UserInstall,
+            ApplicationIntegrationType.GuildInstall
+        ),
+
     new SlashCommandBuilder()
         .setName("leet")
         .setDescription("Converts text to leet speak")
@@ -201,7 +216,10 @@ let commands = [
 if (process.env.DEV_MODE === "true") {
     commands = commands.map((command) => {
         command.name = `${command.name}${DEV_COMMAND_POSTFIX}`;
-        command.description = `${command.description} (dev)`;
+
+        if (command.type === ApplicationCommandType.ChatInput) {
+            command.description = `${command.description}${DEV_COMMAND_POSTFIX}`;
+        }
         return command;
     });
 }

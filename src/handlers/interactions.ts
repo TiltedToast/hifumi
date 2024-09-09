@@ -1,10 +1,12 @@
 import {
     type ButtonInteraction,
     type ChatInputCommandInteraction,
+    type Interaction,
+    type MessageContextMenuCommandInteraction,
+    PartialGroupDMChannel,
+    type UserContextMenuCommandInteraction,
     codeBlock,
     userMention,
-    type Interaction,
-    PartialGroupDMChannel,
 } from "discord.js";
 import { updatePrefix } from "../commands/database.ts";
 import { beautiful, qrCode } from "../commands/imgProcess.ts";
@@ -29,9 +31,13 @@ import { isDev, updateEmbed } from "../helpers/utils.ts";
 
 export default async function handleInteraction(interaction: Interaction) {
     try {
-        if (interaction.isButton()) await handleButtonInteraction(interaction);
-        if (interaction.isChatInputCommand()) {
+        if (interaction.isButton()) {
+            await handleButtonInteraction(interaction);
+        } else if (interaction.isChatInputCommand()) {
             await handleCommandInteraction(interaction, interaction.options.getSubcommand(false));
+        } else if (interaction.isUserContextMenuCommand()) {
+            console.log(interaction.commandName);
+            await handleUserContextMenuInteraction(interaction);
         }
     } catch (error) {
         console.error(error);
@@ -85,7 +91,7 @@ type ChatInputCommandName = `${string}::${string}` | `.${string}`;
  * The first word is the command, the second word is the subcommand.
  * I don't know if this is the best way to do this, but it'll do for now
  */
-const commands = new Map<ChatInputCommandName, ChatInputCommandFn>([
+const chatInputCommands = new Map<ChatInputCommandName, ChatInputCommandFn>([
     [".pat", patUser],
     [".help", helpCmd],
     [".sub", sub],
@@ -98,14 +104,15 @@ const commands = new Map<ChatInputCommandName, ChatInputCommandFn>([
     [".prefix", updatePrefix],
 ]);
 
-const devCommands = new Map<ChatInputCommandName, ChatInputCommandFn>();
-for (const [cmd, fn] of commands) devCommands.set(`${cmd}${DEV_COMMAND_POSTFIX}`, fn);
+const devChatInputCommands = new Map<ChatInputCommandName, ChatInputCommandFn>();
+for (const [cmd, fn] of chatInputCommands)
+    devChatInputCommands.set(`${cmd}${DEV_COMMAND_POSTFIX}`, fn);
 
 async function handleCommandInteraction(
     interaction: ChatInputCommandInteraction,
     subcommand: string | null
 ) {
-    const commandsToCheck = isDev() ? devCommands : commands;
+    const commandsToCheck = isDev() ? devChatInputCommands : chatInputCommands;
     for (const [cmd, fn] of commandsToCheck) {
         if (
             cmd.includes(`${interaction.commandName}::${subcommand ?? ""}`) ||
@@ -113,5 +120,15 @@ async function handleCommandInteraction(
         ) {
             return await fn(interaction);
         }
+    }
+}
+
+async function handleUserContextMenuInteraction(interaction: UserContextMenuCommandInteraction) {
+    const commandName = isDev()
+        ? interaction.commandName.replace(DEV_COMMAND_POSTFIX, "")
+        : interaction.commandName;
+
+    if (commandName === "Show Avatar") {
+        await avatar(interaction);
     }
 }

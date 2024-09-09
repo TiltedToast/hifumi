@@ -11,6 +11,7 @@ import {
     PermissionsBitField,
     type TextChannel,
     type User,
+    UserContextMenuCommandInteraction,
     userMention,
 } from "discord.js";
 import assert from "node:assert/strict";
@@ -96,14 +97,20 @@ export function formatTable<K extends string | number | symbol, V>(rows: Record<
     });
 }
 
+export function isUserContextMenuCommandInteraction(
+    input: NarrowedMessage | ChatInputCommandInteraction | UserContextMenuCommandInteraction
+) {
+    return input instanceof UserContextMenuCommandInteraction;
+}
+
 export function isChatInputCommandInteraction(
-    input: NarrowedMessage | ChatInputCommandInteraction
+    input: NarrowedMessage | ChatInputCommandInteraction | UserContextMenuCommandInteraction
 ): input is ChatInputCommandInteraction {
     return input instanceof ChatInputCommandInteraction;
 }
 
 export function isMessage(
-    input: NarrowedMessage | ChatInputCommandInteraction
+    input: NarrowedMessage | ChatInputCommandInteraction | UserContextMenuCommandInteraction
 ): input is NarrowedMessage {
     return input instanceof Message;
 }
@@ -115,7 +122,7 @@ export function isMessage(
  * @param ephemeral Whether or not the message should be ephemeral (only visible to the user who invoked the command, this is true by default and only for command interactions)
  */
 export async function sendOrReply(
-    input: NarrowedMessage | ChatInputCommandInteraction,
+    input: NarrowedMessage | ChatInputCommandInteraction | UserContextMenuCommandInteraction,
     message: string | BaseMessageOptions,
     ephemeral = true
 ) {

@@ -8,6 +8,7 @@ import {
     PermissionFlagsBits,
     ThreadAutoArchiveDuration,
     type User,
+    type UserContextMenuCommandInteraction,
     codeBlock,
 } from "discord.js";
 import { type FactoryFunctionMap, all, create } from "mathjs";
@@ -43,6 +44,7 @@ import {
     isBotOwner,
     isChatInputCommandInteraction,
     isDev,
+    isUserContextMenuCommandInteraction,
     randomElementFromArray,
     sendOrReply,
     setEmbedArr,
@@ -366,11 +368,15 @@ export async function asyncEval(command: string, client: Client): Promise<string
     return await eval(code);
 }
 
-export async function avatar(input: NarrowedMessage | ChatInputCommandInteraction) {
+export async function avatar(
+    input: NarrowedMessage | ChatInputCommandInteraction | UserContextMenuCommandInteraction
+) {
     let user: User;
 
     if (isChatInputCommandInteraction(input)) {
         user = input.options.getUser("user", false) ?? input.user;
+    } else if (isUserContextMenuCommandInteraction(input)) {
+        user = input.targetUser;
     } else {
         const content = input.content.split(" ").filter(Boolean);
         const tmp = content.length === 1 ? input.author : await getUserObjectPingId(input);
