@@ -18,7 +18,6 @@ export const DEV_CHANNELS = [
 ] as const;
 export const LOG_CHANNEL = "655484804405657642";
 export const CAT_FACT_CHANNEL = "655484859405303809";
-export const DEV_COMMAND_POSTFIX = "-dev";
 export const REDDIT_USER_AGENT = `linux:${BOT_NAME}:v1.0.0 (by /u/tilted_toast)`;
 export const IMAGE_THREAD_CHANNELS = [
     "1059119862741471253",

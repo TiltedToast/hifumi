@@ -8,7 +8,6 @@ import {
     Routes,
     SlashCommandBuilder,
 } from "discord.js";
-import { DEV_COMMAND_POSTFIX } from "./config.ts";
 
 if (!process.env["BOT_ID"]) throw new Error("You must provide a BOT_ID env variable");
 
@@ -215,10 +214,11 @@ let commands = [
 
 if (process.env.DEV_MODE === "true") {
     commands = commands.map((command) => {
-        command.name = `${command.name}${DEV_COMMAND_POSTFIX}`;
-
         if (command.type === ApplicationCommandType.ChatInput) {
-            command.description = `${command.description}${DEV_COMMAND_POSTFIX}`;
+            command.name = `${command.name}-dev`;
+            command.description = `${command.description} (dev)`;
+        } else if (command.type) {
+            command.name = `${command.name} (dev)`;
         }
         return command;
     });

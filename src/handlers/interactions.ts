@@ -20,13 +20,7 @@ import {
     urbanEmbeds,
 } from "../commands/miscellaneous.ts";
 import { sub } from "../commands/reddit.ts";
-import {
-    BOT_OWNERS,
-    DEV_CHANNELS,
-    DEV_COMMAND_POSTFIX,
-    LOG_CHANNEL,
-    OWNER_NAME,
-} from "../config.ts";
+import { BOT_OWNERS, DEV_CHANNELS, LOG_CHANNEL, OWNER_NAME } from "../config.ts";
 import { isDev, updateEmbed } from "../helpers/utils.ts";
 
 export default async function handleInteraction(interaction: Interaction) {
@@ -36,7 +30,6 @@ export default async function handleInteraction(interaction: Interaction) {
         } else if (interaction.isChatInputCommand()) {
             await handleCommandInteraction(interaction, interaction.options.getSubcommand(false));
         } else if (interaction.isUserContextMenuCommand()) {
-            console.log(interaction.commandName);
             await handleUserContextMenuInteraction(interaction);
         }
     } catch (error) {
@@ -105,8 +98,7 @@ const chatInputCommands = new Map<ChatInputCommandName, ChatInputCommandFn>([
 ]);
 
 const devChatInputCommands = new Map<ChatInputCommandName, ChatInputCommandFn>();
-for (const [cmd, fn] of chatInputCommands)
-    devChatInputCommands.set(`${cmd}${DEV_COMMAND_POSTFIX}`, fn);
+for (const [cmd, fn] of chatInputCommands) devChatInputCommands.set(`${cmd}-dev`, fn);
 
 async function handleCommandInteraction(
     interaction: ChatInputCommandInteraction,
@@ -125,7 +117,7 @@ async function handleCommandInteraction(
 
 async function handleUserContextMenuInteraction(interaction: UserContextMenuCommandInteraction) {
     const commandName = isDev()
-        ? interaction.commandName.replace(DEV_COMMAND_POSTFIX, "")
+        ? interaction.commandName.replace(" (dev)", "")
         : interaction.commandName;
 
     if (commandName === "Show Avatar") {
