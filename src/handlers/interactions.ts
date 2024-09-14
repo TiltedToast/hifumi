@@ -61,7 +61,7 @@ export default async function handleInteraction(interaction: Interaction) {
 async function handleButtonInteraction(interaction: ButtonInteraction) {
     const identifier = `${interaction.user.id}-${interaction.channelId}` as const;
     if ([`prevUrban-${identifier}`, `nextUrban-${identifier}`].includes(interaction.customId)) {
-        await updateEmbed({
+        return await updateEmbed({
             interaction,
             embedArray: urbanEmbeds[identifier]!,
             prevButtonId: `prevUrban-${identifier}`,
@@ -69,6 +69,11 @@ async function handleButtonInteraction(interaction: ButtonInteraction) {
             user: interaction.user,
         });
     }
+
+    return interaction.reply({
+        content: "Only the person who initiated the command can use these buttons, sorry!",
+        ephemeral: true,
+    });
 }
 
 type ChatInputCommandFn = (interaction: ChatInputCommandInteraction) => Promise<unknown>;

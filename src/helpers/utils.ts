@@ -233,13 +233,6 @@ export async function updateEmbed(options: UpdateEmbedOptions) {
 
     assert(embedArray.length >= 1, "Embed array must have at least one element");
 
-    if (interaction.user.id !== embedArray[activeIndex]!.user.id) {
-        return interaction.reply({
-            content: "Only the person who initiated the command can use these buttons, sorry!",
-            ephemeral: true,
-        });
-    }
-
     const step = { [prevButtonId]: -1, [nextButtonId]: 1 }[interaction.customId];
     if (!step) {
         console.error(
