@@ -5,7 +5,7 @@ import * as misc from "../commands/miscellaneous.ts";
 import * as reddit from "../commands/reddit.ts";
 import { insertPrefix } from "../db/index.ts";
 
-import { PartialGroupDMChannel, type Message } from "discord.js";
+import type { Message } from "discord.js";
 import { DEFAULT_PREFIX, DEV_PREFIX, RELOAD_PREFIX } from "../config.ts";
 import type { MessageCommandData, NarrowedMessage } from "../helpers/types.ts";
 import { clientHasPermissions, errorLog, isAiTrigger, isDev } from "../helpers/utils.ts";
@@ -18,7 +18,7 @@ export default async function handleMessage(originalMessage: Message) {
             originalMessage.author.bot ||
             !(await clientHasPermissions(originalMessage)) ||
             isLoading() ||
-            originalMessage.channel instanceof PartialGroupDMChannel
+            !originalMessage.channel.isSendable()
         ) {
             return;
         }
