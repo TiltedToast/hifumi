@@ -4,13 +4,13 @@ import {
     type Embed,
     type EmbedBuilder,
     type Message,
-    type PartialGroupDMChannel,
+    type SendableChannels,
     type User,
 } from "discord.js";
 import { z } from "zod";
 
 export type NarrowedMessage = Omit<Message, "channel"> & {
-    channel: Exclude<Message["channel"], PartialGroupDMChannel>;
+    channel: SendableChannels;
 };
 
 export const SubredditInfoSchema = z.object({
