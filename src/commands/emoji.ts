@@ -197,8 +197,7 @@ export async function addEmoji(message: NarrowedMessage, prefix: string) {
     let emoji: GuildEmoji;
     let url = "";
 
-    // They haven't added the "Create Expressions" permission (1 << 43) to the enum yet, hence the magic number
-    if (!hasPermission(message.member, 1n << 43n)) {
+    if (!hasPermission(message.member, PermissionFlagsBits.CreateGuildExpressions)) {
         return await message.channel.send(
             'You need the "Create Expressions" permission to add emojis!'
         );

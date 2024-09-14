@@ -156,9 +156,7 @@ export async function updatePrefix(input: NarrowedMessage | ChatInputCommandInte
         return await sendOrReply(input, "Your prefix may only be 255 characters long at most");
     }
 
-    // Finds the guild's document in the database
-    // Updates said document with the new prefix
-    if (input.guild === null || input.channel instanceof PartialGroupDMChannel) {
+    if (input.guild === null || !input.channel?.isSendable()) {
         return await sendOrReply(input, "This command can only be used in a server!");
     }
 
