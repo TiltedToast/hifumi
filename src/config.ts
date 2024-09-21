@@ -30,6 +30,7 @@ export const USER_AGENT = `${BOT_NAME}:v1.0.0:tiltedtoast27@gmail.com`;
 // biome-ignore format: this is nicer
 const envVariables = z.object({
     BOT_TOKEN:            z.string().min(1, "You must provide a Discord Bot Token"),
+    BOT_ID:               z.string().min(1, "You must provide a Discord Bot ID"),
     EXCHANGE_API_KEY:     z.string().min(1, "You must provide an API key for currency conversion"),
     IMGUR_CLIENT_ID:      z.string().min(1, "You must provide an Imgur Client Id"),
     IMGUR_CLIENT_SECRET:  z.string().min(1, "You must provide an Imgur Client Secret"),

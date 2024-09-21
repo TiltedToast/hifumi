@@ -10,6 +10,7 @@ import {
     type User,
     type UserContextMenuCommandInteraction,
     codeBlock,
+    italic,
 } from "discord.js";
 import { type FactoryFunctionMap, all, create } from "mathjs";
 import assert from "node:assert/strict";
@@ -373,16 +374,21 @@ export async function avatar(
 ) {
     let user: User;
 
+    let invoker: User;
+
     if (isChatInputCommandInteraction(input)) {
         user = input.options.getUser("user", false) ?? input.user;
+        invoker = input.user;
     } else if (isUserContextMenuCommandInteraction(input)) {
         user = input.targetUser;
+        invoker = input.user;
     } else {
         const content = input.content.split(" ").filter(Boolean);
         const tmp = content.length === 1 ? input.author : await getUserObjectPingId(input);
 
         if (!tmp) return await sendOrReply(input, "Couldn't find the specified User");
 
+        invoker = input.author;
         user = tmp;
     }
 
@@ -392,9 +398,19 @@ export async function avatar(
 
     if (!avatarURL) return await sendOrReply(input, "No avatar found!");
 
+    let title: string;
+
+    if (invoker.id === user.id) {
+        title = "Your avatar";
+    } else if (user.id === process.env.BOT_ID) {
+        title = "My avatar";
+    } else {
+        title = `${user.displayName}'s avatar`;
+    }
+
     const avatarEmbed = new EmbedBuilder()
         .setColor(EMBED_COLOUR)
-        .setTitle(`*${user.displayName}'s Avatar*`)
+        .setTitle(italic(title))
         .setImage(avatarURL);
 
     return await sendOrReply(input, { embeds: [avatarEmbed] });
