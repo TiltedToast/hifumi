@@ -230,11 +230,11 @@ export async function leet(input: NarrowedMessage | ChatInputCommandInteraction)
         return await sendOrReply(input, "Something went wrong fetching the leet table");
     }
 
-    const document = {} as Record<string, string[]>;
+    const document = new Map<string, string[]>();
 
     for (const char of leetDoc) {
-        if (!(char.source in document)) document[char.source] = [];
-        document[char.source]!.push(char.translated);
+        if (!document.has(char.source)) document.set(char.source, []);
+        document.get(char.source)!.push(char.translated);
     }
 
     const leetOutput = inputWords
@@ -242,7 +242,7 @@ export async function leet(input: NarrowedMessage | ChatInputCommandInteraction)
             return word
                 .split("")
                 .map((char) => {
-                    if (char in document) return randomElementFromArray(document[char]!);
+                    if (document.has(char)) return randomElementFromArray(document.get(char)!);
                     return char;
                 })
                 .join("");
@@ -417,7 +417,7 @@ export async function avatar(
 }
 
 export async function convert(input: ChatInputCommandInteraction | NarrowedMessage) {
-    const currencies = {} as Record<string, string>;
+    const currencies = new Map<string, string>();
 
     let amount: number;
     let base_currency: string;
@@ -490,7 +490,7 @@ export async function convert(input: ChatInputCommandInteraction | NarrowedMessa
     }
 
     for (const [code, name] of supportedResult.supported_codes) {
-        currencies[code] = name;
+        currencies.set(code, name);
     }
 
     if (!(base_currency in currencies && target_currency in currencies)) {
@@ -556,8 +556,8 @@ export async function convert(input: ChatInputCommandInteraction | NarrowedMessa
     if (!response.ok) return await sendOrReply(input, "Error! Please try again later");
 
     const description = [
-        `**${amount} ${currencies[base_currency]} ≈ `,
-        `${result.conversion_result ?? 0} ${currencies[target_currency]}**`,
+        `**${amount} ${currencies.get(base_currency)} ≈ `,
+        `${result.conversion_result ?? 0} ${currencies.get(target_currency)}**`,
         `\n\nExchange Rate: 1 ${base_currency} ≈ ${result.conversion_rate ?? 0} ${target_currency}`,
     ].join("");
 

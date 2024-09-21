@@ -68,7 +68,7 @@ export async function initialise(client: Client) {
  * console.log(formatTable(rows));
  * ```
  */
-export function formatTable<K extends string | number | symbol, V>(rows: Record<K, V>[]): string {
+export function formatTable<K extends PropertyKey, V>(rows: Record<K, V>[]): string {
     const MIN_WRAP_LENGTH = 30;
 
     assert(rows.length > 0, "Must have at least one row");
