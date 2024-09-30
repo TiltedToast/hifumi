@@ -493,7 +493,7 @@ export async function convert(input: ChatInputCommandInteraction | NarrowedMessa
         currencies.set(code, name);
     }
 
-    if (!(base_currency in currencies && target_currency in currencies)) {
+    if (!currencies.has(base_currency) || !currencies.has(target_currency)) {
         return await sendOrReply(
             input,
             "Invalid currency codes!\nCheck " +
