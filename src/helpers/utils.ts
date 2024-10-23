@@ -15,9 +15,10 @@ import {
     userMention,
 } from "discord.js";
 import assert from "node:assert/strict";
-import { mkdirSync, readdirSync, rmSync, statSync } from "node:fs";
-import os from "node:os";
-import path from "node:path";
+import { statSync } from "node:fs";
+import { mkdtemp, readdir, rm } from "node:fs/promises";
+import os, { tmpdir } from "node:os";
+import path, { join } from "node:path";
 import sharp from "sharp";
 import strftime from "strftime";
 import { table } from "table";
@@ -511,50 +512,39 @@ export function parseEmoji(emojiString: string): ParsedEmoji {
     };
 }
 
-function deleteTemp(folder: string) {
-    rmSync(folder, { recursive: true, force: true });
+export async function deleteFolder(folder: string) {
+    await rm(folder, { recursive: true, force: true, maxRetries: 3 });
 }
 
 /**
- * Takes a Message or Interaction and creates a temporary folder for it.
- *
- * ## **After the given timeout, the folder will be automatically wiped. Defaults to 1 minute.**
- *
- * @param input The Message or Interaction
- * @param timeoutSecs The time in seconds after which the folder will be deleted
- * @returns The path to the temporary folder
- */
-export function createTemp(
-    input: NarrowedMessage | ChatInputCommandInteraction,
-    timeoutSecs = 60
-): string {
-    const tempFolder = os.tmpdir();
-
-    const tempPath = path.join(
-        tempFolder,
-        `${BOT_NAME}-${input.channel?.id ?? "NO_CHANNEL"}-${input.id}`
-    );
-
-    mkdirSync(tempPath);
-
-    setTimeout(() => deleteTemp(tempPath), timeoutSecs * 1000);
-
-    return tempPath;
-}
-
-/**
- * Wipes all temporary folders created during runtime.
+ * Delete all temporary folders created during runtime.
  *
  * We don't want to leave any trash behind do we? (If only others did the same...)
  */
-export function wipeTempFolders() {
-    const tempFolder = os.tmpdir();
-    const items = readdirSync(tempFolder);
-    for (const item of items) {
-        if (item.startsWith(`${BOT_NAME}-`)) {
-            deleteTemp(path.join(tempFolder, item));
+export async function wipeTempFolders() {
+    const tempDir = tmpdir();
+
+    for (const entry of await readdir(tempDir)) {
+        if (entry.startsWith(`${BOT_NAME}-`)) {
+            await deleteFolder(join(tempDir, entry));
         }
     }
+}
+
+/**
+ * Creates a temporary directory for use that will automatically be deleted when the scope is exited.
+ *
+ * @returns The path to the temporary folder
+ */
+export async function createTemp() {
+    const path = await mkdtemp(join(tmpdir(), `${BOT_NAME}-`));
+
+    return {
+        path,
+        [Symbol.asyncDispose]: async () => {
+            await deleteFolder(path);
+        },
+    };
 }
 
 /**

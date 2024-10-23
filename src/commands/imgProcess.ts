@@ -31,17 +31,17 @@ export async function beautiful(input: NarrowedMessage | ChatInputCommandInterac
         user = tmp;
     }
 
-    const temp = createTemp(input);
+    await using temp = await createTemp();
 
     const avatarUrl = user.avatarURL({ size: 4096, forceStatic: true }) ?? user.defaultAvatarURL;
 
-    const errorMsg = await downloadURL(avatarUrl, `${temp}/avatar.png`);
+    const errorMsg = await downloadURL(avatarUrl, `${temp.path}/avatar.png`);
     if (errorMsg) return await sendOrReply(input, errorMsg);
 
     const output = await resize({
-        fileLocation: `${temp}/avatar.png`,
+        fileLocation: `${temp.path}/avatar.png`,
         width: 180,
-        saveLocation: `${temp}/avatar_resized.png`,
+        saveLocation: `${temp.path}/avatar_resized.png`,
         animated: false,
     });
 
@@ -61,7 +61,7 @@ export async function beautiful(input: NarrowedMessage | ChatInputCommandInterac
         },
     });
 
-    const avatar = await sharp(`${temp}/avatar_resized.png`).toBuffer().catch(console.error);
+    const avatar = await sharp(`${temp.path}/avatar_resized.png`).toBuffer().catch(console.error);
     const background = await sharp("./src/assets/beautiful_background.png")
         .toBuffer()
         .catch(console.error);
@@ -139,15 +139,15 @@ export async function resizeImg(message: NarrowedMessage, prefix: string) {
     const imgType = getImgType(source);
     if (!imgType) return await message.channel.send("Invalid image type!");
 
-    const temp = createTemp(message);
+    await using temp = await createTemp();
 
-    const errorMsg = await downloadURL(source, `${temp}/unknown.${imgType}`);
+    const errorMsg = await downloadURL(source, `${temp.path}/unknown.${imgType}`);
     if (errorMsg) return await message.channel.send(errorMsg);
 
     const output = await resize({
-        fileLocation: `${temp}/unknown.${imgType}`,
+        fileLocation: `${temp.path}/unknown.${imgType}`,
         width,
-        saveLocation: `${temp}/unknown_resized.${imgType}`,
+        saveLocation: `${temp.path}/unknown_resized.${imgType}`,
         animated: imgType === "gif",
     });
 
@@ -157,11 +157,11 @@ export async function resizeImg(message: NarrowedMessage, prefix: string) {
         );
     }
 
-    if (!isValidSize(`${temp}/unknown_resized.${imgType}`, FileSizeLimit.DiscordFile)) {
+    if (!isValidSize(`${temp.path}/unknown_resized.${imgType}`, FileSizeLimit.DiscordFile)) {
         return await message.channel.send("File too large for Discord!");
     }
 
-    await message.channel.send({ files: [`${temp}/unknown_resized.${imgType}`] });
+    await message.channel.send({ files: [`${temp.path}/unknown_resized.${imgType}`] });
 }
 
 export async function imgur(message: NarrowedMessage, prefix: string) {
@@ -212,16 +212,16 @@ export async function imgur(message: NarrowedMessage, prefix: string) {
     const contentLength = response.headers.get("Content-Length");
 
     if (!response.headers.has("Content-Length")) {
-        const temp = createTemp(message);
+        await using temp = await createTemp();
 
-        const errorMsg = await downloadURL(source, `${temp}/unknown.${imgType}`);
+        const errorMsg = await downloadURL(source, `${temp.path}/unknown.${imgType}`);
         if (errorMsg) return await message.channel.send(errorMsg);
 
-        if (!isValidSize(`${temp}/unknown.${imgType}`, FileSizeLimit.ImgurFile)) {
+        if (!isValidSize(`${temp.path}/unknown.${imgType}`, FileSizeLimit.ImgurFile)) {
             return await message.channel.send("File too large for Imgur! (10MB limit)");
         }
 
-        const contents = await readFile(`${temp}/unknown.${imgType}`, "base64");
+        const contents = await readFile(`${temp.path}/unknown.${imgType}`, "base64");
 
         formdata.append("image", contents);
 

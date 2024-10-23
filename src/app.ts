@@ -78,7 +78,7 @@ for (const signal of stopSignals) {
     process.on(signal, async () => {
         await client.destroy();
         console.log("Closed Discord connection");
-        wipeTempFolders();
+        await wipeTempFolders();
         console.log("Deleted temp folders");
         process.exit(0);
     });

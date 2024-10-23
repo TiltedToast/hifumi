@@ -68,7 +68,7 @@ export async function pngToGifEmoji(message: NarrowedMessage) {
 }
 
 async function convertEmojis(emojis: RegExpMatchArray, message: NarrowedMessage) {
-    const temp = createTemp(message);
+    await using temp = await createTemp();
 
     let output = "";
 
@@ -87,14 +87,14 @@ async function convertEmojis(emojis: RegExpMatchArray, message: NarrowedMessage)
         if (!imgType) continue;
 
         const name = guildEmoji ? guildEmoji.name ?? "NameNotFound" : parsed.name;
-        const frameOnePath = path.join(temp, `${name}-${parsed.id}.${imgType}`);
+        const frameOnePath = path.join(temp.path, `${name}-${parsed.id}.${imgType}`);
 
         if (await downloadURL(url, frameOnePath)) {
             await message.channel.send(`Could not download \`${name}\`, skipping...`);
             continue;
         }
 
-        const frameTwoPath = path.join(temp, `${name}-${parsed.id}_2.${imgType}`);
+        const frameTwoPath = path.join(temp.path, `${name}-${parsed.id}_2.${imgType}`);
 
         const result = await copyFile(frameOnePath, frameTwoPath).catch((e) => {
             console.error(e);
@@ -117,7 +117,7 @@ async function convertEmojis(emojis: RegExpMatchArray, message: NarrowedMessage)
             continue;
         }
 
-        const gifPath = path.join(temp, `${name}-${parsed.id}.gif`);
+        const gifPath = path.join(temp.path, `${name}-${parsed.id}.gif`);
 
         const convertOutput = await $`
                 ${magickPrefix} ${frameOnePath} ${frameTwoPath} -delay 100 ${gifPath}
@@ -304,14 +304,14 @@ export async function addEmoji(message: NarrowedMessage, prefix: string) {
         url = message.attachments.first()!.url;
     }
 
-    const temp = createTemp(message);
+    await using temp = await createTemp();
 
     const imgType = getImgType(url);
     if (!imgType) return await message.channel.send("Invalid image type!");
 
     let ext = imgType;
 
-    let fileLocation = path.join(temp, `unknown.${imgType}`);
+    let fileLocation = path.join(temp.path, `unknown.${imgType}`);
 
     const errorMsg = await downloadURL(url, fileLocation);
     if (errorMsg) return await message.channel.send(errorMsg);
@@ -327,7 +327,7 @@ export async function addEmoji(message: NarrowedMessage, prefix: string) {
         ext = "png";
     }
 
-    const resizedLocation = path.join(temp, `unknown_resized.${ext}`);
+    const resizedLocation = path.join(temp.path, `unknown_resized.${ext}`);
 
     // Resizes image, checks size again and creates emoji
     try {
@@ -456,7 +456,7 @@ async function bulkAddEmojis(message: NarrowedMessage, emojis: RegExpMatchArray)
     let msg: string;
     let emoji: GuildEmoji | undefined;
 
-    const temp = createTemp(message);
+    await using temp = await createTemp();
 
     for (const emojiStr of new Set(emojis)) {
         const url = parseEmoji(emojiStr).url;
@@ -464,7 +464,7 @@ async function bulkAddEmojis(message: NarrowedMessage, emojis: RegExpMatchArray)
         if (!imgType || !["png", "gif", "jpeg"].includes(imgType)) continue;
 
         const name = emojiStr.split(":")[1]!;
-        const filePath = path.join(temp, `${name}.${imgType}`);
+        const filePath = path.join(temp.path, `${name}.${imgType}`);
 
         const err = await downloadURL(url, filePath);
 
