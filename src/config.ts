@@ -3,7 +3,7 @@ import { fromZodError } from "zod-validation-error";
 
 export const BOT_OWNERS = {
     primary: "258993932262834188",
-    secondary: ["207505077013839883"],
+    secondary: ["207505077013839883", "91598353833410560"],
 } as const;
 export const OWNER_NAME = "@toast.dll";
 export const BOT_NAME = "Hifumi";
