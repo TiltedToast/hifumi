@@ -11,11 +11,18 @@
         "indentStyle": "space",
         "indentWidth": 4,
         "lineEnding": "lf",
-        "lineWidth": 100,
+        "lineWidth": 80,
         "attributePosition": "auto",
-        "ignore": ["**/node_modules", "**/dist", "**/.devcontainer", "**/pnpm-lock.yaml"]
+        "ignore": [
+            "**/node_modules",
+            "**/dist",
+            "**/.devcontainer",
+            "**/pnpm-lock.yaml"
+        ]
     },
-    "organizeImports": { "enabled": true },
+    "organizeImports": {
+        "enabled": true
+    },
     "linter": {
         "enabled": true,
         "rules": {

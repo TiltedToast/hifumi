@@ -1,5 +1,10 @@
 import "@total-typescript/ts-reset";
-import { Client, GatewayIntentBits, Partials, type TextChannel } from "discord.js";
+import {
+    Client,
+    GatewayIntentBits,
+    Partials,
+    type TextChannel,
+} from "discord.js";
 import { existsSync, rmSync } from "node:fs";
 import strftime from "strftime";
 import { BOT_NAME, LOG_CHANNEL } from "./config.ts";
@@ -34,7 +39,9 @@ client.once("ready", async (c) => {
 
     assert(c.user, "Client user is undefined");
 
-    console.log(`Started up in ${(doneLoadingTime - startTime) / 1000} seconds on ${time}`);
+    console.log(
+        `Started up in ${(doneLoadingTime - startTime) / 1000} seconds on ${time}`
+    );
     console.log("Logged in as:");
     console.log(c.user.username);
     console.log(c.user.id);

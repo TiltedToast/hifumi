@@ -16,13 +16,22 @@ export default dedent;
 
 function createDedent(options: DedentOptions) {
     dedent.withOptions = (newOptions: DedentOptions): Dedent =>
-        createDedent({ ...options, ...newOptions });
+        createDedent({
+            ...options,
+            ...newOptions,
+        });
 
     return dedent;
 
     function dedent(literals: string): string;
-    function dedent(strings: TemplateStringsArray, ...values: unknown[]): string;
-    function dedent(strings: TemplateStringsArray | string, ...values: unknown[]) {
+    function dedent(
+        strings: TemplateStringsArray,
+        ...values: unknown[]
+    ): string;
+    function dedent(
+        strings: TemplateStringsArray | string,
+        ...values: unknown[]
+    ) {
         const raw = typeof strings === "string" ? [strings] : strings.raw;
         const { escapeSpecialCharacters = Array.isArray(strings) } = options;
 
@@ -65,7 +74,9 @@ function createDedent(options: DedentOptions) {
 
         if (mindent !== null) {
             result = lines
-                .map((l) => (l[0] === " " || l[0] === "\t" ? l.slice(mindent) : l))
+                .map((l) =>
+                    l[0] === " " || l[0] === "\t" ? l.slice(mindent) : l
+                )
                 .join("\n");
         }
 

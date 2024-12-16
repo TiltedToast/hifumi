@@ -60,14 +60,18 @@ if (!process.argv.some((arg) => arg.includes("deploy-commands.ts"))) {
     });
 
     if (Bun.which("gifsicle") === null) {
-        console.error("gifsicle is not installed, please install it and try again");
+        console.error(
+            "gifsicle is not installed, please install it and try again"
+        );
         process.exit(1);
     }
 
     const magickCommand = process.platform === "win32" ? "magick" : "convert";
 
     if (Bun.which(magickCommand) === null) {
-        console.error("ImageMagick is not installed, please install it and try again");
+        console.error(
+            "ImageMagick is not installed, please install it and try again"
+        );
         process.exit(1);
     }
 }

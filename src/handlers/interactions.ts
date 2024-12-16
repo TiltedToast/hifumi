@@ -20,7 +20,12 @@ import {
     urbanEmbeds,
 } from "../commands/miscellaneous.ts";
 import { sub } from "../commands/reddit.ts";
-import { BOT_OWNERS, DEV_CHANNELS, LOG_CHANNEL, OWNER_NAME } from "../config.ts";
+import {
+    BOT_OWNERS,
+    DEV_CHANNELS,
+    LOG_CHANNEL,
+    OWNER_NAME,
+} from "../config.ts";
 import { isDev, updateEmbed } from "../helpers/utils.ts";
 
 export default async function handleInteraction(interaction: Interaction) {
@@ -28,7 +33,10 @@ export default async function handleInteraction(interaction: Interaction) {
         if (interaction.isButton()) {
             await handleButtonInteraction(interaction);
         } else if (interaction.isChatInputCommand()) {
-            await handleCommandInteraction(interaction, interaction.options.getSubcommand(false));
+            await handleCommandInteraction(
+                interaction,
+                interaction.options.getSubcommand(false)
+            );
         } else if (interaction.isUserContextMenuCommand()) {
             await handleUserContextMenuInteraction(interaction);
         }
@@ -41,7 +49,10 @@ export default async function handleInteraction(interaction: Interaction) {
             if (interaction.deferred) {
                 await interaction.editReply(msg);
             } else {
-                await interaction.reply({ content: msg, ephemeral: true });
+                await interaction.reply({
+                    content: msg,
+                    ephemeral: true,
+                });
             }
         }
 
@@ -49,7 +60,8 @@ export default async function handleInteraction(interaction: Interaction) {
             ? interaction.channel
             : await interaction.client.channels.fetch(LOG_CHANNEL);
 
-        if (!channel?.isTextBased() || channel instanceof PartialGroupDMChannel) return;
+        if (!channel?.isTextBased() || channel instanceof PartialGroupDMChannel)
+            return;
 
         if (!interaction.isChatInputCommand()) return;
         await channel.send(
@@ -59,8 +71,13 @@ export default async function handleInteraction(interaction: Interaction) {
 }
 
 async function handleButtonInteraction(interaction: ButtonInteraction) {
-    const identifier = `${interaction.user.id}-${interaction.channelId}` as const;
-    if ([`prevUrban-${identifier}`, `nextUrban-${identifier}`].includes(interaction.customId)) {
+    const identifier =
+        `${interaction.user.id}-${interaction.channelId}` as const;
+    if (
+        [`prevUrban-${identifier}`, `nextUrban-${identifier}`].includes(
+            interaction.customId
+        )
+    ) {
         return await updateEmbed({
             interaction,
             embedArray: urbanEmbeds[identifier]!,
@@ -71,12 +88,15 @@ async function handleButtonInteraction(interaction: ButtonInteraction) {
     }
 
     return interaction.reply({
-        content: "Only the person who initiated the command can use these buttons, sorry!",
+        content:
+            "Only the person who initiated the command can use these buttons, sorry!",
         ephemeral: true,
     });
 }
 
-type ChatInputCommandFn = (interaction: ChatInputCommandInteraction) => Promise<unknown>;
+type ChatInputCommandFn = (
+    interaction: ChatInputCommandInteraction
+) => Promise<unknown>;
 type ChatInputCommandName = `${string}::${string}` | `.${string}`;
 
 /**
@@ -102,8 +122,12 @@ const chatInputCommands = new Map<ChatInputCommandName, ChatInputCommandFn>([
     [".prefix", updatePrefix],
 ]);
 
-const devChatInputCommands = new Map<ChatInputCommandName, ChatInputCommandFn>();
-for (const [cmd, fn] of chatInputCommands) devChatInputCommands.set(`${cmd}-dev`, fn);
+const devChatInputCommands = new Map<
+    ChatInputCommandName,
+    ChatInputCommandFn
+>();
+for (const [cmd, fn] of chatInputCommands)
+    devChatInputCommands.set(`${cmd}-dev`, fn);
 
 async function handleCommandInteraction(
     interaction: ChatInputCommandInteraction,
@@ -120,7 +144,9 @@ async function handleCommandInteraction(
     }
 }
 
-async function handleUserContextMenuInteraction(interaction: UserContextMenuCommandInteraction) {
+async function handleUserContextMenuInteraction(
+    interaction: UserContextMenuCommandInteraction
+) {
     const commandName = isDev()
         ? interaction.commandName.replace(" (dev)", "")
         : interaction.commandName;

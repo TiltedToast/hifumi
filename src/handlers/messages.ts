@@ -8,7 +8,12 @@ import { insertPrefix } from "../db/index.ts";
 import type { Message } from "discord.js";
 import { DEFAULT_PREFIX, DEV_PREFIX, RELOAD_PREFIX } from "../config.ts";
 import type { MessageCommandData, NarrowedMessage } from "../helpers/types.ts";
-import { clientHasPermissions, errorLog, isAiTrigger, isDev } from "../helpers/utils.ts";
+import {
+    clientHasPermissions,
+    errorLog,
+    isAiTrigger,
+    isDev,
+} from "../helpers/utils.ts";
 import { isLoading, prefixMap } from "./prefixes.ts";
 
 export default async function handleMessage(originalMessage: Message) {
@@ -43,21 +48,35 @@ export default async function handleMessage(originalMessage: Message) {
         // This way the prefix can be case insensitive
         const prefix = isDev()
             ? DEV_PREFIX
-            : prefixMap.get(message.guild?.id ?? "") ?? DEFAULT_PREFIX;
+            : (prefixMap.get(message.guild?.id ?? "") ?? DEFAULT_PREFIX);
 
-        const command = len >= 1 ? content[0]!.slice(prefix.length).toLowerCase() : "";
+        const command =
+            len >= 1 ? content[0]!.slice(prefix.length).toLowerCase() : "";
         const lowerCasePrefix =
-            len >= 1 ? content[0]!.substring(0, prefix.length).toLowerCase() : "";
+            len >= 1
+                ? content[0]!.substring(0, prefix.length).toLowerCase()
+                : "";
 
-        if (message.content.toLowerCase().startsWith(`${RELOAD_PREFIX}~~~`) && !isDev()) {
+        if (
+            message.content.toLowerCase().startsWith(`${RELOAD_PREFIX}~~~`) &&
+            !isDev()
+        ) {
             await misc.reloadBot(message);
         }
-        if (message.content.toLowerCase().startsWith(`${RELOAD_PREFIX}~`) && isDev()) {
+        if (
+            message.content.toLowerCase().startsWith(`${RELOAD_PREFIX}~`) &&
+            isDev()
+        ) {
             await misc.reloadBot(message);
         }
 
         if (lowerCasePrefix === prefix.toLowerCase()) {
-            await handleCommand({ command, subCmd, message, prefix });
+            await handleCommand({
+                command,
+                subCmd,
+                message,
+                prefix,
+            });
         }
 
         // Reacting to Ai's emote commands
@@ -67,11 +86,19 @@ export default async function handleMessage(originalMessage: Message) {
         }
         await misc.checkForImgAndCreateThread(message);
     } catch (err: unknown) {
-        await errorLog({ message: originalMessage, errorObject: err as Error });
+        await errorLog({
+            message: originalMessage,
+            errorObject: err as Error,
+        });
     }
 }
 
-function handleCommand({ command, subCmd, message, prefix }: MessageCommandData) {
+function handleCommand({
+    command,
+    subCmd,
+    message,
+    prefix,
+}: MessageCommandData) {
     // biome-ignore format: this is neat
     switch (command) {
         case "bye":       return misc.bye(message);

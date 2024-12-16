@@ -3,7 +3,10 @@ import { db } from "../db/index.ts";
 import { statuses } from "../db/schema.ts";
 import type { Client } from "discord.js";
 import { StatusType } from "../helpers/types.ts";
-import { randomIntFromRange, randomElementFromArray } from "../helpers/utils.ts";
+import {
+    randomIntFromRange,
+    randomElementFromArray,
+} from "../helpers/utils.ts";
 
 export let statusArr: Status[] = [];
 
@@ -29,11 +32,13 @@ export async function startStatusLoop(client: Client) {
  * @param client Discord client used to access the API
  */
 function setRandomStatus(client: Client) {
-    if (!client.user) return console.error("Could not set status, client user is undefined");
+    if (!client.user)
+        return console.error("Could not set status, client user is undefined");
     const randStatus = randomElementFromArray(statusArr);
 
     return client.user.setActivity({
-        name: randStatus.type !== "CUSTOM" ? randStatus.status : "Custom status",
+        name:
+            randStatus.type !== "CUSTOM" ? randStatus.status : "Custom status",
         state: randStatus.type === "CUSTOM" ? randStatus.status : undefined,
         type: StatusType[randStatus.type],
     });

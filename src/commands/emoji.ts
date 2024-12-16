@@ -25,7 +25,9 @@ import {
 } from "../helpers/utils.ts";
 
 export const emojiRegex = new RegExp(/<a?:\w+:\d+>/gi);
-const msgLinkRegex = new RegExp(/https:\/\/discord\.com\/channels\/\d+\/(\d+)\/(\d+)/);
+const msgLinkRegex = new RegExp(
+    /https:\/\/discord\.com\/channels\/\d+\/(\d+)\/(\d+)/
+);
 
 const {
     FailedToResizeAssetBelowTheMinimumSize,
@@ -38,23 +40,36 @@ const {
 
 export async function pngToGifEmoji(message: NarrowedMessage) {
     if (!message.guild) {
-        return await message.channel.send("You have to be in a server to use this command!");
+        return await message.channel.send(
+            "You have to be in a server to use this command!"
+        );
     }
 
-    if (!hasPermission(message.member, PermissionFlagsBits.ManageGuildExpressions)) {
+    if (
+        !hasPermission(
+            message.member,
+            PermissionFlagsBits.ManageGuildExpressions
+        )
+    ) {
         return await message.channel.send(
             'You need the "Manage Expressions" permission to convert emojis to GIFs!'
         );
     }
 
     if (message.type === MessageType.Reply) {
-        const repliedMsg = message.channel.messages.resolve(message.reference?.messageId ?? "");
+        const repliedMsg = message.channel.messages.resolve(
+            message.reference?.messageId ?? ""
+        );
         if (!repliedMsg) {
-            return await message.channel.send("Could not find message to grab emojis from!");
+            return await message.channel.send(
+                "Could not find message to grab emojis from!"
+            );
         }
         const emojis = repliedMsg.content.match(emojiRegex);
         if (!emojis) {
-            return await message.channel.send("You have to specify at least one emoji!");
+            return await message.channel.send(
+                "You have to specify at least one emoji!"
+            );
         }
 
         return convertEmojis(emojis, message);
@@ -62,39 +77,63 @@ export async function pngToGifEmoji(message: NarrowedMessage) {
 
     const emojis = message.content.match(emojiRegex);
 
-    if (!emojis) return await message.channel.send("You have to specify at least one emoji!");
+    if (!emojis)
+        return await message.channel.send(
+            "You have to specify at least one emoji!"
+        );
 
     await convertEmojis(emojis, message);
 }
 
-async function convertEmojis(emojis: RegExpMatchArray, message: NarrowedMessage) {
+async function convertEmojis(
+    emojis: RegExpMatchArray,
+    message: NarrowedMessage
+) {
     await using temp = await createTemp();
 
     let output = "";
 
     for (const emoji of emojis) {
         const parsed = parseEmoji(emoji);
-        const guildEmoji = await message.guild?.emojis.fetch(parsed.id).catch(() => null);
+        const guildEmoji = await message.guild?.emojis
+            .fetch(parsed.id)
+            .catch(() => null);
 
         if (guildEmoji?.animated) {
-            await message.channel.send(`\`${guildEmoji.name ?? "NameNotFound"}\` is already a GIF`);
+            await message.channel.send(
+                `\`${guildEmoji.name ?? "NameNotFound"}\` is already a GIF`
+            );
             continue;
         }
 
-        const url = guildEmoji ? guildEmoji.imageURL({ size: 128 }) : parsed.url;
+        const url = guildEmoji
+            ? guildEmoji.imageURL({
+                  size: 128,
+              })
+            : parsed.url;
 
         const imgType = getImgType(url);
         if (!imgType) continue;
 
-        const name = guildEmoji ? guildEmoji.name ?? "NameNotFound" : parsed.name;
-        const frameOnePath = path.join(temp.path, `${name}-${parsed.id}.${imgType}`);
+        const name = guildEmoji
+            ? (guildEmoji.name ?? "NameNotFound")
+            : parsed.name;
+        const frameOnePath = path.join(
+            temp.path,
+            `${name}-${parsed.id}.${imgType}`
+        );
 
         if (await downloadURL(url, frameOnePath)) {
-            await message.channel.send(`Could not download \`${name}\`, skipping...`);
+            await message.channel.send(
+                `Could not download \`${name}\`, skipping...`
+            );
             continue;
         }
 
-        const frameTwoPath = path.join(temp.path, `${name}-${parsed.id}_2.${imgType}`);
+        const frameTwoPath = path.join(
+            temp.path,
+            `${name}-${parsed.id}_2.${imgType}`
+        );
 
         const result = await copyFile(frameOnePath, frameTwoPath).catch((e) => {
             console.error(e);
@@ -102,18 +141,23 @@ async function convertEmojis(emojis: RegExpMatchArray, message: NarrowedMessage)
         });
 
         if (result === null) {
-            await message.channel.send(`Could not copy \`${name}\`, skipping...`);
+            await message.channel.send(
+                `Could not copy \`${name}\`, skipping...`
+            );
             continue;
         }
 
-        const magickPrefix = process.platform === "win32" ? "magick convert" : "convert";
+        const magickPrefix =
+            process.platform === "win32" ? "magick convert" : "convert";
 
         const compressOutput = await $`
                 ${magickPrefix} ${frameTwoPath} -quality 90 ${frameTwoPath}
             `.catch(console.error);
 
         if (!compressOutput || compressOutput.exitCode !== 0) {
-            await message.channel.send(`Could not compress \`${name}\`, skipping...`);
+            await message.channel.send(
+                `Could not compress \`${name}\`, skipping...`
+            );
             continue;
         }
 
@@ -124,7 +168,9 @@ async function convertEmojis(emojis: RegExpMatchArray, message: NarrowedMessage)
             `.catch(console.error);
 
         if (!convertOutput || convertOutput.exitCode !== 0) {
-            await message.channel.send(`Could not convert \`${name}\`, skipping...`);
+            await message.channel.send(
+                `Could not convert \`${name}\`, skipping...`
+            );
             continue;
         }
 
@@ -160,33 +206,45 @@ async function convertEmojis(emojis: RegExpMatchArray, message: NarrowedMessage)
             .catch(console.error);
 
         if (!newEmoji) {
-            await message.channel.send(`Could not create \`${name}\`, skipping...`);
+            await message.channel.send(
+                `Could not create \`${name}\`, skipping...`
+            );
             continue;
         }
 
         output += `${newEmoji.toString()} `;
 
-        if (guildEmoji?.deletable) await guildEmoji.delete("Replaced with GIF version");
+        if (guildEmoji?.deletable)
+            await guildEmoji.delete("Replaced with GIF version");
     }
 
     if (output === "") return;
 
-    await message.channel.send({ content: output });
+    await message.channel.send({
+        content: output,
+    });
 }
 
 export async function linkEmoji(message: NarrowedMessage) {
     let msgContent = message.content;
 
     if (message.type === MessageType.Reply) {
-        const repliedMsg = message.channel.messages.resolve(message.reference?.messageId ?? "");
+        const repliedMsg = message.channel.messages.resolve(
+            message.reference?.messageId ?? ""
+        );
         if (!repliedMsg) {
-            return await message.channel.send("Could not find message to grab emojis from!");
+            return await message.channel.send(
+                "Could not find message to grab emojis from!"
+            );
         }
         msgContent = repliedMsg.content;
     }
 
     const emojis = msgContent.match(emojiRegex);
-    if (!emojis) return await message.channel.send("You have to specify at least one emoji!");
+    if (!emojis)
+        return await message.channel.send(
+            "You have to specify at least one emoji!"
+        );
 
     const output = emojis.map((emoji) => parseEmoji(emoji).url).join("\n");
     return await message.channel.send(output);
@@ -197,7 +255,12 @@ export async function addEmoji(message: NarrowedMessage, prefix: string) {
     let emoji: GuildEmoji;
     let url = "";
 
-    if (!hasPermission(message.member, PermissionFlagsBits.CreateGuildExpressions)) {
+    if (
+        !hasPermission(
+            message.member,
+            PermissionFlagsBits.CreateGuildExpressions
+        )
+    ) {
         return await message.channel.send(
             'You need the "Create Expressions" permission to add emojis!'
         );
@@ -205,7 +268,9 @@ export async function addEmoji(message: NarrowedMessage, prefix: string) {
     const content = message.content.split(" ").filter(Boolean);
 
     if (message.type === MessageType.Reply) {
-        const repliedMsg = message.channel.messages.resolve(message.reference?.messageId ?? "");
+        const repliedMsg = message.channel.messages.resolve(
+            message.reference?.messageId ?? ""
+        );
         if (!repliedMsg)
             return await message.channel.send(
                 "Could not find message to grab emojis/stickers from!"
@@ -233,24 +298,33 @@ export async function addEmoji(message: NarrowedMessage, prefix: string) {
     if (matchedArr) {
         const [channelId, msgId] = matchedArr.slice(1) as [string, string];
 
-        const channel = await message.client.channels.fetch(channelId).catch(() => null);
+        const channel = await message.client.channels
+            .fetch(channelId)
+            .catch(() => null);
 
         if (!channel) {
-            return await message.channel.send("I probably don't have access to that channel");
+            return await message.channel.send(
+                "I probably don't have access to that channel"
+            );
         }
         if (!channel.isTextBased()) {
-            return await message.channel.send("Somehow this is not a text channel?");
+            return await message.channel.send(
+                "Somehow this is not a text channel?"
+            );
         }
 
         const msg = await channel.messages.fetch(msgId).catch(() => null);
 
         if (!msg) {
-            return await message.channel.send("Could not find message to grab emojis from!");
+            return await message.channel.send(
+                "Could not find message to grab emojis from!"
+            );
         }
 
         const emojis = msg.content.match(emojiRegex);
 
-        if (emojis === null) return await message.channel.send("No emojis found");
+        if (emojis === null)
+            return await message.channel.send("No emojis found");
 
         const emojiStringOutput = await bulkAddEmojis(message, emojis);
         if (!emojiStringOutput) return;
@@ -258,7 +332,9 @@ export async function addEmoji(message: NarrowedMessage, prefix: string) {
     }
 
     if (content.length <= 2 && message.attachments.size === 0) {
-        return await message.channel.send(`Usage: \`${prefix}emoji add <name> <url/emoji>\``);
+        return await message.channel.send(
+            `Usage: \`${prefix}emoji add <name> <url/emoji>\``
+        );
     }
     if (
         (content.length === 2 && message.attachments.size > 0) ||
@@ -283,17 +359,24 @@ export async function addEmoji(message: NarrowedMessage, prefix: string) {
     }
 
     if (2 > name.length || name.length > 32) {
-        return message.channel.send("The name must be between 2 and 32 characters long.");
+        return message.channel.send(
+            "The name must be between 2 and 32 characters long."
+        );
     }
 
     const source = content.length >= 4 ? content[3] : content[2];
     if (!source) return message.channel.send("You have to provide an image!");
 
-    const urlPattern = new RegExp(/https?:\/\/.*\.(?:png|jpeg|gif|avif|tiff|webp|svg)/i);
+    const urlPattern = new RegExp(
+        /https?:\/\/.*\.(?:png|jpeg|gif|avif|tiff|webp|svg)/i
+    );
     const isValidURL = urlPattern.test(source);
 
     // Matches the source string against a url regex and sets the url variable
-    if (!(isValidURL || source.startsWith("<")) && message.attachments.size === 0) {
+    if (
+        !(isValidURL || source.startsWith("<")) &&
+        message.attachments.size === 0
+    ) {
         return message.channel.send("Invalid source url!");
     }
     if (source.startsWith("<")) {
@@ -346,10 +429,14 @@ export async function addEmoji(message: NarrowedMessage, prefix: string) {
             }
 
             if (!isValidSize(resizedLocation, FileSizeLimit.DiscordEmoji)) {
-                return message.channel.send("File too large for Discord, even after resizing!");
+                return message.channel.send(
+                    "File too large for Discord, even after resizing!"
+                );
             }
             if (message.guild === null) {
-                return message.channel.send("You have to be in a server to do this!");
+                return message.channel.send(
+                    "You have to be in a server to do this!"
+                );
             }
             const base64 = await readFile(resizedLocation, {
                 encoding: "base64",
@@ -360,7 +447,9 @@ export async function addEmoji(message: NarrowedMessage, prefix: string) {
             });
         } else {
             if (message.guild === null) {
-                return message.channel.send("You have to be in a server to do this!");
+                return message.channel.send(
+                    "You have to be in a server to do this!"
+                );
             }
             const base64 = await readFile(fileLocation, {
                 encoding: "base64",
@@ -377,7 +466,11 @@ export async function addEmoji(message: NarrowedMessage, prefix: string) {
     return await message.channel.send(emoji.toString());
 }
 
-async function handleCreateError(error: unknown, message: NarrowedMessage, name: string) {
+async function handleCreateError(
+    error: unknown,
+    message: NarrowedMessage,
+    name: string
+) {
     let errorMessage: string;
     if (error instanceof DiscordAPIError) {
         switch (+error.code) {
@@ -435,13 +528,17 @@ async function addStickers(message: NarrowedMessage) {
             .catch(console.error);
 
         if (!newSticker) {
-            return await message.channel.send(`Could not add \`${name}\`, something went wrong`);
+            return await message.channel.send(
+                `Could not add \`${name}\`, something went wrong`
+            );
         }
         addedStickers.push(newSticker);
     }
     if (!addedStickers.length) return;
 
-    await message.channel.send({ stickers: addedStickers });
+    await message.channel.send({
+        stickers: addedStickers,
+    });
 }
 
 /**
@@ -451,7 +548,10 @@ async function addStickers(message: NarrowedMessage) {
  * @returns A string containing the newly added emojis
  *
  */
-async function bulkAddEmojis(message: NarrowedMessage, emojis: RegExpMatchArray) {
+async function bulkAddEmojis(
+    message: NarrowedMessage,
+    emojis: RegExpMatchArray
+) {
     let output = "";
     let msg: string;
     let emoji: GuildEmoji | undefined;
@@ -469,7 +569,9 @@ async function bulkAddEmojis(message: NarrowedMessage, emojis: RegExpMatchArray)
         const err = await downloadURL(url, filePath);
 
         if (err) {
-            await message.channel.send(`Could not download ${name}, skipping...`);
+            await message.channel.send(
+                `Could not download ${name}, skipping...`
+            );
             continue;
         }
 
@@ -478,7 +580,9 @@ async function bulkAddEmojis(message: NarrowedMessage, emojis: RegExpMatchArray)
             continue;
         }
 
-        const base64 = await readFile(filePath, { encoding: "base64" }).catch(() => null);
+        const base64 = await readFile(filePath, { encoding: "base64" }).catch(
+            () => null
+        );
 
         if (!base64) {
             await message.channel.send(`Could not read ${name}, skipping...`);
@@ -514,7 +618,12 @@ async function bulkAddEmojis(message: NarrowedMessage, emojis: RegExpMatchArray)
 }
 
 export async function removeEmoji(message: NarrowedMessage) {
-    if (!hasPermission(message.member, PermissionFlagsBits.ManageGuildExpressions)) {
+    if (
+        !hasPermission(
+            message.member,
+            PermissionFlagsBits.ManageGuildExpressions
+        )
+    ) {
         return await message.channel.send(
             'You need the "Manage Expressions" permission to remove emojis'
         );
@@ -522,7 +631,9 @@ export async function removeEmoji(message: NarrowedMessage) {
 
     const emojiStrings = message.content.match(emojiRegex);
     if (!emojiStrings || emojiStrings.length === 0) {
-        return await message.channel.send("You need to provide at least one emoji to remove");
+        return await message.channel.send(
+            "You need to provide at least one emoji to remove"
+        );
     }
 
     const emojiIds = emojiStrings.map((emoji) => parseEmoji(emoji).id);
@@ -556,7 +667,12 @@ export async function removeEmoji(message: NarrowedMessage) {
 }
 
 export async function renameEmoji(message: NarrowedMessage, prefix: string) {
-    if (!hasPermission(message.member, PermissionFlagsBits.ManageGuildExpressions)) {
+    if (
+        !hasPermission(
+            message.member,
+            PermissionFlagsBits.ManageGuildExpressions
+        )
+    ) {
         return message.channel.send(
             'You need the "Manage Expressions" permission to rename emojis!'
         );
@@ -578,12 +694,16 @@ export async function renameEmoji(message: NarrowedMessage, prefix: string) {
         if (!emoji) return message.channel.send("Emoji not found!");
 
         const oldName = Object.assign({}, emoji).name;
-        await emoji.edit({ name: newName });
+        await emoji.edit({
+            name: newName,
+        });
         return message.channel.send(
             `Emoji successfully renamed from \`${oldName ?? "NameNotFound"}\` to \`${newName}\`!`
         );
     } catch (err) {
-        return await message.channel.send(`Usage: \`${prefix}emoji rename <new name> <emoji>\``);
+        return await message.channel.send(
+            `Usage: \`${prefix}emoji rename <new name> <emoji>\``
+        );
     }
 }
 
@@ -597,7 +717,9 @@ export async function searchEmojis(message: NarrowedMessage) {
     const emojis = await message.guild?.emojis.fetch();
 
     if (!emojis) {
-        return await message.channel.send("You need to be in a server to use this command!");
+        return await message.channel.send(
+            "You need to be in a server to use this command!"
+        );
     }
 
     const emojiStrings = Array.from(emojis.map((x) => x.toString()));

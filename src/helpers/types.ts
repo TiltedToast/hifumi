@@ -109,7 +109,9 @@ export const PairConversionResponseSchema = z.union([
     FailedPairConversionSchema,
 ]);
 
-export type PairConversionResponse = z.infer<typeof PairConversionResponseSchema>;
+export type PairConversionResponse = z.infer<
+    typeof PairConversionResponseSchema
+>;
 
 export type ErrorLogOptions = {
     message: Message;
@@ -164,7 +166,13 @@ export const StatusType = {
     CUSTOM: ActivityType.Custom,
 } as const;
 
-export type SupportedStaticImgExts = "png" | "jpeg" | "avif" | "tiff" | "webp" | "svg";
+export type SupportedStaticImgExts =
+    | "png"
+    | "jpeg"
+    | "avif"
+    | "tiff"
+    | "webp"
+    | "svg";
 
 export type ParsedEmoji = {
     name: string;

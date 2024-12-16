@@ -9,7 +9,8 @@ import {
     SlashCommandBuilder,
 } from "discord.js";
 
-if (!process.env["BOT_ID"]) throw new Error("You must provide a BOT_ID env variable");
+if (!process.env["BOT_ID"])
+    throw new Error("You must provide a BOT_ID env variable");
 
 let guildId: string | undefined = undefined;
 const clear = process.argv.includes("--clear");
@@ -24,7 +25,10 @@ let commands = [
         .setName("pat")
         .setDescription("Pats a user")
         .addUserOption((option) =>
-            option.setName("user").setDescription("The user to pat").setRequired(true)
+            option
+                .setName("user")
+                .setDescription("The user to pat")
+                .setRequired(true)
         )
         .setIntegrationTypes(ApplicationIntegrationType.GuildInstall)
         .setContexts(InteractionContextType.Guild),
@@ -58,7 +62,10 @@ let commands = [
                 .setRequired(false)
         )
         .addBooleanOption((option) =>
-            option.setName("force").setDescription("Force fetch posts").setRequired(false)
+            option
+                .setName("force")
+                .setDescription("Force fetch posts")
+                .setRequired(false)
         )
         .setIntegrationTypes(
             ApplicationIntegrationType.GuildInstall,
@@ -74,7 +81,10 @@ let commands = [
         .setName("urban")
         .setDescription("Searches for a term on Urban Dictionary")
         .addStringOption((option) =>
-            option.setName("term").setDescription("The term to search for").setRequired(false)
+            option
+                .setName("term")
+                .setDescription("The term to search for")
+                .setRequired(false)
         )
         .addBooleanOption((option) =>
             option
@@ -96,10 +106,16 @@ let commands = [
         .setName("convert")
         .setDescription("Converts from one currency to another")
         .addStringOption((option) =>
-            option.setName("from").setDescription("The currency to convert from").setRequired(true)
+            option
+                .setName("from")
+                .setDescription("The currency to convert from")
+                .setRequired(true)
         )
         .addStringOption((option) =>
-            option.setName("to").setDescription("The currency to convert to").setRequired(true)
+            option
+                .setName("to")
+                .setDescription("The currency to convert to")
+                .setRequired(true)
         )
         .addNumberOption((option) =>
             option
@@ -122,7 +138,10 @@ let commands = [
         .setName("qr")
         .setDescription("Generates a QR code")
         .addStringOption((option) =>
-            option.setName("data").setDescription("The data to encode").setRequired(true)
+            option
+                .setName("data")
+                .setDescription("The data to encode")
+                .setRequired(true)
         )
         .setIntegrationTypes(
             ApplicationIntegrationType.GuildInstall,
@@ -140,7 +159,9 @@ let commands = [
         .addUserOption((option) =>
             option
                 .setName("user")
-                .setDescription("The user to get the avatar of (You if omitted)")
+                .setDescription(
+                    "The user to get the avatar of (You if omitted)"
+                )
                 .setRequired(false)
         )
         .setIntegrationTypes(
@@ -170,7 +191,10 @@ let commands = [
         .setName("leet")
         .setDescription("Converts text to leet speak")
         .addStringOption((option) =>
-            option.setName("input").setDescription("The text to convert").setRequired(true)
+            option
+                .setName("input")
+                .setDescription("The text to convert")
+                .setRequired(true)
         )
         .setIntegrationTypes(
             ApplicationIntegrationType.GuildInstall,
@@ -188,7 +212,9 @@ let commands = [
         .addUserOption((option) =>
             option
                 .setName("user")
-                .setDescription("The user to get the avatar of (You if omitted)")
+                .setDescription(
+                    "The user to get the avatar of (You if omitted)"
+                )
                 .setRequired(false)
         )
         .setIntegrationTypes(
@@ -206,7 +232,10 @@ let commands = [
         .setName("prefix")
         .setDescription("Updates the prefix for the server")
         .addStringOption((option) =>
-            option.setName("prefix").setDescription("The new prefix").setRequired(true)
+            option
+                .setName("prefix")
+                .setDescription("The new prefix")
+                .setRequired(true)
         )
         .setContexts(InteractionContextType.Guild)
         .setIntegrationTypes(ApplicationIntegrationType.GuildInstall),
@@ -224,13 +253,18 @@ if (process.env.DEV_MODE === "true") {
     });
 }
 
-const rest = new REST({ version: "10" }).setToken(process.env.BOT_TOKEN);
+const rest = new REST({
+    version: "10",
+}).setToken(process.env.BOT_TOKEN);
 
 try {
     if (guildId) {
-        await rest.put(Routes.applicationGuildCommands(process.env["BOT_ID"], guildId), {
-            body: clear ? [] : commands,
-        });
+        await rest.put(
+            Routes.applicationGuildCommands(process.env["BOT_ID"], guildId),
+            {
+                body: clear ? [] : commands,
+            }
+        );
         const msg = clear
             ? "Successfully cleared all commands in your test guild."
             : "Successfully registered all commands in your test guild.";

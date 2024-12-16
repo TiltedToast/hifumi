@@ -1,14 +1,20 @@
 import type { TextChannel } from "discord.js";
 import { db } from "../db/index.ts";
 import { errorLogs } from "../db/schema.ts";
-import { CatFactResponseSchema, type CatFactResponse } from "../helpers/types.ts";
+import {
+    CatFactResponseSchema,
+    type CatFactResponse,
+} from "../helpers/types.ts";
 import { isDev, randomIntFromRange } from "../helpers/utils.ts";
 
 export async function startCatFactLoop(channel: TextChannel) {
-    const sleep = async () => await Bun.sleep(randomIntFromRange(54000000, 86400000)); // 15h-24h
+    const sleep = async () =>
+        await Bun.sleep(randomIntFromRange(54000000, 86400000)); // 15h-24h
 
     while (true) {
-        const response = await fetch("https://catfact.ninja/fact").catch(console.error);
+        const response = await fetch("https://catfact.ninja/fact").catch(
+            console.error
+        );
 
         if (!response) {
             await channel.send("Error fetching cat fact");
@@ -16,7 +22,9 @@ export async function startCatFactLoop(channel: TextChannel) {
             continue;
         }
 
-        const json = (await response.json().catch(console.error)) as CatFactResponse;
+        const json = (await response
+            .json()
+            .catch(console.error)) as CatFactResponse;
 
         if (!(json && CatFactResponseSchema.safeParse(json).success)) {
             await channel.send("Error parsing cat fact response");

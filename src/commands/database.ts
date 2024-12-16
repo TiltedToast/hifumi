@@ -27,7 +27,8 @@ export async function runSQL(message: NarrowedMessage) {
 
     const query = message.content.split(" ").slice(1).join(" ");
 
-    if (query.length === 0) return await message.channel.send("You need to provide a query smh");
+    if (query.length === 0)
+        return await message.channel.send("You need to provide a query smh");
 
     const result = await dbClient.execute(query).catch(async (e) => {
         if (e instanceof LibsqlError) {
@@ -41,10 +42,13 @@ export async function runSQL(message: NarrowedMessage) {
     if (!result) return;
 
     if (!query.toLowerCase().startsWith("select")) {
-        return await message.channel.send(codeBlock("json", JSON.stringify(result, null, 2)));
+        return await message.channel.send(
+            codeBlock("json", JSON.stringify(result, null, 2))
+        );
     }
 
-    if (result.rows.length === 0) return await message.channel.send("No results found!");
+    if (result.rows.length === 0)
+        return await message.channel.send("No results found!");
 
     let stringified = formatTable(result.rows);
 
@@ -55,7 +59,9 @@ export async function runSQL(message: NarrowedMessage) {
 
     if (stringified.length > 2000) {
         console.error(stringified);
-        return await message.channel.send("The result is too long to be displayed, check the logs");
+        return await message.channel.send(
+            "The result is too long to be displayed, check the logs"
+        );
     }
 
     await message.channel.send(
@@ -65,12 +71,15 @@ export async function runSQL(message: NarrowedMessage) {
     );
 }
 
-export async function insertStatus(message: NarrowedMessage): Promise<undefined | Message> {
+export async function insertStatus(
+    message: NarrowedMessage
+): Promise<undefined | Message> {
     if (!isBotOwner(message.author)) return;
 
     const content = message.content.split(" ").filter(Boolean);
 
-    if (content.length < 3) return await message.channel.send("Invalid syntax!");
+    if (content.length < 3)
+        return await message.channel.send("Invalid syntax!");
 
     const document = {
         type: content[1]!.toUpperCase(),
@@ -125,7 +134,9 @@ export async function insertStatus(message: NarrowedMessage): Promise<undefined 
     await message.channel.send(codeBlock(formattedDoc));
 }
 
-export async function updatePrefix(input: NarrowedMessage | ChatInputCommandInteraction) {
+export async function updatePrefix(
+    input: NarrowedMessage | ChatInputCommandInteraction
+) {
     if (isChatInputCommandInteraction(input)) {
         if (
             !input.memberPermissions?.has(PermissionFlagsBits.ManageGuild) &&
@@ -148,25 +159,42 @@ export async function updatePrefix(input: NarrowedMessage | ChatInputCommandInte
         newPrefix = input.options.getString("prefix", true);
     } else {
         const content = input.content.split(" ").filter(Boolean);
-        if (content.length !== 2) return await input.channel.send("Invalid syntax");
+        if (content.length !== 2)
+            return await input.channel.send("Invalid syntax");
         newPrefix = content[1]!;
     }
 
     if (newPrefix.length > 255) {
-        return await sendOrReply(input, "Your prefix may only be 255 characters long at most");
+        return await sendOrReply(
+            input,
+            "Your prefix may only be 255 characters long at most"
+        );
     }
 
     if (input.guild === null || !input.channel?.isSendable()) {
-        return await sendOrReply(input, "This command can only be used in a server!");
+        return await sendOrReply(
+            input,
+            "This command can only be used in a server!"
+        );
     }
 
-    if (isDev()) await input.channel?.send("Wrong database <:emiliaSMH:747132102645907587>");
+    if (isDev())
+        await input.channel?.send(
+            "Wrong database <:emiliaSMH:747132102645907587>"
+        );
 
     const serverId = input.guild.id;
     const result = await updatePrefixDB(serverId, newPrefix);
     if (!result) {
-        return await sendOrReply(input, "Couldn't update prefix, maybe try again later");
+        return await sendOrReply(
+            input,
+            "Couldn't update prefix, maybe try again later"
+        );
     }
     prefixMap.set(serverId, newPrefix);
-    return await sendOrReply(input, `Updated prefix for this server to \`${newPrefix}\`!`, false);
+    return await sendOrReply(
+        input,
+        `Updated prefix for this server to \`${newPrefix}\`!`,
+        false
+    );
 }

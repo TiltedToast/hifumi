@@ -19,21 +19,31 @@ import {
     sendOrReply,
 } from "../helpers/utils.ts";
 
-export async function beautiful(input: NarrowedMessage | ChatInputCommandInteraction) {
+export async function beautiful(
+    input: NarrowedMessage | ChatInputCommandInteraction
+) {
     let user: User;
 
     if (isChatInputCommandInteraction(input)) {
         user = input.options.getUser("user") ?? input.user;
     } else {
         const content = input.content.split(" ").filter(Boolean);
-        const tmp = content.length === 1 ? input.author : await getUserObjectPingId(input);
-        if (!tmp) return await input.channel.send("Couldn't find the specified User");
+        const tmp =
+            content.length === 1
+                ? input.author
+                : await getUserObjectPingId(input);
+        if (!tmp)
+            return await input.channel.send("Couldn't find the specified User");
         user = tmp;
     }
 
     await using temp = await createTemp();
 
-    const avatarUrl = user.avatarURL({ size: 4096, forceStatic: true }) ?? user.defaultAvatarURL;
+    const avatarUrl =
+        user.avatarURL({
+            size: 4096,
+            forceStatic: true,
+        }) ?? user.defaultAvatarURL;
 
     const errorMsg = await downloadURL(avatarUrl, `${temp.path}/avatar.png`);
     if (errorMsg) return await sendOrReply(input, errorMsg);
@@ -57,11 +67,18 @@ export async function beautiful(input: NarrowedMessage | ChatInputCommandInterac
             width: 640,
             height: 674,
             channels: 4,
-            background: { r: 0, g: 0, b: 0, alpha: 0 },
+            background: {
+                r: 0,
+                g: 0,
+                b: 0,
+                alpha: 0,
+            },
         },
     });
 
-    const avatar = await sharp(`${temp.path}/avatar_resized.png`).toBuffer().catch(console.error);
+    const avatar = await sharp(`${temp.path}/avatar_resized.png`)
+        .toBuffer()
+        .catch(console.error);
     const background = await sharp("./src/assets/beautiful_background.png")
         .toBuffer()
         .catch(console.error);
@@ -91,7 +108,9 @@ export async function beautiful(input: NarrowedMessage | ChatInputCommandInterac
     return await sendOrReply(input, { files: [buf] }, false);
 }
 
-export async function qrCode(input: NarrowedMessage | ChatInputCommandInteraction) {
+export async function qrCode(
+    input: NarrowedMessage | ChatInputCommandInteraction
+) {
     let qrText: string;
     if (isChatInputCommandInteraction(input)) {
         qrText = input.options.getString("data", true);
@@ -103,9 +122,12 @@ export async function qrCode(input: NarrowedMessage | ChatInputCommandInteractio
 
     const buf = await qr.toBuffer(qrText).catch(console.error);
 
-    if (!buf) return await sendOrReply(input, "Data too big to fit into a QR code!");
+    if (!buf)
+        return await sendOrReply(input, "Data too big to fit into a QR code!");
 
-    return await sendOrReply(input, { files: [buf] });
+    return await sendOrReply(input, {
+        files: [buf],
+    });
 }
 
 export async function resizeImg(message: NarrowedMessage, prefix: string) {
@@ -113,7 +135,9 @@ export async function resizeImg(message: NarrowedMessage, prefix: string) {
 
     // Checks for invalid User input
     if (content.length !== 3 && message.attachments.size === 0) {
-        return await message.channel.send(`Usage: \`${prefix}resize <width> <url>\``);
+        return await message.channel.send(
+            `Usage: \`${prefix}resize <width> <url>\``
+        );
     }
     if (content.length === 1 && message.attachments.size > 0) {
         return await message.channel.send("You have to provide the width!");
@@ -121,14 +145,20 @@ export async function resizeImg(message: NarrowedMessage, prefix: string) {
 
     const width = Math.floor(Number(content[1]));
 
-    if (Number.isNaN(width) || width <= 0) return await message.channel.send("Invalid width!");
+    if (Number.isNaN(width) || width <= 0)
+        return await message.channel.send("Invalid width!");
     if (width > 5000) return await message.channel.send("Width too large!");
 
-    const source = message.attachments.size > 0 ? message.attachments.first()?.url : content[2];
+    const source =
+        message.attachments.size > 0
+            ? message.attachments.first()?.url
+            : content[2];
 
     if (!source) return await message.channel.send("Invalid URL!");
 
-    const urlPattern = new RegExp(/https?:\/\/.*\.(?:png|jpeg|gif|avif|tiff|webp|svg)/i);
+    const urlPattern = new RegExp(
+        /https?:\/\/.*\.(?:png|jpeg|gif|avif|tiff|webp|svg)/i
+    );
     const isValidURL = urlPattern.test(source);
 
     // Matches URL against a regex pattern and invalidates gif files (they are not supported yet)
@@ -141,7 +171,10 @@ export async function resizeImg(message: NarrowedMessage, prefix: string) {
 
     await using temp = await createTemp();
 
-    const errorMsg = await downloadURL(source, `${temp.path}/unknown.${imgType}`);
+    const errorMsg = await downloadURL(
+        source,
+        `${temp.path}/unknown.${imgType}`
+    );
     if (errorMsg) return await message.channel.send(errorMsg);
 
     const output = await resize({
@@ -157,11 +190,18 @@ export async function resizeImg(message: NarrowedMessage, prefix: string) {
         );
     }
 
-    if (!isValidSize(`${temp.path}/unknown_resized.${imgType}`, FileSizeLimit.DiscordFile)) {
+    if (
+        !isValidSize(
+            `${temp.path}/unknown_resized.${imgType}`,
+            FileSizeLimit.DiscordFile
+        )
+    ) {
         return await message.channel.send("File too large for Discord!");
     }
 
-    await message.channel.send({ files: [`${temp.path}/unknown_resized.${imgType}`] });
+    await message.channel.send({
+        files: [`${temp.path}/unknown_resized.${imgType}`],
+    });
 }
 
 export async function imgur(message: NarrowedMessage, prefix: string) {
@@ -171,7 +211,10 @@ export async function imgur(message: NarrowedMessage, prefix: string) {
         return await message.channel.send(`Usage: \`${prefix}imgur <url>\``);
     }
 
-    let source = message.attachments.size > 0 ? message.attachments.first()?.url : content[1];
+    let source =
+        message.attachments.size > 0
+            ? message.attachments.first()?.url
+            : content[1];
 
     if (!source) return await message.channel.send("Invalid URL!");
 
@@ -189,7 +232,10 @@ export async function imgur(message: NarrowedMessage, prefix: string) {
 
     const myHeaders = new Headers();
     const formdata = new FormData();
-    myHeaders.append("Authorization", `Client-ID ${process.env.IMGUR_CLIENT_ID}`);
+    myHeaders.append(
+        "Authorization",
+        `Client-ID ${process.env.IMGUR_CLIENT_ID}`
+    );
 
     const requestOptions: RequestInit = {
         method: "POST",
@@ -202,11 +248,17 @@ export async function imgur(message: NarrowedMessage, prefix: string) {
     // If present, uploads the image to Imgur and sends the link to the channel if it's within the size limit (10MB)
     // If not, downloads the image and checks for valid size before uploading to Imgur
     const response = await fetch(source, {
-        headers: source.includes("pximg") ? { Referer: "https://www.pixiv.net/" } : undefined,
+        headers: source.includes("pximg")
+            ? {
+                  Referer: "https://www.pixiv.net/",
+              }
+            : undefined,
     }).catch(console.error);
 
     if (!response) {
-        return await message.channel.send("Something went wrong checking the image size");
+        return await message.channel.send(
+            "Something went wrong checking the image size"
+        );
     }
 
     const contentLength = response.headers.get("Content-Length");
@@ -214,27 +266,43 @@ export async function imgur(message: NarrowedMessage, prefix: string) {
     if (!response.headers.has("Content-Length")) {
         await using temp = await createTemp();
 
-        const errorMsg = await downloadURL(source, `${temp.path}/unknown.${imgType}`);
+        const errorMsg = await downloadURL(
+            source,
+            `${temp.path}/unknown.${imgType}`
+        );
         if (errorMsg) return await message.channel.send(errorMsg);
 
-        if (!isValidSize(`${temp.path}/unknown.${imgType}`, FileSizeLimit.ImgurFile)) {
-            return await message.channel.send("File too large for Imgur! (10MB limit)");
+        if (
+            !isValidSize(
+                `${temp.path}/unknown.${imgType}`,
+                FileSizeLimit.ImgurFile
+            )
+        ) {
+            return await message.channel.send(
+                "File too large for Imgur! (10MB limit)"
+            );
         }
 
-        const contents = await readFile(`${temp.path}/unknown.${imgType}`, "base64");
+        const contents = await readFile(
+            `${temp.path}/unknown.${imgType}`,
+            "base64"
+        );
 
         formdata.append("image", contents);
 
-        const response = await fetch("https://api.imgur.com/3/image", requestOptions).catch(
-            console.error
-        );
+        const response = await fetch(
+            "https://api.imgur.com/3/image",
+            requestOptions
+        ).catch(console.error);
 
         if (!response) {
             return await message.channel.send(
                 "Failed to upload the image. Something must've gone really wrong for this to happen"
             );
         }
-        const result = (await response.json().catch(console.error)) as ImgurResponse;
+        const result = (await response
+            .json()
+            .catch(console.error)) as ImgurResponse;
 
         if (!result) {
             return await message.channel.send(
@@ -256,18 +324,24 @@ export async function imgur(message: NarrowedMessage, prefix: string) {
 
         return await message.channel.send(result.data.link);
     }
-    if (contentLength !== null && Number.parseInt(contentLength) <= FileSizeLimit.ImgurFile) {
+    if (
+        contentLength !== null &&
+        Number.parseInt(contentLength) <= FileSizeLimit.ImgurFile
+    ) {
         formdata.append("image", source);
 
-        const response = await fetch("https://api.imgur.com/3/image", requestOptions).catch(
-            console.error
-        );
+        const response = await fetch(
+            "https://api.imgur.com/3/image",
+            requestOptions
+        ).catch(console.error);
 
         if (!response)
             return await message.channel.send(
                 "Failed to upload the image. Something must've gone really wrong for this to happen"
             );
-        const result = (await response.json().catch(console.error)) as ImgurResponse;
+        const result = (await response
+            .json()
+            .catch(console.error)) as ImgurResponse;
 
         if (!result) {
             return await message.channel.send(

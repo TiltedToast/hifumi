@@ -69,7 +69,9 @@ export async function initialise(client: Client) {
  * console.log(formatTable(rows));
  * ```
  */
-export function formatTable<K extends PropertyKey, V>(rows: Record<K, V>[]): string {
+export function formatTable<K extends PropertyKey, V>(
+    rows: Record<K, V>[]
+): string {
     const MIN_WRAP_LENGTH = 30;
 
     assert(rows.length > 0, "Must have at least one row");
@@ -99,19 +101,28 @@ export function formatTable<K extends PropertyKey, V>(rows: Record<K, V>[]): str
 }
 
 export function isUserContextMenuCommandInteraction(
-    input: NarrowedMessage | ChatInputCommandInteraction | UserContextMenuCommandInteraction
+    input:
+        | NarrowedMessage
+        | ChatInputCommandInteraction
+        | UserContextMenuCommandInteraction
 ) {
     return input instanceof UserContextMenuCommandInteraction;
 }
 
 export function isChatInputCommandInteraction(
-    input: NarrowedMessage | ChatInputCommandInteraction | UserContextMenuCommandInteraction
+    input:
+        | NarrowedMessage
+        | ChatInputCommandInteraction
+        | UserContextMenuCommandInteraction
 ): input is ChatInputCommandInteraction {
     return input instanceof ChatInputCommandInteraction;
 }
 
 export function isMessage(
-    input: NarrowedMessage | ChatInputCommandInteraction | UserContextMenuCommandInteraction
+    input:
+        | NarrowedMessage
+        | ChatInputCommandInteraction
+        | UserContextMenuCommandInteraction
 ): input is NarrowedMessage {
     return input instanceof Message;
 }
@@ -123,7 +134,10 @@ export function isMessage(
  * @param ephemeral Whether or not the message should be ephemeral (only visible to the user who invoked the command, this is true by default and only for command interactions)
  */
 export async function sendOrReply(
-    input: NarrowedMessage | ChatInputCommandInteraction | UserContextMenuCommandInteraction,
+    input:
+        | NarrowedMessage
+        | ChatInputCommandInteraction
+        | UserContextMenuCommandInteraction,
     message: string | BaseMessageOptions,
     ephemeral = true
 ) {
@@ -135,9 +149,15 @@ export async function sendOrReply(
     }
     if (input.isRepliable()) {
         if (typeof message === "string") {
-            return await input.reply({ content: message, ephemeral });
+            return await input.reply({
+                content: message,
+                ephemeral,
+            });
         }
-        return await input.reply({ ...message, ephemeral });
+        return await input.reply({
+            ...message,
+            ephemeral,
+        });
     }
 }
 
@@ -148,7 +168,11 @@ export async function sendOrReply(
  * @param delim The delimiter to split the message by (default is a space)
  * @returns An array of messages
  */
-export function splitMessage(message: string, maxLength = 2000, delim = " "): string[] {
+export function splitMessage(
+    message: string,
+    maxLength = 2000,
+    delim = " "
+): string[] {
     const chunks: string[] = [];
     let currentChunk = "";
     for (const word of message.split(delim)) {
@@ -168,7 +192,9 @@ export async function writeUpdateFile() {
 
 function getEmbedIndex(arr: EmbedData[], target: EmbedData): number {
     return arr.findIndex(
-        (elem) => elem.embed.toJSON().description === target.embed.toJSON().description
+        (elem) =>
+            elem.embed.toJSON().description ===
+            target.embed.toJSON().description
     );
 }
 
@@ -176,8 +202,12 @@ export async function clientHasPermissions(message: Message): Promise<boolean> {
     const guildClient = await message.guild?.members.fetchMe();
     if (!guildClient) return true;
     return (
-        guildClient.permissionsIn(message.channel.id).has(PermissionsBitField.Flags.SendMessages) &&
-        guildClient.permissionsIn(message.channel.id).has(PermissionsBitField.Flags.ViewChannel)
+        guildClient
+            .permissionsIn(message.channel.id)
+            .has(PermissionsBitField.Flags.SendMessages) &&
+        guildClient
+            .permissionsIn(message.channel.id)
+            .has(PermissionsBitField.Flags.ViewChannel)
     );
 }
 
@@ -186,13 +216,23 @@ export function insideDocker(): boolean {
 }
 
 export function isBotOwner(user: User): boolean {
-    return user.id === BOT_OWNERS.primary || BOT_OWNERS.secondary.includes(user.id);
+    return (
+        user.id === BOT_OWNERS.primary || BOT_OWNERS.secondary.includes(user.id)
+    );
 }
 
-export function isAiTrigger(message: NarrowedMessage, reactCmd: string): boolean {
+export function isAiTrigger(
+    message: NarrowedMessage,
+    reactCmd: string
+): boolean {
     if (!message.client.user) return false;
-    if (message.content.startsWith(`$${reactCmd}`) && message.type === MessageType.Reply) {
-        const repliedMsg = message.channel.messages.resolve(message.reference?.messageId ?? "");
+    if (
+        message.content.startsWith(`$${reactCmd}`) &&
+        message.type === MessageType.Reply
+    ) {
+        const repliedMsg = message.channel.messages.resolve(
+            message.reference?.messageId ?? ""
+        );
         if (!repliedMsg) return false;
         if (repliedMsg.author.id === message.client.user.id) return true;
     }
@@ -218,7 +258,8 @@ export function setEmbedArr<T>(args: UpdateEmbedArrParams<T>): void {
 }
 
 export async function updateEmbed(options: UpdateEmbedOptions) {
-    const { interaction, embedArray, prevButtonId, nextButtonId, user } = options;
+    const { interaction, embedArray, prevButtonId, nextButtonId, user } =
+        options;
 
     const activeIndex = getEmbedIndex(embedArray, {
         embed: interaction.message.embeds[0]!,
@@ -232,9 +273,15 @@ export async function updateEmbed(options: UpdateEmbedOptions) {
         });
     }
 
-    assert(embedArray.length >= 1, "Embed array must have at least one element");
+    assert(
+        embedArray.length >= 1,
+        "Embed array must have at least one element"
+    );
 
-    const step = { [prevButtonId]: -1, [nextButtonId]: 1 }[interaction.customId];
+    const step = {
+        [prevButtonId]: -1,
+        [nextButtonId]: 1,
+    }[interaction.customId];
     if (!step) {
         console.error(
             `Prev: ${prevButtonId} | Next: ${nextButtonId} | CustomID: ${interaction.customId}`
@@ -245,9 +292,14 @@ export async function updateEmbed(options: UpdateEmbedOptions) {
         });
     }
 
-    const newEmbed = embedArray[(activeIndex + step + embedArray.length) % embedArray.length];
+    const newEmbed =
+        embedArray[
+            (activeIndex + step + embedArray.length) % embedArray.length
+        ];
 
-    return await interaction.update({ embeds: [newEmbed!.embed] });
+    return await interaction.update({
+        embeds: [newEmbed!.embed],
+    });
 }
 
 /**
@@ -270,13 +322,19 @@ export function hasPermission(
  * @param type The target file extension
  * @returns The new file path
  */
-export async function convertStaticImg(file: string, type: SupportedStaticImgExts) {
+export async function convertStaticImg(
+    file: string,
+    type: SupportedStaticImgExts
+) {
     const ext = path.extname(file).toLowerCase();
 
     if (ext === "") return undefined;
     if (ext === `.${type}`) return file;
 
-    const newFile = path.join(path.dirname(file), `${path.basename(file, ext)}.${type}`);
+    const newFile = path.join(
+        path.dirname(file),
+        `${path.basename(file, ext)}.${type}`
+    );
 
     await sharp(file).toFormat(type).toFile(newFile).catch(console.error);
     return newFile;
@@ -297,7 +355,10 @@ export async function resize(options: ResizeOptions) {
             gifsicle --resize-width ${width} ${fileLocation} -o ${saveLocation} --colors 256
         `.catch(console.error);
     }
-    return await sharp(fileLocation).resize(width).toFile(saveLocation).catch(console.error);
+    return await sharp(fileLocation)
+        .resize(width)
+        .toFile(saveLocation)
+        .catch(console.error);
 }
 
 /**
@@ -323,7 +384,8 @@ export async function getUserObjectPingId(
     try {
         if (!Number.isNaN(Number.parseInt(pingOrIdString)))
             user = await message.client.users.fetch(pingOrIdString);
-        if (!user && pingOrIdString.startsWith("<")) user = message.mentions.users.first();
+        if (!user && pingOrIdString.startsWith("<"))
+            user = message.mentions.users.first();
         return user ? user : undefined;
     } catch (err) {
         return undefined;
@@ -381,7 +443,10 @@ export function errorLog({ message, errorObject }: ErrorLogOptions) {
 
     ${userMention(BOT_OWNERS.primary)}`;
 
-    const preCutErrorMessage = fullErrorMsg.substring(0, 1900 - errorMessageWithoutStack.length);
+    const preCutErrorMessage = fullErrorMsg.substring(
+        0,
+        1900 - errorMessageWithoutStack.length
+    );
 
     const postCutErrorMessage = dedent`
     ${preCutErrorMessage.split("\n").slice(0, -2).join("\n")}**
@@ -436,7 +501,8 @@ export async function downloadURL(url: string, saveLocation: string) {
     });
 
     // Pixiv will only allow you to download images if you have a referer header
-    if (url.includes("pximg")) headers.append("Referer", "https://www.pixiv.net/");
+    if (url.includes("pximg"))
+        headers.append("Referer", "https://www.pixiv.net/");
 
     const requestOptions: RequestInit = {
         method: "GET",
@@ -481,7 +547,9 @@ export async function downloadURL(url: string, saveLocation: string) {
  * console.log(getImgType(url)); // "png"
  * ```
  */
-export function getImgType(url: string): SupportedStaticImgExts | "gif" | undefined {
+export function getImgType(
+    url: string
+): SupportedStaticImgExts | "gif" | undefined {
     assert(url.length > 0, "URL must have at least one character");
     if (url.includes(".png")) return "png";
     if (url.includes(".jpeg") || url.includes(".jpg")) return "jpeg";
@@ -513,7 +581,11 @@ export function parseEmoji(emojiString: string): ParsedEmoji {
 }
 
 export async function deleteFolder(folder: string) {
-    await rm(folder, { recursive: true, force: true, maxRetries: 3 });
+    await rm(folder, {
+        recursive: true,
+        force: true,
+        maxRetries: 3,
+    });
 }
 
 /**

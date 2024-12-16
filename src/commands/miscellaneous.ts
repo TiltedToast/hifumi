@@ -25,7 +25,12 @@ import {
     OWNER_NAME,
 } from "../config.ts";
 import { db } from "../db/index.ts";
-import { aiCommandAliases, aiReactions, helpMessages, leet as leetTable } from "../db/schema.ts";
+import {
+    aiCommandAliases,
+    aiReactions,
+    helpMessages,
+    leet as leetTable,
+} from "../db/schema.ts";
 import { prefixMap } from "../handlers/prefixes.ts";
 import dedent from "../helpers/dedent.ts";
 import {
@@ -77,10 +82,15 @@ math.import(
 );
 
 export async function patUser(interaction: ChatInputCommandInteraction) {
-    return await interaction.reply(`$pat ${interaction.options.getUser("user", true).toString()}`);
+    return await interaction.reply(
+        `$pat ${interaction.options.getUser("user", true).toString()}`
+    );
 }
 
-export async function wolframAlpha(message: NarrowedMessage, command: "wolfram" | "wolf") {
+export async function wolframAlpha(
+    message: NarrowedMessage,
+    command: "wolfram" | "wolf"
+) {
     if (!isBotOwner(message.author)) return;
 
     const longAnswer = command === "wolfram";
@@ -109,7 +119,8 @@ export async function wolframAlpha(message: NarrowedMessage, command: "wolfram" 
     // @ts-expect-error It's too dumb to realise that the URL is valid
     const response = await fetch(url).catch(console.error);
 
-    if (!response) return await message.channel.send("Fetch failed, not sure why");
+    if (!response)
+        return await message.channel.send("Fetch failed, not sure why");
 
     if (!response.ok) {
         return await message.channel.send(
@@ -121,14 +132,21 @@ export async function wolframAlpha(message: NarrowedMessage, command: "wolfram" 
         const buffer = await response.arrayBuffer().catch(console.error);
 
         if (!buffer) {
-            return await message.channel.send("Failed to extract the buffer for some reason?");
+            return await message.channel.send(
+                "Failed to extract the buffer for some reason?"
+            );
         }
 
-        return await message.channel.send({ files: [Buffer.from(buffer)] });
+        return await message.channel.send({
+            files: [Buffer.from(buffer)],
+        });
     }
 
     const answer = await response.text().catch(console.error);
-    if (!answer) return await message.channel.send("Failed to get the answer for some reason");
+    if (!answer)
+        return await message.channel.send(
+            "Failed to get the answer for some reason"
+        );
     return await message.channel.send(codeBlock(answer));
 }
 
@@ -179,10 +197,16 @@ export async function pingRandomMembers(message: NarrowedMessage) {
         return await message.channel.send("Couldn't find a user to ping");
     }
 
-    let outputString = randomMembers.map((member) => member.toString()).join(" ");
+    let outputString = randomMembers
+        .map((member) => member.toString())
+        .join(" ");
 
     if (outputString.length > 2000) {
-        outputString = outputString.substring(0, 2000).split(" ").slice(0, -1).join(" ");
+        outputString = outputString
+            .substring(0, 2000)
+            .split(" ")
+            .slice(0, -1)
+            .join(" ");
     }
 
     return await message.channel.send(outputString);
@@ -190,10 +214,15 @@ export async function pingRandomMembers(message: NarrowedMessage) {
 
 export async function reactToAi(message: NarrowedMessage, reactCmd: string) {
     const reactMsgs = await db.select().from(aiReactions).catch(console.error);
-    const cmdAliases = await db.select().from(aiCommandAliases).catch(console.error);
+    const cmdAliases = await db
+        .select()
+        .from(aiCommandAliases)
+        .catch(console.error);
 
     if (!reactMsgs || !cmdAliases) {
-        return await message.channel.send("Something went wrong fetching the reactions");
+        return await message.channel.send(
+            "Something went wrong fetching the reactions"
+        );
     }
 
     if (!reactMsgs.length || !cmdAliases.length) {
@@ -203,15 +232,22 @@ export async function reactToAi(message: NarrowedMessage, reactCmd: string) {
     for (const item of cmdAliases) {
         if (item.alias === reactCmd) {
             const msg = randomElementFromArray(
-                reactMsgs.filter((x) => x.command === item.command).map((x) => x.reaction)
-            ).replace("{0}", message.member?.displayName ?? message.author.username);
+                reactMsgs
+                    .filter((x) => x.command === item.command)
+                    .map((x) => x.reaction)
+            ).replace(
+                "{0}",
+                message.member?.displayName ?? message.author.username
+            );
             await Bun.sleep(1000);
             return await message.channel.send(msg);
         }
     }
 }
 
-export async function leet(input: NarrowedMessage | ChatInputCommandInteraction) {
+export async function leet(
+    input: NarrowedMessage | ChatInputCommandInteraction
+) {
     let inputWords: string[];
 
     if (isChatInputCommandInteraction(input)) {
@@ -227,7 +263,10 @@ export async function leet(input: NarrowedMessage | ChatInputCommandInteraction)
     const leetDoc = await db.select().from(leetTable).catch(console.error);
 
     if (!leetDoc) {
-        return await sendOrReply(input, "Something went wrong fetching the leet table");
+        return await sendOrReply(
+            input,
+            "Something went wrong fetching the leet table"
+        );
     }
 
     const document = new Map<string, string[]>();
@@ -242,7 +281,8 @@ export async function leet(input: NarrowedMessage | ChatInputCommandInteraction)
             return word
                 .split("")
                 .map((char) => {
-                    if (document.has(char)) return randomElementFromArray(document.get(char)!);
+                    if (document.has(char))
+                        return randomElementFromArray(document.get(char)!);
                     return char;
                 })
                 .join("");
@@ -265,16 +305,22 @@ export async function helpCmd(
         );
     }
 
-    prefix ??= isDev() ? DEV_PREFIX : prefixMap.get(input.guild?.id ?? "") ?? DEFAULT_PREFIX;
+    prefix ??= isDev()
+        ? DEV_PREFIX
+        : (prefixMap.get(input.guild?.id ?? "") ?? DEFAULT_PREFIX);
 
-    const helpMsg = helpMsgArray.map((msg) => `**${prefix}${msg.cmd}** - ${msg.desc}`).join("\n");
+    const helpMsg = helpMsgArray
+        .map((msg) => `**${prefix}${msg.cmd}** - ${msg.desc}`)
+        .join("\n");
 
     const helpEmbed = new EmbedBuilder()
         .setColor(EMBED_COLOUR)
         .setTitle(`**${BOT_NAME}'s commands**`)
         .setDescription(helpMsg);
 
-    return await sendOrReply(input, { embeds: [helpEmbed] });
+    return await sendOrReply(input, {
+        embeds: [helpEmbed],
+    });
 }
 
 export async function gitPull(message: NarrowedMessage) {
@@ -287,7 +333,11 @@ export async function py(message: NarrowedMessage) {
     return await cmdConsole(message, undefined, true);
 }
 
-export async function cmdConsole(message: NarrowedMessage, cmd?: string, python = false) {
+export async function cmdConsole(
+    message: NarrowedMessage,
+    cmd?: string,
+    python = false
+) {
     if (!isBotOwner(message.author)) return;
     // Creates a new string with the message content without the command
     // And runs it in a new shell process
@@ -315,7 +365,8 @@ export async function cmdConsole(message: NarrowedMessage, cmd?: string, python 
                     : codeBlock(stdout)
                 : "Command executed!";
 
-        if (msg.length > 2000) return await message.channel.send("Stdout too long!");
+        if (msg.length > 2000)
+            return await message.channel.send("Stdout too long!");
         return await message.channel.send(msg);
     } catch (error) {
         return await message.channel.send(codeBlock(error as string));
@@ -341,7 +392,9 @@ export async function jsEval(message: NarrowedMessage, mode?: "math") {
     const content = message.content.split(" ").filter(Boolean);
 
     if (content.length === 1) {
-        return await message.channel.send("You have to type **SOMETHING** at least");
+        return await message.channel.send(
+            "You have to type **SOMETHING** at least"
+        );
     }
 
     const command = message.content.split(" ").slice(1).join(" ");
@@ -352,25 +405,35 @@ export async function jsEval(message: NarrowedMessage, mode?: "math") {
         return await message.channel.send(codeBlock(error as string));
     }
 
-    if (typeof rslt === "object") rslt = codeBlock("js", JSON.stringify(rslt, null, 2));
-    if (rslt === "") return await message.channel.send("Cannot send an empty message!");
+    if (typeof rslt === "object")
+        rslt = codeBlock("js", JSON.stringify(rslt, null, 2));
+    if (rslt === "")
+        return await message.channel.send("Cannot send an empty message!");
 
     const resultString = String(rslt);
 
     if (resultString === "" || resultString.length > 2000) {
-        return await message.channel.send("Invalid message length for discord!");
+        return await message.channel.send(
+            "Invalid message length for discord!"
+        );
     }
     return await message.channel.send(resultString);
 }
 
-export async function asyncEval(command: string, client: Client): Promise<string> {
+export async function asyncEval(
+    command: string,
+    client: Client
+): Promise<string> {
     const tools = await import("../helpers/utils.js");
     const code = `(async () => { return (${command}) })()`;
     return await eval(code);
 }
 
 export async function avatar(
-    input: NarrowedMessage | ChatInputCommandInteraction | UserContextMenuCommandInteraction
+    input:
+        | NarrowedMessage
+        | ChatInputCommandInteraction
+        | UserContextMenuCommandInteraction
 ) {
     let user: User;
 
@@ -384,9 +447,13 @@ export async function avatar(
         invoker = input.user;
     } else {
         const content = input.content.split(" ").filter(Boolean);
-        const tmp = content.length === 1 ? input.author : await getUserObjectPingId(input);
+        const tmp =
+            content.length === 1
+                ? input.author
+                : await getUserObjectPingId(input);
 
-        if (!tmp) return await sendOrReply(input, "Couldn't find the specified User");
+        if (!tmp)
+            return await sendOrReply(input, "Couldn't find the specified User");
 
         invoker = input.author;
         user = tmp;
@@ -394,7 +461,10 @@ export async function avatar(
 
     assert(user, "No user provided");
 
-    const avatarURL = user.displayAvatarURL({ forceStatic: false, size: 4096 });
+    const avatarURL = user.displayAvatarURL({
+        forceStatic: false,
+        size: 4096,
+    });
 
     if (!avatarURL) return await sendOrReply(input, "No avatar found!");
 
@@ -413,10 +483,14 @@ export async function avatar(
         .setTitle(italic(title))
         .setImage(avatarURL);
 
-    return await sendOrReply(input, { embeds: [avatarEmbed] });
+    return await sendOrReply(input, {
+        embeds: [avatarEmbed],
+    });
 }
 
-export async function convert(input: ChatInputCommandInteraction | NarrowedMessage) {
+export async function convert(
+    input: ChatInputCommandInteraction | NarrowedMessage
+) {
     const currencies = new Map<string, string>();
 
     let amount: number;
@@ -430,7 +504,8 @@ export async function convert(input: ChatInputCommandInteraction | NarrowedMessa
         target_currency = input.options.getString("to", true).toUpperCase();
     } else {
         const content = input.content.split(" ").filter(Boolean);
-        if (content.length < 3) return await input.channel.send("Not enough arguments!");
+        if (content.length < 3)
+            return await input.channel.send("Not enough arguments!");
 
         if (Number.isNaN(+content[1]!)) {
             amount = 1;
@@ -453,7 +528,9 @@ export async function convert(input: ChatInputCommandInteraction | NarrowedMessa
         );
     }
 
-    const supportedResult = (await codesResp.json().catch(console.error)) as SupportedCodesResponse;
+    const supportedResult = (await codesResp
+        .json()
+        .catch(console.error)) as SupportedCodesResponse;
 
     if (!supportedResult) {
         return await sendOrReply(
@@ -503,7 +580,10 @@ export async function convert(input: ChatInputCommandInteraction | NarrowedMessa
     }
     // Checks for possible pointless conversions
     if (base_currency === target_currency) {
-        return await sendOrReply(input, "Your first currency is the same as your second currency!");
+        return await sendOrReply(
+            input,
+            "Your first currency is the same as your second currency!"
+        );
     }
     if (amount < 0) {
         return await sendOrReply(input, "You can't convert a negative amount!");
@@ -516,7 +596,9 @@ export async function convert(input: ChatInputCommandInteraction | NarrowedMessa
         `https://v6.exchangerate-api.com/v6/${EXCHANGE_API_KEY}/pair/${base_currency}/${target_currency}/${amount}`
     );
 
-    const result = (await response.json().catch(console.error)) as PairConversionResponse;
+    const result = (await response
+        .json()
+        .catch(console.error)) as PairConversionResponse;
 
     if (!result) {
         return await sendOrReply(
@@ -526,7 +608,10 @@ export async function convert(input: ChatInputCommandInteraction | NarrowedMessa
     }
 
     if (!PairConversionResponseSchema.safeParse(result).success) {
-        return await sendOrReply(input, "Something went wrong with the API, maybe try again later");
+        return await sendOrReply(
+            input,
+            "Something went wrong with the API, maybe try again later"
+        );
     }
 
     if (result.result === "error") {
@@ -549,11 +634,13 @@ export async function convert(input: ChatInputCommandInteraction | NarrowedMessa
                 break;
             default:
                 console.error(result);
-                msg = "Something went wrong with the API, maybe try again later";
+                msg =
+                    "Something went wrong with the API, maybe try again later";
         }
         return await sendOrReply(input, msg);
     }
-    if (!response.ok) return await sendOrReply(input, "Error! Please try again later");
+    if (!response.ok)
+        return await sendOrReply(input, "Error! Please try again later");
 
     const description = [
         `**${amount} ${currencies.get(base_currency)} ≈ `,
@@ -564,7 +651,9 @@ export async function convert(input: ChatInputCommandInteraction | NarrowedMessa
     let lastUpdated: string;
 
     try {
-        lastUpdated = new Date(Date.parse(result.time_last_update_utc)).toUTCString();
+        lastUpdated = new Date(
+            Date.parse(result.time_last_update_utc)
+        ).toUTCString();
     } catch (_) {
         lastUpdated = new Date().toUTCString();
     }
@@ -573,12 +662,18 @@ export async function convert(input: ChatInputCommandInteraction | NarrowedMessa
         .setColor(EMBED_COLOUR)
         .setTitle(`Converting ${base_currency} to ${target_currency}`)
         .setDescription(description)
-        .setFooter({ text: `Last updated: ${lastUpdated}` });
+        .setFooter({
+            text: `Last updated: ${lastUpdated}`,
+        });
 
-    return await sendOrReply(input, { embeds: [convertEmbed] });
+    return await sendOrReply(input, {
+        embeds: [convertEmbed],
+    });
 }
 
-export async function urban(input: ChatInputCommandInteraction | NarrowedMessage) {
+export async function urban(
+    input: ChatInputCommandInteraction | NarrowedMessage
+) {
     let query: string;
     let random: boolean;
 
@@ -615,10 +710,15 @@ export async function urban(input: ChatInputCommandInteraction | NarrowedMessage
     }
 
     if (!response.ok) {
-        return await sendOrReply(input, `Error ${response.status}! Please try again later`);
+        return await sendOrReply(
+            input,
+            `Error ${response.status}! Please try again later`
+        );
     }
 
-    const result = (await response.json().catch(console.error)) as UrbanResponse;
+    const result = (await response
+        .json()
+        .catch(console.error)) as UrbanResponse;
 
     if (!result) {
         return await sendOrReply(
@@ -628,12 +728,18 @@ export async function urban(input: ChatInputCommandInteraction | NarrowedMessage
     }
 
     if (!UrbanResponseSchema.safeParse(result).success) {
-        return await sendOrReply(input, "Something went wrong with the API, maybe try again later");
+        return await sendOrReply(
+            input,
+            "Something went wrong with the API, maybe try again later"
+        );
     }
 
-    if (result.list.length === 0) return await sendOrReply(input, "No results found!");
+    if (result.list.length === 0)
+        return await sendOrReply(input, "No results found!");
 
-    const user = isChatInputCommandInteraction(input) ? input.user : input.author;
+    const user = isChatInputCommandInteraction(input)
+        ? input.user
+        : input.author;
     const identifier = `${user.id}-${input.channelId}` as const;
 
     urbanEmbeds[identifier] ??= [];
@@ -663,8 +769,20 @@ export async function urban(input: ChatInputCommandInteraction | NarrowedMessage
     });
 }
 
-function buildUrbanEmbed(resultEntry: UrbanEntry, index: number, array: UrbanEntry[]) {
-    const { word, definition, example, author, permalink, thumbs_up, thumbs_down } = resultEntry;
+function buildUrbanEmbed(
+    resultEntry: UrbanEntry,
+    index: number,
+    array: UrbanEntry[]
+) {
+    const {
+        word,
+        definition,
+        example,
+        author,
+        permalink,
+        thumbs_up,
+        thumbs_down,
+    } = resultEntry;
 
     const footerPagination = `${index + 1}/${array.length}`;
 

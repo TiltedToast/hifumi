@@ -1,3 +1,7 @@
 {
-    "recommendations": ["yoavbls.pretty-ts-errors", "biomejs.biome", "oven.bun-vscode"]
+    "recommendations": [
+        "yoavbls.pretty-ts-errors",
+        "biomejs.biome",
+        "oven.bun-vscode"
+    ]
 }
