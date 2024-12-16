@@ -281,9 +281,9 @@ export async function leet(
             return word
                 .split("")
                 .map((char) => {
-                    if (document.has(char))
-                        return randomElementFromArray(document.get(char)!);
-                    return char;
+                    document.has(char)
+                        ? randomElementFromArray(document.get(char)!)
+                        : char;
                 })
                 .join("");
         })
@@ -339,8 +339,6 @@ export async function cmdConsole(
     python = false
 ) {
     if (!isBotOwner(message.author)) return;
-    // Creates a new string with the message content without the command
-    // And runs it in a new shell process
 
     const input = message.content.split(" ").slice(1).join(" ");
     const pythonCmd = process.platform === "win32" ? "python" : "python3";
@@ -349,6 +347,7 @@ export async function cmdConsole(
         : python
           ? `${pythonCmd} -c "from math import *; print(${input.replaceAll('"', '\\"')})"`
           : input;
+
     try {
         const { stdout, stderr } = await execPromise(command);
 

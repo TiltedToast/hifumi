@@ -109,7 +109,7 @@ type ChatInputCommandName = `${string}::${string}` | `.${string}`;
  * The first word is the command, the second word is the subcommand.
  * I don't know if this is the best way to do this, but it'll do for now
  */
-const chatInputCommands = new Map<ChatInputCommandName, ChatInputCommandFn>([
+const commands = new Map<ChatInputCommandName, ChatInputCommandFn>([
     [".pat", patUser],
     [".help", helpCmd],
     [".sub", sub],
@@ -122,18 +122,14 @@ const chatInputCommands = new Map<ChatInputCommandName, ChatInputCommandFn>([
     [".prefix", updatePrefix],
 ]);
 
-const devChatInputCommands = new Map<
-    ChatInputCommandName,
-    ChatInputCommandFn
->();
-for (const [cmd, fn] of chatInputCommands)
-    devChatInputCommands.set(`${cmd}-dev`, fn);
+const devCommands = new Map<ChatInputCommandName, ChatInputCommandFn>();
+for (const [cmd, fn] of commands) devCommands.set(`${cmd}-dev`, fn);
 
 async function handleCommandInteraction(
     interaction: ChatInputCommandInteraction,
     subcommand: string | null
 ) {
-    const commandsToCheck = isDev() ? devChatInputCommands : chatInputCommands;
+    const commandsToCheck = isDev() ? devCommands : commands;
     for (const [cmd, fn] of commandsToCheck) {
         if (
             cmd.includes(`${interaction.commandName}::${subcommand ?? ""}`) ||

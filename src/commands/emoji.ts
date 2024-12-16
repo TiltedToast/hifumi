@@ -107,9 +107,7 @@ async function convertEmojis(
         }
 
         const url = guildEmoji
-            ? guildEmoji.imageURL({
-                  size: 128,
-              })
+            ? guildEmoji.imageURL({ size: 128 })
             : parsed.url;
 
         const imgType = getImgType(url);
@@ -118,6 +116,7 @@ async function convertEmojis(
         const name = guildEmoji
             ? (guildEmoji.name ?? "NameNotFound")
             : parsed.name;
+
         const frameOnePath = path.join(
             temp.path,
             `${name}-${parsed.id}.${imgType}`

@@ -32,6 +32,7 @@ export async function beautiful(
             content.length === 1
                 ? input.author
                 : await getUserObjectPingId(input);
+
         if (!tmp)
             return await input.channel.send("Couldn't find the specified User");
         user = tmp;
@@ -40,10 +41,8 @@ export async function beautiful(
     await using temp = await createTemp();
 
     const avatarUrl =
-        user.avatarURL({
-            size: 4096,
-            forceStatic: true,
-        }) ?? user.defaultAvatarURL;
+        user.avatarURL({ size: 4096, forceStatic: true }) ??
+        user.defaultAvatarURL;
 
     const errorMsg = await downloadURL(avatarUrl, `${temp.path}/avatar.png`);
     if (errorMsg) return await sendOrReply(input, errorMsg);
@@ -79,6 +78,7 @@ export async function beautiful(
     const avatar = await sharp(`${temp.path}/avatar_resized.png`)
         .toBuffer()
         .catch(console.error);
+
     const background = await sharp("./src/assets/beautiful_background.png")
         .toBuffer()
         .catch(console.error);
@@ -164,8 +164,6 @@ export async function resizeImg(message: NarrowedMessage, prefix: string) {
     // Matches URL against a regex pattern and invalidates gif files (they are not supported yet)
     if (!isValidURL) return await message.channel.send("Invalid source url!");
 
-    // Downloads the image and resizes it
-    // Sends the resized image to the channel if it's within the size limit
     const imgType = getImgType(source);
     if (!imgType) return await message.channel.send("Invalid image type!");
 
@@ -249,9 +247,7 @@ export async function imgur(message: NarrowedMessage, prefix: string) {
     // If not, downloads the image and checks for valid size before uploading to Imgur
     const response = await fetch(source, {
         headers: source.includes("pximg")
-            ? {
-                  Referer: "https://www.pixiv.net/",
-              }
+            ? { Referer: "https://www.pixiv.net/" }
             : undefined,
     }).catch(console.error);
 
