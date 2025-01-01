@@ -5,7 +5,7 @@
     "dependencies": {
         "@libsql/client": "^0.14.0",
         "bufferutil": "^4.0.9",
-        "discord.js": "14.16.2",
+        "discord.js": "14.17.0",
         "drizzle-orm": "^0.38.3",
         "drizzle-zod": "^0.6.1",
         "fuse.js": "^7.0.0",
@@ -15,7 +15,6 @@
         "snoowrap": "^1.23.0",
         "strftime": "^0.10.3",
         "table": "^6.9.0",
-        "utf-8-validate": "^6.0.5",
         "zod": "^3.24.1",
         "zod-validation-error": "^3.4.0"
     },
@@ -51,5 +50,5 @@
     "lint-staged": {
         "*.{js,ts,json,css,md,yml}": "biome format --write"
     },
-    "trustedDependencies": ["@biomejs/biome", "sharp", "utf-8-validate"]
+    "trustedDependencies": ["@biomejs/biome", "sharp"]
 }

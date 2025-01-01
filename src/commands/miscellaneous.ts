@@ -7,6 +7,7 @@ import {
     EmbedBuilder,
     PermissionFlagsBits,
     ThreadAutoArchiveDuration,
+    type GuildMember,
     type User,
     type UserContextMenuCommandInteraction,
     codeBlock,
@@ -434,7 +435,7 @@ export async function avatar(
         | ChatInputCommandInteraction
         | UserContextMenuCommandInteraction
 ) {
-    let user: User;
+    let user: User | GuildMember;
 
     let invoker: User;
 
@@ -459,6 +460,11 @@ export async function avatar(
     }
 
     assert(user, "No user provided");
+
+    // Prefer guild nickname if available
+    if (input.guild) {
+        user = await input.guild.members.fetch(user.id);
+    }
 
     const avatarURL = user.displayAvatarURL({
         forceStatic: false,
