@@ -34,7 +34,7 @@ const client = new Client({
 });
 
 client.once("ready", async (c) => {
-    const time = strftime("%d/%m/%Y %H:%M:%S %Z");
+    const time = strftime("%d/%m/%Y %H:%M:%S");
     const doneLoadingTime = Date.now();
 
     assert(c.user, "Client user is undefined");
