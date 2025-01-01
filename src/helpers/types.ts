@@ -1,11 +1,13 @@
 import {
     ActivityType,
     type ButtonInteraction,
+    type ChatInputCommandInteraction,
     type Embed,
     type EmbedBuilder,
     type Message,
     type SendableChannels,
     type User,
+    type UserContextMenuCommandInteraction,
 } from "discord.js";
 import { z } from "zod";
 
@@ -180,3 +182,8 @@ export type ParsedEmoji = {
     animated: boolean;
     url: string;
 };
+
+export type AcceptedInputTypes =
+    | NarrowedMessage
+    | ChatInputCommandInteraction
+    | UserContextMenuCommandInteraction;

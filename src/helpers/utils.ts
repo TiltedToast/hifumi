@@ -17,7 +17,7 @@ import {
 import assert from "node:assert/strict";
 import { statSync } from "node:fs";
 import { mkdtemp, readdir, rm } from "node:fs/promises";
-import os, { tmpdir } from "node:os";
+import { tmpdir } from "node:os";
 import path, { join } from "node:path";
 import sharp from "sharp";
 import strftime from "strftime";
@@ -37,6 +37,7 @@ import * as prefixHandler from "../handlers/prefixes.ts";
 import * as statusHandler from "../handlers/statuses.ts";
 import dedent from "./dedent.ts";
 import type {
+    AcceptedInputTypes,
     EmbedData,
     ErrorLogOptions,
     NarrowedMessage,
@@ -100,30 +101,17 @@ export function formatTable<K extends PropertyKey, V>(
     });
 }
 
-export function isUserContextMenuCommandInteraction(
-    input:
-        | NarrowedMessage
-        | ChatInputCommandInteraction
-        | UserContextMenuCommandInteraction
-) {
+export function isUserContextMenuCommandInteraction(input: AcceptedInputTypes) {
     return input instanceof UserContextMenuCommandInteraction;
 }
 
 export function isChatInputCommandInteraction(
-    input:
-        | NarrowedMessage
-        | ChatInputCommandInteraction
-        | UserContextMenuCommandInteraction
+    input: AcceptedInputTypes
 ): input is ChatInputCommandInteraction {
     return input instanceof ChatInputCommandInteraction;
 }
 
-export function isMessage(
-    input:
-        | NarrowedMessage
-        | ChatInputCommandInteraction
-        | UserContextMenuCommandInteraction
-): input is NarrowedMessage {
+export function isMessage(input: AcceptedInputTypes): input is NarrowedMessage {
     return input instanceof Message;
 }
 
@@ -134,10 +122,7 @@ export function isMessage(
  * @param ephemeral Whether or not the message should be ephemeral (only visible to the user who invoked the command, this is true by default and only for command interactions)
  */
 export async function sendOrReply(
-    input:
-        | NarrowedMessage
-        | ChatInputCommandInteraction
-        | UserContextMenuCommandInteraction,
+    input: AcceptedInputTypes,
     message: string | BaseMessageOptions,
     ephemeral = true
 ) {

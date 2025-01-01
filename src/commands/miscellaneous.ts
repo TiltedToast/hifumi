@@ -623,13 +623,13 @@ export async function convert(
                 msg = "The request was malformed, please try again later!";
                 break;
             case "invalid-key":
-                msg = `Invalid API key. This should never happen, please contact ${OWNER_NAME}`;
+                msg = `Invalid API key. This should never happen, please contact \`${OWNER_NAME}\``;
                 break;
             case "quota-reached":
                 msg = "API quota reached. Please try again later!";
                 break;
             case "inactive-account":
-                msg = `API account is inactive. Please contact ${OWNER_NAME}`;
+                msg = `API account is inactive. Please contact \`${OWNER_NAME}\``;
                 break;
             default:
                 console.error(result);
