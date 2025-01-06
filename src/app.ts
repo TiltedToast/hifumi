@@ -14,7 +14,14 @@ import dedent from "./helpers/dedent.ts";
 
 import assert from "node:assert/strict";
 import { migrateDb } from "./db/index.ts";
-import { initialise, isDev, wipeTempFolders } from "./helpers/utils.ts";
+import {
+    ensureNotBehindRemote,
+    initialise,
+    isDev,
+    wipeTempFolders,
+} from "./helpers/utils.ts";
+
+await ensureNotBehindRemote();
 
 const startTime = Date.now();
 

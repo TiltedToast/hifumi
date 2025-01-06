@@ -48,6 +48,24 @@ import type {
     UpdateEmbedOptions,
 } from "./types.ts";
 
+export async function ensureNotBehindRemote() {
+    if (!isDev()) return;
+
+    const fetchRes = await $`git fetch origin`.quiet();
+
+    if (fetchRes.exitCode !== 0) {
+        console.error("Failed to fetch from remote");
+        process.exit(1);
+    }
+
+    const output = await $`git status `.text();
+
+    if (output.includes("Your branch is behind")) {
+        console.error("There are changes in the repo, pull them first!");
+        process.exit(1);
+    }
+}
+
 export async function initialise(client: Client) {
     await statusHandler.init().catch(console.error);
     statusHandler.startStatusLoop(client).catch(console.error);
