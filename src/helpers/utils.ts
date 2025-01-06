@@ -49,8 +49,6 @@ import type {
 } from "./types.ts";
 
 export async function ensureNotBehindRemote() {
-    if (!isDev()) return;
-
     const fetchRes = await $`git fetch origin`.quiet();
 
     if (fetchRes.exitCode !== 0) {
