@@ -5,9 +5,9 @@ import {
     type ChatInputCommandInteraction,
     type Client,
     EmbedBuilder,
+    type GuildMember,
     PermissionFlagsBits,
     ThreadAutoArchiveDuration,
-    type GuildMember,
     type User,
     type UserContextMenuCommandInteraction,
     codeBlock,
@@ -81,6 +81,11 @@ math.import(
     },
     { override: true }
 );
+
+export async function test(message: NarrowedMessage) {
+    if (!isBotOwner(message.author)) return;
+    await Bun.sleep(1);
+}
 
 export async function patUser(interaction: ChatInputCommandInteraction) {
     return await interaction.reply(

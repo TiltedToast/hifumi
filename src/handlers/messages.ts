@@ -118,6 +118,7 @@ function handleCommand({
         case "py":        return misc.py(message);
         case "urban":     return misc.urban(message);
         case "sub":       return reddit.sub(message);
+        case "test":      return misc.test(message);
 
         case "emoji":     return handleEmojiCommand({ command, subCmd, message, prefix });
 
