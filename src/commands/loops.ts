@@ -1,9 +1,10 @@
 import type { TextChannel } from "discord.js";
+import { eq } from "drizzle-orm";
 import { db } from "../db/index.ts";
 import { errorLogs } from "../db/schema.ts";
 import {
-    CatFactResponseSchema,
     type CatFactResponse,
+    CatFactResponseSchema,
 } from "../helpers/types.ts";
 import { isDev, randomIntFromRange } from "../helpers/utils.ts";
 
@@ -49,6 +50,7 @@ export async function avoidDbSleeping() {
             user: "N/A",
         });
 
+        await db.delete(errorLogs).where(eq(errorLogs.channel, "N/A"));
         await Bun.sleep(sixDaysinSeconds * 1000);
     }
 }
