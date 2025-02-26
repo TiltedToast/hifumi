@@ -44,8 +44,6 @@ export default async function handleMessage(originalMessage: Message) {
             prefixMap.set(message.guild.id, DEFAULT_PREFIX);
         }
 
-        // Gets the prefix from the map and compares to the message's beginning
-        // This way the prefix can be case insensitive
         const prefix = isDev()
             ? DEV_PREFIX
             : (prefixMap.get(message.guild?.id ?? "") ?? DEFAULT_PREFIX);
