@@ -384,7 +384,9 @@ export async function getUserObjectPingId(
 
     try {
         if (!Number.isNaN(Number.parseInt(pingOrIdString)))
-            user = await message.client.users.fetch(pingOrIdString);
+            user = await message.client.users
+                .fetch(pingOrIdString)
+                .catch(() => undefined);
         if (!user && pingOrIdString.startsWith("<"))
             user = message.mentions.users.first();
         return user ? user : undefined;
