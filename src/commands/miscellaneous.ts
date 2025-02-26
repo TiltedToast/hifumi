@@ -468,13 +468,16 @@ export async function avatar(
 
     // Prefer guild nickname if available
     if (input.guild) {
-        user = await input.guild.members.fetch(user.id);
+        const member = await input.guild.members
+            .fetch(user.id)
+            .catch(() => null);
+
+        if (member) {
+            user = member;
+        }
     }
 
-    const avatarURL = user.displayAvatarURL({
-        forceStatic: false,
-        size: 4096,
-    });
+    const avatarURL = user.displayAvatarURL({ forceStatic: false, size: 4096 });
 
     if (!avatarURL) return await sendOrReply(input, "No avatar found!");
 
