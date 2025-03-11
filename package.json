@@ -9,7 +9,7 @@
         "drizzle-orm": "^0.40.0",
         "drizzle-zod": "^0.7.0",
         "fuse.js": "^7.1.0",
-        "mathjs": "^14.2.1",
+        "mathjs": "^14.3.1",
         "qrcode": "^1.5.4",
         "sharp": "^0.33.5",
         "snoowrap": "^1.23.0",
@@ -23,12 +23,12 @@
         "@total-typescript/ts-reset": "^0.6.1",
         "@types/qrcode": "^1.5.5",
         "@types/strftime": "^0.9.8",
-        "bun-types": "^1.2.4",
+        "bun-types": "^1.2.5",
         "concurrently": "^9.1.2",
         "drizzle-kit": "^0.30.5",
         "husky": "^9.1.7",
         "lint-staged": "^15.4.3",
-        "typescript": "^5.7.3"
+        "typescript": "^5.8.2"
     },
     "scripts": {
         "start": "pm2 start ./pm2.config.cjs",

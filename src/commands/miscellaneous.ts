@@ -122,7 +122,6 @@ export async function wolframAlpha(
     url.searchParams.append("maxwidth", "1500");
     url.searchParams.append("output", "json");
 
-    // @ts-expect-error It's too dumb to realise that the URL is valid
     const response = await fetch(url).catch(console.error);
 
     if (!response)
