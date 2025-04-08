@@ -57,7 +57,7 @@ export async function ensureNotBehindRemote() {
         process.exit(1);
     }
 
-    const output = await $`git status `.text();
+    const output = await $`git status`.text();
 
     if (output.includes("Your branch is behind")) {
         console.error("There are changes in the repo, pull them first!");
