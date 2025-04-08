@@ -29,15 +29,6 @@ const msgLinkRegex = new RegExp(
     /https:\/\/discord\.com\/channels\/\d+\/(\d+)\/(\d+)/
 );
 
-const {
-    FailedToResizeAssetBelowTheMinimumSize,
-    MaximumNumberOfEmojisReached,
-    MaximumNumberOfAnimatedEmojisReached,
-    InvalidFormBodyOrContentType,
-    MaximumNumberOfPremiumEmojisReached,
-    UnknownEmoji,
-} = RESTJSONErrorCodes;
-
 export async function pngToGifEmoji(message: NarrowedMessage) {
     if (!message.guild) {
         return await message.channel.send(
@@ -465,12 +456,29 @@ export async function addEmoji(message: NarrowedMessage, prefix: string) {
     return await message.channel.send(emoji.toString());
 }
 
+const {
+    FailedToResizeAssetBelowTheMinimumSize,
+    MaximumNumberOfEmojisReached,
+    MaximumNumberOfAnimatedEmojisReached,
+    InvalidFormBodyOrContentType,
+    MaximumNumberOfPremiumEmojisReached,
+    UnknownEmoji,
+    MaximumNumberOfStickersReached,
+    StickerMaximumFramerateExceeded,
+    UnknownSticker,
+    UnknownStickerPack,
+    StickerAnimationDurationExceedsMaximumOf5Seconds,
+    StickerFramerateIsTooSmallOrTooLarge,
+    StickerFrameCountExceedsMaximumOf1000Frames,
+} = RESTJSONErrorCodes;
+
 async function handleCreateError(
     error: unknown,
     message: NarrowedMessage,
     name: string
 ) {
-    let errorMessage: string;
+    let errorMessage = `Could not add \`${name}\`, unknown error! `;
+
     if (error instanceof DiscordAPIError) {
         switch (+error.code) {
             case FailedToResizeAssetBelowTheMinimumSize:
@@ -478,6 +486,7 @@ async function handleCreateError(
                 break;
             case MaximumNumberOfEmojisReached:
             case MaximumNumberOfAnimatedEmojisReached:
+            case MaximumNumberOfStickersReached:
                 errorMessage = `Could not add \`${name}\`, you've hit the limit!`;
                 break;
             case InvalidFormBodyOrContentType:
@@ -485,6 +494,24 @@ async function handleCreateError(
                 break;
             case MaximumNumberOfPremiumEmojisReached:
                 errorMessage = `Could not add \`${name}\`, you've hit the limit for premium emojis!`;
+                break;
+            case StickerMaximumFramerateExceeded:
+                errorMessage = `Could not add \`${name}\`, the framerate is too high!`;
+                break;
+            case UnknownSticker:
+                errorMessage = `Could not add \`${name}\`, the sticker is invalid!`;
+                break;
+            case UnknownStickerPack:
+                errorMessage = `Could not add \`${name}\`, the sticker pack is invalid!`;
+                break;
+            case StickerAnimationDurationExceedsMaximumOf5Seconds:
+                errorMessage = `Could not add \`${name}\`, the animation duration is too high! (max 5 seconds)`;
+                break;
+            case StickerFramerateIsTooSmallOrTooLarge:
+                errorMessage = `Could not add \`${name}\`, the framerate is too low or too high!`;
+                break;
+            case StickerFrameCountExceedsMaximumOf1000Frames:
+                errorMessage = `Could not add \`${name}\`, the frame count is too high! (max 1000 frames)`;
                 break;
             default:
                 console.error(error);
@@ -517,27 +544,26 @@ async function addStickers(message: NarrowedMessage) {
             );
             continue;
         }
-        const newSticker = await message.guild.stickers
-            .create({
+
+        let newSticker: Sticker | undefined;
+
+        try {
+            newSticker = await message.guild.stickers.create({
                 name,
                 file,
                 tags: tags || name,
                 description,
-            })
-            .catch(console.error);
-
-        if (!newSticker) {
-            return await message.channel.send(
-                `Could not add \`${name}\`, something went wrong`
-            );
+            });
+        } catch (error) {
+            await handleCreateError(error, message, name);
+            continue;
         }
+
         addedStickers.push(newSticker);
     }
     if (!addedStickers.length) return;
 
-    await message.channel.send({
-        stickers: addedStickers,
-    });
+    await message.channel.send({ stickers: addedStickers });
 }
 
 /**

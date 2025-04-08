@@ -6,6 +6,7 @@ import {
     type Client,
     type GuildMember,
     Message,
+    MessageFlags,
     MessageType,
     type PermissionResolvable,
     PermissionsBitField,
@@ -149,15 +150,17 @@ export async function sendOrReply(
         return await input.editReply(message);
     }
     if (input.isRepliable()) {
+        const flags = ephemeral ? MessageFlags.Ephemeral : undefined;
+
         if (typeof message === "string") {
             return await input.reply({
                 content: message,
-                ephemeral,
+                flags,
             });
         }
         return await input.reply({
             ...message,
-            ephemeral,
+            flags,
         });
     }
 }
