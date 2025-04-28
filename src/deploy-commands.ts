@@ -22,18 +22,6 @@ if (idx !== -1 && idx < process.argv.length - 1) {
 
 let commands = [
     new SlashCommandBuilder()
-        .setName("pat")
-        .setDescription("Pats a user")
-        .addUserOption((option) =>
-            option
-                .setName("user")
-                .setDescription("The user to pat")
-                .setRequired(true)
-        )
-        .setIntegrationTypes(ApplicationIntegrationType.GuildInstall)
-        .setContexts(InteractionContextType.Guild),
-
-    new SlashCommandBuilder()
         .setName("help")
         .setDescription("Shows a list of commands")
         .setIntegrationTypes(
