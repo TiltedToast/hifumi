@@ -1,55 +1,41 @@
 {
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.11";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05";
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    flake-utils.url = "github:numtide/flake-utils";
   };
 
   outputs =
     {
       nixpkgs,
       nixpkgs-unstable,
+      flake-utils,
       ...
     }:
-    let
-      supportedSystems = [
-        "x86_64-linux"
-        "aarch64-linux"
-        "x86_64-darwin"
-        "aarch64-darwin"
-      ];
-      forEachSupportedSystem =
-        f:
-        nixpkgs.lib.genAttrs supportedSystems (
-          system:
-          f rec {
-            pkgs = import nixpkgs { inherit system; };
-            pkgs-unstable = import nixpkgs-unstable { inherit system; };
-            libPath = pkgs.lib.makeLibraryPath [
-              pkgs-unstable.stdenv.cc.cc.lib
-            ];
-          }
-        );
+    flake-utils.lib.eachDefaultSystem (
+      system:
+      let
+        pkgs = import nixpkgs { inherit system; };
+        pkgs-unstable = import nixpkgs-unstable {
+          inherit system;
+          config.allowUnfree = true;
+        };
+        libPath = pkgs.lib.makeLibraryPath [
+          pkgs-unstable.stdenv.cc.cc.lib
+        ];
+      in
+      {
+        devShells.default = pkgs.mkShell {
+          buildInputs = with pkgs-unstable; [
+            bun
+            stdenv.cc.cc.lib
+            pm2
+          ];
 
-    in
-    {
-      devShells = forEachSupportedSystem (
-        {
-          pkgs,
-          pkgs-unstable,
-          libPath,
-        }:
-        {
-          default = pkgs.mkShell {
-            buildInputs = [
-              pkgs-unstable.bun
-              pkgs-unstable.stdenv.cc.cc.lib
-            ];
-
-            shellHook = ''
-              export LD_LIBRARY_PATH="${libPath}"
-            '';
-          };
-        }
-      );
-    };
+          shellHook = ''
+            export LD_LIBRARY_PATH="${libPath}"
+          '';
+        };
+      }
+    );
 }
