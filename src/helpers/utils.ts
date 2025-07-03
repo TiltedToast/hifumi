@@ -1,3 +1,8 @@
+import assert from "node:assert/strict";
+import { statSync } from "node:fs";
+import { mkdtemp, readdir, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import path, { join } from "node:path";
 import { $ } from "bun";
 import {
     type BaseMessageOptions,
@@ -15,11 +20,6 @@ import {
     UserContextMenuCommandInteraction,
     userMention,
 } from "discord.js";
-import assert from "node:assert/strict";
-import { statSync } from "node:fs";
-import { mkdtemp, readdir, rm } from "node:fs/promises";
-import { tmpdir } from "node:os";
-import path, { join } from "node:path";
 import sharp from "sharp";
 import strftime from "strftime";
 import { table } from "table";

@@ -1,5 +1,5 @@
-import type { ChatInputCommandInteraction, User } from "discord.js";
 import { readFile } from "node:fs/promises";
+import type { ChatInputCommandInteraction, User } from "discord.js";
 import qr from "qrcode";
 import sharp from "sharp";
 import {

@@ -1,3 +1,6 @@
+import assert from "node:assert/strict";
+import { exec } from "node:child_process";
+import { promisify } from "node:util";
 import {
     ActionRowBuilder,
     ButtonBuilder,
@@ -14,9 +17,6 @@ import {
     type UserContextMenuCommandInteraction,
 } from "discord.js";
 import { all, create, type FactoryFunctionMap } from "mathjs";
-import assert from "node:assert/strict";
-import { exec } from "node:child_process";
-import { promisify } from "node:util";
 import {
     BOT_NAME,
     DEFAULT_PREFIX,

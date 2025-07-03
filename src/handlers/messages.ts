@@ -1,12 +1,11 @@
+import type { Message } from "discord.js";
 import * as db from "../commands/database.ts";
 import * as emoji from "../commands/emoji.ts";
 import * as imgProcess from "../commands/imgProcess.ts";
 import * as misc from "../commands/miscellaneous.ts";
 import * as reddit from "../commands/reddit.ts";
-import { insertPrefix } from "../db/index.ts";
-
-import type { Message } from "discord.js";
 import { DEFAULT_PREFIX, DEV_PREFIX, RELOAD_PREFIX } from "../config.ts";
+import { insertPrefix } from "../db/index.ts";
 import type { MessageCommandData, NarrowedMessage } from "../helpers/types.ts";
 import {
     clientHasPermissions,

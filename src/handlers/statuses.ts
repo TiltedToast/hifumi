@@ -1,11 +1,11 @@
-import type { Status } from "../db/types.ts";
+import type { Client } from "discord.js";
 import { db } from "../db/index.ts";
 import { statuses } from "../db/schema.ts";
-import type { Client } from "discord.js";
+import type { Status } from "../db/types.ts";
 import { StatusType } from "../helpers/types.ts";
 import {
-    randomIntFromRange,
     randomElementFromArray,
+    randomIntFromRange,
 } from "../helpers/utils.ts";
 
 export let statusArr: Status[] = [];

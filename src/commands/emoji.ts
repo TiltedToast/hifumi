@@ -1,3 +1,5 @@
+import { copyFile, readFile } from "node:fs/promises";
+import path from "node:path";
 import { $ } from "bun";
 import {
     DiscordAPIError,
@@ -9,8 +11,6 @@ import {
     StickerFormatType,
 } from "discord.js";
 import Fuse from "fuse.js";
-import { copyFile, readFile } from "node:fs/promises";
-import path from "node:path";
 import { FileSizeLimit, type NarrowedMessage } from "../helpers/types.ts";
 import {
     convertStaticImg,

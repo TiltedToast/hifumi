@@ -21,7 +21,11 @@
             "!**/pnpm-lock.yaml"
         ]
     },
-    "assist": { "actions": { "source": { "organizeImports": "on" } } },
+    "assist": {
+        "actions": {
+            "source": { "organizeImports": "on", "recommended": true }
+        }
+    },
     "linter": {
         "enabled": true,
         "rules": {
