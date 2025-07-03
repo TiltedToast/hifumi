@@ -386,7 +386,7 @@ export async function getUserObjectPingId(
     const pingOrIdString = content[idx]!;
 
     try {
-        if (!Number.isNaN(Number.parseInt(pingOrIdString)))
+        if (!Number.isNaN(Number.parseInt(pingOrIdString, 10)))
             user = await message.client.users
                 .fetch(pingOrIdString)
                 .catch(() => undefined);

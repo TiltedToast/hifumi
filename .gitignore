@@ -13,3 +13,4 @@ data
 update.txt
 *.db
 .direnv
+.envrc

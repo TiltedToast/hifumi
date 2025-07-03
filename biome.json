@@ -13,16 +13,15 @@
         "lineEnding": "lf",
         "lineWidth": 80,
         "attributePosition": "auto",
-        "ignore": [
-            "**/node_modules",
-            "**/dist",
-            "**/.devcontainer",
-            "**/pnpm-lock.yaml"
+        "includes": [
+            "**",
+            "!**/node_modules",
+            "!**/dist",
+            "!**/.devcontainer",
+            "!**/pnpm-lock.yaml"
         ]
     },
-    "organizeImports": {
-        "enabled": true
-    },
+    "assist": { "actions": { "source": { "organizeImports": "on" } } },
     "linter": {
         "enabled": true,
         "rules": {
@@ -36,14 +35,13 @@
                 "recommended": true,
                 "noBannedTypes": "error",
                 "noExtraBooleanCast": "error",
-                "noMultipleSpacesInRegularExpressionLiterals": "error",
                 "noStaticOnlyClass": "error",
                 "noUselessCatch": "error",
                 "noUselessConstructor": "error",
                 "noUselessThisAlias": "error",
                 "noUselessTypeConstraint": "error",
-                "noWith": "error",
-                "useLiteralKeys": "off"
+                "useLiteralKeys": "off",
+                "noAdjacentSpacesInRegex": "error"
             },
             "correctness": {
                 "recommended": true,
@@ -54,7 +52,6 @@
                 "noGlobalObjectCalls": "error",
                 "noInnerDeclarations": "error",
                 "noInvalidConstructorSuper": "error",
-                "noNewSymbol": "error",
                 "noNonoctalDecimalEscape": "error",
                 "noPrecisionLoss": "error",
                 "noSelfAssign": "error",
@@ -67,10 +64,11 @@
                 "noUnsafeOptionalChaining": "error",
                 "noUnusedLabels": "error",
                 "noUnusedVariables": "off",
-                "useArrayLiterals": "off",
                 "useIsNan": "error",
                 "useValidForDirection": "error",
-                "useYield": "error"
+                "useYield": "error",
+                "noInvalidBuiltinInstantiation": "error",
+                "useValidTypeof": "error"
             },
             "style": {
                 "recommended": true,
@@ -78,7 +76,16 @@
                 "noNonNullAssertion": "off",
                 "useAsConstAssertion": "error",
                 "useLiteralEnumMembers": "error",
-                "noParameterAssign": "off"
+                "noParameterAssign": "off",
+                "useDefaultParameterLast": "error",
+                "useEnumInitializers": "error",
+                "useSelfClosingElements": "error",
+                "useSingleVarDeclarator": "error",
+                "noUnusedTemplateLiteral": "error",
+                "useNumberNamespace": "error",
+                "noInferrableTypes": "error",
+                "noUselessElse": "error",
+                "useArrayLiterals": "off"
             },
             "suspicious": {
                 "recommended": true,
@@ -110,14 +117,19 @@
                 "noUnsafeNegation": "error",
                 "useAwait": "error",
                 "useGetterReturn": "error",
-                "useValidTypeof": "error"
+                "noWith": "error"
             },
             "security": {
                 "recommended": true,
                 "noGlobalEval": "off"
             }
         },
-        "ignore": ["**/dist", "**/node_modules/", "**/pm2.config.cjs"]
+        "includes": [
+            "**",
+            "!**/dist",
+            "!**/node_modules/",
+            "!**/pm2.config.cjs"
+        ]
     },
     "javascript": {
         "formatter": {

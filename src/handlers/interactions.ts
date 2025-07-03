@@ -1,11 +1,10 @@
 import {
     type ButtonInteraction,
     type ChatInputCommandInteraction,
+    codeBlock,
     type Interaction,
-    type MessageContextMenuCommandInteraction,
     PartialGroupDMChannel,
     type UserContextMenuCommandInteraction,
-    codeBlock,
     userMention,
 } from "discord.js";
 import { updatePrefix } from "../commands/database.ts";

@@ -4,16 +4,16 @@ import {
     ButtonStyle,
     type ChatInputCommandInteraction,
     type Client,
+    codeBlock,
     EmbedBuilder,
     type GuildMember,
+    italic,
     PermissionFlagsBits,
     ThreadAutoArchiveDuration,
     type User,
     type UserContextMenuCommandInteraction,
-    codeBlock,
-    italic,
 } from "discord.js";
-import { type FactoryFunctionMap, all, create } from "mathjs";
+import { all, create, type FactoryFunctionMap } from "mathjs";
 import assert from "node:assert/strict";
 import { exec } from "node:child_process";
 import { promisify } from "node:util";
@@ -286,7 +286,7 @@ export async function leet(
             return word
                 .split("")
                 .map((char) => {
-                    document.has(char)
+                    return document.has(char)
                         ? randomElementFromArray(document.get(char)!)
                         : char;
                 })
@@ -426,7 +426,7 @@ export async function jsEval(message: NarrowedMessage, mode?: "math") {
 
 export async function asyncEval(
     command: string,
-    client: Client
+    _client: Client
 ): Promise<string> {
     const tools = await import("../helpers/utils.js");
     const code = `(async () => { return (${command}) })()`;

@@ -322,7 +322,7 @@ export async function imgur(message: NarrowedMessage, prefix: string) {
     }
     if (
         contentLength !== null &&
-        Number.parseInt(contentLength) <= FileSizeLimit.ImgurFile
+        Number.parseInt(contentLength, 10) <= FileSizeLimit.ImgurFile
     ) {
         formdata.append("image", source);
 

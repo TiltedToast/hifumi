@@ -12,7 +12,7 @@ import {
 if (!process.env["BOT_ID"])
     throw new Error("You must provide a BOT_ID env variable");
 
-let guildId: string | undefined = undefined;
+let guildId: string | undefined;
 const clear = process.argv.includes("--clear");
 
 const idx = process.argv.indexOf("--guild");

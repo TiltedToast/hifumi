@@ -1,12 +1,11 @@
 import { LibsqlError } from "@libsql/client";
 import {
     type ChatInputCommandInteraction,
-    type Message,
-    PartialGroupDMChannel,
-    PermissionFlagsBits,
     codeBlock,
+    type Message,
+    PermissionFlagsBits,
 } from "discord.js";
-import { fromZodError } from "zod-validation-error";
+import { fromZodError } from "zod-validation-error/v4";
 import { db, dbClient, updatePrefix as updatePrefixDB } from "../db/index.ts";
 import { statuses } from "../db/schema.ts";
 import { InsertStatusSchema, type NewStatus } from "../db/types.ts";
@@ -93,7 +92,6 @@ export async function insertStatus(
             issueSeparator: "\n- ",
             prefix: "Invalid status",
             prefixSeparator: "\n- ",
-            unionSeparator: "\n",
         });
 
         return await message.channel.send(error.message);

@@ -3,31 +3,31 @@
     "version": "1.0.0",
     "type": "module",
     "dependencies": {
-        "@libsql/client": "^0.15.2",
+        "@libsql/client": "^0.15.9",
         "bufferutil": "^4.0.9",
-        "discord.js": "^14.18.0",
-        "drizzle-orm": "^0.41.0",
-        "drizzle-zod": "^0.7.1",
+        "discord.js": "^14.21.0",
+        "drizzle-orm": "^0.44.2",
+        "drizzle-zod": "^0.8.2",
         "fuse.js": "^7.1.0",
-        "mathjs": "^14.4.0",
+        "mathjs": "^14.5.3",
         "qrcode": "^1.5.4",
-        "sharp": "^0.34.1",
+        "sharp": "^0.34.2",
         "snoowrap": "^1.23.0",
         "strftime": "^0.10.3",
         "table": "^6.9.0",
-        "zod": "^3.24.2",
-        "zod-validation-error": "^3.4.0"
+        "zod": "^3.25.69",
+        "zod-validation-error": "3.5.2"
     },
     "devDependencies": {
-        "@biomejs/biome": "1.9.4",
+        "@biomejs/biome": "2.0.6",
         "@total-typescript/ts-reset": "^0.6.1",
         "@types/qrcode": "^1.5.5",
         "@types/strftime": "^0.9.8",
-        "bun-types": "^1.2.8",
-        "concurrently": "^9.1.2",
-        "drizzle-kit": "^0.30.6",
+        "bun-types": "^1.2.17",
+        "concurrently": "^9.2.0",
+        "drizzle-kit": "^0.31.4",
         "husky": "^9.1.7",
-        "lint-staged": "^15.5.0",
+        "lint-staged": "^16.1.2",
         "typescript": "^5.8.3"
     },
     "scripts": {
@@ -50,5 +50,8 @@
     "lint-staged": {
         "*.{js,ts,json,css,md,yml}": "biome format --write"
     },
-    "trustedDependencies": ["@biomejs/biome", "sharp"]
+    "trustedDependencies": [
+        "@biomejs/biome",
+        "sharp"
+    ]
 }
