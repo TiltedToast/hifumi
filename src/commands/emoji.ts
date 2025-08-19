@@ -389,7 +389,7 @@ export async function addEmoji(message: NarrowedMessage, prefix: string) {
     const errorMsg = await downloadURL(url, fileLocation);
     if (errorMsg) return await message.channel.send(errorMsg);
 
-    if (!["png", "jpeg", "gif"].includes(imgType)) {
+    if (!["png", "jpeg", "gif", "webp", "avif"].includes(imgType)) {
         const convertedFile = await convertStaticImg(fileLocation, "png");
 
         if (!convertedFile) {
@@ -584,21 +584,50 @@ async function bulkAddEmojis(
     await using temp = await createTemp();
 
     for (const emojiStr of new Set(emojis)) {
-        const url = parseEmoji(emojiStr).url;
-        const imgType = getImgType(url);
-        if (!imgType || !["png", "gif", "jpeg"].includes(imgType)) continue;
+        let url = parseEmoji(emojiStr).url;
+        let imgType = getImgType(url);
+        if (
+            !imgType ||
+            !["png", "gif", "jpeg", "webp", "avif"].includes(imgType)
+        )
+            continue;
 
         const name = emojiStr.split(":")[1]!;
-        const filePath = path.join(temp.path, `${name}.${imgType}`);
+        let filePath = path.join(temp.path, `${name}.${imgType}`);
 
         const err = await downloadURL(url, filePath);
 
-        if (err) {
+        if (err && imgType === "gif") {
+            url = url.replace(".gif", ".webp?animated=true");
+            imgType = "webp";
+            filePath = filePath.replace(".gif", ".webp");
+
+            const webpErr = await downloadURL(url, filePath);
+
+            if (webpErr) {
+                console.error(webpErr);
+                url = url.replace(".webp", ".avif");
+                imgType = "avif";
+                filePath = filePath.replace(".webp", ".avif");
+
+                const avifError = await downloadURL(url, filePath);
+
+                if (avifError) {
+                    console.error(avifError);
+                    await message.channel.send(
+                        `Could not download ${name}, skipping...`
+                    );
+                    continue;
+                }
+            }
+        } else if (err) {
             await message.channel.send(
                 `Could not download ${name}, skipping...`
             );
             continue;
         }
+
+        const animated = imgType === "gif" || (err && imgType === "webp");
 
         if (message.guild?.emojis.cache.find((emoji) => emoji.name === name)) {
             await message.channel.send(`Emoji \`${name}\` already exists!`);
@@ -616,7 +645,7 @@ async function bulkAddEmojis(
 
         try {
             emoji = await message.guild?.emojis.create({
-                attachment: `data:image/${imgType};base64,${base64}`,
+                attachment: `data:image/${animated ? "gif" : "png"};base64,${base64}`,
                 name,
             });
         } catch (error) {
