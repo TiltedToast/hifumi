@@ -3,32 +3,32 @@
     "version": "1.0.0",
     "type": "module",
     "dependencies": {
-        "@libsql/client": "^0.15.9",
+        "@libsql/client": "^0.15.12",
         "bufferutil": "^4.0.9",
         "discord.js": "^14.21.0",
-        "drizzle-orm": "^0.44.2",
-        "drizzle-zod": "^0.8.2",
+        "drizzle-orm": "^0.44.4",
+        "drizzle-zod": "^0.8.3",
         "fuse.js": "^7.1.0",
-        "mathjs": "^14.5.3",
+        "mathjs": "^14.6.0",
         "qrcode": "^1.5.4",
-        "sharp": "^0.34.2",
+        "sharp": "^0.34.3",
         "snoowrap": "^1.23.0",
         "strftime": "^0.10.3",
         "table": "^6.9.0",
-        "zod": "^3.25.69",
-        "zod-validation-error": "3.5.2"
+        "zod": "^4.0.17",
+        "zod-validation-error": "4.0.1"
     },
     "devDependencies": {
-        "@biomejs/biome": "2.0.6",
+        "@biomejs/biome": "2.2.0",
         "@total-typescript/ts-reset": "^0.6.1",
         "@types/qrcode": "^1.5.5",
         "@types/strftime": "^0.9.8",
-        "bun-types": "^1.2.17",
+        "bun-types": "^1.2.20",
         "concurrently": "^9.2.0",
         "drizzle-kit": "^0.31.4",
         "husky": "^9.1.7",
-        "lint-staged": "^16.1.2",
-        "typescript": "^5.8.3"
+        "lint-staged": "^16.1.5",
+        "typescript": "^5.9.2"
     },
     "scripts": {
         "start": "pm2 start ./pm2.config.cjs",
