@@ -597,20 +597,23 @@ async function bulkAddEmojis(
 
         const err = await downloadURL(url, filePath);
 
+        let webpError: string | undefined;
+        let avifError: string | undefined;
+
         if (err && imgType === "gif") {
             url = url.replace(".gif", ".webp?animated=true");
             imgType = "webp";
             filePath = filePath.replace(".gif", ".webp");
 
-            const webpErr = await downloadURL(url, filePath);
+            webpError = await downloadURL(url, filePath);
 
-            if (webpErr) {
-                console.error(webpErr);
+            if (webpError) {
+                console.error(webpError);
                 url = url.replace(".webp", ".avif");
                 imgType = "avif";
                 filePath = filePath.replace(".webp", ".avif");
 
-                const avifError = await downloadURL(url, filePath);
+                avifError = await downloadURL(url, filePath);
 
                 if (avifError) {
                     console.error(avifError);
@@ -627,7 +630,10 @@ async function bulkAddEmojis(
             continue;
         }
 
-        const animated = imgType === "gif" || (err && imgType === "webp");
+        const animated =
+            imgType === "gif" ||
+            (!!err && imgType === "webp") ||
+            (!!err && !!webpError && imgType === "avif");
 
         if (message.guild?.emojis.cache.find((emoji) => emoji.name === name)) {
             await message.channel.send(`Emoji \`${name}\` already exists!`);
