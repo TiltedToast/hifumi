@@ -409,6 +409,24 @@ export function randomElementFromArray<T>(array: T[]): T {
     return array[Math.floor(Math.random() * array.length)]!;
 }
 
+export function fixedStatusType(status: string): string {
+    switch (status) {
+        case "PLAYING":
+            return "Playing";
+        case "STREAMING":
+            return "Streaming";
+        case "LISTENING":
+            return "Listening to";
+        case "WATCHING":
+            return "Watching";
+        case "COMPETING":
+            return "Competing in";
+        case "CUSTOM":
+            return "Custom";
+    }
+    return "Custom";
+}
+
 /**
  * Returns a random integer between min (inclusive) and max (inclusive)
  * @param min Minimum Integer value to return
